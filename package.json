@@ -1,5 +1,5 @@
 {
-  "name": "csk-async",
+  "name": "spellcaster",
   "version": "0.0.2",
   "description": "A better 'make' for Node.js.",
   "main": "lib/spellcaster.js",
