@@ -1,4 +1,9 @@
-spellcaster
-===========
 
-Better make for node
+
+# Spellcaster
+
+Better 'make' for node.js.
+
+It is still a work in progress (specs, etc...)
+
+
