@@ -1,6 +1,6 @@
 {
   "name": "spellcaster",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A better 'make' for Node.js.",
   "main": "lib/spellcaster.js",
   "directories": {
