@@ -1,13 +1,12 @@
 {
   "name": "csk-async",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A better 'make' for Node.js.",
   "main": "lib/spellcaster.js",
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "expect.js": "~0.3.1",
     "jshint": "~2.4.4",
