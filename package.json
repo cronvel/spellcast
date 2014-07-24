@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A better 'make' for Node.js.",
   "main": "lib/spellcast.js",
   "directories": {
