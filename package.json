@@ -1,8 +1,8 @@
 {
-  "name": "spellcaster",
+  "name": "spellcast",
   "version": "0.0.3",
   "description": "A better 'make' for Node.js.",
-  "main": "lib/spellcaster.js",
+  "main": "lib/spellcast.js",
   "directories": {
     "test": "test"
   },
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cronvel/spellcaster.git"
+    "url": "https://github.com/cronvel/spellcast.git"
   },
   "keywords": [
     "notreadytoconquertheworldyet"
@@ -25,6 +25,6 @@
   "author": "Cédric Ronvel",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cronvel/spellcaster/issues"
+    "url": "https://github.com/cronvel/spellcast/issues"
   }
 }
