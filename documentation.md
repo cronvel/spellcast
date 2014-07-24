@@ -1,6 +1,6 @@
 
 
-# Spellcaster
+# Spellcast
 
 Better 'make' for node.js.
 
