@@ -1,0 +1,40 @@
+
+formula
+	blah:blih
+	alert:bob
+
+.blah
+	sh
+		echo ${alert} ${blah}${blah}
+
+.depend
+	cast
+		blah
+	summon
+		spellcast-dependency.txt
+	sh
+		echo Dependencies should be rebuilt
+
+:spellcast-dependency.txta
+	sh
+		echo Creating spellcast-dependency.txt
+		echo "This is a dummy dependency file." > spellcast-dependency.txt
+
+.fireball
+	sh parallel:2
+		echo Zap Boum
+		echo Zashhhh && sleep 1 && echo Crash
+		echo Fizz
+
+.nova
+	sh
+		echo Grrrrjjjjj grrrrrjjjjj grrrrjjjj
+		exit
+		echo flash
+		exit 2
+		echo bang
+
+
+
+
+

@@ -6,7 +6,11 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "async-kit": "^0.3.28",
+    "tif-parser": "0.0.3",
+    "tree-kit": "0.0.4"
+  },
   "devDependencies": {
     "expect.js": "~0.3.1",
     "jshint": "~2.4.4",
