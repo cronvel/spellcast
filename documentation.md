@@ -11,7 +11,7 @@ So nothing to play with right now (ETA: probably 2 months).
 * License: MIT
 * Current status: early alpha / unstable / proof of concept
 * Platform: Node.js only
-* Are-we-better-yet: No.
+* Are-we-better-yet: **No.**
 
 
 

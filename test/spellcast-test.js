@@ -42,6 +42,7 @@ var fs = require( 'fs' ) ;
 
 function fn()
 {
+	console.log( 'Blah' ) ;
 }
 
 
@@ -56,7 +57,7 @@ describe( "Sample file" , function() {
 	
 	it( "1" , function() {
 		var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
-		console.log( book.ingredients ) ;
+		console.log( book.formula ) ;
 		console.log( book.spells.fireball ) ;
 		console.log( book.spells.fireball.casting[ 0 ] ) ;
 	} ) ;

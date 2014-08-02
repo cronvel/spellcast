@@ -6,8 +6,11 @@
   "directories": {
     "test": "test"
   },
+  "bin": {
+    "spellcast": "./bin/spellcast"
+  },
   "dependencies": {
-    "async-kit": "^0.3.28",
+    "async-kit": "^0.4.0",
     "tif-parser": "0.0.3",
     "tree-kit": "0.0.4"
   },

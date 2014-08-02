@@ -1,0 +1,33 @@
+
+
+
+formula
+	JSHINT:./node_modules/.bin/jshint
+	MOCHA:./node_modules/.bin/mocha
+
+
+
+# Spells
+
+.test
+	cast
+		lint
+		unit
+
+.lint
+	summon
+		spellbook
+		lib/spellcast.js
+		test/spellcast-test.js
+	sh
+		${JSHINT} lib/spellcast.js test/spellcast-test.js
+
+.unit
+	summon
+		spellbook
+		lib/spellcast.js
+		test/spellcast-test.js
+	sh
+		cd test ; ../${MOCHA} spellcast-test.js -R list
+
+
