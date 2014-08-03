@@ -7,13 +7,39 @@ formula
 
 
 
-# Spells
 
+
+#			###   Spells   ###
+
+
+
+# NPM install
+.npm-install
+	summon
+		package.json
+	sh
+		npm install --production
+
+
+
+# NPM install for developpement usage
+.npm-dev-install
+	summon
+		package.json
+	sh
+		npm install | tee log/npm-dev-install.log
+
+
+
+# Run all tests: linter & unit
 .test
 	cast
 		lint
 		unit
 
+
+
+# Run linter
 .lint
 	summon
 		spellbook
@@ -22,12 +48,94 @@ formula
 	sh
 		${JSHINT} lib/spellcast.js test/spellcast-test.js
 
+
+
+# Run unit tests
 .unit
 	summon
 		spellbook
 		lib/spellcast.js
 		test/spellcast-test.js
 	sh
-		cd test ; ../${MOCHA} spellcast-test.js -R list
+		${MOCHA} test/spellcast-test.js -R list
+
+
+# Upgrade package version
+.upgrade-version
+	summon
+		lib/spellcast.js
+		test/spellcast-test.js
+		documentation.md
+	sh
+		npm version patch -m "Upgrade package.json version to %s"
+
+
+
+# Publish to NPM & Git
+.publish
+	cast
+		npm-publish
+		git-push
+
+
+
+# Publish to NPM
+.npm-publish
+	cast
+		check-master
+		upgrade-version
+	sh
+		npm publish
+
+
+
+# Git push
+.git-push
+	summon
+		spellbook
+		lib/spellcast.js
+		test/spellcast-test.js
+		package.json
+	sh
+		# 'npm version patch' create the git tag by itself... 
+		# git tag v`cat package.json | grep version | sed -r 's/.*"([0-9.]*)".*/\1/'`
+		git push origin master --tags
+
+
+
+# This will fail if we are not on master branch (grep exit 1 if nothing found)
+.check-master
+	sh
+		git branch | grep  "^* master$"
+
+# Delete files that can be rebuilt
+.clean
+	sh
+		rm -rf README.md bdd-spec.md node_modules
+
+
+
+
+
+#			###   Things to build   ###
+
+
+
+:bdd-spec.md
+	summon
+		spellbook
+		lib/spellcast.js
+		test/spellcast-test.js
+	sh
+		${MOCHA} test/spellcast-test.js -R markdown > ../bdd-spec.md
+
+
+
+:README.md
+	summon
+		documentation.md
+		bdd-spec.md
+	sh
+		cat documentation.md bdd-spec.md > README.md
 
 

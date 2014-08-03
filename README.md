@@ -2,16 +2,14 @@
 
 # Spellcast
 
-Better 'make' for node.js.
+It's like 'make', but with a touch of Wizardry.
 
-It is still a work in progress (specs, etc...)
-
-So nothing to play with right now (ETA: probably 2 months).
+This Scroll is still a work in progress (specs, etc...)
 
 * License: MIT
-* Current status: early alpha / unstable / proof of concept
+* Current status: early alpha / unstable / hazardous magical energy / DO NOT USE YET!
 * Platform: Node.js only
-* Are-we-better-yet: No.
+* Are-we-better-yet: **No.**
 
 
 

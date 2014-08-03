@@ -32,6 +32,9 @@ var spellcast = require( '../lib/spellcast.js' ) ;
 var expect = require( 'expect.js' ) ;
 var fs = require( 'fs' ) ;
 
+// Change directory if necessary: sample files should be loaded accordingly
+if ( process.cwd() !== __dirname ) { process.chdir( __dirname ) ; }
+
 
 
 
@@ -69,7 +72,10 @@ describe( "Sample file" , function() {
 	
 	it( "3" , function( done ) {
 		var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
-		book.cast( 'nova' , done ) ;
+		book.cast( 'nova' , function( error ) {
+			expect( error ).to.be.ok() ;
+			done() ;
+		} ) ;
 	} ) ;
 	
 	it( "4" , function( done ) {

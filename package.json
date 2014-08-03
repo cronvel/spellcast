@@ -1,7 +1,7 @@
 {
   "name": "spellcast",
   "version": "0.0.7",
-  "description": "A better 'make' for Node.js.",
+  "description": "It's like 'make', but with a touch of Wizardry.",
   "main": "lib/spellcast.js",
   "directories": {
     "test": "test"
@@ -27,7 +27,15 @@
     "url": "https://github.com/cronvel/spellcast.git"
   },
   "keywords": [
-    "notreadytoconquertheworldyet"
+    "make",
+    "makefile",
+    "spell",
+    "spellcast",
+    "cast",
+    "spellbook",
+    "magic",
+    "wizardry",
+    "depend"
   ],
   "author": "Cédric Ronvel",
   "license": "MIT",

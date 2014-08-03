@@ -48,7 +48,7 @@ log/jshint.log: log/npm-dev-install.log lib/spellcast.js test/spellcast-test.js
 
 # Mocha BDD STDOUT test
 log/mocha.log: log/npm-dev-install.log lib/spellcast.js test/spellcast-test.js
-	cd test ; ../${MOCHA} spellcast-test.js -R list | tee ../log/mocha.log ; exit $${PIPESTATUS[0]}
+	${MOCHA} test/spellcast-test.js -R list | tee log/mocha.log ; exit $${PIPESTATUS[0]}
 
 # README
 README.md: documentation.md bdd-spec.md
@@ -56,7 +56,7 @@ README.md: documentation.md bdd-spec.md
 
 # Mocha Markdown BDD spec
 bdd-spec.md: log/npm-dev-install.log lib/spellcast.js test/spellcast-test.js
-	cd test ; ../${MOCHA} spellcast-test.js -R markdown > ../bdd-spec.md
+	${MOCHA} test/spellcast-test.js -R markdown > ../bdd-spec.md
 
 # Upgrade version in package.json
 log/upgrade-package.log: lib/spellcast.js test/spellcast-test.js documentation.md
