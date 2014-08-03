@@ -56,7 +56,7 @@ README.md: documentation.md bdd-spec.md
 
 # Mocha Markdown BDD spec
 bdd-spec.md: log/npm-dev-install.log lib/spellcast.js test/spellcast-test.js
-	${MOCHA} test/spellcast-test.js -R markdown > ../bdd-spec.md
+	${MOCHA} test/spellcast-test.js -R markdown > bdd-spec.md
 
 # Upgrade version in package.json
 log/upgrade-package.log: lib/spellcast.js test/spellcast-test.js documentation.md

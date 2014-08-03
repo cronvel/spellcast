@@ -127,7 +127,7 @@ formula
 		lib/spellcast.js
 		test/spellcast-test.js
 	sh
-		${MOCHA} test/spellcast-test.js -R markdown > ../bdd-spec.md
+		${MOCHA} test/spellcast-test.js -R markdown > bdd-spec.md
 
 
 

@@ -1,4 +1,4 @@
-undefined
+{ blah: 'blih', alert: 'bob' }
 { type: 'spell',
   name: 'fireball',
   args: {},
@@ -17,6 +17,7 @@ Grrrrjjjjj grrrrrjjjjj grrrrjjjj
 flash
 bob blihblih
 bob blihblih
+This spell is not ready yet.
 # TOC
    - [Sample file](#sample-file)
 <a name=""></a>
@@ -27,7 +28,7 @@ bob blihblih
 
 ```js
 var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
-console.log( book.ingredients ) ;
+console.log( book.formula ) ;
 console.log( book.spells.fireball ) ;
 console.log( book.spells.fireball.casting[ 0 ] ) ;
 ```
@@ -43,7 +44,10 @@ book.cast( 'fireball' , done ) ;
 
 ```js
 var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
-book.cast( 'nova' , done ) ;
+book.cast( 'nova' , function( error ) {
+	expect( error ).to.be.ok() ;
+	done() ;
+} ) ;
 ```
 
 4.
