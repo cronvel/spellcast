@@ -1,11 +1,26 @@
 
 formula
-	blah:blih
 	alert:bob
+	blah:blih
 
-.blah
+
+
+.echo
+	sh
+		echo echo
+
+.kawarimi
 	sh
 		echo ${alert} ${blah}${blah}
+
+
+
+
+
+
+
+
+
 
 .depend
 	cast
@@ -15,7 +30,7 @@ formula
 	sh
 		echo Dependencies should be rebuilt
 
-:spellcast-dependency.txta
+:spellcast-dependency.txt
 	sh
 		echo Creating spellcast-dependency.txt
 		echo "This is a dummy dependency file." > spellcast-dependency.txt

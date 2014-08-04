@@ -12,7 +12,7 @@ wand
 	# a 'terminate' event to stop gracefully.
 	wand-of-building
 
-ingredient
+formula
 	# this is the variable definition part
 	opt:blah
 

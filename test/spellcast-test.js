@@ -29,8 +29,10 @@
 
 
 var spellcast = require( '../lib/spellcast.js' ) ;
+var async = require( 'async-kit' ) ;
 var expect = require( 'expect.js' ) ;
 var fs = require( 'fs' ) ;
+var glob = require( 'glob' ) ;
 
 // Change directory if necessary: sample files should be loaded accordingly
 if ( process.cwd() !== __dirname ) { process.chdir( __dirname ) ; }
@@ -43,9 +45,29 @@ if ( process.cwd() !== __dirname ) { process.chdir( __dirname ) ; }
 
 
 
-function fn()
+function cleanup( callback )
 {
-	console.log( 'Blah' ) ;
+	var files = glob.sync( './spellcast/*/*' ) ;
+	
+	async.foreach( files , function( file , foreachCallback ) {
+		fs.unlink( file , foreachCallback ) ;
+	} )
+	.parallel()
+	.exec( callback ) ;
+}
+
+
+
+function getCastedLog( spell )
+{
+	return fs.readFileSync( '.spellcast/casted/' + spell , { encoding: 'utf8' } ) ;
+}
+
+
+
+function getFizzledLog( spell )
+{
+	return fs.readFileSync( '.spellcast/fizzled/' + spell , { encoding: 'utf8' } ) ;
 }
 
 
@@ -56,8 +78,50 @@ function fn()
 
 
 
-describe( "Sample file" , function() {
+describe( "Formula" , function() {
 	
+	it( "should" , function() {
+		var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+		expect( book.formula.alert ).to.be( 'bob' ) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "'sh' block" , function() {
+	
+	it( "should echoing echo" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'echo' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'echo' ) ).to.be( 'echo\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+	
+	it( "should substitute variable aka (formula) accordingly" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'kawarimi' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'kawarimi' ) ).to.be( 'bob blihblih\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+} ) ;
+	
+	/*
 	it( "1" , function() {
 		var book = new spellcast.Book( fs.readFileSync( 'spellbook01' ).toString() ) ;
 		console.log( book.formula ) ;
@@ -87,7 +151,7 @@ describe( "Sample file" , function() {
 		var book = new spellcast.Book( fs.readFileSync( 'spellbook01' ).toString() ) ;
 		book.cast( 'depend' , done ) ;
 	} ) ;
-} ) ;
+	*/
 
 
 
