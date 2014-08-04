@@ -59,19 +59,19 @@ function fn()
 describe( "Sample file" , function() {
 	
 	it( "1" , function() {
-		var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
+		var book = new spellcast.Book( fs.readFileSync( 'spellbook01' ).toString() ) ;
 		console.log( book.formula ) ;
 		console.log( book.spells.fireball ) ;
 		console.log( book.spells.fireball.casting[ 0 ] ) ;
 	} ) ;
 	
 	it( "2" , function( done ) {
-		var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
+		var book = new spellcast.Book( fs.readFileSync( 'spellbook01' ).toString() ) ;
 		book.cast( 'fireball' , done ) ;
 	} ) ;
 	
 	it( "3" , function( done ) {
-		var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
+		var book = new spellcast.Book( fs.readFileSync( 'spellbook01' ).toString() ) ;
 		book.cast( 'nova' , function( error ) {
 			expect( error ).to.be.ok() ;
 			done() ;
@@ -79,12 +79,12 @@ describe( "Sample file" , function() {
 	} ) ;
 	
 	it( "4" , function( done ) {
-		var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
+		var book = new spellcast.Book( fs.readFileSync( 'spellbook01' ).toString() ) ;
 		book.cast( 'blah' , done ) ;
 	} ) ;
 	
 	it( "5" , function( done ) {
-		var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
+		var book = new spellcast.Book( fs.readFileSync( 'spellbook01' ).toString() ) ;
 		book.cast( 'depend' , done ) ;
 	} ) ;
 } ) ;

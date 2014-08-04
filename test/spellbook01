@@ -11,7 +11,7 @@ formula
 	cast
 		blah
 	summon
-		spellcast-dependency.txt
+		dependency.txt
 	sh
 		echo Dependencies should be rebuilt
 
