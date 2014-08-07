@@ -9,9 +9,26 @@ formula
 	sh
 		echo echo
 
+.delayed-echo
+	sh
+		sleep 1
+		echo delayed-echo
+
 .kawarimi
 	sh
 		echo ${alert} ${blah}${blah}
+
+.editor
+	sh
+		$EDITOR
+
+.node
+	sh
+		node
+
+.stdinout
+	sh
+		./stdinout
 
 
 

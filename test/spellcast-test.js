@@ -105,6 +105,21 @@ describe( "'sh' block" , function() {
 		} ) ;
 	} ) ;
 	
+	it( "should echoing delayed-echo after one second" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'delayed-echo' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'delayed-echo' ) ).to.be( 'delayed-echo\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+	
 	it( "should substitute variable aka (formula) accordingly" , function( done ) {
 		
 		cleanup( function() {
@@ -119,6 +134,59 @@ describe( "'sh' block" , function() {
 			} ) ;
 		} ) ;
 	} ) ;
+	
+	/*
+	it( "should launch editor" , function( done ) {
+		
+		this.timeout( 100000 ) ;
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'editor' , function( error )
+			{
+				expect( error ).not.ok() ;
+				//expect( getCastedLog( 'echo' ) ).to.be( 'echo\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+	
+	it( "should launch node" , function( done ) {
+		
+		this.timeout( 100000 ) ;
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'node' , function( error )
+			{
+				expect( error ).not.ok() ;
+				//expect( getCastedLog( 'echo' ) ).to.be( 'echo\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+	
+	it( "should launch stdinout" , function( done ) {
+		
+		this.timeout( 100000 ) ;
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'stdinout' , function( error )
+			{
+				expect( error ).not.ok() ;
+				//expect( getCastedLog( 'echo' ) ).to.be( 'echo\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+	*/
 } ) ;
 	
 	/*
