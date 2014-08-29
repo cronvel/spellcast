@@ -80,9 +80,16 @@ function getFizzledLog( spell )
 
 describe( "Formula" , function() {
 	
-	it( "should" , function() {
+	it( "should be parsed into list of string, with an additionnal property 'index' equals to 0" , function() {
 		var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
-		expect( book.formula.alert ).to.be( 'bob' ) ;
+		
+		var expected = [ 'bob' ] ;
+		expected.index = 0 ;
+		expect( book.formula.alert ).to.be.eql( expected ) ;
+		
+		var expected = [ 'one' , 'two' , 'three' ] ;
+		expected.index = 0 ;
+		expect( book.formula.list ).to.be.eql( expected ) ;
 	} ) ;
 } ) ;
 
@@ -120,7 +127,7 @@ describe( "'sh' block" , function() {
 		} ) ;
 	} ) ;
 	
-	it( "should substitute variable aka (formula) accordingly" , function( done ) {
+	it( "should substitute variable (aka formula) accordingly" , function( done ) {
 		
 		cleanup( function() {
 			
@@ -129,7 +136,7 @@ describe( "'sh' block" , function() {
 			book.cast( 'kawarimi' , function( error )
 			{
 				expect( error ).not.ok() ;
-				expect( getCastedLog( 'kawarimi' ) ).to.be( 'bob blihblih\n' ) ;
+				expect( getCastedLog( 'kawarimi' ) ).to.be( 'bob blihblih one\n' ) ;
 				done() ;
 			} ) ;
 		} ) ;
@@ -188,6 +195,40 @@ describe( "'sh' block" , function() {
 	} ) ;
 	*/
 } ) ;
+
+
+
+describe( "'foreach' block" , function() {
+	
+	it( "should " , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'foreach' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'foreach' ) ).to.be( 'one more time: one\none more time: two\none more time: three\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+} ) ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	/*
 	it( "1" , function() {

@@ -2,6 +2,7 @@
 formula
 	alert:bob
 	blah:blih
+	list:one,two,three
 
 
 
@@ -16,7 +17,19 @@ formula
 
 .kawarimi
 	sh
-		echo ${alert} ${blah}${blah}
+		echo ${alert} ${blah}${blah} ${list}
+
+.foreach
+	foreach list
+		sh
+			echo one more time: ${list}
+
+
+
+
+
+
+
 
 .editor
 	sh
