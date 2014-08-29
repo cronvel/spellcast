@@ -1,66 +1,92 @@
-{ blah: 'blih', alert: 'bob' }
-{ type: 'spell',
-  name: 'fireball',
-  args: {},
-  casting: [ { type: 'sh', args: [Object], shellCommands: [Object] } ] }
-{ type: 'sh',
-  args: { parallel: '2' },
-  shellCommands: 
-   [ 'echo Zap Boum',
-     'echo Zashhhh && sleep 1 && echo Crash',
-     'echo Fizz' ] }
-Zap Boum
-Zashhhh
-Fizz
-Crash
-Grrrrjjjjj grrrrrjjjjj grrrrjjjj
-flash
-bob blihblih
-bob blihblih
-This spell is not ready yet.
+echo
+delayed-echo
+bob blihblih one
+one more time: one
+one more time: two
+one more time: three
+end: one
 # TOC
-   - [Sample file](#sample-file)
+   - [Formula](#formula)
+   - ['sh' block](#sh-block)
+   - ['foreach' block](#foreach-block)
 <a name=""></a>
  
-<a name="sample-file"></a>
-# Sample file
-1.
+<a name="formula"></a>
+# Formula
+should be parsed into list of string, with an additionnal property 'index' equals to 0.
 
 ```js
-var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
-console.log( book.formula ) ;
-console.log( book.spells.fireball ) ;
-console.log( book.spells.fireball.casting[ 0 ] ) ;
+var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+
+expect( book.formula.alert ).to.be.eql( [ 'bob' ] ) ;
+expect( book.formula.list ).to.be.eql( [ 'one' , 'two' , 'three' ] ) ;
 ```
 
-2.
+<a name="sh-block"></a>
+# 'sh' block
+should echoing echo.
 
 ```js
-var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
-book.cast( 'fireball' , done ) ;
-```
-
-3.
-
-```js
-var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
-book.cast( 'nova' , function( error ) {
-	expect( error ).to.be.ok() ;
-	done() ;
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.cast( 'echo' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( 'echo' ) ).to.be( 'echo\n' ) ;
+		done() ;
+	} ) ;
 } ) ;
 ```
 
-4.
+should echoing delayed-echo after one second.
 
 ```js
-var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
-book.cast( 'blah' , done ) ;
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.cast( 'delayed-echo' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( 'delayed-echo' ) ).to.be( 'delayed-echo\n' ) ;
+		done() ;
+	} ) ;
+} ) ;
 ```
 
-5.
+should substitute variable (aka formula) accordingly.
 
 ```js
-var book = new spellcast.Book( fs.readFileSync( 'spellcast-sample1.txt' ).toString() ) ;
-book.cast( 'depend' , done ) ;
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.cast( 'kawarimi' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( 'kawarimi' ) ).to.be( 'bob blihblih one\n' ) ;
+		done() ;
+	} ) ;
+} ) ;
+```
+
+<a name="foreach-block"></a>
+# 'foreach' block
+should .
+
+```js
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.cast( 'foreach' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( 'foreach' ) ).to.be( 'one more time: one\none more time: two\none more time: three\nend: one\n' ) ;
+		done() ;
+	} ) ;
+} ) ;
 ```
 
