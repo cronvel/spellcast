@@ -24,7 +24,8 @@ formula
 		sh
 			echo one more time: ${list}
 
-
+	sh
+		echo end: ${list}
 
 
 

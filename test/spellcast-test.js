@@ -83,13 +83,8 @@ describe( "Formula" , function() {
 	it( "should be parsed into list of string, with an additionnal property 'index' equals to 0" , function() {
 		var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
 		
-		var expected = [ 'bob' ] ;
-		expected.index = 0 ;
-		expect( book.formula.alert ).to.be.eql( expected ) ;
-		
-		var expected = [ 'one' , 'two' , 'three' ] ;
-		expected.index = 0 ;
-		expect( book.formula.list ).to.be.eql( expected ) ;
+		expect( book.formula.alert ).to.be.eql( [ 'bob' ] ) ;
+		expect( book.formula.list ).to.be.eql( [ 'one' , 'two' , 'three' ] ) ;
 	} ) ;
 } ) ;
 
@@ -209,7 +204,7 @@ describe( "'foreach' block" , function() {
 			book.cast( 'foreach' , function( error )
 			{
 				expect( error ).not.ok() ;
-				expect( getCastedLog( 'foreach' ) ).to.be( 'one more time: one\none more time: two\none more time: three\n' ) ;
+				expect( getCastedLog( 'foreach' ) ).to.be( 'one more time: one\none more time: two\none more time: three\nend: one\n' ) ;
 				done() ;
 			} ) ;
 		} ) ;
