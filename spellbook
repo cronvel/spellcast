@@ -1,15 +1,82 @@
 
 
 
+# 			### Formula: variables ###
+
+
+
 formula
-	JSHINT:./node_modules/.bin/jshint
-	MOCHA:./node_modules/.bin/mocha
+	mocha:./node_modules/.bin/mocha
+	jshint:./node_modules/.bin/jshint --verbose
 
 
 
 
 
-#			###   Spells   ###
+#			###   Spells: rules   ###
+
+
+
+.summon
+	cast
+		npm-install
+	
+	summon
+		README.md
+		bdd-spec.md
+
+.dev-summon
+	cast
+		summon
+		npm-dev-install
+
+# Delete files that can be rebuilt
+.clean
+	sh
+		rm -rf README.md bdd-spec.md node_modules
+
+# Run all tests: jshint & bdd
+.test
+	cast
+		hint
+		bdd
+
+# Run bdd tests
+.bdd
+	summon
+		package.json
+		lib/spellcast.js
+		test/spellcast-test.js
+	
+	cast
+		dev-summon
+	
+	sh
+		${mocha} test/spellcast-test.js -R spec
+
+# Run jshint
+.hint
+	summon
+		lib/spellcast.js
+		test/spellcast-test.js
+	
+	cast
+		dev-summon
+	
+	sh
+		${jshint} lib/spellcast.js test/spellcast-test.js
+
+# Publish to NPM & Git
+.publish
+	cast
+		npm-publish
+		git-push
+
+
+
+
+
+#			###   Non-user spells: internal rules   ###
 
 
 
@@ -20,45 +87,20 @@ formula
 	sh
 		npm install --production
 
-
-
 # NPM install for developpement usage
 .npm-dev-install
 	summon
 		package.json
 	sh
-		npm install | tee log/npm-dev-install.log
+		npm install
 
-
-
-# Run all tests: linter & unit
-.test
+# Publish to NPM
+.npm-publish
 	cast
-		lint
-		unit
-
-
-
-# Run linter
-.lint
-	summon
-		spellbook
-		lib/spellcast.js
-		test/spellcast-test.js
+		check-master
+		upgrade-version
 	sh
-		${JSHINT} lib/spellcast.js test/spellcast-test.js
-
-
-
-# Run unit tests
-.unit
-	summon
-		spellbook
-		lib/spellcast.js
-		test/spellcast-test.js
-	sh
-		${MOCHA} test/spellcast-test.js -R list
-
+		npm publish
 
 # Upgrade package version
 .upgrade-version
@@ -69,33 +111,18 @@ formula
 	sh
 		npm version patch -m "Upgrade package.json version to %s"
 
-
-
-# Publish to NPM & Git
-.publish
-	cast
-		npm-publish
-		git-push
-
-
-
-# Publish to NPM
-.npm-publish
-	cast
-		check-master
-		upgrade-version
-	sh
-		npm publish
-
-
+# This will fail if we are not on master branch (grep exit 1 if nothing found)
+.check-master
+	sh silence
+		git branch | grep  "^* master$"
 
 # Git push
 .git-push
 	summon
 		spellbook
+		package.json
 		lib/spellcast.js
 		test/spellcast-test.js
-		package.json
 	sh
 		# 'npm version patch' create the git tag by itself... 
 		# git tag v`cat package.json | grep version | sed -r 's/.*"([0-9.]*)".*/\1/'`
@@ -103,38 +130,25 @@ formula
 
 
 
-# This will fail if we are not on master branch (grep exit 1 if nothing found)
-.check-master
-	sh
-		git branch | grep  "^* master$"
-
-# Delete files that can be rebuilt
-.clean
-	sh
-		rm -rf README.md bdd-spec.md node_modules
 
 
-
-
-
-#			###   Things to build   ###
+#			###   Summoning: files to build   ###
 
 
 
 :bdd-spec.md
 	summon
-		spellbook
+		package.json
 		lib/spellcast.js
 		test/spellcast-test.js
+	
 	sh
-		${MOCHA} test/spellcast-test.js -R markdown > bdd-spec.md
-
-
+		${mocha} test/spellcast-test.js -R markdown > bdd-spec.md
 
 :README.md
 	summon
-		documentation.md
 		bdd-spec.md
+		documentation.md
 	sh
 		cat documentation.md bdd-spec.md > README.md
 
