@@ -27,7 +27,15 @@ formula
 	sh
 		echo end: ${list}
 
-
+.write-formula
+	sh amnesia silence write-formula:scroll
+		ls ls/
+		ls ls/
+	
+	foreach scroll
+		sh
+			echo scroll line: ${scroll}
+		
 
 
 

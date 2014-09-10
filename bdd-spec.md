@@ -1,6 +1,12 @@
 echo
 delayed-echo
 bob blihblih one
+scroll line: one
+scroll line: three
+scroll line: two
+scroll line: one
+scroll line: three
+scroll line: two
 one more time: one
 one more time: two
 one more time: three
@@ -56,7 +62,7 @@ cleanup( function() {
 } ) ;
 ```
 
-should substitute variable (aka formula) accordingly.
+should substitute variable (aka formula) accordingly in 'sh' block.
 
 ```js
 cleanup( function() {
@@ -67,6 +73,22 @@ cleanup( function() {
 	{
 		expect( error ).not.ok() ;
 		expect( getCastedLog( 'kawarimi' ) ).to.be( 'bob blihblih one\n' ) ;
+		done() ;
+	} ) ;
+} ) ;
+```
+
+should write a new formula with the output of an 'sh' block.
+
+```js
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.cast( 'write-formula' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( 'write-formula' ) ).to.be( 'scroll line: one\nscroll line: three\nscroll line: two\nscroll line: one\nscroll line: three\nscroll line: two\n' ) ;
 		done() ;
 	} ) ;
 } ) ;

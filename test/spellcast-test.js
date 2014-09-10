@@ -122,7 +122,7 @@ describe( "'sh' block" , function() {
 		} ) ;
 	} ) ;
 	
-	it( "should substitute variable (aka formula) accordingly" , function( done ) {
+	it( "should substitute variable (aka formula) accordingly in 'sh' block" , function( done ) {
 		
 		cleanup( function() {
 			
@@ -132,6 +132,21 @@ describe( "'sh' block" , function() {
 			{
 				expect( error ).not.ok() ;
 				expect( getCastedLog( 'kawarimi' ) ).to.be( 'bob blihblih one\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+	
+	it( "should write a new formula with the output of an 'sh' block" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'write-formula' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'write-formula' ) ).to.be( 'scroll line: one\nscroll line: three\nscroll line: two\nscroll line: one\nscroll line: three\nscroll line: two\n' ) ;
 				done() ;
 			} ) ;
 		} ) ;
