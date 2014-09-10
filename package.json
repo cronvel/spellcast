@@ -12,6 +12,7 @@
   "dependencies": {
     "async-kit": "^0.4.7",
     "glob": "^4.0.5",
+    "terminal-kit": "^0.1.24",
     "tif-parser": "^0.0.3",
     "tree-kit": "^0.2.1"
   },
