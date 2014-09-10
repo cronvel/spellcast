@@ -31,7 +31,7 @@ This block defines formula, i.e. variables and values used for substitution.
 
 
 
-## spell 
+## spell & summon
 
 ### sh : shell commands
 
