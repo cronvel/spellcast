@@ -36,6 +36,22 @@ formula
 		sh
 			echo scroll line: ${scroll}
 		
+.summon-top
+	summon
+		ls/one
+	
+	sh
+		echo This should not appear
+
+:ls/one
+	summon
+		ls/two
+		ls/three
+
+
+
+
+
 
 
 

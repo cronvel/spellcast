@@ -208,6 +208,26 @@ describe( "'sh' block" , function() {
 
 
 
+describe( "'summon' block and dependencies" , function() {
+	
+	it( "should consider up to date a summon on a file that have a rule but that does nothing" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'summon-top' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'summon-top' ) ).to.be( '' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+} ) ;
+
+
+
 describe( "'foreach' block" , function() {
 	
 	it( "should " , function( done ) {

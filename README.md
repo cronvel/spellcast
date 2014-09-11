@@ -25,13 +25,15 @@ scroll line: two
 scroll line: one
 scroll line: three
 scroll line: two
-one more time: one
+[32mThis spell is not ready yet.
+[39mone more time: one
 one more time: two
 one more time: three
 end: one
 # TOC
    - [Formula](#formula)
    - ['sh' block](#sh-block)
+   - ['summon' block and dependencies](#summon-block-and-dependencies)
    - ['foreach' block](#foreach-block)
 <a name=""></a>
  
@@ -107,6 +109,24 @@ cleanup( function() {
 	{
 		expect( error ).not.ok() ;
 		expect( getCastedLog( 'write-formula' ) ).to.be( 'scroll line: one\nscroll line: three\nscroll line: two\nscroll line: one\nscroll line: three\nscroll line: two\n' ) ;
+		done() ;
+	} ) ;
+} ) ;
+```
+
+<a name="summon-block-and-dependencies"></a>
+# 'summon' block and dependencies
+should consider up to date a summon on a file that have a rule but that does nothing.
+
+```js
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.cast( 'summon-top' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( 'summon-top' ) ).to.be( '' ) ;
 		done() ;
 	} ) ;
 } ) ;
