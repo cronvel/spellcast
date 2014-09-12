@@ -7,40 +7,40 @@ formula
 
 
 .echo
-	sh
+	scroll
 		echo echo
 
 .delayed-echo
-	sh
+	scroll
 		sleep 1
 		echo delayed-echo
 
 .kawarimi
-	sh
+	scroll
 		echo ${alert} ${blah}${blah} ${list}
 
 .foreach
 	foreach list
-		sh
+		scroll
 			echo one more time: ${list}
 
-	sh
+	scroll
 		echo end: ${list}
 
 .write-formula
-	sh amnesia silence write-formula:scroll
+	scroll amnesia silence write-formula:scroll
 		ls ls/
 		ls ls/
 	
 	foreach scroll
-		sh
+		scroll
 			echo scroll line: ${scroll}
 		
 .summon-top
 	summon
 		ls/one
 	
-	sh
+	scroll
 		echo This should not appear
 
 :ls/one
@@ -57,15 +57,15 @@ formula
 
 
 .editor
-	sh
+	scroll
 		$EDITOR
 
 .node
-	sh
+	scroll
 		node
 
 .stdinout
-	sh
+	scroll
 		./stdinout
 
 
@@ -82,22 +82,22 @@ formula
 		blah
 	summon
 		dependency.txt
-	sh
+	scroll
 		echo Dependencies should be rebuilt
 
 :spellcast-dependency.txt
-	sh
+	scroll
 		echo Creating spellcast-dependency.txt
 		echo "This is a dummy dependency file." > spellcast-dependency.txt
 
 .fireball
-	sh parallel:2
+	scroll parallel:2
 		echo Zap Boum
 		echo Zashhhh && sleep 1 && echo Crash
 		echo Fizz
 
 .nova
-	sh
+	scroll
 		echo Grrrrjjjjj grrrrrjjjjj grrrrjjjj
 		exit
 		echo flash

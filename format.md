@@ -33,18 +33,18 @@ This block defines formula, i.e. variables and values used for substitution.
 
 ## spell & summon
 
-### sh : shell commands
+### scroll : shell commands
 
-* parallel: this shell block will execute each command in parallel mode, if a number is passed, this is the maximum
+* parallel: this scroll block will execute each command in parallel mode, if a number is passed, this is the maximum
   of commands running in parallel
 * ignore: if a command return a non-zero status, it will continue nontheless
 * write-formula: this specify a variable name (aka a *formula*) which will be populated by each line of the output
-  of this shell block, the formula is used as a list
+  of this scroll block, the formula is used as a list
 * splitter: this specify a splitter for the 'write' argument, by default '\n' is the splitter
 * silence: dispell all output to stdout
 * amnesia: dispell all output to log files
 
-Each child of this block is a shell command to execute.
+Each child of this block is a scroll command to execute.
 
 
 

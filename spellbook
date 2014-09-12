@@ -32,7 +32,7 @@ formula
 
 # Delete files that can be rebuilt
 .clean
-	sh
+	scroll
 		rm -rf README.md bdd-spec.md node_modules
 
 # Run all tests: jshint & bdd
@@ -51,7 +51,7 @@ formula
 	cast
 		dev-summon
 	
-	sh
+	scroll
 		${mocha} test/spellcast-test.js -R spec
 
 # Run jshint
@@ -63,7 +63,7 @@ formula
 	cast
 		dev-summon
 	
-	sh
+	scroll
 		${jshint} lib/spellcast.js test/spellcast-test.js
 
 # Publish to NPM & Git
@@ -84,7 +84,7 @@ formula
 .npm-install
 	summon
 		package.json
-	sh
+	scroll
 		npm install --production
 
 # NPM install for developpement usage
@@ -99,7 +99,7 @@ formula
 	cast
 		check-master
 		upgrade-version
-	sh
+	scroll
 		npm publish
 
 # Upgrade package version
@@ -108,12 +108,12 @@ formula
 		lib/spellcast.js
 		test/spellcast-test.js
 		documentation.md
-	sh
+	scroll
 		npm version patch -m "Upgrade package.json version to %s"
 
 # This will fail if we are not on master branch (grep exit 1 if nothing found)
 .check-master
-	sh silence
+	scroll silence
 		git branch | grep  "^* master$"
 
 # Git push
@@ -123,7 +123,7 @@ formula
 		package.json
 		lib/spellcast.js
 		test/spellcast-test.js
-	sh
+	scroll
 		# 'npm version patch' create the git tag by itself... 
 		# git tag v`cat package.json | grep version | sed -r 's/.*"([0-9.]*)".*/\1/'`
 		git push origin master --tags
@@ -142,14 +142,14 @@ formula
 		lib/spellcast.js
 		test/spellcast-test.js
 	
-	sh
+	scroll
 		${mocha} test/spellcast-test.js -R markdown > bdd-spec.md
 
 :README.md
 	summon
 		bdd-spec.md
 		documentation.md
-	sh
+	scroll
 		cat documentation.md bdd-spec.md > README.md
 
 
