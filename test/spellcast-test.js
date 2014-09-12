@@ -90,7 +90,7 @@ describe( "Formula" , function() {
 
 
 
-describe( "'sh' block" , function() {
+describe( "'scroll' block" , function() {
 	
 	it( "should echoing echo" , function( done ) {
 		
@@ -122,7 +122,7 @@ describe( "'sh' block" , function() {
 		} ) ;
 	} ) ;
 	
-	it( "should substitute variable (aka formula) accordingly in 'sh' block" , function( done ) {
+	it( "should substitute variable (aka formula) accordingly in 'scroll' block" , function( done ) {
 		
 		cleanup( function() {
 			
@@ -137,7 +137,7 @@ describe( "'sh' block" , function() {
 		} ) ;
 	} ) ;
 	
-	it( "should write a new formula with the output of an 'sh' block" , function( done ) {
+	it( "should write a new formula with the output of an 'scroll' block" , function( done ) {
 		
 		cleanup( function() {
 			

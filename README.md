@@ -32,7 +32,7 @@ one more time: three
 end: one
 # TOC
    - [Formula](#formula)
-   - ['sh' block](#sh-block)
+   - ['scroll' block](#scroll-block)
    - ['summon' block and dependencies](#summon-block-and-dependencies)
    - ['foreach' block](#foreach-block)
 <a name=""></a>
@@ -48,8 +48,8 @@ expect( book.formula.alert ).to.be.eql( [ 'bob' ] ) ;
 expect( book.formula.list ).to.be.eql( [ 'one' , 'two' , 'three' ] ) ;
 ```
 
-<a name="sh-block"></a>
-# 'sh' block
+<a name="scroll-block"></a>
+# 'scroll' block
 should echoing echo.
 
 ```js
@@ -82,7 +82,7 @@ cleanup( function() {
 } ) ;
 ```
 
-should substitute variable (aka formula) accordingly in 'sh' block.
+should substitute variable (aka formula) accordingly in 'scroll' block.
 
 ```js
 cleanup( function() {
@@ -98,7 +98,7 @@ cleanup( function() {
 } ) ;
 ```
 
-should write a new formula with the output of an 'sh' block.
+should write a new formula with the output of an 'scroll' block.
 
 ```js
 cleanup( function() {

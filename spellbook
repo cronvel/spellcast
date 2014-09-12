@@ -91,7 +91,7 @@ formula
 .npm-dev-install
 	summon
 		package.json
-	sh
+	scroll
 		npm install
 
 # Publish to NPM
