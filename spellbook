@@ -149,7 +149,15 @@ formula
 	summon
 		bdd-spec.md
 		documentation.md
+		
 	scroll
 		cat documentation.md bdd-spec.md > README.md
+
+:Makefile
+	summon
+		spellbook
+		
+	scroll
+		./bin/spellcast --makefile ./bin/spellcast
 
 
