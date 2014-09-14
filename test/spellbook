@@ -37,13 +37,16 @@ formula
 			echo ${list}
 
 .write-formula
-	scroll amnesia silence write-formula:scroll
+	scroll amnesia silence write-formula:ls
 		ls ls/
 		ls ls/
 	
-	foreach scroll
+	scroll
+		echo ls default line: ${ls}
+	
+	foreach ls
 		scroll
-			echo scroll line: ${scroll}
+			echo ls line: ${ls}
 		
 .summon-top
 	summon

@@ -146,7 +146,7 @@ describe( "'scroll' block" , function() {
 			book.cast( 'write-formula' , function( error )
 			{
 				expect( error ).not.ok() ;
-				expect( getCastedLog( 'write-formula' ) ).to.be( 'scroll line: one\nscroll line: three\nscroll line: two\nscroll line: one\nscroll line: three\nscroll line: two\n' ) ;
+				expect( getCastedLog( 'write-formula' ) ).to.be( 'ls default line: one\nls line: one\nls line: three\nls line: two\nls line: one\nls line: three\nls line: two\n' ) ;
 				done() ;
 			} ) ;
 		} ) ;
