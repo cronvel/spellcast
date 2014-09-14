@@ -15,7 +15,8 @@ of the variable.
 When a variable is encountered, it is substituted by its string value.
 
 List of blocks that supports formula:
-* *scroll*, when: at execution of each command
+* *scroll*'s command, when: at execution of each command
+* *scroll*'s *write-formula* argument
 
 TODOC: list formula
 
