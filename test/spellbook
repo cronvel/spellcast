@@ -3,6 +3,7 @@ formula
 	alert:bob
 	blah:blih
 	list:one,two,three
+	list-fr:un,deux,trois
 
 
 
@@ -26,6 +27,11 @@ formula
 	
 	scroll
 		echo end: ${list}
+
+.foreach-coupled
+	foreach list
+		scroll
+			echo ${list} - ${list-fr:list}
 
 .transmute
 	transmute list

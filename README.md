@@ -31,6 +31,9 @@ ls line: two
 one more time: two
 one more time: three
 end: one
+one - un
+two - deux
+three - trois
 onE
 two
 thrEE
@@ -150,6 +153,22 @@ cleanup( function() {
 	{
 		expect( error ).not.ok() ;
 		expect( getCastedLog( 'foreach' ) ).to.be( 'one more time: one\none more time: two\none more time: three\nend: one\n' ) ;
+		done() ;
+	} ) ;
+} ) ;
+```
+
+should iterate through a variable as a list using coupled variable substitution.
+
+```js
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.cast( 'foreach-coupled' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( 'foreach-coupled' ) ).to.be( 'one - un\ntwo - deux\nthree - trois\n' ) ;
 		done() ;
 	} ) ;
 } ) ;

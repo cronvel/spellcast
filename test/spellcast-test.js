@@ -251,6 +251,21 @@ describe( "'foreach' block" , function() {
 			} ) ;
 		} ) ;
 	} ) ;
+	
+	it( "should iterate through a variable as a list using coupled variable substitution" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'foreach-coupled' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'foreach-coupled' ) ).to.be( 'one - un\ntwo - deux\nthree - trois\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
 } ) ;
 
 
