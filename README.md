@@ -30,11 +30,15 @@ scroll line: two
 one more time: two
 one more time: three
 end: one
+onE
+two
+thrEE
 # TOC
    - [Formula](#formula)
    - ['scroll' block](#scroll-block)
    - ['summon' block and dependencies](#summon-block-and-dependencies)
    - ['foreach' block](#foreach-block)
+   - ['transmute' block](#transmute-block)
 <a name=""></a>
  
 <a name="formula"></a>
@@ -134,7 +138,7 @@ cleanup( function() {
 
 <a name="foreach-block"></a>
 # 'foreach' block
-should .
+should iterate through a variable as a list.
 
 ```js
 cleanup( function() {
@@ -145,6 +149,24 @@ cleanup( function() {
 	{
 		expect( error ).not.ok() ;
 		expect( getCastedLog( 'foreach' ) ).to.be( 'one more time: one\none more time: two\none more time: three\nend: one\n' ) ;
+		done() ;
+	} ) ;
+} ) ;
+```
+
+<a name="transmute-block"></a>
+# 'transmute' block
+should execute a regular expression to a variable as a list.
+
+```js
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.cast( 'transmute' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( 'transmute' ) ).to.be( 'onE\ntwo\nthrEE\n' ) ;
 		done() ;
 	} ) ;
 } ) ;

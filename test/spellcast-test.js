@@ -204,6 +204,13 @@ describe( "'scroll' block" , function() {
 		} ) ;
 	} ) ;
 	*/
+	
+	it ( "error in subshell" ) ;
+	it ( "ingore error" ) ;
+	it ( "write-formula splitter" ) ;
+	it ( "parallel" ) ;
+	it ( "silence" ) ;
+	it ( "amnesia" ) ;
 } ) ;
 
 
@@ -230,7 +237,7 @@ describe( "'summon' block and dependencies" , function() {
 
 describe( "'foreach' block" , function() {
 	
-	it( "should " , function( done ) {
+	it( "should iterate through a variable as a list" , function( done ) {
 		
 		cleanup( function() {
 			
@@ -240,6 +247,26 @@ describe( "'foreach' block" , function() {
 			{
 				expect( error ).not.ok() ;
 				expect( getCastedLog( 'foreach' ) ).to.be( 'one more time: one\none more time: two\none more time: three\nend: one\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "'transmute' block" , function() {
+	
+	it( "should execute a regular expression to a variable as a list" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'transmute' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'transmute' ) ).to.be( 'onE\ntwo\nthrEE\n' ) ;
 				done() ;
 			} ) ;
 		} ) ;

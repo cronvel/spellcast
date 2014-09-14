@@ -23,9 +23,18 @@ formula
 	foreach list
 		scroll
 			echo one more time: ${list}
-
+	
 	scroll
 		echo end: ${list}
+
+.transmute
+	transmute list
+		/e/g
+		'E'
+	
+	foreach list
+		scroll
+			echo ${list}
 
 .write-formula
 	scroll amnesia silence write-formula:scroll
