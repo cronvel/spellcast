@@ -20,6 +20,7 @@ List of blocks that supports formula:
 * *scroll*'s *only-index* argument
 
 TODOC: list formula
+TODOC: coupled formula using ${some-formula:some-index-formula} notation
 
 
 
@@ -46,6 +47,8 @@ This block defines formula, i.e. variables and values used for substitution.
 * write-formula: this specify a variable name (aka a *formula*) which will be populated by each line of the output
   of this scroll block, the formula is used as a list
 * splitter: this specify a splitter for the 'write-formula' argument, by default '\n' is the splitter
+* only-index: when used in conjunction with write-formula, this get only the first part of the splitted output
+  and put it in this formula's index, it can be a number or a third party formula
 * silence: dispell all output to stdout
 * amnesia: dispell all output to log files
 
