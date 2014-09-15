@@ -24,6 +24,20 @@ TODOC: coupled formula using ${some-formula:some-index-formula} notation
 
 
 
+## Filter
+
+We can use builtin filter at substitution time, using the `${formula/filter}` syntax.
+
+Valid filters:
+* uppercase
+* lowercase
+* regexp: escape for regexp pattern
+* shellarg: escape for a shell argument
+
+
+
+
+
 # References
 
 ## Top level

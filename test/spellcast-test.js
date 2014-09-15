@@ -78,13 +78,43 @@ function getFizzledLog( spell )
 
 
 
-describe( "Formula" , function() {
+describe( "Formula & variable substitution" , function() {
 	
 	it( "should be parsed into list of string, with an additionnal property 'index' equals to 0" , function() {
 		var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
 		
 		expect( book.formula.alert ).to.be.eql( [ 'bob' ] ) ;
 		expect( book.formula.list ).to.be.eql( [ 'one' , 'two' , 'three' ] ) ;
+	} ) ;
+	
+	it( "should substitute variable (aka formula) accordingly in 'scroll' block" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'kawarimi' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'kawarimi' ) ).to.be( 'bob blihblih one\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+	
+	it( "should substitute variable (aka formula) using filters" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'kawarimi-filter' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'kawarimi-filter' ) ).to.be( '0\\.1\\.2\nBOB\nfuuu\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
 	} ) ;
 } ) ;
 
@@ -117,21 +147,6 @@ describe( "'scroll' block" , function() {
 			{
 				expect( error ).not.ok() ;
 				expect( getCastedLog( 'delayed-echo' ) ).to.be( 'delayed-echo\n' ) ;
-				done() ;
-			} ) ;
-		} ) ;
-	} ) ;
-	
-	it( "should substitute variable (aka formula) accordingly in 'scroll' block" , function( done ) {
-		
-		cleanup( function() {
-			
-			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
-			
-			book.cast( 'kawarimi' , function( error )
-			{
-				expect( error ).not.ok() ;
-				expect( getCastedLog( 'kawarimi' ) ).to.be( 'bob blihblih one\n' ) ;
 				done() ;
 			} ) ;
 		} ) ;
