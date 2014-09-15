@@ -22,8 +22,6 @@ three - trois
 onE
 two
 thrEE
-content: one two three
-
 onE two thrEE
 # TOC
    - [Formula & variable substitution](#formula--variable-substitution)
