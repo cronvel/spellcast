@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "It's like 'make', but with a touch of Wizardry.",
   "main": "lib/spellcast.js",
   "directories": {
