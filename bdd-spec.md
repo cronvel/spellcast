@@ -22,12 +22,16 @@ three - trois
 onE
 two
 thrEE
+content: one two three
+
+onE two thrEE
 # TOC
    - [Formula & variable substitution](#formula--variable-substitution)
    - ['scroll' block](#scroll-block)
    - ['summon' block and dependencies](#summon-block-and-dependencies)
    - ['foreach' block](#foreach-block)
    - ['transmute' block](#transmute-block)
+   - ['transmute-file' block](#transmute-file-block)
 <a name=""></a>
  
 <a name="formula--variable-substitution"></a>
@@ -188,6 +192,24 @@ cleanup( function() {
 	{
 		expect( error ).not.ok() ;
 		expect( getCastedLog( 'transmute' ) ).to.be( 'onE\ntwo\nthrEE\n' ) ;
+		done() ;
+	} ) ;
+} ) ;
+```
+
+<a name="transmute-file-block"></a>
+# 'transmute-file' block
+should execute a regular expression to a variable as a list.
+
+```js
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.cast( 'transmute-file' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( 'transmute-file' ) ).to.be( 'onE two thrEE\n' ) ;
 		done() ;
 	} ) ;
 } ) ;
