@@ -49,7 +49,7 @@ formula
 		test/spellcast-test.js
 	
 	cast
-		dev-summon
+		npm-dev-install
 	
 	scroll
 		${mocha} test/spellcast-test.js -R spec
@@ -61,7 +61,7 @@ formula
 		test/spellcast-test.js
 	
 	cast
-		dev-summon
+		npm-dev-install
 	
 	scroll
 		${jshint} lib/spellcast.js test/spellcast-test.js
