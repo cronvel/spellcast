@@ -305,6 +305,26 @@ describe( "'transmute' block" , function() {
 
 
 
+describe( "'transmute-file' block" , function() {
+	
+	it( "should execute a regular expression to a variable as a list" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.cast( 'transmute-file' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( 'transmute-file' ) ).to.be( 'onE two thrEE\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+} ) ;
+
+
+
 
 
 

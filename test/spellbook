@@ -50,6 +50,17 @@ formula
 		scroll
 			echo ${list}
 
+.transmute-file
+	scroll
+		echo one two three > transmute-file.tmp
+	
+	transmute-file transmute-file.tmp
+		/e/g
+		'E'
+	
+	scroll
+		cat transmute-file.tmp
+
 .write-formula
 	scroll amnesia silence write-formula:ls
 		ls ls/
