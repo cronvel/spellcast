@@ -14,12 +14,20 @@ of the variable.
 
 When a variable is encountered, it is substituted by its string value.
 
-List of blocks that supports formula:
-* *scroll*'s command, when: at execution of each command
-* *scroll*'s *write-formula* argument
-* *scroll*'s *only-index* argument
+List of blocks that supports formula substitution:
+* *formula*'s value in a top-level formula block, when: at spellbook parsing
+* *formula*'s value in a cast-level formula block, when: at real-time
+* *scroll*' argument's value, when: at real-time
+* *scroll*'s commands, when: at real-time
+* *transmute/transmute-file*'s pattern and replacement, when: at real-time
+* *transmute-file*'s file argument, when: at real-time
+
+
 
 TODOC: list formula
+TODOC: ${some-formula:n}
+TODOC: ${some-formula:*}
+TODOC: ${some-formula/filter}
 TODOC: coupled formula using ${some-formula:some-index-formula} notation
 
 
