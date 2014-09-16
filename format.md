@@ -3,7 +3,7 @@
 
 
 
-# Variable substitution
+# Formula/Variable substitution
 
 Variables aka *formula* are defined in the *formula* block.
 
@@ -36,6 +36,12 @@ Valid filters:
 
 
 
+## The special formula *${this}*
+
+It represents the matching rule.
+
+When in regexp summoning context, it contains all capturing parentheses too, see *regexp summoning*.
+
 
 
 # References
@@ -44,10 +50,50 @@ Valid filters:
 
 ### formula
 
-* no-overide: if variable definition should not overide pre-existing variables, e.g. variable passed from 
-  the command line, or previous formula block, or anything else
-
 This block defines formula, i.e. variables and values used for substitution.
+
+
+
+### *Spell declaration*
+
+The syntax of a spell is `.<spellname>`.
+
+A spell is a set of actions and conditions that are executed when running `spellcast <spellname>` on the command line.
+
+
+
+### *Summoning declaration*
+
+The syntax of a summoning is `:<filename>`.
+
+A summoning is a set of actions and conditions that must be done in order to build or rebuild (=summon) a file.
+
+Summoning block are executed:
+* when another spell or summoning explicitly summon a file and a summoning declaration exist for this file
+* when running `spellcast <filename>`, and no spell exists for this name (spell have priorities over summmoning)
+
+Files that does not need to be built or rebuilt should never have a summoning declaration for them,
+e.g. all sources files (.c, .js, ...).
+
+
+
+### *Regexp summoning declaration*
+
+The syntax of a regexp summoning is `/<pattern>/<flags>`.
+
+This works exactly the same way as regular summoning, except that this block will be executed if the filename
+of the file that should be summoned match the regexp. So many file can trigger the same regexp summoning block.
+
+Also, when a file is summoned, only one summoning block will be triggered: *Spellcast* will start searching
+for regular summoning block, if nothing was found, then it will try all the regexp summoning in the order
+they appear in the spellbook, if it match the matching block will be executed and no other regexp summoning
+will be tried... if nothing is found, then the file is treated as a source, it should exist or an error is raised.
+
+The special formula `${this}` contains the matching file.
+However, if the regexp contains capturing parentheses, `${this:1}` contains the first one, `${this:2}` the second,
+and so on...
+
+This is really a powerful feature.
 
 
 

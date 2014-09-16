@@ -80,11 +80,14 @@ function getFizzledLog( spell )
 
 describe( "Formula & variable substitution" , function() {
 	
-	it( "should be parsed into list of string, with an additionnal property 'index' equals to 0" , function() {
+	it( "top-level formula should be parsed into list of string, with an additionnal property 'index' equals to 0" , function() {
+		
 		var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
 		
-		expect( book.formula.alert ).to.be.eql( [ 'bob' ] ) ;
-		expect( book.formula.list ).to.be.eql( [ 'one' , 'two' , 'three' ] ) ;
+		expect( book.formulas.alert ).to.be.eql( [ 'bob' ] ) ;
+		expect( book.formulas.alert.index ).to.equal( 0 ) ;
+		expect( book.formulas.list ).to.be.eql( [ 'one' , 'two' , 'three' ] ) ;
+		expect( book.formulas.list.index ).to.equal( 0 ) ;
 	} ) ;
 	
 	it( "should substitute variable (aka formula) accordingly in 'scroll' block" , function( done ) {
@@ -112,6 +115,44 @@ describe( "Formula & variable substitution" , function() {
 			{
 				expect( error ).not.ok() ;
 				expect( getCastedLog( 'kawarimi-filter' ) ).to.be( '0\\.1\\.2\nBOB\nfuuu\n' ) ;
+				done() ;
+			} ) ;
+		} ) ;
+	} ) ;
+	
+	it( "cast-level formula should be parsed into list of string, with an additionnal property 'index' equals to 0" , function( done ) {
+		
+		var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+		
+		book.cast( 'formula' , function( error )
+		{
+			expect( error ).not.ok() ;
+			expect( book.formulas.copy1 ).to.be.eql( [ 'one' ] ) ;
+			expect( book.formulas.copy1.index ).to.equal( 0 ) ;
+			expect( book.formulas.copy2 ).to.be.eql( [ 'one' , 'two' , 'three' ] ) ;
+			expect( book.formulas.copy2.index ).to.equal( 0 ) ;
+			expect( book.formulas.copy3 ).to.be.eql( [ 'zero' , 'one' , 'two' , 'three' , 'four' ] ) ;
+			expect( book.formulas.copy3.index ).to.equal( 0 ) ;
+			expect( getCastedLog( 'formula' ) ).to.be( 'one\none,two,three\nzero,one,two,three,four\n' ) ;
+			done() ;
+		} ) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "Summon regexp" , function() {
+	
+	it( "should match a summoning using a regexp" , function( done ) {
+		
+		cleanup( function() {
+			
+			var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+			
+			book.summon( 'cat/John' , function( error )
+			{
+				expect( error ).not.ok() ;
+				expect( getCastedLog( '~cat~John' ) ).to.be( 'cat/John\nJohn\n' ) ;
 				done() ;
 			} ) ;
 		} ) ;
@@ -287,7 +328,7 @@ describe( "'foreach' block" , function() {
 
 describe( "'transmute' block" , function() {
 	
-	it( "should execute a regular expression to a variable as a list" , function( done ) {
+	it( "should execute a regular expression on a variable as a list" , function( done ) {
 		
 		cleanup( function() {
 			
@@ -323,6 +364,17 @@ describe( "'transmute-file' block" , function() {
 	} ) ;
 } ) ;
 
+
+/*
+describe( "regexp" , function() {
+	
+	it( "should" , function() {
+		
+		console.log( 'one,twoA,three'.split( /,/ ) ) ;
+		console.log( 'one,twoA,three'.split( /(?:(?!A,).)*,/ ) ) ;
+	} ) ;
+} ) ;
+*/
 
 
 

@@ -2,6 +2,11 @@ bob blihblih one
 0\.1\.2
 BOB
 fuuu
+one
+one,two,three
+zero,one,two,three,four
+cat/John
+John
 echo
 delayed-echo
 ls default line: one
@@ -25,6 +30,7 @@ thrEE
 onE two thrEE
 # TOC
    - [Formula & variable substitution](#formula--variable-substitution)
+   - [Summon regexp](#summon-regexp)
    - ['scroll' block](#scroll-block)
    - ['summon' block and dependencies](#summon-block-and-dependencies)
    - ['foreach' block](#foreach-block)
@@ -34,13 +40,15 @@ onE two thrEE
  
 <a name="formula--variable-substitution"></a>
 # Formula & variable substitution
-should be parsed into list of string, with an additionnal property 'index' equals to 0.
+top-level formula should be parsed into list of string, with an additionnal property 'index' equals to 0.
 
 ```js
 var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
 
-expect( book.formula.alert ).to.be.eql( [ 'bob' ] ) ;
-expect( book.formula.list ).to.be.eql( [ 'one' , 'two' , 'three' ] ) ;
+expect( book.formulas.alert ).to.be.eql( [ 'bob' ] ) ;
+expect( book.formulas.alert.index ).to.equal( 0 ) ;
+expect( book.formulas.list ).to.be.eql( [ 'one' , 'two' , 'three' ] ) ;
+expect( book.formulas.list.index ).to.equal( 0 ) ;
 ```
 
 should substitute variable (aka formula) accordingly in 'scroll' block.
@@ -70,6 +78,43 @@ cleanup( function() {
 	{
 		expect( error ).not.ok() ;
 		expect( getCastedLog( 'kawarimi-filter' ) ).to.be( '0\\.1\\.2\nBOB\nfuuu\n' ) ;
+		done() ;
+	} ) ;
+} ) ;
+```
+
+cast-level formula should be parsed into list of string, with an additionnal property 'index' equals to 0.
+
+```js
+var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+
+book.cast( 'formula' , function( error )
+{
+	expect( error ).not.ok() ;
+	expect( book.formulas.copy1 ).to.be.eql( [ 'one' ] ) ;
+	expect( book.formulas.copy1.index ).to.equal( 0 ) ;
+	expect( book.formulas.copy2 ).to.be.eql( [ 'one' , 'two' , 'three' ] ) ;
+	expect( book.formulas.copy2.index ).to.equal( 0 ) ;
+	expect( book.formulas.copy3 ).to.be.eql( [ 'zero' , 'one' , 'two' , 'three' , 'four' ] ) ;
+	expect( book.formulas.copy3.index ).to.equal( 0 ) ;
+	expect( getCastedLog( 'formula' ) ).to.be( 'one\none,two,three\nzero,one,two,three,four\n' ) ;
+	done() ;
+} ) ;
+```
+
+<a name="summon-regexp"></a>
+# Summon regexp
+should match a summoning using a regexp.
+
+```js
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.summon( 'cat/John' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( '~cat~John' ) ).to.be( 'cat/John\nJohn\n' ) ;
 		done() ;
 	} ) ;
 } ) ;
@@ -179,7 +224,7 @@ cleanup( function() {
 
 <a name="transmute-block"></a>
 # 'transmute' block
-should execute a regular expression to a variable as a list.
+should execute a regular expression on a variable as a list.
 
 ```js
 cleanup( function() {

@@ -85,6 +85,22 @@ formula
 		ls/two
 		ls/three
 
+# Should match cat/John and cat/Jack
+/cat\/(J[a-z]+)/
+	scroll
+		echo ${this}
+		echo ${this:1}
+
+.formula
+	formula
+		copy1:${list}
+		copy2:${list:*}
+		copy3:zero,${list:*},four
+	
+	scroll
+		echo ${copy1:*}
+		echo ${copy2:*}
+		echo ${copy3:*}
 
 
 
