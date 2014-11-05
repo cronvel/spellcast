@@ -10,12 +10,12 @@
     "spellcast": "./bin/spellcast"
   },
   "dependencies": {
-    "async-kit": "^0.5.4",
+    "async-kit": "^0.5.5",
     "glob": "^4.0.5",
     "minimist": "^1.1.0",
-    "string-kit": "^0.0.14",
-    "terminal-kit": "^0.3.2",
-    "tif-parser": "^0.1.0",
+    "string-kit": "^0.0.18",
+    "terminal-kit": "^0.3.7",
+    "tif-parser": "^0.1.1",
     "tree-kit": "^0.3.1"
   },
   "devDependencies": {
