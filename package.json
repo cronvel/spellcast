@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "It's like 'make', but with a touch of Wizardry.",
   "main": "lib/spellcast.js",
   "directories": {
@@ -13,8 +13,8 @@
     "async-kit": "^0.5.5",
     "glob": "^4.0.5",
     "minimist": "^1.1.0",
-    "string-kit": "^0.0.18",
-    "terminal-kit": "^0.5.12",
+    "string-kit": "^0.1.0",
+    "terminal-kit": "^0.7.1",
     "tif-parser": "^0.1.1",
     "tree-kit": "^0.3.1"
   },

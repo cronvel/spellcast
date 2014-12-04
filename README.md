@@ -24,28 +24,32 @@ one
 one,two,three
 zero,one,two,three,four
 cat/John
-John
 echo
-delayed-echo
+ls default line: one
 ls default line: one
 ls line: one
-ls line: three
-ls line: two
 ls line: one
 ls line: three
+ls line: three
 ls line: two
-[32mThis spell is not ready yet.
-[39mone more time: one
+ls line: two
+ls line: one
+ls line: one
+ls line: three
+ls line: three
+ls line: two
+ls line: two
+one more time: one
 one more time: two
-one more time: three
+[32mThis spell is not ready yet.
+[39mone more time: three
 end: one
-one - un
-two - deux
-three - trois
 onE
 two
+one - un
 thrEE
-onE two thrEE
+two - deux
+three - trois
 # TOC
    - [Formula & variable substitution](#formula--variable-substitution)
    - [Summon regexp](#summon-regexp)
@@ -101,6 +105,8 @@ cleanup( function() {
 } ) ;
 ```
 
+<a name="summon-regexp"></a>
+# Summon regexp
 cast-level formula should be parsed into list of string, with an additionnal property 'index' equals to 0.
 
 ```js
@@ -120,24 +126,6 @@ book.cast( 'formula' , function( error )
 } ) ;
 ```
 
-<a name="summon-regexp"></a>
-# Summon regexp
-should match a summoning using a regexp.
-
-```js
-cleanup( function() {
-	
-	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
-	
-	book.summon( 'cat/John' , function( error )
-	{
-		expect( error ).not.ok() ;
-		expect( getCastedLog( '~cat~John' ) ).to.be( 'cat/John\nJohn\n' ) ;
-		done() ;
-	} ) ;
-} ) ;
-```
-
 <a name="scroll-block"></a>
 # 'scroll' block
 should echoing echo.
@@ -151,22 +139,6 @@ cleanup( function() {
 	{
 		expect( error ).not.ok() ;
 		expect( getCastedLog( 'echo' ) ).to.be( 'echo\n' ) ;
-		done() ;
-	} ) ;
-} ) ;
-```
-
-should echoing delayed-echo after one second.
-
-```js
-cleanup( function() {
-	
-	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
-	
-	book.cast( 'delayed-echo' , function( error )
-	{
-		expect( error ).not.ok() ;
-		expect( getCastedLog( 'delayed-echo' ) ).to.be( 'delayed-echo\n' ) ;
 		done() ;
 	} ) ;
 } ) ;
@@ -190,22 +162,6 @@ cleanup( function() {
 
 <a name="summon-block-and-dependencies"></a>
 # 'summon' block and dependencies
-should consider up to date a summon on a file that have a rule but that does nothing.
-
-```js
-cleanup( function() {
-	
-	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
-	
-	book.cast( 'summon-top' , function( error )
-	{
-		expect( error ).not.ok() ;
-		expect( getCastedLog( 'summon-top' ) ).to.be( '' ) ;
-		done() ;
-	} ) ;
-} ) ;
-```
-
 <a name="foreach-block"></a>
 # 'foreach' block
 should iterate through a variable as a list.
@@ -224,22 +180,6 @@ cleanup( function() {
 } ) ;
 ```
 
-should iterate through a variable as a list using coupled variable substitution.
-
-```js
-cleanup( function() {
-	
-	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
-	
-	book.cast( 'foreach-coupled' , function( error )
-	{
-		expect( error ).not.ok() ;
-		expect( getCastedLog( 'foreach-coupled' ) ).to.be( 'one - un\ntwo - deux\nthree - trois\n' ) ;
-		done() ;
-	} ) ;
-} ) ;
-```
-
 <a name="transmute-block"></a>
 # 'transmute' block
 should execute a regular expression on a variable as a list.
@@ -253,6 +193,22 @@ cleanup( function() {
 	{
 		expect( error ).not.ok() ;
 		expect( getCastedLog( 'transmute' ) ).to.be( 'onE\ntwo\nthrEE\n' ) ;
+		done() ;
+	} ) ;
+} ) ;
+```
+
+should iterate through a variable as a list using coupled variable substitution.
+
+```js
+cleanup( function() {
+	
+	var book = new spellcast.Book( fs.readFileSync( 'spellbook' ).toString() ) ;
+	
+	book.cast( 'foreach-coupled' , function( error )
+	{
+		expect( error ).not.ok() ;
+		expect( getCastedLog( 'foreach-coupled' ) ).to.be( 'one - un\ntwo - deux\nthree - trois\n' ) ;
 		done() ;
 	} ) ;
 } ) ;
