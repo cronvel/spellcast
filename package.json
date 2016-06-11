@@ -12,6 +12,7 @@
   "dependencies": {
     "async-kit": "^2.0.1",
     "glob": "^7.0.3",
+    "kung-fig": "^0.17.6",
     "minimist": "^1.2.0",
     "string-kit": "^0.5.7",
     "terminal-kit": "^0.24.8",
@@ -45,5 +46,13 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/cronvel/spellcast/issues"
+  },
+  "copyright": {
+    "title": "Spellcast",
+    "years": [
+      2014,
+      2016
+    ],
+    "owner": "Cédric Ronvel"
   }
 }
