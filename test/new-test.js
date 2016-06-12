@@ -48,7 +48,7 @@ describe( "..." , function() {
 	it( "..." , function( done ) {
 		
 		var book = spellcast.load( __dirname + '/spellbook.kfg' ) ;
-		deb( book ) ;
+		//deb( book ) ;
 		
 		book.script.get( 'echo' ).run( book , null , done ) ;
 	} ) ;
