@@ -45,10 +45,12 @@ function deb( something )
 
 describe( "..." , function() {
 	
-	it( "..." , function() {
+	it( "..." , function( done ) {
 		
-		var script = spellcast.load( __dirname + '/spellbook.kfg' ) ;
-		deb( script ) ;
+		var book = spellcast.load( __dirname + '/spellbook.kfg' ) ;
+		deb( book ) ;
+		
+		book.script.get( 'echo' ).run( book , null , done ) ;
 	} ) ;
 } ) ;
 
