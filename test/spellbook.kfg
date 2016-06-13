@@ -22,6 +22,10 @@
 		- sleep 1
 		- echo delayed-echo
 
+[spell ls]
+	[scroll]
+		- ls -l
+
 [spell kawarimi]
 	[scroll]
 		- echo ${alert} ${blah}${blah} ${list}

@@ -50,7 +50,7 @@ describe( "..." , function() {
 		var book = spellcast.load( __dirname + '/spellbook.kfg' ) ;
 		//deb( book ) ;
 		
-		book.script.get( 'echo' ).run( book , null , done ) ;
+		book.script.get( 'ls' ).run( book , null , done ) ;
 	} ) ;
 } ) ;
 
