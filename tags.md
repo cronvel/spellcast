@@ -14,7 +14,23 @@ The `formula` tag stores data that can be used later for variable substitution.
 The `spell` tag defines a *spell*, a set of actions that can be triggered by a spellcast command
 (e.g. entering `spellcast <spell name>` in the shell).
 
-* **Attributes:** the name of the spell. Should be unique.
+* **Attributes:** `string` the name of the spell. Should be unique.
+
+* **Content:** a TagContainer, containing tags to execute.
+
+
+
+## summoning
+
+The `summoning` tag defines how to *summon* a file or a group of files matching a regular expression, and contains
+a set of actions to produce the file.
+
+Summoning a file won't do anything if the file exists and is up to date.
+That's the main difference between a *spell* and a *summoning*.
+
+* **Attributes:** `string` or `regex` the name of the file to build, or a regular expression describing its name and path.
+
+* **Content:** a TagContainer, containing tags to execute to produce the file.
 
 
 

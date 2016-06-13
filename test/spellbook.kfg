@@ -43,4 +43,9 @@
 		- echo Creating spellcast-dependency.txt
 		- echo "This is a dummy dependency file." > spellcast-dependency.txt
 
+[summoning /.*\.bob/]
+	[scroll]
+		- echo Creating *.bob
+		- echo "This is a dummy dependency file." > spellcast-dependency.txt
+
 
