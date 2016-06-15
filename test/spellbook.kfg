@@ -45,7 +45,6 @@
 
 [summoning /.*\.bob/]
 	[scroll]
-		- echo Creating *.bob
+		- $> echo Creating ${match[0]}.bob
 		- echo "This is a dummy dependency file." > spellcast-dependency.txt
-
 
