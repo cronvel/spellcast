@@ -12,7 +12,7 @@
   "dependencies": {
     "async-kit": "^2.1.1",
     "glob": "^7.0.3",
-    "kung-fig": "^0.19.0",
+    "kung-fig": "^0.19.1",
     "minimist": "^1.2.0",
     "string-kit": "^0.5.7",
     "terminal-kit": "^0.24.9",
