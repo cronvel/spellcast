@@ -17,6 +17,10 @@
 	[scroll]
 		- echo echo
 
+[spell blah]
+	[scroll]
+		- echo blah
+
 [spell delayed-echo]
 	[scroll]
 		- sleep 1

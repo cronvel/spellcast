@@ -13,6 +13,7 @@
     "async-kit": "^2.1.1",
     "glob": "^7.0.4",
     "kung-fig": "^0.19.9",
+    "logfella": "^0.3.35",
     "minimatch": "^3.0.0",
     "minimist": "^1.2.0",
     "string-kit": "^0.5.7",
