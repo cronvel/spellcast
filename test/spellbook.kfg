@@ -28,7 +28,7 @@
 
 [spell kawarimi]
 	[scroll]
-		- echo ${alert} ${blah}${blah} ${list}
+		- $> echo ${alert//sharg} ${blah//sharg}${blah//sharg} ${list//sharg}
 
 [spell depend]
 	[cast]
