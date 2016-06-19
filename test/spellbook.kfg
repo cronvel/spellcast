@@ -1,4 +1,8 @@
 
+[[meta]]
+	type: spellcast
+	sub-type: builder
+
 [formula]
 	alert: bob
 	blah: blih
