@@ -15,10 +15,11 @@
 		- trois
 	version: 0.1.2
 
-[wand staffOfFire] @@staff-of-fire.js
+[wand fire staff] @@firestaff.js
 
 [spell wand]
-	[zap staffOfFire.fireball]
+	[zap fire staff's delayed fireball]
+	[zap fire staff.fireball]
 
 [spell echo]
 	[scroll]
