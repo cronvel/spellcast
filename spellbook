@@ -2,11 +2,42 @@
 
 [prologue]
 	[chant]
+		$>
 		$> ^M^/The Book of the Book
+		$>
+		
+	[fortune]
+		-
+			$> ^K^/“He drew his dagger, that was sae sharp,
+			$>    That was sae sharp and meet,
+			$>  And drave it into the nut-browne bride,
+			$>    That fell deid at his feit.
+			$>
+			$> ‘Now stay for me, dear Annet,’ he sed,
+			$>   ‘Now stay, my dear,’ he cry’d;
+			$>  Then strake the dagger untill his heart,
+			$>    And fell deid by her side.”
+			$>
+			$>      -- “Lord Thomas and Fair Annet”, circa 1650.
+			$>
+		-
+			$> ^K^/“O Bell my wife, why dost thou flyte?
+			$>   Now is now, and then was then:
+			$> Seek now all the world throughout,
+			$>   Thou kens not clowns from gentlemen:
+			$> They are clad in black, green, yellow and blue,
+			$>   So far above their own degree.
+			$> Once in my life I’ll take a view;
+			$>   For I’ll have a new cloak about me.”
+			$> 
+			$>     -- Anonymous, “The Old Cloak”. 16th Century.
+			$>
 
 [epilogue]
 	[chant]
-		$> ^M^/Allright!
+		$>
+		$> ^M^/That's all folks!
+		$>
 
 [summoning README.md]
 	[summon]
