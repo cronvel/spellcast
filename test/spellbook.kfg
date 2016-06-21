@@ -57,12 +57,17 @@
 		- echo "This is a dummy static dependency file." > spellcast-dependency.txt
 
 [summoning regex(i): .*\.bob]
+	[summon]
+		- spellbook
 	[scroll]
 		# Kung-Fig should allow another feature in proxy/tag: force filtering in template?
 		- $> echo Creating ${summoning}
 		- $> echo "This is a dummy regex dependency file." > ${summoning}
 
 [summoning *.bill]
+	[summon]
+		- spellcast-dependency.txt
+	
 	[scroll]
 		# Kung-Fig should allow another feature in proxy/tag: force filtering in template?
 		- $> echo Creating ${summoning}
