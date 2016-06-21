@@ -1,8 +1,8 @@
 {
   "name": "spellcast",
-  "version": "0.1.10",
+  "version": "0.2.0",
   "description": "It's like 'make', but with a touch of Wizardry.",
-  "main": "lib/spellcast.js",
+  "main": "lib/Book.js",
   "directories": {
     "test": "test"
   },
@@ -27,7 +27,7 @@
     "mocha": "^2.5.3"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "tea-time -R dot"
   },
   "repository": {
     "type": "git",
@@ -42,7 +42,7 @@
     "spellbook",
     "magic",
     "wizardry",
-    "depend"
+    "dependency"
   ],
   "author": "Cédric Ronvel",
   "license": "MIT",
