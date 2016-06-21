@@ -1,0 +1,25 @@
+[[doctype spellbook]]
+
+[prologue]
+	[chant]
+		$> ^M^/The Book of the Book
+
+[epilogue]
+	[chant]
+		$> ^M^/Allright!
+
+[summoning README.md]
+	[summon]
+		- documentation.md
+		- bdd-spec.md
+	[scroll]
+		- > cat documentation.md bdd-spec.md > README.md
+
+[spell test]
+	[summon]
+		- lib/*
+		- lib/*/*
+		- test/*
+	[scroll]
+		- > tea-time
+

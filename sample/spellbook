@@ -39,6 +39,13 @@
 	[scroll]
 		- ls -l
 
+[spell love]
+	[chant]
+		$> ^M^/Star of love, burn so bright
+		$> Aid me in my spell tonight
+		$> Unite my true love to me
+		$> As I will ${alert}, so mote it be. 
+
 [spell kawarimi]
 	[scroll]
 		- $> echo ${alert//sharg} ${blah//sharg}${blah//sharg} ${list//sharg}
