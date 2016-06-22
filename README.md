@@ -22,5 +22,5 @@ Usage: `spellcast [<spellbook>] <spell or summoning> [<options 1>] [<options 2>]
 Options:
 
 * `--eternal`: continously cast or summon (e.g. each time a dependency change)
-* `--force`: cast or summon a spell even if it's not needed
+* `--force`: cast or summon a spell even if it's not needed (TODO)
 
