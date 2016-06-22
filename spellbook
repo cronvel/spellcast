@@ -42,9 +42,9 @@
 [summoning README.md]
 	[summon]
 		- documentation.md
-		- bdd-spec.md
+		#- bdd-spec.md
 	[scroll]
-		- > cat documentation.md bdd-spec.md > README.md
+		- > cat documentation.md > README.md
 
 [spell test]
 	[summon]
