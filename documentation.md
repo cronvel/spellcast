@@ -1,6 +1,6 @@
 
 
-# Spellcast
+# Spellcast!
 
 It's like 'make', but with a touch of Wizardry.
 
