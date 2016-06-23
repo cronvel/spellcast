@@ -26,6 +26,11 @@
 	[scroll]
 		- echo echo
 
+[spell foreach-echo]
+	[foreach list as key => value]
+		[scroll]
+			- $> echo ${value}
+
 [spell blah]
 	[scroll]
 		- echo blah
