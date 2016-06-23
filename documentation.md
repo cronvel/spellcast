@@ -9,7 +9,7 @@ This Scroll is still a work in progress (specs, etc...)
 * License: MIT
 * Current status: early alpha / unstable / hazardous magical energy / DO NOT USE YET!
 * Platform: Node.js only
-* Are-we-better-yet: **No.**
+* Are-we-better-yet: **Maybe.**
 
 
 Usage: `spellcast [<spellbook>] <spell or summoning> [<options 1>] [<options 2>] [...]`
