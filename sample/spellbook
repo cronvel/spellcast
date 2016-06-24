@@ -27,7 +27,8 @@
 		- echo echo
 
 [spell foreach-echo]
-	[foreach $list as $key => $value]
+	#[foreach $list => $value]
+	[foreach $list => $key : $value]
 		[scroll]
 			- $> echo ${value}
 
@@ -73,8 +74,8 @@
 		- spellbook
 	[scroll]
 		# Kung-Fig should allow another feature in proxy/tag: force filtering in template?
-		- $> echo Creating ${summoning}
-		- $> echo "This is a dummy regex dependency file." > ${summoning}
+		- $> echo Creating ${this.summoning}
+		- $> echo "This is a dummy regex dependency file." > ${this.summoning}
 
 [summoning *.bill]
 	[summon]
@@ -82,8 +83,8 @@
 	
 	[scroll]
 		# Kung-Fig should allow another feature in proxy/tag: force filtering in template?
-		- $> echo Creating ${summoning}
-		- $> echo "This is a dummy glob dependency file." > ${summoning}
+		- $> echo Creating ${this.summoning}
+		- $> echo "This is a dummy glob dependency file." > ${this.summoning}
 
 
 
