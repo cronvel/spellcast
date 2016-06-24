@@ -74,7 +74,7 @@
 		- spellbook
 	[scroll]
 		# Kung-Fig should allow another feature in proxy/tag: force filtering in template?
-		- $> echo Creating ${this.summoning}
+		#- $> echo Creating ${this.summoning}
 		- $> echo "This is a dummy regex dependency file." > ${this.summoning}
 
 [summoning *.bill]
@@ -83,7 +83,7 @@
 	
 	[scroll]
 		# Kung-Fig should allow another feature in proxy/tag: force filtering in template?
-		- $> echo Creating ${this.summoning}
+		#- $> echo Creating ${this.summoning}
 		- $> echo "This is a dummy glob dependency file." > ${this.summoning}
 
 
