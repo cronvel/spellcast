@@ -28,9 +28,16 @@
 
 [spell set]
 	[set $a] something
+	[set $b] $> ${ref} something
+	[set $c] $alert
+	[set $d] $ref
 	[chant]
 		- $> Value of $$a: ${a}
+		- $> Value of $$b: ${b}
+		- $> Value of $$c: ${c}
+		- $> Value of $$d: ${d}
 		- $> Value of alert: ${alert}
+		- $> Value of ref: ${ref}
 
 [spell foreach-echo]
 	#[foreach $list => $value]
