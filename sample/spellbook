@@ -26,6 +26,12 @@
 	[scroll]
 		- echo echo
 
+[spell set]
+	[set $a] something
+	[chant]
+		- $> Value of $$a: ${a}
+		- $> Value of alert: ${alert}
+
 [spell foreach-echo]
 	#[foreach $list => $value]
 	[foreach $list => $key : $value]
