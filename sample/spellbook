@@ -43,7 +43,7 @@
 [spell if]
 	[if $value > 4]
 		[chant]
-			- > Condition #1 OK
+			- > Condition #1 if OK
 	[else]
 		[chant]
 			- > Condition #1 NOT OK
@@ -54,6 +54,9 @@
 	[elsif $value > 2]
 		[chant]
 			- > Condition #2 elsif OK
+	[elseif $value > 1]
+		[chant]
+			- > Condition #2 elseif OK
 	[else]
 		[chant]
 			- > Condition #2 NOT OK
