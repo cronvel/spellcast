@@ -14,7 +14,7 @@
 		- deux
 		- trois
 	version: 0.1.2
-	value: 3
+	value: 5
 	ref: $alert
 
 [wand fire staff] @@firestaff.js
@@ -43,10 +43,20 @@
 [spell if]
 	[if $value > 4]
 		[chant]
-			- > Condition OK
+			- > Condition #1 OK
 	[else]
 		[chant]
-			- > Condition NOT OK
+			- > Condition #1 NOT OK
+	
+	[if $value > 4]
+		[chant]
+			- > Condition #2 if OK
+	[elsif $value > 2]
+		[chant]
+			- > Condition #2 elsif OK
+	[else]
+		[chant]
+			- > Condition #2 NOT OK
 
 [spell foreach-echo]
 	#[foreach $list => $value]
