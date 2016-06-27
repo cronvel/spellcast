@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "It's like 'make', but with a touch of Wizardry.",
   "main": "lib/Book.js",
   "directories": {
@@ -12,7 +12,7 @@
   "dependencies": {
     "async-kit": "^2.1.1",
     "glob": "^7.0.5",
-    "kung-fig": "^0.20.7",
+    "kung-fig": "^0.22.1",
     "logfella": "^0.3.38",
     "minimatch": "^3.0.2",
     "minimist": "^1.2.0",

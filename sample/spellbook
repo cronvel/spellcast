@@ -14,6 +14,7 @@
 		- deux
 		- trois
 	version: 0.1.2
+	value: 3
 	ref: $alert
 
 [wand fire staff] @@firestaff.js
@@ -38,6 +39,14 @@
 		- $> Value of $$d: ${d}
 		- $> Value of alert: ${alert}
 		- $> Value of ref: ${ref}
+
+[spell if]
+	[if $value > 4]
+		[chant]
+			- > Condition OK
+	[else]
+		[chant]
+			- > Condition NOT OK
 
 [spell foreach-echo]
 	#[foreach $list => $value]
