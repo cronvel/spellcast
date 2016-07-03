@@ -126,13 +126,14 @@
 # Need a glob, check all files matching the glob.
 # Reverse summoning are tested after all summon have been tried.
 # The label of the [reverse-summoning] tag is used to force a match.
-[reverse-summoning label **/*.c]
+[reverse-summoning md2html **/*.md]
 	# Each matching files try one of the [sources] tag, if it matches the substitution produces the source file
-	[sources #src/(.+)\.c#build/$1.o#i]
-	[sources #src/([a-z]+)/(.+)\.c#build/$1-$2.o#i]
+	[sources #^([^/]+)\.md$#build/$1.html#]
+	[sources #^doc/([^/]+)\.md$#build/doc-$1.html#]
 	
-	[scroll]
-		- $> echo gcc -o ${this.summoning} ${this.source}
+	[chant]
+		# fake command
+		- $> md2html -o ${this.summoning} ${this.source}
 
 
 
