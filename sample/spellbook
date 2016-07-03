@@ -123,3 +123,16 @@
 
 
 
+# Need a glob, check all files matching the glob.
+# Reverse summoning are tested after all summon have been tried.
+# The label of the [reverse-summoning] tag is used to force a match.
+[reverse-summoning label **/*.c]
+	# Each matching files try one of the [sources] tag, if it matches the substitution produces the source file
+	[sources #src/(.+)\.c#build/$1.o#i]
+	[sources #src/([a-z]+)/(.+)\.c#build/$1-$2.o#i]
+	
+	[scroll]
+		- $> echo gcc -o ${this.summoning} ${this.source}
+
+
+
