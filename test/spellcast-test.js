@@ -48,9 +48,10 @@ describe( "..." , function() {
 	it( "..." , function( done ) {
 		
 		var book = Book.load( __dirname + '/../sample/spellbook' ) ;
-		//deb( book ) ;
 		
-		book.cast( 'ls' , done ) ;
+		book.initBook( function() {
+			book.cast( 'ls' , done ) ;
+		} ) ;
 	} ) ;
 } ) ;
 
