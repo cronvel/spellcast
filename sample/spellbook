@@ -131,6 +131,9 @@
 	[sources *.md : #^([^/]+)\.md$#build/$1.html#]
 	[sources doc/*.md : #^doc/([^/]+)\.md$#build/doc-$1.html#]
 	
+	[summon]
+		- $> ${this.source}
+	
 	[chant]
 		# fake command
 		- $> md2html -o ${this.summoning} ${this.source}
