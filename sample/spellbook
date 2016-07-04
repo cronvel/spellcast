@@ -123,13 +123,13 @@
 
 
 
-# Need a glob, check all files matching the glob.
-# Reverse summoning are tested after all summon have been tried.
-# The label of the [reverse-summoning] tag is used to force a match.
-[reverse-summoning md2html **/*.md]
-	# Each matching files try one of the [sources] tag, if it matches the substitution produces the source file
-	[sources #^([^/]+)\.md$#build/$1.html#]
-	[sources #^doc/([^/]+)\.md$#build/doc-$1.html#]
+# Reverse summonings are tested after all summonings have been tried.
+# The label of the [reverse-summoning] tag is used to summon everything.
+[reverse-summoning md2html]
+	# Need a glob, check all files matching the glob.
+	# The regex is used to compute the target from the source.
+	[sources *.md : #^([^/]+)\.md$#build/$1.html#]
+	[sources doc/*.md : #^doc/([^/]+)\.md$#build/doc-$1.html#]
 	
 	[chant]
 		# fake command
