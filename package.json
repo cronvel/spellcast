@@ -16,6 +16,7 @@
     "logfella": "^0.3.40",
     "minimatch": "^3.0.2",
     "minimist": "^1.2.0",
+    "nextgen-events": "^0.5.16",
     "string-kit": "^0.5.8",
     "terminal-kit": "^0.24.11",
     "tif-parser": "^0.3.3",
