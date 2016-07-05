@@ -1,14 +1,16 @@
 
-exports.fireball = function( book , tag )
+exports.fireball = function( book , tag , context )
 {
 	console.log( "ZASH... ROOOOARRRR-CRASHHHHH!" ) ;
+	console.log( tag.proxy.data.wizard + ' killed the ' + tag.content + "..." ) ;
 } ;
 
-exports['delayed fireball'] = function( book , tag , callback )
+exports['delayed fireball'] = function( book , tag , context , callback )
 {
 	console.log( "ssssshhhhh... SSSSSHHHHH..." ) ;
 	setTimeout( function() {
 		console.log( "ROOOOARRRR-CRASHHHHH!" ) ;
+		console.log( tag.proxy.data.wizard + ' killed the ' + tag.content + "..." ) ;
 		callback() ;
 	} , 500 ) ;
 } ;

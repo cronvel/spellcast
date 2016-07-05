@@ -2,6 +2,7 @@
 [[doctype spellbook]]
 
 [formula]
+	wizard: Zang'dar
 	alert: bob
 	blah: blih
 	allcaps: FUUU
@@ -20,8 +21,9 @@
 [wand fire staff] @@firestaff.js
 
 [spell wand]
-	[zap fire staff's delayed fireball]
-	[zap fire staff.fireball]
+	[zap fire staff's fireball] gnoll
+	[zap fire staff's delayed fireball] troll berserker
+	[zap fire staff.fireball] orc
 
 [spell echo]
 	[scroll]
