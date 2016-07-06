@@ -65,7 +65,7 @@
 
 [spell foreach-echo]
 	#[foreach $list => $value]
-	[foreach $list => $key : $value]
+	[foreachll $list => $key : $value]
 		[scroll]
 			- $> echo ${value}
 
