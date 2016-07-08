@@ -14,7 +14,7 @@
     "glob": "^7.0.5",
     "kung-fig": "^0.23.8",
     "logfella": "^0.3.41",
-    "minimatch": "^3.0.2",
+    "@cronvel/minimatch": "^3.0.2",
     "minimist": "^1.2.0",
     "nextgen-events": "^0.5.16",
     "string-kit": "^0.5.8",
