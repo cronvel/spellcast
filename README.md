@@ -12,15 +12,16 @@ This Scroll is still a work in progress (specs, etc...)
 * Are-we-better-yet: **Maybe.**
 
 
-Usage: `spellcast [<spellbook>] <spell or summoning> [<options 1>] [<options 2>] [...]`
+Usage: `spellcast [--book <spellbook>] <spell or summoning> [<options 1>] [<options 2>] [...]`
 
-* *spellbook*: the magical book (i.e. the file, like `Makefile` for make) containing spells and summonings.
-  It defaults to `./spellbook`.
 * *spell*: a spell to cast (i.e. some actions to perform) existing in the spellbook.
 * *summoning*: a file to summon, it's like *spell* but the result should build the file
 
 Options:
 
-* `--again`: cast or summon a spell even if it's not needed.
-* `--undead [<unflood time>]`: continously raise undead (i.e. do not exit, instead watch dependencies and cast/summon again).
+* `--book <spellbook>`: the magical book (i.e. the file, like `Makefile` for make) containing all spells and summonings.
+  It defaults to `./spellbook`.
+* `--again`: cast or summon even if it's not needed.
+* `--undead [<respawn time>]`: continously raise undead (i.e. do not exit, instead watch dependencies and cast/summon again),
+  `respawn time` is the debounce time in ms.
 * `--summon-makefile`: summon a Makefile having one rule for each spell and summoning of the spellbook. (TODO)
