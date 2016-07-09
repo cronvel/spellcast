@@ -1,3 +1,4 @@
 
 - bizarre EBADF error bug-tracking
+- group dependencies into a [dependencies] tag?
 
