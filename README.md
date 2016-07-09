@@ -22,5 +22,5 @@ Usage: `spellcast [<spellbook>] <spell or summoning> [<options 1>] [<options 2>]
 Options:
 
 * `--again`: cast or summon a spell even if it's not needed.
-* `--undead`: continously raise undead (i.e. do not exit, instead watch dependencies and cast/summon again).
+* `--undead [<unflood time>]`: continously raise undead (i.e. do not exit, instead watch dependencies and cast/summon again).
 * `--summon-makefile`: summon a Makefile having one rule for each spell and summoning of the spellbook. (TODO)
