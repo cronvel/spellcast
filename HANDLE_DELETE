@@ -1,5 +1,0 @@
-
-OK	Undead mode should handle file deletion (should already work)
-	Dependencies should be stored in the .spellcast directory, that's the only way to track deletion between 2 executions
-OK	Reverse-summoning should hunt down target that doesn't have a source anymore and remove them
-
