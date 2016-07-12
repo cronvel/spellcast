@@ -2,7 +2,7 @@
 
 # Spellcast!
 
-It's like 'make', but with a touch of Wizardry.
+It's like 'make', but with a touch of Wizardry!
 
 This Scroll is still a work in progress (specs, etc...)
 
@@ -24,4 +24,4 @@ Options:
 * `--again`: cast or summon even if it's not needed.
 * `--undead [<respawn time>]`: continously raise undead (i.e. do not exit, instead watch dependencies and cast/summon again),
   `respawn time` is the debounce time in ms.
-* `--summon-makefile`: summon a Makefile having one rule for each spell and summoning of the spellbook. (TODO)
+* `--summon-makefile`: summon a Makefile having one rule for each spell and summoning of the spellbook.
