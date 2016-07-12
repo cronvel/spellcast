@@ -78,6 +78,17 @@
 		- sleep 1
 		- echo delayed-echo
 
+[spell fail-dependency]
+	[cast]
+		- fail-scroll
+	[scroll]
+		- echo "after fail dependency"
+
+[spell fail-scroll]
+	[scroll]
+		- exit 1
+		- echo "after fail"
+
 [spell ls]
 	[scroll]
 		- ls -l
