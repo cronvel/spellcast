@@ -93,6 +93,13 @@
 	[scroll]
 		- ls -l
 
+[spell input]
+	[message]
+		$> Enter your name: 
+	[input $name]
+	[message]
+		$> Hello ^/${name}^:!
+
 [spell love]
 	[chant]
 		$> ^M^/Star of love, burn so bright
