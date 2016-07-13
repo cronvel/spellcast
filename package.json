@@ -13,7 +13,7 @@
     "@cronvel/minimatch": "^3.0.2",
     "async-kit": "^2.1.3",
     "chokidar": "^1.6.0",
-    "doormen": "^0.5.1",
+    "doormen": "^0.6.2",
     "glob": "^7.0.5",
     "kung-fig": "^0.23.8",
     "logfella": "^0.3.41",
@@ -21,9 +21,9 @@
     "nextgen-events": "^0.5.16",
     "semver": "^5.2.0",
     "string-kit": "^0.5.8",
-    "terminal-kit": "^0.24.11",
+    "terminal-kit": "^0.24.12",
     "tif-parser": "^0.3.3",
-    "tree-kit": "^0.5.25"
+    "tree-kit": "^0.5.26"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
