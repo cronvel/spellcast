@@ -1,4 +1,4 @@
 
-- bizarre EBADF error bug-tracking
+- be compatible with Gulp plugins?
 - group dependencies into a [dependencies] tag?
 
