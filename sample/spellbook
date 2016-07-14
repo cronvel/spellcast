@@ -90,8 +90,10 @@
 		- echo "after fail"
 
 [spell ls]
-	[scroll]
-		- ls -l
+	[scroll store=$ls split="\n"]
+		> ls -l
+	[chant]
+		$> Command first line output: ${ls[1]}
 
 [spell input]
 	[input $name]
