@@ -94,9 +94,8 @@
 		- ls -l
 
 [spell input]
-	[message]
-		$> Enter your name: 
 	[input $name]
+		$> Enter your name: 
 	[message]
 		$> Hello ^/${name}^:!
 
@@ -106,6 +105,14 @@
 		$> Aid me in my spell tonight
 		$> Unite my true love to me
 		$> As I will ${alert}, so mote it be. 
+
+[spell terminal]
+	[message]
+		next: true
+		slowTyping: true
+		text:
+			$> Welcome to The Shadow Terminal.
+			$> Enjoy techno-magi!
 
 [spell kawarimi]
 	[scroll]
