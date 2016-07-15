@@ -126,6 +126,14 @@
 	[emit blast] Troll
 	[emit blast] Gnoll
 
+[spell js]
+	[message]
+		$> Hello ${wizard}!
+	[js]
+		> wizard = "Oz" ;
+	[message]
+		$> Hello ${wizard}!
+
 [spell kawarimi]
 	[scroll]
 		- $> echo ${alert//sharg} ${blah//sharg}${blah//sharg} ${list//sharg}
