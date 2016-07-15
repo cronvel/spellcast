@@ -120,7 +120,11 @@
 	[on blast]
 		[message]
 			$> ^RBlasted ${this.data}!
-	[emit blast] toto
+	[once blast]
+		[message]
+			$> ^RRoasted ${this.data}!
+	[emit blast] Troll
+	[emit blast] Gnoll
 
 [spell kawarimi]
 	[scroll]
