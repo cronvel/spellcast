@@ -116,6 +116,12 @@
 			$> Welcome to The Shadow Terminal.
 			$> Enjoy techno-magi!
 
+[spell event]
+	[on blast]
+		[message]
+			$> ^RBlasted ${this.data}!
+	[emit blast] toto
+
 [spell kawarimi]
 	[scroll]
 		- $> echo ${alert//sharg} ${blah//sharg}${blah//sharg} ${list//sharg}
