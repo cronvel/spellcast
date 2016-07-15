@@ -2,6 +2,20 @@
 [[doctype spellbook]]
 [[type adventure]]
 
+[chapter intro]
+	
+	[scene intro]
+		[message]
+			> Once upon a time...
+		[next start]
 
-
+	[scene start]
+		[message]
+			> Select your background.
+		[next blacksmith]
+			> You are a blacksmith
+		[next archer]
+			> You are an archer
+		[next mage-apprentice]
+			> You are a Mage apprentice
 
