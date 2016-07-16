@@ -11,10 +11,11 @@
 	[scene start]
 		[message]
 			> Select your background.
+		
 		[next blacksmith]
-			> You are a blacksmith
+			[label] > You are a blacksmith
 		[next archer]
-			> You are an archer
+			[label] > You are an archer
 		[next mage-apprentice]
-			> You are a Mage apprentice
+			[label] > You are a Mage apprentice
 
