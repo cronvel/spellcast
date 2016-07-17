@@ -14,12 +14,37 @@
 		
 		[next blacksmith]
 			[label] > You are a blacksmith
-		[next archer]
-			[label] > You are an archer
+		[next rogue]
+			[label] > You are a rogue living in the wood
 		[next mage-apprentice]
 			[label] > You are a Mage apprentice
 
 	[scene blacksmith]
 		[message]
-			> You started learning how to forge swords and axes since the age of 12.
+			> You lived in a small village of few hundred peoples.
+			> You started learning how to forge horseshoe since the age of 12 with your father, the local smith.
+			> At the age of 15, you got tired of horseshoes and wanted to forge more exciting things like axes and swords,
+			> but your father was not competent for this kind of stuff.
+		
+		[next master]
+			[label] > You seek for a master at forgery.
+		
+		[include common-background]
+	
+	[scene common-background]
+		[message]
+			> One day, a black knight entered in your house and kill your father.
+			> One month later, you leave the family house.
+			
+		[next vengeance]
+			[label] > You seek the black knight for vengeance.
+		
+	[scene master]
+		[message]
+			> You found the master and learn everything he taught to you.
+			> You became famous in the entire country.
+	
+	[scene vengeance]
+		[message]
+			> You dedicated your entire life to vengeance. One day you eventually found him and kill him.
 		

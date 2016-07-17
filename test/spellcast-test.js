@@ -47,7 +47,7 @@ describe( "..." , function() {
 	
 	it( "..." , function( done ) {
 		
-		var book = Book.load( __dirname + '/../sample/builder/spellbook' ) ;
+		var book = Book.load( __dirname + '/../sample/spellcaster/spellbook' ) ;
 		
 		book.initBook( function() {
 			book.cast( 'ls' , done ) ;
