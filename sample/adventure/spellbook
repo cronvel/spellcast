@@ -4,12 +4,22 @@
 [chapter intro]
 	
 	[scene intro]
-		[set $dices] $= 3 D 6
 		[message]
 			$> Once upon a time...
-			$> Dices: ${dices}
+		[subscene sub1]
 		[next start]
-
+	
+	[scene sub1]
+		[set $dices] $= 3 D 6
+		[message]
+			$> Dices #1: ${dices}
+		[next sub2]
+	
+	[scene sub2]
+		[set $dices] $= 3 D 6
+		[message]
+			$> Dices #2: ${dices}
+	
 	[scene start]
 		[message]
 			> Select your background.
