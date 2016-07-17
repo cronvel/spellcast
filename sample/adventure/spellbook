@@ -19,3 +19,7 @@
 		[next mage-apprentice]
 			[label] > You are a Mage apprentice
 
+	[scene blacksmith]
+		[message]
+			> You started learning how to forge swords and axes since the age of 12.
+		
