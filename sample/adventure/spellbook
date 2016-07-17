@@ -4,8 +4,10 @@
 [chapter intro]
 	
 	[scene intro]
+		[set $dices] $= 3 D 6
 		[message]
-			> Once upon a time...
+			$> Once upon a time...
+			$> Dices: ${dices}
 		[next start]
 
 	[scene start]
