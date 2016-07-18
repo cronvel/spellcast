@@ -1,5 +1,53 @@
 [[doctype spellbook]]
 
+[formula]
+	browserify: ./node_modules/.bin/browserify
+	uglify: ./node_modules/.bin/uglifyjs
+
+[summoning README.md]
+	[summon]
+		- documentation.md
+		#- bdd-spec.md
+	[scroll]
+		- > cat documentation.md > README.md
+
+[spell test]
+	[summon]
+		- lib/*
+		- lib/*/*
+		- test/*
+	[scroll]
+		- > tea-time
+
+[spell browser]
+	[summon]
+		- browser/app.html
+		- browser/app.min.js
+
+[summoning browser/app.html]
+	[summon]
+		- lib/clients/web/app.html
+	[scroll]
+		- > cp lib/clients/web/app.html browser/app.html
+
+[summoning browser/app.js]
+	[summon]
+		- lib/clients/web/app.js
+	[scroll]
+		- $> ${browserify} lib/clients/web/app.js -s SpellcastClient -o browser/app.js
+
+[summoning browser/app.min.js]
+	[summon]
+		- browser/app.js
+	[scroll]
+		- $> ${uglify} browser/app.js -o browser/app.min.js -m
+
+
+
+
+
+# Cosmetics
+
 [prologue]
 	[chant]
 		$>
@@ -38,19 +86,4 @@
 		$>
 		$> ^M^/That's all folks!
 		$>
-
-[summoning README.md]
-	[summon]
-		- documentation.md
-		#- bdd-spec.md
-	[scroll]
-		- > cat documentation.md > README.md
-
-[spell test]
-	[summon]
-		- lib/*
-		- lib/*/*
-		- test/*
-	[scroll]
-		- > tea-time
 
