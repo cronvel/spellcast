@@ -98,12 +98,27 @@ SpellcastClient.prototype.run = function run( callback )
 		self.input.emit( 'ready' ) ;
 		//SpellcastClient.forward.call( self , 'ready' ) ;
 		console.log( "Websocket opened!" ) ;
-		callback() ;
+		if ( typeof callback === 'function' ) { callback() ; }
 	} ;
 	
 	this.ws.onclose = function onClose()
 	{
 		console.log( "Websocket closed!" ) ;
+	} ;
+	
+	this.ws.onmessage = function onMessage( wsMessage )
+	{
+		var message ;
+		
+		try {
+			message = JSON.parse( wsMessage.data ) ;
+		}
+		catch ( error ) {
+			return ;
+		}
+		
+		console.log( "Message received: " , message ) ;
+		self.emit.apply( self , [ message.event ].concat( message.args ) ) ;
 	} ;
 } ;
 
@@ -111,16 +126,17 @@ SpellcastClient.prototype.run = function run( callback )
 
 SpellcastClient.forward = function forward( event )
 {
-    var self = this ;
-    
-    var args = Array.prototype.slice.call( arguments , 1 ) ;
-    
-    var data = JSON.stringify( {
-        event: event ,
-        args: args
-    } ) ;
-    
-    Object.keys( this.ws ).forEach( function( k ) { self.ws[ k ].send( data ) ; } ) ;
+	var self = this ;
+	
+	var args = Array.prototype.slice.call( arguments , 1 ) ;
+	
+	var data = JSON.stringify( {
+		event: event ,
+		args: args
+	} ) ;
+	
+	console.log( 'Sending event: ' , event ) ;
+	this.ws.send( data ) ;
 } ;
 
 
@@ -128,7 +144,7 @@ SpellcastClient.forward = function forward( event )
 SpellcastClient.autoCreate() ;
 
 dom.ready( function() {
-    window.spellcastClient.run() ;
+	window.spellcastClient.run() ;
 } ) ;
 
 
@@ -178,6 +194,9 @@ function UI( client , self )
 		} ) ;
 	}
 	
+	self.$text = document.querySelector( '#text' ) ;
+	self.$next = document.querySelector( '#next' ) ;
+	
 	//self.client.on( 'coreMessage' , UI.coreMessage.bind( self ) ) ;
 	//self.client.on( 'errorMessage' , UI.errorMessage.bind( self ) ) ;
 	self.client.on( 'message' , { fn: UI.message.bind( self ) , async: true } ) ;
@@ -217,7 +236,7 @@ UI.message = function message( text , options ) //, callback )
 		if ( triggered ) { return ; }
 		triggered = true ;
 		//if ( options.next ) { self.next( callback ) ; return ; }
-		callback() ;
+		//callback() ;
 	} ;
 	
 	/*
@@ -228,7 +247,10 @@ UI.message = function message( text , options ) //, callback )
 	}
 	*/
 	
-	term( text + '\n' ) ;
+	this.$text.insertAdjacentHTML( 'beforeend' ,
+		'<p class="text classic-ui">' + text + '</p>'
+	) ;
+	
 	triggerCallback() ;
 } ;
 
@@ -241,8 +263,6 @@ UI.enterScene = function enterScene() {} ;
 
 UI.next = function next( nexts ) //, callback )
 {
-	term( '\n' ) ;
-	
 	//if ( nexts.length === 0 ) { this.nextEnd() ; }
 	//else 
 	if ( nexts.length === 1 ) { this.nextConfirm( nexts[ 0 ] ) ; }
@@ -253,54 +273,56 @@ UI.next = function next( nexts ) //, callback )
 
 UI.prototype.nextConfirm = function nextConfirm( next )
 {
-	var self = this ;
+	var self = this , $next ;
 	
-	if ( next.label ) { term.brightBlue( 'Next: %s\n\n' , next.label ) ; }
-	else { term.brightBlue( 'Next.\n\n' ) ; }
+	this.$next.innerHTML = '' ;
 	
-	//term.bgBrightWhite.black.eraseLine( 'PRESS ANY KEY TO CONTINUE' ) ;
-	term.inverse( 'PRESS ANY KEY TO CONTINUE' ) ;
+	if ( next.label )
+	{
+		this.$next.insertAdjacentHTML( 'beforeend' ,
+			'<a id="next_0" class="next classic-ui">Next: ' + next.label + '</a>'
+		) ;
+	}
+	else
+	{
+		this.$next.insertAdjacentHTML( 'beforeend' ,
+			'<a id="next_0" class="next classic-ui">Next.</a>'
+		) ;
+	}
 	
-	var onKey = function onKey( name ) {
-		
-		if ( name.length === 1 || name === 'ENTER' )
-		{
-			term.column( 1 ).eraseLine( '\n' ) ;
-			term.off( 'key' , onKey ) ;
-			self.client.input.emit( 'next' , 0 ) ;
-		}
+	$next = document.querySelector( '#next_0' ) ;
+	
+	$next.onclick = function() {
+		self.client.input.emit( 'next' , 0 ) ;
+		$next.onclick = null ;
 	} ;
-	
-	term.on( 'key' , onKey ) ;
 } ;
 
 
 
 UI.prototype.nextMenu = function nextMenu( nexts )
 {
-	var self = this , nextIndex ,
+	var self = this , $nexts ,
 		max = 0x61 + nexts.length - 1 ;
 	
+	this.$next.innerHTML = '' ;
+	
 	nexts.forEach( function( e , i ) {
-		term.brightBlue( '%s. %s\n' , String.fromCharCode( 0x61 + i ) , nexts[ i ].label ) ;
+		
+		self.$next.insertAdjacentHTML( 'beforeend' ,
+			'<a id="next_' + i + '" class="next classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + e.label + '</a>'
+		) ;
 	} ) ;
 	
-	term( '\n' ) ;
+	$nexts = document.querySelectorAll( '.next' ) ;
+	$nexts = Array.prototype.slice.call( $nexts ) ;
 	
-	term.inverse( 'PRESS KEY a-' + String.fromCharCode( max ) ) ;
-	
-	var onKey = function onKey( name , matches , data ) {
-		
-		if ( data.codepoint >= 0x61 && data.codepoint <= max )
-		{
-			term.column( 1 ).eraseLine( '\n' ) ;
-			nextIndex = data.codepoint - 0x61 ;
-			term.off( 'key' , onKey ) ;
-			self.client.input.emit( 'next' , nextIndex ) ;
-		}
-	} ;
-	
-	term.on( 'key' , onKey ) ;
+	$nexts.forEach( function( e , i ) {
+		e.onclick = function() {
+			self.client.input.emit( 'next' , i ) ;
+			$nexts.forEach( function( e , i ) { e.onclick = null ; } ) ;
+		} ;
+	} ) ;
 } ;
 
 

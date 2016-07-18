@@ -19,10 +19,25 @@
 	[scroll]
 		- > tea-time
 
+# Do not work ATM, the execution does not finish, hence no undead mode can kick in
+[spell dev-browser]
+	[cast]
+		- browser
+	[scroll store=$pid silence]
+		> ps x | grep spellcast | grep websocket
+	[set $regex] <RegExp> /^([0-9]+)[\s\S]*$/$1/m
+	[set $pid] $= $regex.substitute -> $pid
+	[message]
+		$> kill ${pid}
+	[scroll]
+		- $> kill ${pid}
+		- $> cd sample/adventure ; ../../bin/spellcast --ui websocket
+
 [spell browser]
 	[summon]
 		- browser/app.html
 		- browser/app.min.js
+		- browser/app.css
 
 [summoning browser/app.html]
 	[summon]
@@ -30,9 +45,16 @@
 	[scroll]
 		- > cp lib/clients/web/app.html browser/app.html
 
+[summoning browser/app.css]
+	[summon]
+		- lib/clients/web/app.css
+	[scroll]
+		- > cp lib/clients/web/app.css browser/app.css
+
 [summoning browser/app.js]
 	[summon]
 		- lib/clients/web/app.js
+		- lib/clients/web/ui/*.js
 	[scroll]
 		- $> ${browserify} lib/clients/web/app.js -s SpellcastClient -o browser/app.js
 
