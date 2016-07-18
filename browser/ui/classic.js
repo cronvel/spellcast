@@ -67,9 +67,7 @@ function UI( book , self )
 			process.exit( 130 ) ;
 		}
 	} ) ;
-	
-	self.book.input.emit( 'ready' ) ;
-	
+
 	return self ;
 }
 
@@ -176,9 +174,8 @@ UI.prototype.nextMenu = function nextMenu( nexts )
 		
 		if ( data.codepoint >= 0x61 && data.codepoint <= max )
 		{
-			term.column( 1 ).eraseLine() ;
+			term.column( 1 ).eraseLine( '\n' ) ;
 			nextIndex = data.codepoint - 0x61 ;
-			term.bold.cyan( "> %s. %s\n\n\n" , name , nexts[ nextIndex ].label ) ;
 			term.off( 'key' , onKey ) ;
 			self.book.input.emit( 'next' , nextIndex ) ;
 		}
