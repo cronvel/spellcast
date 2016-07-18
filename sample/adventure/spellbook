@@ -7,6 +7,8 @@
 		[message]
 			$> Once upon a time...
 		[subscene sub1]
+		[message]
+			$> ...
 		[next start]
 	
 	[scene sub1]
