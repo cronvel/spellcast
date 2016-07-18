@@ -1,17 +1,18 @@
 
 
 #text {
-	padding: 1em ;
+	margin: 1.5em ;
 }
 
 #next {
-	margin-top: 3em ;
-	padding: 1em ;
+	margin: 1.5em ;
 }
 
 a.next.classic-ui {
+	display: block ;
 	background-color: #faa ;
-	padding: 1em 3em ;
+	padding: 0.8em 2em ;
+	margin: 0.8em 0 ;
 	border-radius: 1em ;
 	cursor: pointer ;
 }

@@ -232,6 +232,9 @@ UI.message = function message( text , options ) //, callback )
 	
 	if ( ! options ) { options = {} ; }
 	
+	this.$text.innerHTML = '' ;
+	this.$next.innerHTML = '' ;
+	
 	var triggerCallback = function triggerCallback() {
 		if ( triggered ) { return ; }
 		triggered = true ;
