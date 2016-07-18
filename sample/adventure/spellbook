@@ -40,7 +40,7 @@
 			> At the age of 15, you got tired of horseshoes and wanted to forge more exciting things like axes and swords,
 			> but your father was not competent for this kind of stuff.
 		
-		[next master]
+		[next end/master]
 			[label] > You seek for a master at forgery.
 		
 		[include common-background]
@@ -50,9 +50,12 @@
 			> One day, a black knight entered in your house and kill your father.
 			> One month later, you leave the family house.
 			
-		[next vengeance]
+		[next end/vengeance]
 			[label] > You seek the black knight for vengeance.
-		
+
+
+[chapter end]
+	
 	[scene master]
 		[message]
 			> You found the master and learn everything he taught to you.
