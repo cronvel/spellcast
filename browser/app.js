@@ -169,8 +169,7 @@ dom.ready( function() {
 
 
 
-},{"./ui/classic.js":2,"dom-kit":11,"nextgen-events":13,"url":9}],2:[function(require,module,exports){
-(function (process){
+},{"./ui/classic.js":2,"dom-kit":10,"nextgen-events":12,"url":8}],2:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -247,20 +246,17 @@ module.exports = UI ;
 
 // Script [message], execution can be suspended if the listener is async, waiting for completion.
 // E.g.: possible use: wait for a user input before continuing processing.
-UI.message = function message( text , options ) //, callback )
+UI.message = function message( text , options , callback )
 {
 	var self = this , triggered = false ;
 	
 	if ( ! options ) { options = {} ; }
 	
-	this.$text.innerHTML = '' ;
-	this.$next.innerHTML = '' ;
-	
 	var triggerCallback = function triggerCallback() {
 		if ( triggered ) { return ; }
 		triggered = true ;
-		//if ( options.next ) { self.next( callback ) ; return ; }
-		//callback() ;
+		if ( options.next ) { self.next( callback ) ; return ; }
+		callback() ;
 	} ;
 	
 	/*
@@ -281,7 +277,11 @@ UI.message = function message( text , options ) //, callback )
 
 
 // 'enterScene' event, nothing to do for instance
-UI.enterScene = function enterScene() {} ;
+UI.enterScene = function enterScene()
+{
+	this.$text.innerHTML = '' ;
+	this.$next.innerHTML = '' ;
+} ;
 
 
 
@@ -354,7 +354,8 @@ UI.prototype.nextMenu = function nextMenu( nexts )
 // External raw output (e.g. shell command stdout)
 UI.extOutput = function extOutput( output )
 {
-	process.stdout.write( output ) ;
+	alert( 'not coded ATM!' ) ;
+	//process.stdout.write( output ) ;
 } ;
 
 
@@ -362,7 +363,8 @@ UI.extOutput = function extOutput( output )
 // External raw error output (e.g. shell command stderr)
 UI.extErrorOutput = function extErrorOutput( output )
 {
-	process.stderr.write( output ) ;
+	alert( 'not coded ATM!' ) ;
+	//process.stderr.write( output ) ;
 } ;
 
 
@@ -370,6 +372,8 @@ UI.extErrorOutput = function extErrorOutput( output )
 // Text input field
 UI.textInput = function textInput( label )
 {
+	alert( 'textInput is not coded ATM!' ) ;
+	/*
 	var self = this ;
 	
 	if ( label ) { term( label ) ; }
@@ -386,6 +390,7 @@ UI.textInput = function textInput( label )
 		if ( error ) { self.remote.bookInput.emit( error ) ; }
 		else { self.remote.bookInput.emit( 'textInput' , input ) ; }
 	} ) ;
+	*/
 } ;
 
 
@@ -394,136 +399,14 @@ UI.textInput = function textInput( label )
 UI.exit = function exit()
 {
 	//term( "\n" ) ;
-	term.styleReset() ;
+	//term.styleReset() ;
 } ;
 
 
 
-}).call(this,require('_process'))
-},{"_process":4,"dom-kit":11}],3:[function(require,module,exports){
+},{"dom-kit":10}],3:[function(require,module,exports){
 
 },{}],4:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-(function () {
-  try {
-    cachedSetTimeout = setTimeout;
-  } catch (e) {
-    cachedSetTimeout = function () {
-      throw new Error('setTimeout is not defined');
-    }
-  }
-  try {
-    cachedClearTimeout = clearTimeout;
-  } catch (e) {
-    cachedClearTimeout = function () {
-      throw new Error('clearTimeout is not defined');
-    }
-  }
-} ())
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = cachedSetTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    cachedClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        cachedSetTimeout(drainQueue, 0);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],5:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -1060,7 +943,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1146,7 +1029,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1233,13 +1116,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":6,"./encode":7}],9:[function(require,module,exports){
+},{"./decode":5,"./encode":6}],8:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1973,7 +1856,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":10,"punycode":5,"querystring":8}],10:[function(require,module,exports){
+},{"./util":9,"punycode":4,"querystring":7}],9:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -1991,7 +1874,7 @@ module.exports = {
   }
 };
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*
 	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
 
@@ -2220,7 +2103,7 @@ dom.html = function html( element , html ) { element.innerHTML = html ; } ;
 
 
 
-},{"./svg.js":12}],12:[function(require,module,exports){
+},{"./svg.js":11}],11:[function(require,module,exports){
 /*
 	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
 
@@ -2420,7 +2303,7 @@ domSvg.ajax.ajaxStatus = function ajaxStatus( callback )
 
 
 
-},{"./dom.js":11,"fs":3}],13:[function(require,module,exports){
+},{"./dom.js":10,"fs":3}],12:[function(require,module,exports){
 /*
 	Next Gen Events
 	
@@ -3156,7 +3039,7 @@ NextGenEvents.off = NextGenEvents.prototype.off ;
 NextGenEvents.Proxy = require( './Proxy.js' ) ;
 
 
-},{"./Proxy.js":14}],14:[function(require,module,exports){
+},{"./Proxy.js":13}],13:[function(require,module,exports){
 /*
 	Next Gen Events
 	
@@ -3759,5 +3642,5 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message )
 
 
 
-},{"./NextGenEvents.js":13}]},{},[1])(1)
+},{"./NextGenEvents.js":12}]},{},[1])(1)
 });
