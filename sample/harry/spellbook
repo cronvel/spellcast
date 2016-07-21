@@ -31,8 +31,12 @@
 
 [chapter intro]
 	
+	[title]
+	
 	[scene intro]
 		[music] sorrow.mp3
+		[image] scene image, most of time in the background, or cover half of the screen
+		[pause 1.5] pause the scene for 1.5 seconds
 		[message]
 			Blah blah blah.
 		[next intro2]
@@ -53,28 +57,38 @@
 		[message]
 			Blah.
 		
-		[on chat]
+		[on-scene chat]
+			# [goto] go immediately to this scene
 			[goto kaboom]
 		
-		# button 
-		[button left]
-			[label] Go to the left road.
-			[goto kaboom]
-		[button right]
-			[label] Go to the right road.
-			[goto right]
+		[everyone] / [majority] / [absolute-majority] / [relative-majority] 
 		
-		
-		# next use consensus
+		# next use [majority] by default
 		[next left]
-			# When one player choose it, it is acted immediately
-			# $this.character contains the player that used it
-			[immediate]
-			
 			[label] Go to the left road.
+			# Whenever one player choose it, it is acted immediately
+			[immediate] ?
+			
+			[on-select] ?
+				# action code
+				# $this.character contains the player that used it
+			
+			[trigger] ?
+				# action code
+				# $this.characters <- S
 			
 		[next right]
-			# 
 			[label] Go to the right road.
-
-
+			[everyone] ?
+			[majority] ?
+			[absolute-majority] ?
+			[relative-majority] ?
+			
+			[type majority] ?
+			
+			[unselectable] ?
+			
+			[default 10]
+			
+			
+			
