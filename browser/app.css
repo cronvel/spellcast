@@ -8,7 +8,7 @@
 	margin: 1.5em ;
 }
 
-a.next.classic-ui {
+button.next.classic-ui {
 	display: block ;
 	background-color: #faa ;
 	padding: 0.8em 2em ;
@@ -17,7 +17,7 @@ a.next.classic-ui {
 	cursor: pointer ;
 }
 
-a.next.classic-ui:hover {
+button.next.classic-ui:hover {
 	background-color: #f77 ;
 	text-decoration: underline ;
 }
