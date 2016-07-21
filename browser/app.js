@@ -52,13 +52,6 @@ SpellcastClient.create = function create( options )
 		proxy: { value: null , writable: true , enumerable: true } ,
 	} ) ;
 	
-	/*
-	// Events to forward to the server
-	[
-		'ready' , 'next' , 'textInput' , 'exit'
-	].forEach( function( e ) { self.input.on( e , SpellcastClient.forward.bind( self , e ) ) ; } ) ;
-	*/
-	
 	return self ;
 } ;
 
@@ -106,7 +99,7 @@ SpellcastClient.prototype.run = function run( callback )
 			if ( uiList[ ui ] ) { uiList[ ui ]( window.spellcastClient ) ; }
 		} ) ;
 		
-		// Send 'ready' to client
+		// Send 'ready' to server
 		self.proxy.remoteServices.bookInput.emit( 'ready' ) ;
 		//self.input.emit( 'ready' ) ;
 		
@@ -142,23 +135,6 @@ SpellcastClient.prototype.run = function run( callback )
 	} ;
 } ;
 
-
-/*
-SpellcastClient.forward = function forward( event )
-{
-	var self = this ;
-	
-	var args = Array.prototype.slice.call( arguments , 1 ) ;
-	
-	var data = JSON.stringify( {
-		event: event ,
-		args: args
-	} ) ;
-	
-	console.log( 'Sending event: ' , event ) ;
-	this.ws.send( data ) ;
-} ;
-*/
 
 
 SpellcastClient.autoCreate() ;
@@ -211,6 +187,7 @@ function UI( client , self )
 		self = Object.create( UI.prototype , {
 			client: { value: client , enumerable: true } ,
 			remote: { value: client.proxy.remoteServices , enumerable: true } ,
+			afterNext: { value: false , writable: true , enumerable: true } ,
 		} ) ;
 	}
 	
@@ -255,7 +232,7 @@ UI.message = function message( text , options , callback )
 	var triggerCallback = function triggerCallback() {
 		if ( triggered ) { return ; }
 		triggered = true ;
-		if ( options.next ) { self.next( callback ) ; return ; }
+		if ( options.next ) { self.messageNext( callback ) ; return ; }
 		callback() ;
 	} ;
 	
@@ -276,22 +253,36 @@ UI.message = function message( text , options , callback )
 
 
 
+UI.prototype.messageNext = function messageNext( callback )
+{
+	callback() ;
+} ;
+
+
+
 // 'enterScene' event, nothing to do for instance
 UI.enterScene = function enterScene()
 {
-	this.$text.innerHTML = '' ;
-	this.$next.innerHTML = '' ;
+	if( this.afterNext )
+	{
+		this.afterNext = false ;
+		this.$text.innerHTML = '' ;
+		this.$next.innerHTML = '' ;
+	}
 } ;
 
 
 
 UI.next = function next( nexts ) //, callback )
 {
+	this.afterNext = true ;
 	//if ( nexts.length === 0 ) { this.nextEnd() ; }
 	//else 
 	if ( nexts.length === 1 ) { this.nextConfirm( nexts[ 0 ] ) ; }
 	else { this.nextMenu( nexts ) ; }
 } ;
+
+
 
 //UI.prototype.nextEnd = function nextEnd() { term.brightBlue( 'End.\n' ) ; } ;
 
