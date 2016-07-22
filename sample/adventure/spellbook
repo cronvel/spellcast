@@ -6,6 +6,9 @@
 	[scene intro]
 		[message]
 			$> Once upon a time...
+		[pause] 0.5
+		[message]
+			$> ...
 		[subscene sub1]
 		[message]
 			$> ...

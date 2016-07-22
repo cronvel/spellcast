@@ -1,4 +1,38 @@
 
+
+
+== ADVENTURE MODE ==
+
+Tags:
+- goto
+- action
+- music / sound
+- image
+- scene-local on
+- quest
+- next tag:
+	- default (auto-select after) timeout
+	- on-trigger
+- entry / widget
+
+Multiplayer tags:
+- profile
+- aside
+- character
+- character-list/selectable-character
+- split
+- next tag:
+	- on-select
+	- deselectable (deselect before others have done)
+	Democracy handling:
+		- immediate
+		- everyone
+		- majority / relative-majority / absolute-majority
+
+
+
+== BUILDER ==
+
 - be compatible with Gulp plugins?
 - group dependencies into a [dependencies] tag?
 

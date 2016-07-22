@@ -116,7 +116,7 @@
 				# action code
 				# $this.character contains the player that used it
 			
-			[trigger] ?
+			[on-trigger] ?
 				# action code
 				# $this.characters <- S
 			
@@ -129,7 +129,7 @@
 			
 			[type majority] ?
 			
-			[unselectable] ?
+			[deselectable] ?
 			
 			[default 10]
 			
