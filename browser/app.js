@@ -201,7 +201,7 @@ function UI( client , self )
 	self.remote.book.on( 'extErrorOutput' , UI.extErrorOutput.bind( self ) ) ;
 	
 	self.remote.book.on( 'enterScene' , UI.enterScene.bind( self ) ) ;
-	self.remote.book.on( 'next' , UI.next.bind( self ) ) ;
+	self.remote.book.on( 'nextList' , UI.nextList.bind( self ) ) ;
 	
 	self.remote.book.on( 'textInput' , UI.textInput.bind( self ) ) ;
 	
@@ -275,20 +275,20 @@ UI.enterScene = function enterScene()
 
 
 
-UI.next = function next( nexts ) //, callback )
+UI.nextList = function nextList( nexts ) //, callback )
 {
 	this.afterNext = true ;
 	//if ( nexts.length === 0 ) { this.nextEnd() ; }
 	//else 
-	if ( nexts.length === 1 ) { this.nextConfirm( nexts[ 0 ] ) ; }
-	else { this.nextMenu( nexts ) ; }
+	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] ) ; }
+	else { this.nextListMenu( nexts ) ; }
 } ;
 
 
 
-//UI.prototype.nextEnd = function nextEnd() { term.brightBlue( 'End.\n' ) ; } ;
+//UI.prototype.nextListEnd = function nextListEnd() { term.brightBlue( 'End.\n' ) ; } ;
 
-UI.prototype.nextConfirm = function nextConfirm( next )
+UI.prototype.nextListConfirm = function nextListConfirm( next )
 {
 	var self = this , $next ;
 	
@@ -310,14 +310,14 @@ UI.prototype.nextConfirm = function nextConfirm( next )
 	$next = document.querySelector( '#next_0' ) ;
 	
 	$next.onclick = function() {
-		self.remote.bookInput.emit( 'next' , 0 ) ;
+		self.remote.bookInput.emit( 'selectNext' , 0 ) ;
 		$next.onclick = null ;
 	} ;
 } ;
 
 
 
-UI.prototype.nextMenu = function nextMenu( nexts )
+UI.prototype.nextListMenu = function nextListMenu( nexts )
 {
 	var self = this , $nexts ,
 		max = 0x61 + nexts.length - 1 ;
@@ -336,7 +336,7 @@ UI.prototype.nextMenu = function nextMenu( nexts )
 	
 	$nexts.forEach( function( e , i ) {
 		e.onclick = function() {
-			self.remote.bookInput.emit( 'next' , i ) ;
+			self.remote.bookInput.emit( 'selectNext' , i ) ;
 			$nexts.forEach( function( e , i ) { e.onclick = null ; } ) ;
 		} ;
 	} ) ;
