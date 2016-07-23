@@ -188,6 +188,7 @@ function UI( client , self )
 			client: { value: client , enumerable: true } ,
 			remote: { value: client.proxy.remoteServices , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
+			afterLeave: { value: false , writable: true , enumerable: true } ,
 		} ) ;
 	}
 	
@@ -196,11 +197,12 @@ function UI( client , self )
 	
 	//self.remote.book.on( 'coreMessage' , UI.coreMessage.bind( self ) ) ;
 	//self.remote.book.on( 'errorMessage' , UI.errorMessage.bind( self ) ) ;
-	self.remote.book.on( 'message' , { fn: UI.message.bind( self ) , async: true } ) ;
+	self.remote.book.on( 'message' , UI.message.bind( self ) , { async: true } ) ;
 	self.remote.book.on( 'extOutput' , UI.extOutput.bind( self ) ) ;
 	self.remote.book.on( 'extErrorOutput' , UI.extErrorOutput.bind( self ) ) ;
 	
 	self.remote.book.on( 'enterScene' , UI.enterScene.bind( self ) ) ;
+	self.remote.book.on( 'leaveScene' , UI.leaveScene.bind( self ) , { async: true } ) ;
 	self.remote.book.on( 'nextList' , UI.nextList.bind( self ) ) ;
 	
 	self.remote.book.on( 'textInput' , UI.textInput.bind( self ) ) ;
@@ -262,15 +264,28 @@ UI.prototype.messageNext = function messageNext( callback )
 
 
 
-// 'enterScene' event, nothing to do for instance
+// 'enterScene' event
 UI.enterScene = function enterScene()
 {
-	if( this.afterNext )
+	if ( this.afterLeave )
 	{
-		this.afterNext = false ;
 		this.$text.innerHTML = '' ;
 		this.$next.innerHTML = '' ;
 	}
+	
+	this.afterNext = false ;
+	this.afterLeave = false ;
+} ;
+
+
+
+// 'leaveScene' event
+UI.leaveScene = function leaveScene( callback )
+{
+	this.afterLeave = true ;
+	
+	if ( this.afterNext ) { callback() ; return ; }
+	setTimeout( callback , 1000 ) ;
 } ;
 
 
