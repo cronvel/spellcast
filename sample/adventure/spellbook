@@ -50,6 +50,9 @@
 		
 		[next blacksmith]
 			[label] > You are a blacksmith
+			[on-trigger]
+				[message]
+					$> Yay!
 		[next rogue]
 			[label] > You are a rogue living in the wood
 		[next mage-apprentice]

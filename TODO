@@ -9,8 +9,8 @@ Tags:
 - quest
 - next tag:
 	- default (auto-select after) timeout
-	- on-trigger
-- entry / widget
+- entry / widget / item
+- end, victory/win, defeat/lost, draw/tie
 
 Multiplayer tags:
 - chat
