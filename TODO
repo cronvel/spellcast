@@ -4,10 +4,7 @@
 == ADVENTURE MODE ==
 
 Tags:
-- goto
 - action
-- music / sound
-- image
 - scene-local on
 - quest
 - next tag:
@@ -28,6 +25,11 @@ Multiplayer tags:
 		- immediate
 		- everyone
 		- majority / relative-majority / absolute-majority
+
+Browser UI event implementation:
+- image
+- sound
+- music
 
 
 

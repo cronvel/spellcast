@@ -197,9 +197,13 @@ function UI( client , self )
 	
 	//self.remote.book.on( 'coreMessage' , UI.coreMessage.bind( self ) ) ;
 	//self.remote.book.on( 'errorMessage' , UI.errorMessage.bind( self ) ) ;
-	self.remote.book.on( 'message' , UI.message.bind( self ) , { async: true } ) ;
 	self.remote.book.on( 'extOutput' , UI.extOutput.bind( self ) ) ;
 	self.remote.book.on( 'extErrorOutput' , UI.extErrorOutput.bind( self ) ) ;
+	
+	self.remote.book.on( 'message' , UI.message.bind( self ) , { async: true } ) ;
+	self.remote.book.on( 'image' , UI.image.bind( self ) ) ;
+    self.remote.book.on( 'sound' , UI.sound.bind( self ) ) ;
+    self.remote.book.on( 'music' , UI.music.bind( self ) ) ;
 	
 	self.remote.book.on( 'enterScene' , UI.enterScene.bind( self ) ) ;
 	self.remote.book.on( 'leaveScene' , UI.leaveScene.bind( self ) , { async: true } ) ;
@@ -260,6 +264,21 @@ UI.message = function message( text , options , callback )
 UI.prototype.messageNext = function messageNext( callback )
 {
 	callback() ;
+} ;
+
+
+
+UI.image = function image( image , options , callback )
+{
+	console.warn( '[image] tag not supported ATM' , image , options ) ;
+} ;
+UI.sound = function sound( sound , options , callback )
+{
+	console.warn( '[sound] tag not supported ATM' , sound , options ) ;
+} ;
+UI.music = function music( music , options , callback )
+{
+	console.warn( '[music] tag not supported ATM' , music , options ) ;
 } ;
 
 

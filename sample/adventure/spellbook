@@ -10,6 +10,10 @@
 		[goto intro2]
 	
 	[scene intro2]
+		[image] > background.png
+		[sound] > effect1.mp3
+		[music] > theme.ogg
+		
 		[message] $> ...
 		[pause] 0.5
 		[message] $> ...
