@@ -14,10 +14,17 @@
 		[sound] > effect1.mp3
 		[music] > theme.ogg
 		
+		[on-global blast]
+		#[on blast]
+			[message]
+				$> ${this.data} was blasted!
+		
 		[message] $> ...
 		[pause] 0.5
+		[emit blast] Bill
 		[message] $> ...
 		[pause] 0.5
+		[emit blast] Bob
 		[message] $> ...
 		[pause] 0.5
 		[subscene sub1]
@@ -37,6 +44,7 @@
 			$> Dices #2: ${dices}
 	
 	[scene start]
+		[emit blast] Jack
 		[message]
 			> Select your background.
 		

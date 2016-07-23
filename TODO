@@ -4,8 +4,8 @@
 == ADVENTURE MODE ==
 
 Tags:
+- aside
 - action
-- scene-local on
 - quest
 - next tag:
 	- default (auto-select after) timeout
@@ -13,8 +13,8 @@ Tags:
 - entry / widget
 
 Multiplayer tags:
+- chat
 - profile
-- aside
 - character
 - character-list/selectable-character
 - split
