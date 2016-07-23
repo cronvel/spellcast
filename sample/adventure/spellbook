@@ -3,12 +3,19 @@
 
 [chapter intro]
 	
-	[scene intro]
+	[scene intro1]
 		[message]
 			$> Once upon a time...
+		#[next intro2]
+		[goto intro2]
+	
+	[scene intro2]
+		[message] $> ...
 		[pause] 0.5
-		[message]
-			$> ...
+		[message] $> ...
+		[pause] 0.5
+		[message] $> ...
+		[pause] 0.5
 		[subscene sub1]
 		[message]
 			$> ...
