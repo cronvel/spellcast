@@ -22,3 +22,25 @@ button.next.classic-ui:hover {
 	text-decoration: underline ;
 }
 
+
+
+/* Styles */
+
+/* Terminal kit gnome color scheme */
+.black { color: #000000; }
+.brightBlack { color: #555753; }
+.red { color: #cc0000; }
+.brightRed { color: #ef2929; }
+.blue { color: #3465a4; }
+.brightBlue { color: #729fcf; }
+
+
+.italic {
+	font-style: italic;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+

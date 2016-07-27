@@ -145,7 +145,7 @@ dom.ready( function() {
 
 
 
-},{"./ui/classic.js":2,"dom-kit":10,"nextgen-events":12,"url":8}],2:[function(require,module,exports){
+},{"./ui/classic.js":2,"dom-kit":12,"nextgen-events":14,"url":10}],2:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -178,6 +178,54 @@ dom.ready( function() {
 
 var dom = require( 'dom-kit' ) ;
 
+var markupMethod = require( 'string-kit/lib/format.js' ).markupMethod ;
+
+var markupConfig = {
+	endingMarkupReset: true ,
+	markupReset: function( markupStack ) {
+		var str = '</span>'.repeat( markupStack.length ) ;
+		markupStack.length = 0 ;
+		return str ;
+	} ,
+	markup: {
+		":": function( markupStack ) {
+			var str = '</span>'.repeat( markupStack.length ) ;
+			markupStack.length = 0 ;
+			return str ;
+		} ,
+		" ": function( markupStack ) {
+			var str = '</span>'.repeat( markupStack.length ) ;
+			markupStack.length = 0 ;
+			return str + ' ' ;
+		} ,
+		
+		"-": '<span class="dim">' ,
+		"+": '<span class="bold">' ,
+		"_": '<span class="underline">' ,
+		"/": '<span class="italic">' ,
+		"!": '<span class="inverse">' ,
+		
+		"b": '<span class="blue">' ,
+		"B": '<span class="brightBlue">' ,
+		"c": '<span class="cyan">' ,
+		"C": '<span class="brightCyan">' ,
+		"g": '<span class="green">' ,
+		"G": '<span class="brightGreen">' ,
+		"k": '<span class="black">' ,
+		"K": '<span class="brightBlack">' ,
+		"m": '<span class="magenta">' ,
+		"M": '<span class="brightMagenta">' ,
+		"r": '<span class="red">' ,
+		"R": '<span class="brightRed">' ,
+		"w": '<span class="white">' ,
+		"W": '<span class="brightWhite">' ,
+		"y": '<span class="yellow">' ,
+		"Y": '<span class="brightYellow">'
+	}
+} ;
+
+var markup = markupMethod.bind( markupConfig ) ;
+
 
 
 function UI( client , self )
@@ -202,8 +250,8 @@ function UI( client , self )
 	
 	self.remote.book.on( 'message' , UI.message.bind( self ) , { async: true } ) ;
 	self.remote.book.on( 'image' , UI.image.bind( self ) ) ;
-    self.remote.book.on( 'sound' , UI.sound.bind( self ) ) ;
-    self.remote.book.on( 'music' , UI.music.bind( self ) ) ;
+	self.remote.book.on( 'sound' , UI.sound.bind( self ) ) ;
+	self.remote.book.on( 'music' , UI.music.bind( self ) ) ;
 	
 	self.remote.book.on( 'enterScene' , UI.enterScene.bind( self ) ) ;
 	self.remote.book.on( 'leaveScene' , UI.leaveScene.bind( self ) , { async: true } ) ;
@@ -235,6 +283,8 @@ module.exports = UI ;
 UI.message = function message( text , options , callback )
 {
 	var self = this , triggered = false ;
+	
+	text = markup( text ) ;
 	
 	if ( ! options ) { options = {} ; }
 	
@@ -451,9 +501,149 @@ UI.exit = function exit()
 
 
 
-},{"dom-kit":10}],3:[function(require,module,exports){
+},{"dom-kit":12,"string-kit/lib/format.js":18}],3:[function(require,module,exports){
 
 },{}],4:[function(require,module,exports){
+/**
+ * Determine if an object is Buffer
+ *
+ * Author:   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * License:  MIT
+ *
+ * `npm install is-buffer`
+ */
+
+module.exports = function (obj) {
+  return !!(obj != null &&
+    (obj._isBuffer || // For Safari 5-7 (missing Object.prototype.constructor)
+      (obj.constructor &&
+      typeof obj.constructor.isBuffer === 'function' &&
+      obj.constructor.isBuffer(obj))
+    ))
+}
+
+},{}],5:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+(function () {
+  try {
+    cachedSetTimeout = setTimeout;
+  } catch (e) {
+    cachedSetTimeout = function () {
+      throw new Error('setTimeout is not defined');
+    }
+  }
+  try {
+    cachedClearTimeout = clearTimeout;
+  } catch (e) {
+    cachedClearTimeout = function () {
+      throw new Error('clearTimeout is not defined');
+    }
+  }
+} ())
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = cachedSetTimeout.call(null, cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    cachedClearTimeout.call(null, timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        cachedSetTimeout.call(null, drainQueue, 0);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],6:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -990,7 +1180,7 @@ UI.exit = function exit()
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1076,7 +1266,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1163,13 +1353,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":5,"./encode":6}],8:[function(require,module,exports){
+},{"./decode":7,"./encode":8}],10:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1903,7 +2093,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":9,"punycode":4,"querystring":7}],9:[function(require,module,exports){
+},{"./util":11,"punycode":6,"querystring":9}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -1921,7 +2111,7 @@ module.exports = {
   }
 };
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*
 	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
 
@@ -2150,7 +2340,7 @@ dom.html = function html( element , html ) { element.innerHTML = html ; } ;
 
 
 
-},{"./svg.js":11}],11:[function(require,module,exports){
+},{"./svg.js":13}],13:[function(require,module,exports){
 /*
 	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
 
@@ -2350,7 +2540,7 @@ domSvg.ajax.ajaxStatus = function ajaxStatus( callback )
 
 
 
-},{"./dom.js":10,"fs":3}],12:[function(require,module,exports){
+},{"./dom.js":12,"fs":3}],14:[function(require,module,exports){
 /*
 	Next Gen Events
 	
@@ -2422,7 +2612,7 @@ NextGenEvents.filterOutCallback = function( what , currentElement ) { return wha
 // .addListener( eventName , [fn] , [options] )
 NextGenEvents.prototype.addListener = function addListener( eventName , fn , options )
 {
-	var listener = {} ;
+	var listener = {} , newListenerListeners ;
 	
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	if ( ! this.__ngev.events[ eventName ] ) { this.__ngev.events[ eventName ] = [] ; }
@@ -2454,13 +2644,25 @@ NextGenEvents.prototype.addListener = function addListener( eventName , fn , opt
 	// So the event's name can be retrieved in the listener itself.
 	listener.event = eventName ;
 	
-	// We should emit 'newListener' first, before adding it to the listeners,
-	// to avoid recursion in the case that eventName === 'newListener'
 	if ( this.__ngev.events.newListener.length )
 	{
-		// Return an array, because .addListener() may support multiple event addition at once
+		// Extra care should be taken with the 'newListener' event, we should avoid recursion
+		// in the case that eventName === 'newListener', but inside a 'nexListener' listener,
+		// .listenerCount() should report correctly
+		newListenerListeners = this.__ngev.events.newListener.slice() ;
+		
+		this.__ngev.events[ eventName ].push( listener ) ;
+		
+		// Return an array, because one day, .addListener() may support multiple event addition at once,
 		// e.g.: .addListener( { request: onRequest, close: onClose, error: onError } ) ;
-		this.emit( 'newListener' , [ listener ] ) ;
+		NextGenEvents.emitEvent( {
+			emitter: this ,
+			name: 'newListener' ,
+			args: [ [ listener ] ] ,
+			listeners: newListenerListeners
+		} ) ;
+		
+		return this ;
 	}
 	
 	this.__ngev.events[ eventName ].push( listener ) ;
@@ -2589,7 +2791,7 @@ NextGenEvents.listenerWrapper = function listenerWrapper( listener , event , con
 				
 				event.emitter.emit( 'interrupt' , event.interrupt ) ;
 			}
-			else if ( event.listenersDone >= event.listeners && event.callback )
+			else if ( event.listenersDone >= event.listeners.length && event.callback )
 			{
 				event.callback( undefined , event ) ;
 				delete event.callback ;
@@ -2625,7 +2827,7 @@ NextGenEvents.listenerWrapper = function listenerWrapper( listener , event , con
 		
 		event.emitter.emit( 'interrupt' , event.interrupt ) ;
 	}
-	else if ( event.listenersDone >= event.listeners && event.callback )
+	else if ( event.listenersDone >= event.listeners.length && event.callback )
 	{
 		event.callback( undefined , event ) ;
 		delete event.callback ;
@@ -2689,20 +2891,20 @@ NextGenEvents.prototype.emit = function emit()
 	
 
 /*
-	At this stage, event should have properties:
-	
-	* emitter: the event emitter
-	* name: the event name
-	* args: array, the arguments of the event
-	* nice: (optional) nice value
-	* callback: (optional) a callback for emit
+	At this stage, event should have properties for the event:
+		* emitter: the event emitter
+		* name: the event name
+		* args: array, the arguments of the event
+		* nice: (optional) nice value
+		* callback: (optional) a callback for emit
+		* listeners: (optional) override the listeners array stored in __ngev
 */
 NextGenEvents.emitEvent = function emitEvent( event )
 {
 	var self = event.emitter ,
 		i , iMax , count = 0 ,
 		listener , context , currentNice ,
-		listeners , removedListeners = [] ;
+		removedListeners = [] ;
 	
 	if ( ! self.__ngev ) { NextGenEvents.init.call( self ) ; }
 	
@@ -2714,17 +2916,16 @@ NextGenEvents.emitEvent = function emitEvent( event )
 	if ( event.nice === undefined || event.nice === null ) { event.nice = self.__ngev.nice ; }
 	
 	// Increment self.__ngev.recursion
-	event.listeners = self.__ngev.events[ event.name ].length ;
 	self.__ngev.recursion ++ ;
 	
 	// Trouble arise when a listener is removed from another listener, while we are still in the loop.
 	// So we have to COPY the listener array right now!
-	listeners = self.__ngev.events[ event.name ].slice() ;
+	if ( ! event.listeners ) { event.listeners = self.__ngev.events[ event.name ].slice() ; }
 	
-	for ( i = 0 , iMax = listeners.length ; i < iMax ; i ++ )
+	for ( i = 0 , iMax = event.listeners.length ; i < iMax ; i ++ )
 	{
 		count ++ ;
-		listener = listeners[ i ] ;
+		listener = event.listeners[ i ] ;
 		context = listener.context && self.__ngev.contexts[ listener.context ] ;
 		
 		// If the listener context is disabled...
@@ -3086,7 +3287,7 @@ NextGenEvents.off = NextGenEvents.prototype.off ;
 NextGenEvents.Proxy = require( './Proxy.js' ) ;
 
 
-},{"./Proxy.js":13}],13:[function(require,module,exports){
+},{"./Proxy.js":15}],15:[function(require,module,exports){
 /*
 	Next Gen Events
 	
@@ -3689,5 +3890,1479 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message )
 
 
 
-},{"./NextGenEvents.js":12}]},{},[1])(1)
+},{"./NextGenEvents.js":14}],16:[function(require,module,exports){
+/*
+	String Kit
+	
+	Copyright (c) 2014 - 2016 Cédric Ronvel
+	
+	The MIT License (MIT)
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+// To solve dependency hell, we do not rely on terminal-kit anymore.
+module.exports = {
+	reset: '\x1b[0m' ,
+	bold: '\x1b[1m' ,
+	dim: '\x1b[2m' ,
+	italic: '\x1b[3m' ,
+	underline: '\x1b[4m' ,
+	inverse: '\x1b[7m' ,
+	defaultColor: '\x1b[39m' ,
+	black: '\x1b[30m' ,
+	red: '\x1b[31m' ,
+	green: '\x1b[32m' ,
+	yellow: '\x1b[33m' ,
+	blue: '\x1b[34m' ,
+	magenta: '\x1b[35m' ,
+	cyan: '\x1b[36m' ,
+	white: '\x1b[37m' ,
+	brightBlack: '\x1b[90m' ,
+	brightRed: '\x1b[91m' ,
+	brightGreen: '\x1b[92m' ,
+	brightYellow: '\x1b[93m' ,
+	brightBlue: '\x1b[94m' ,
+	brightMagenta: '\x1b[95m' ,
+	brightCyan: '\x1b[96m' ,
+	brightWhite: '\x1b[97m' ,
+} ;
+
+
+
+},{}],17:[function(require,module,exports){
+/*
+	String Kit
+	
+	Copyright (c) 2014 - 2016 Cédric Ronvel
+	
+	The MIT License (MIT)
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+/*
+	Escape collection.
+*/
+
+
+
+"use strict" ;
+
+
+
+// Load modules
+//var tree = require( 'tree-kit' ) ;
+
+
+
+// From Mozilla Developper Network
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+exports.regExp = exports.regExpPattern = function escapeRegExpPattern( str ) {
+	return str.replace( /([.*+?^${}()|\[\]\/\\])/g , '\\$1' ) ;
+} ;
+
+exports.regExpReplacement = function escapeRegExpReplacement( str ) {
+	return str.replace( /\$/g , '$$$$' ) ;	// This replace any single $ by a double $$
+} ;
+
+
+
+exports.format = function escapeFormat( str ) {
+	return str.replace( /%/g , '%%' ) ;	// This replace any single % by a double %%
+} ;
+
+
+
+exports.shellArg = function escapeShellArg( str ) {
+	return '\'' + str.replace( /\'/g , "'\\''" ) + '\'' ;
+} ;
+
+
+
+var escapeControlMap = { '\r': '\\r', '\n': '\\n', '\t': '\\t', '\x7f': '\\x7f' } ;
+
+// Escape \r \n \t so they become readable again, escape all ASCII control character as well, using \x syntaxe
+exports.control = function escapeControl( str ) {
+	return str.replace( /[\x00-\x1f\x7f]/g , function( match ) {
+		if ( escapeControlMap[ match ] !== undefined ) { return escapeControlMap[ match ] ; }
+		var hex = match.charCodeAt( 0 ).toString( 16 ) ;
+		if ( hex.length % 2 ) { hex = '0' + hex ; }
+		return '\\x' + hex ;
+	} ) ;
+} ;
+
+
+
+var escapeHtmlMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' } ;
+
+// Only escape & < > so this is suited for content outside tags
+exports.html = function escapeHtml( str ) {
+	return str.replace( /[&<>]/g , function( match ) { return escapeHtmlMap[ match ] ; } ) ;
+} ;
+
+// Escape & < > " so this is suited for content inside a double-quoted attribute
+exports.htmlAttr = function escapeHtmlAttr( str ) {
+	return str.replace( /[&<>"]/g , function( match ) { return escapeHtmlMap[ match ] ; } ) ;
+} ;
+
+// Escape all html special characters & < > " '
+exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
+	return str.replace( /[&<>"']/g , function( match ) { return escapeHtmlMap[ match ] ; } ) ;
+} ;
+
+
+
+},{}],18:[function(require,module,exports){
+/*
+	String Kit
+	
+	Copyright (c) 2014 - 2016 Cédric Ronvel
+	
+	The MIT License (MIT)
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+/*
+	String formater, inspired by C's sprintf().
+*/
+
+
+
+"use strict" ;
+
+
+
+// Load modules
+//var tree = require( 'tree-kit' ) ;
+var inspect = require( './inspect.js' ).inspect ;
+var inspectError = require( './inspect.js' ).inspectError ;
+var ansi = require( './ansi.js' ) ;
+
+
+
+/*
+	%%		a single %
+	%s		string
+	%f		float
+	%d	%i	integer
+	%u		unsigned integer
+	%U		unsigned positive integer (>0)
+	%h		hexadecimal
+	%x		hexadecimal, force pair of symbols (e.g. 'f' -> '0f')
+	%o		octal
+	%b		binary
+	%I		call string-kit's inspect()
+	%E		call string-kit's inspectError()
+	%J		JSON.stringify()
+	%D		drop
+	%F		filter function existing in the 'this' context, e.g. %[filter:%a%a]F
+	%a		argument for a function
+	
+	Candidate format:
+	%A		for automatic type?
+	%c		for char? (can receive a string or an integer translated into an UTF8 chars)
+	%C		for currency formating?
+	%B		for Buffer objects?
+	%e		for scientific notation?
+*/
+
+exports.formatMethod = function format( str )
+{
+	if ( typeof str !== 'string' )
+	{
+		if ( str === null || str === undefined ) { return '' ; }
+		else if ( /*str && typeof str === 'object' && */ typeof str.toString === 'function' ) { str = str.toString() ; }
+		else { return '' ; }
+	}
+	
+	var self = this , arg , value ,
+		autoIndex = 1 , args = arguments , length = arguments.length ,
+		hasMarkup = false , markupStack = [] ;
+	
+	//console.log( 'format args:' , arguments ) ;
+	
+	// /!\ each changes here should be reported on string.format.count() and string.format.hasFormatting() too /!\
+	//str = str.replace( /\^(.?)|%(?:([+-]?)([0-9]*)(?:\/([^\/]*)\/)?([a-zA-Z%])|\[([a-zA-Z0-9_]+)(?::([^\]]*))?\])/g ,
+	str = str.replace( /\^(.?)|(%%)|%([+-]?)([0-9]*)(?:\[([^\]]*)\])?([a-zA-Z])/g ,
+		function( match , markup , doublePercent , relative , index , modeArg , mode ) {		// jshint ignore:line
+			
+			var replacement , i , n , tmp , fn , fnArgString , argMatches , argList = [] ;
+			
+			//console.log( 'replaceArgs:' , arguments ) ;
+			if ( doublePercent ) { return '%'; }
+			
+			if ( markup )
+			{
+				if ( markup === '^' ) { return '^' ; }
+				if ( ! self.markup || ! self.markup[ markup ] ) { return '' ; }
+				hasMarkup = true ;
+				
+				if ( typeof self.markup[ markup ] === 'function' )
+				{
+					replacement = self.markup[ markup ]( markupStack ) ;
+					// method should manage markup stack themselves
+				}
+				else
+				{
+					replacement = self.markup[ markup ] ;
+					markupStack.push( replacement ) ;
+				}
+				
+				return replacement ;
+			}
+			
+			
+			if ( index )
+			{
+				index = parseInt( index ) ;
+				
+				if ( relative )
+				{
+					if ( relative === '+' ) { index = autoIndex + index ; }
+					else if ( relative === '-' ) { index = autoIndex - index ; }
+				}
+			}
+			else
+			{
+				index = autoIndex ;
+			}
+			
+			autoIndex ++ ;
+			
+			if ( index >= length || index < 1 ) { arg = undefined ; }
+			else { arg = args[ index ] ; }
+			
+			switch ( mode )
+			{
+				case 's' :	// string
+					if ( arg === null || arg === undefined ) { return '' ; }
+					if ( typeof arg === 'string' ) { return arg ; }
+					if ( typeof arg === 'number' ) { return '' + arg ; }
+					if ( typeof arg.toString === 'function' ) { return arg.toString() ; }
+					return '' ;
+				case 'f' :	// float
+					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+					if ( typeof arg !== 'number' ) { return '0' ; }
+					if ( modeArg !== undefined )
+					{
+						// Use jQuery number format?
+						switch ( modeArg[ 0 ] )
+						{
+							case 'p' :
+								n = parseInt( modeArg.slice( 1 ) , 10 ) ;
+								if ( n >= 1 ) { arg = arg.toPrecision( n ) ; }
+								break ;
+							case 'f' :
+								n = parseInt( modeArg.slice( 1 ) , 10 ) ;
+								arg = arg.toFixed( n ) ;
+								break ;
+						}
+					}
+					return '' + arg ;
+				case 'd' :
+				case 'i' :	// integer decimal
+					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'number' ) { return '' + Math.floor( arg ) ; }
+					return '0' ;
+				case 'u' :	// unsigned decimal
+					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ) ; }
+					return '0' ;
+				case 'U' :	// unsigned positive decimal
+					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 1 ) ; }
+					return '1' ;
+				case 'x' :	// unsigned hexadecimal, force pair of symbole
+					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg !== 'number' ) { return '0' ; }
+					value = '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ;
+					if ( value.length % 2 ) { value = '0' + value ; }
+					return value ;
+				case 'h' :	// unsigned hexadecimal
+					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ; }
+					return '0' ;
+				case 'o' :	// unsigned octal
+					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 8 ) ; }
+					return '0' ;
+				case 'b' :	// unsigned binary
+					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 2 ) ; }
+					return '0' ;
+				case 'I' :
+					return inspect( { style: ( self && self.color ? 'color' : 'none' ) } , arg ) ;
+				case 'E' :
+					return inspectError( { style: ( self && self.color ? 'color' : 'none' ) } , arg ) ;
+				case 'J' :
+					return JSON.stringify( arg ) ;
+				case 'D' :
+					return '' ;
+				case 'F' :	// Function
+					
+					autoIndex -- ;	// %F does not eat any arg
+					
+					if ( modeArg === undefined ) { return '' ; }
+					tmp = modeArg.split( ':' ) ;
+					fn = tmp[ 0 ] ;
+					fnArgString = tmp[ 1 ] ;
+					if ( ! fn ) { return '' ; }
+					
+					if ( fnArgString && ( argMatches = fnArgString.match( /%([+-]?)([0-9]*)[a-zA-Z]/g ) ) )
+					{
+						//console.log( argMatches ) ;
+						//console.log( fnArgString ) ;
+						for ( i = 0 ; i < argMatches.length ; i ++ )
+						{
+							relative = argMatches[ i ][ 1 ] ;
+							index = argMatches[ i ][ 2 ] ;
+							
+							if ( index )
+							{
+								index = parseInt( index , 10 ) ;
+								
+								if ( relative )
+								{
+									if ( relative === '+' ) { index = autoIndex + index ; }		// jshint ignore:line
+									else if ( relative === '-' ) { index = autoIndex - index ; }	// jshint ignore:line
+								}
+							}
+							else
+							{
+								index = autoIndex ;
+							}
+							
+							autoIndex ++ ;
+							
+							if ( index >= length || index < 1 ) { argList[ i ] = undefined ; }
+							else { argList[ i ] = args[ index ] ; }
+						}
+					}
+					
+					if ( ! self || ! self.fn || typeof self.fn[ fn ] !== 'function' ) { return '' ; }
+					return self.fn[ fn ].apply( self , argList ) ;
+				
+				default :
+					return '' ;
+			}
+	} ) ;
+	
+	if ( hasMarkup && this.markupReset && this.endingMarkupReset )
+	{
+		str += typeof this.markupReset === 'function' ? this.markupReset( markupStack ) : this.markupReset ;
+	}
+	
+	if ( this.extraArguments )
+	{
+		for ( ; autoIndex < length ; autoIndex ++ )
+		{
+			arg = args[ autoIndex ] ;
+			if ( arg === null || arg === undefined ) { continue ; }
+			else if ( typeof arg === 'string' ) { str += arg ; }
+			else if ( typeof arg === 'number' ) { str += arg ; }
+			else if ( typeof arg.toString === 'function' ) { str += arg.toString() ; }
+		}
+	}
+	
+	return str ;
+} ;
+
+
+
+
+var defaultFormatter = {
+	extraArguments: true ,
+	endingMarkupReset: true ,
+	markupReset: ansi.reset ,
+	markup: {
+		":": ansi.reset ,
+		" ": ansi.reset + " " ,
+		
+		"-": ansi.dim ,
+		"+": ansi.bold ,
+		"_": ansi.underline ,
+		"/": ansi.italic ,
+		"!": ansi.inverse ,
+		
+		"b": ansi.blue ,
+		"B": ansi.brightBlue ,
+		"c": ansi.cyan ,
+		"C": ansi.brightCyan ,
+		"g": ansi.green ,
+		"G": ansi.brightGreen ,
+		"k": ansi.black ,
+		"K": ansi.brightBlack ,
+		"m": ansi.magenta ,
+		"M": ansi.brightMagenta ,
+		"r": ansi.red ,
+		"R": ansi.brightRed ,
+		"w": ansi.white ,
+		"W": ansi.brightWhite ,
+		"y": ansi.yellow ,
+		"Y": ansi.brightYellow
+	}
+} ;
+
+exports.format = exports.formatMethod.bind( defaultFormatter ) ;
+exports.format.default = defaultFormatter ;
+
+
+
+exports.markupMethod = function markup( str )
+{
+	if ( typeof str !== 'string' )
+	{
+		if ( str === null || str === undefined ) { return '' ; }
+		else if ( /*str && typeof str === 'object' && */ typeof str.toString === 'function' ) { str = str.toString() ; }
+		else { return '' ; }
+	}
+	
+	var self = this , hasMarkup = false , markupStack = [] ;
+	
+	//console.log( 'format args:' , arguments ) ;
+	
+	str = str.replace( /\^(.?)/g , function( match , markup ) {
+		var replacement ;
+		
+		if ( markup === '^' ) { return '^' ; }
+		if ( ! self.markup || ! self.markup[ markup ] ) { return '' ; }
+		hasMarkup = true ;
+		
+		if ( typeof self.markup[ markup ] === 'function' )
+		{
+			replacement = self.markup[ markup ]( markupStack ) ;
+			// method should manage markup stack themselves
+		}
+		else
+		{
+			replacement = self.markup[ markup ] ;
+			markupStack.push( replacement ) ;
+		}
+		
+		return replacement ;
+	} ) ;
+	
+	if ( hasMarkup && this.markupReset && this.endingMarkupReset )
+	{
+		str += typeof this.markupReset === 'function' ? this.markupReset( markupStack ) : this.markupReset ;
+	}
+	
+	return str ;
+} ;
+
+exports.markup = exports.markupMethod.bind( defaultFormatter ) ;
+
+
+
+// Count the number of parameters needed for this string
+exports.format.count = function formatCount( str )
+{
+	var match , index , relative , autoIndex = 1 , maxIndex = 0 ;
+	
+	if ( typeof str !== 'string' ) { return 0 ; }
+	
+	// This regex differs slightly from the main regex: we do not count '%%' and %F is excluded
+	var regexp = /%([+-]?)([0-9]*)(?:\[([^\]]*)\])?([a-zA-EG-Z])/g ;
+	
+	
+	while ( ( match = regexp.exec( str ) ) !== null )
+	{
+		//console.log( match ) ;
+		relative = match[ 1 ] ;
+		index = match[ 2 ] ;
+		
+		if ( index )
+		{
+			index = parseInt( index , 10 ) ;
+			
+			if ( relative )
+			{
+				if ( relative === '+' ) { index = autoIndex + index ; }
+				else if ( relative === '-' ) { index = autoIndex - index ; }
+			}
+		}
+		else
+		{
+			index = autoIndex ;
+		}
+		
+		autoIndex ++ ;
+		
+		if ( maxIndex < index ) { maxIndex = index ; }
+	}
+	
+	return maxIndex ;
+} ;
+
+
+
+// Tell if this string contains formatter chars
+exports.format.hasFormatting = function hasFormatting( str )
+{
+	if ( str.search( /\^(.?)|(%%)|%([+-]?)([0-9]*)(?:\[([^\]]*)\])?([a-zA-Z])/ ) !== -1 ) { return true ; }
+	else { return false ; }
+} ;
+
+
+
+},{"./ansi.js":16,"./inspect.js":19}],19:[function(require,module,exports){
+(function (Buffer,process){
+/*
+	String Kit
+	
+	Copyright (c) 2014 - 2016 Cédric Ronvel
+	
+	The MIT License (MIT)
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+/* global Map, Set */
+
+/*
+	Variable inspector.
+*/
+
+
+
+"use strict" ;
+
+
+
+// Load modules
+var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
+var escape = require( './escape.js' ) ;
+var ansi = require( './ansi.js' ) ;
+
+
+
+/*
+	Inspect a variable, return a string ready to be displayed with console.log(), or even as an HTML output.
+	
+	Options:
+		* style:
+			* 'none': (default) normal output suitable for console.log() or writing in a file
+			* 'color': colorful output suitable for terminal
+			* 'html': html output
+		* depth: depth limit, default: 3
+		* noFunc: do not display functions
+		* noDescriptor: do not display descriptor information
+		* noType: do not display type and constructor
+		* enumOnly: only display enumerable properties
+		* funcDetails: display function's details
+		* proto: display object's prototype
+		* sort: sort the keys
+		* minimal: imply noFunc: true, noDescriptor: true, noType: true, enumOnly: true, proto: false and funcDetails: false.
+		  Display a minimal JSON-like output
+		* useInspect? use .inspect() method when available on an object
+*/
+
+function inspect( options , variable )
+{
+	if ( arguments.length < 2 ) { variable = options ; options = {} ; }
+	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
+	
+	var runtime = { depth: 0 , ancestors: [] } ;
+	
+	if ( ! options.style ) { options.style = inspectStyle.none ; }
+	else if ( typeof options.style === 'string' ) { options.style = inspectStyle[ options.style ] ; }
+	
+	if ( options.depth === undefined ) { options.depth = 3 ; }
+	
+	// /!\ nofunc is deprecated
+	if ( options.nofunc ) { options.noFunc = true ; }
+	
+	if ( options.minimal )
+	{
+		options.noFunc = true ;
+		options.noDescriptor = true ;
+		options.noType = true ;
+		options.enumOnly = true ;
+		options.funcDetails = false ;
+		options.proto = false ;
+	}
+	
+	return inspect_( runtime , options , variable ) ;
+}
+
+
+
+function inspect_( runtime , options , variable )
+{
+	var i , funcName , length , propertyList , constructor , keyIsProperty ,
+		type , pre , indent , isArray , isFunc , specialObject ,
+		str = '' , key = '' , descriptorStr = '' , descriptor , nextAncestors ;
+	
+	
+	// Prepare things (indentation, key, descriptor, ... )
+	
+	type = typeof variable ;
+	indent = options.style.tab.repeat( runtime.depth ) ;
+	
+	if ( type === 'function' && options.noFunc ) { return '' ; }
+	
+	if ( runtime.key !== undefined )
+	{
+		if ( runtime.descriptor )
+		{
+			descriptorStr = [] ;
+			
+			if ( ! runtime.descriptor.configurable ) { descriptorStr.push( '-conf' ) ; }
+			if ( ! runtime.descriptor.enumerable ) { descriptorStr.push( '-enum' ) ; }
+			
+			// Already displayed by runtime.forceType
+			//if ( runtime.descriptor.get || runtime.descriptor.set ) { descriptorStr.push( 'getter/setter' ) ; } else
+			if ( ! runtime.descriptor.writable ) { descriptorStr.push( '-w' ) ; }
+			
+			//if ( descriptorStr.length ) { descriptorStr = '(' + descriptorStr.join( ' ' ) + ')' ; }
+			if ( descriptorStr.length ) { descriptorStr = descriptorStr.join( ' ' ) ; }
+			else { descriptorStr = '' ; }
+		}
+		
+		if ( runtime.keyIsProperty )
+		{
+			if ( keyNeedingQuotes( runtime.key ) )
+			{
+				key = '"' + options.style.key( runtime.key ) + '": ' ;
+			}
+			else
+			{
+				key = options.style.key( runtime.key ) + ': ' ;
+			}
+		}
+		else
+		{
+			key = '[' + options.style.index( runtime.key ) + '] ' ;
+		}
+		
+		if ( descriptorStr ) { descriptorStr = ' ' + options.style.type( descriptorStr ) ; }
+	}
+	
+	pre = runtime.noPre ? '' : indent + key ;
+	
+	
+	// Describe the current variable
+	
+	if ( variable === undefined )
+	{
+		str += pre + options.style.constant( 'undefined' ) + descriptorStr + options.style.nl ;
+	}
+	else if ( variable === null )
+	{
+		str += pre + options.style.constant( 'null' ) + descriptorStr + options.style.nl ;
+	}
+	else if ( variable === false )
+	{
+		str += pre + options.style.constant( 'false' ) + descriptorStr + options.style.nl ;
+	}
+	else if ( variable === true )
+	{
+		str += pre + options.style.constant( 'true' ) + descriptorStr + options.style.nl ;
+	}
+	else if ( type === 'number' )
+	{
+		str += pre + options.style.number( variable.toString() ) +
+			( options.noType ? '' : ' ' + options.style.type( 'number' ) ) +
+			descriptorStr + options.style.nl ;
+	}
+	else if ( type === 'string' )
+	{
+		str += pre + '"' + options.style.string( escape.control( variable ) ) + '" ' +
+			( options.noType ? '' : options.style.type( 'string' ) + options.style.length( '(' + variable.length + ')' ) ) +
+			descriptorStr + options.style.nl ;
+	}
+	else if ( Buffer.isBuffer( variable ) )
+	{
+		str += pre + options.style.inspect( variable.inspect() ) + ' ' +
+			( options.noType ? '' : options.style.type( 'Buffer' ) + options.style.length( '(' + variable.length + ')' ) ) +
+			descriptorStr + options.style.nl ;
+	}
+	else if ( type === 'object' || type === 'function' )
+	{
+		funcName = length = '' ;
+		isFunc = false ;
+		if ( type === 'function' )
+		{
+			isFunc = true ;
+			funcName = ' ' + options.style.funcName( ( variable.name ? variable.name : '(anonymous)' ) ) ;
+			length = options.style.length( '(' + variable.length + ')' ) ;
+		}
+		
+		isArray = false ;
+		if ( Array.isArray( variable ) )
+		{
+			isArray = true ;
+			length = options.style.length( '(' + variable.length + ')' ) ;
+		}
+		
+		if ( ! variable.constructor ) { constructor = '(no constructor)' ; }
+		else if ( ! variable.constructor.name ) { constructor = '(anonymous)' ; }
+		else { constructor = variable.constructor.name ; }
+		
+		constructor = options.style.constructorName( constructor ) ;
+		
+		str += pre ;
+		
+		if ( ! options.noType )
+		{
+			if ( runtime.forceType ) { str += options.style.type( runtime.forceType ) ; }
+			else { str += constructor + funcName + length + ' ' + options.style.type( type ) + descriptorStr ; }
+			
+			if ( ! isFunc || options.funcDetails ) { str += ' ' ; }	// if no funcDetails imply no space here
+		}
+		
+		propertyList = Object.getOwnPropertyNames( variable ) ;
+		
+		if ( options.sort ) { propertyList.sort() ; }
+		
+		// Special Objects
+		specialObject = specialObjectSubstitution( variable ) ;
+		
+		if ( specialObject !== undefined )
+		{
+			str += '=> ' + inspect_( {
+					depth: runtime.depth ,
+					ancestors: runtime.ancestors ,
+					noPre: true
+				} ,
+				options ,
+				specialObject
+			) ;
+		}
+		else if ( isFunc && ! options.funcDetails )
+		{
+			str += options.style.nl ;
+		}
+		else if ( ! propertyList.length && ! options.proto )
+		{
+			str += '{}' + options.style.nl ;
+		}
+		else if ( runtime.depth >= options.depth )
+		{
+			str += options.style.limit( '[depth limit]' ) + options.style.nl ;
+		}
+		else if ( runtime.ancestors.indexOf( variable ) !== -1 )
+		{
+			str += options.style.limit( '[circular]' ) + options.style.nl ;
+		}
+		else
+		{
+			str += ( isArray && options.noType ? '[' : '{' ) + options.style.nl ;
+			
+			// Do not use .concat() here, it doesn't works as expected with arrays...
+			nextAncestors = runtime.ancestors.slice() ;
+			nextAncestors.push( variable ) ;
+			
+			for ( i = 0 ; i < propertyList.length ; i ++ )
+			{
+				try {
+					descriptor = Object.getOwnPropertyDescriptor( variable , propertyList[ i ] ) ;
+					
+					if ( ! descriptor.enumerable && options.enumOnly ) { continue ; }
+					
+					keyIsProperty = ! isArray || ! descriptor.enumerable || isNaN( propertyList[ i ] ) ;
+					
+					if ( ! options.noDescriptor && ( descriptor.get || descriptor.set ) )
+					{
+						str += inspect_( {
+								depth: runtime.depth + 1 ,
+								ancestors: nextAncestors ,
+								key: propertyList[ i ] ,
+								keyIsProperty: keyIsProperty ,
+								descriptor: descriptor ,
+								forceType: 'getter/setter'
+							} ,
+							options ,
+							{ get: descriptor.get , set: descriptor.set }
+						) ;
+					}
+					else
+					{
+						str += inspect_( {
+								depth: runtime.depth + 1 ,
+								ancestors: nextAncestors ,
+								key: propertyList[ i ] ,
+								keyIsProperty: keyIsProperty ,
+								descriptor: options.noDescriptor ? undefined : descriptor
+							} ,
+							options ,
+							variable[ propertyList[ i ] ]
+						) ;
+					}
+				}
+				catch ( error ) {
+					str += inspect_( {
+							depth: runtime.depth + 1 ,
+							ancestors: nextAncestors ,
+							key: propertyList[ i ] ,
+							keyIsProperty: keyIsProperty ,
+							descriptor: options.noDescriptor ? undefined : descriptor
+						} ,
+						options ,
+						error
+					) ;
+				}
+			}
+			
+			if ( options.proto )
+			{
+				str += inspect_( {
+						depth: runtime.depth + 1 ,
+						ancestors: nextAncestors ,
+						key: '__proto__' ,
+						keyIsProperty: true
+					} ,
+					options ,
+					variable.__proto__	// jshint ignore:line
+				) ;
+			}
+			
+			str += indent + ( isArray && options.noType ? ']' : '}' ) + options.style.nl ;
+		}
+	}
+	
+	
+	// Finalizing
+	
+	if ( runtime.depth === 0 )
+	{
+		if ( options.style === 'html' ) { str = escape.html( str ) ; }
+	}
+	
+	return str ;
+}
+
+exports.inspect = inspect ;
+
+
+
+function keyNeedingQuotes( key )
+{
+	if ( ! key.length ) { return true ; }
+	return false ;
+}
+
+
+
+// Some special object are better written down when substituted by something else
+function specialObjectSubstitution( variable )
+{
+	switch ( variable.constructor.name )
+	{
+		case 'Date' :
+			if ( variable instanceof Date )
+			{
+				return variable.toString() + ' [' + variable.getTime() + ']' ;
+			}
+			break ;
+		case 'Set' :
+			if ( typeof Set === 'function' && variable instanceof Set )
+			{
+				// This is an ES6 'Set' Object
+				return Array.from( variable ) ;
+			}
+			break ;
+		case 'Map' :
+			if ( typeof Map === 'function' && variable instanceof Map )
+			{
+				// This is an ES6 'Map' Object
+				return Array.from( variable ) ;
+			}
+			break ;
+		case 'ObjectID' :
+			if ( variable._bsontype )
+			{
+				// This is a MongoDB ObjectID, rather boring to display in its original form
+				// due to esoteric characters that confuse both the user and the terminal displaying it.
+				// Substitute it to its string representation
+				return variable.toString() ;
+			}
+			break ;
+	}
+	
+	return ;
+}
+
+
+
+function inspectError( options , error )
+{
+	var str = '' , stack , type , code ;
+	
+	if ( arguments.length < 2 ) { error = options ; options = {} ; }
+	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
+	
+	if ( ! ( error instanceof Error ) ) { return  ; }
+	
+	if ( ! options.style ) { options.style = inspectStyle.none ; }
+	else if ( typeof options.style === 'string' ) { options.style = inspectStyle[ options.style ] ; }
+	
+	if ( error.stack ) { stack = inspectStack( options , error.stack ) ; }
+	
+	type = error.type || error.constructor.name ;
+	code = error.code || error.name || error.errno || error.number ;
+	
+	str += options.style.errorType( type ) +
+		( code ? ' [' + options.style.errorType( code ) + ']' : '' ) + ': ' ;
+	str += options.style.errorMessage( error.message ) + '\n' ;
+	
+	if ( stack ) { str += options.style.errorStack( stack ) + '\n' ; }
+	
+	return str ;
+}
+
+exports.inspectError = inspectError ;
+
+
+
+function inspectStack( options , stack )
+{
+	if ( arguments.length < 2 ) { stack = options ; options = {} ; }
+	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
+	
+	if ( ! options.style ) { options.style = inspectStyle.none ; }
+	else if ( typeof options.style === 'string' ) { options.style = inspectStyle[ options.style ] ; }
+	
+	if ( ! stack ) { return ; }
+	
+	if ( ( options.browser || process.browser ) && stack.indexOf( '@' ) !== -1 )
+	{
+		// Assume a Firefox-compatible stack-trace here...
+		stack = stack
+			.replace( /[<\/]*(?=@)/g , '' )	// Firefox output some WTF </</</</< stuff in its stack trace -- removing that
+			.replace(
+				/^\s*([^@]*)\s*@\s*([^\n]*)(?::([0-9]+):([0-9]+))?$/mg ,
+				function( matches , method , file , line , column ) {	// jshint ignore:line
+					return options.style.errorStack( '    at ' ) +
+						( method ? options.style.errorStackMethod( method ) + ' ' : '' ) +
+						options.style.errorStack( '(' ) +
+						( file ? options.style.errorStackFile( file ) : options.style.errorStack( 'unknown' ) ) +
+						( line ? options.style.errorStack( ':' ) + options.style.errorStackLine( line ) : '' ) +
+						( column ? options.style.errorStack( ':' ) + options.style.errorStackColumn( column ) : '' ) +
+						options.style.errorStack( ')' ) ;
+				}
+			) ;
+	}
+	else
+	{
+		stack = stack.replace( /^[^\n]*\n/ , '' ) ;
+		stack = stack.replace(
+			/^\s*(at)\s+(?:([^\s:\(\)\[\]\n]+)\s)?(?:\[as ([^\s:\(\)\[\]\n]+)\]\s)?(?:\(?([^:\(\)\[\]\n]+):([0-9]+):([0-9]+)\)?)?$/mg ,
+			function( matches , at , method , as , file , line , column ) {	// jshint ignore:line
+				return options.style.errorStack( '    at ' ) +
+					( method ? options.style.errorStackMethod( method ) + ' ' : '' ) +
+					( as ? options.style.errorStack( '[as ' ) + options.style.errorStackMethodAs( as ) + options.style.errorStack( '] ' ) : '' ) +
+					options.style.errorStack( '(' ) +
+					( file ? options.style.errorStackFile( file ) : options.style.errorStack( 'unknown' ) ) +
+					( line ? options.style.errorStack( ':' ) + options.style.errorStackLine( line ) : '' ) +
+					( column ? options.style.errorStack( ':' ) + options.style.errorStackColumn( column ) : '' ) +
+					options.style.errorStack( ')' ) ;
+			}
+		) ;
+	}
+	
+	return stack ;
+}
+
+exports.inspectStack = inspectStack ;
+
+
+
+// Inspect's styles
+
+var inspectStyle = {} ;
+
+var inspectStyleNoop = function( str ) { return str ; } ;
+
+
+
+inspectStyle.none = {
+	tab: '    ' ,
+	nl: '\n' ,
+	limit: inspectStyleNoop ,
+	type: function( str ) { return '<' + str + '>' ; } ,
+	constant: inspectStyleNoop ,
+	funcName: inspectStyleNoop ,
+	constructorName: function( str ) { return '<' + str + '>' ; } ,
+	length: inspectStyleNoop ,
+	key: inspectStyleNoop ,
+	index: inspectStyleNoop ,
+	number: inspectStyleNoop ,
+	inspect: inspectStyleNoop ,
+	string: inspectStyleNoop ,
+	errorType: inspectStyleNoop ,
+	errorMessage: inspectStyleNoop ,
+	errorStack: inspectStyleNoop ,
+	errorStackMethod: inspectStyleNoop ,
+	errorStackMethodAs: inspectStyleNoop ,
+	errorStackFile: inspectStyleNoop ,
+	errorStackLine: inspectStyleNoop ,
+	errorStackColumn: inspectStyleNoop
+} ;
+
+
+
+inspectStyle.color = treeExtend( null , {} , inspectStyle.none , {
+	limit: function( str ) { return ansi.bold + ansi.brightRed + str + ansi.reset ; } ,
+	type: function( str ) { return ansi.italic + ansi.brightBlack + str + ansi.reset ; } ,
+	constant: function( str ) { return ansi.cyan + str + ansi.reset ; } ,
+	funcName: function( str ) { return ansi.italic + ansi.magenta + str + ansi.reset ; } ,
+	constructorName: function( str ) { return ansi.magenta + str + ansi.reset ; } ,
+	length: function( str ) { return ansi.italic + ansi.brightBlack + str + ansi.reset ; } ,
+	key: function( str ) { return ansi.green + str + ansi.reset ; } ,
+	index: function( str ) { return ansi.blue + str + ansi.reset ; } ,
+	number: function( str ) { return ansi.cyan + str + ansi.reset ; } ,
+	inspect: function( str ) { return ansi.cyan + str + ansi.reset ; } ,
+	string: function( str ) { return ansi.blue + str + ansi.reset ; } ,
+	errorType: function( str ) { return ansi.red + ansi.bold + str + ansi.reset ; } ,
+	errorMessage: function( str ) { return ansi.red + ansi.italic + str + ansi.reset ; } ,
+	errorStack: function( str ) { return ansi.brightBlack + str + ansi.reset ; } ,
+	errorStackMethod: function( str ) { return ansi.brightYellow + str + ansi.reset ; } ,
+	errorStackMethodAs: function( str ) { return ansi.yellow + str + ansi.reset ; } ,
+	errorStackFile: function( str ) { return ansi.brightCyan + str + ansi.reset ; } ,
+	errorStackLine: function( str ) { return ansi.blue + str + ansi.reset ; } ,
+	errorStackColumn: function( str ) { return ansi.magenta + str + ansi.reset ; }
+} ) ;
+
+
+
+inspectStyle.html = treeExtend( null , {} , inspectStyle.none , {
+	tab: '&nbsp;&nbsp;&nbsp;&nbsp;' ,
+	nl: '<br />' ,
+	limit: function( str ) { return '<span style="color:red">' + str + '</span>' ; } ,
+	type: function( str ) { return '<i style="color:gray">' + str + '</i>' ; } ,
+	constant: function( str ) { return '<span style="color:cyan">' + str + '</span>' ; } ,
+	funcName: function( str ) { return '<i style="color:magenta">' + str + '</i>' ; } ,
+	constructorName: function( str ) { return '<span style="color:magenta">' + str + '</span>' ; } ,
+	length: function( str ) { return '<i style="color:gray">' + str + '</i>' ; } ,
+	key: function( str ) { return '<span style="color:green">' + str + '</span>' ; } ,
+	index: function( str ) { return '<span style="color:blue">' + str + '</span>' ; } ,
+	number: function( str ) { return '<span style="color:cyan">' + str + '</span>' ; } ,
+	inspect: function( str ) { return '<span style="color:cyan">' + str + '</span>' ; } ,
+	string: function( str ) { return '<span style="color:blue">' + str + '</span>' ; } ,
+	errorType: function( str ) { return '<span style="color:red">' + str + '</span>' ; } ,
+	errorMessage: function( str ) { return '<span style="color:red">' + str + '</span>' ; } ,
+	errorStack: function( str ) { return '<span style="color:gray">' + str + '</span>' ; } ,
+	errorStackMethod: function( str ) { return '<span style="color:yellow">' + str + '</span>' ; } ,
+	errorStackMethodAs: function( str ) { return '<span style="color:yellow">' + str + '</span>' ; } ,
+	errorStackFile: function( str ) { return '<span style="color:cyan">' + str + '</span>' ; } ,
+	errorStackLine: function( str ) { return '<span style="color:blue">' + str + '</span>' ; } ,
+	errorStackColumn: function( str ) { return '<span style="color:gray">' + str + '</span>' ; }
+} ) ;
+
+
+
+}).call(this,{"isBuffer":require("../../browserify/node_modules/insert-module-globals/node_modules/is-buffer/index.js")},require('_process'))
+},{"../../browserify/node_modules/insert-module-globals/node_modules/is-buffer/index.js":4,"./ansi.js":16,"./escape.js":17,"_process":5,"tree-kit/lib/extend.js":20}],20:[function(require,module,exports){
+/*
+	Tree Kit
+	
+	Copyright (c) 2014 - 2016 Cédric Ronvel
+	
+	The MIT License (MIT)
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+/*
+	== Extend function ==
+*/
+
+/*
+	options:
+		* own: only copy own properties that are enumerable
+		* nonEnum: copy non-enumerable properties as well, works only with own:true
+		* descriptor: preserve property's descriptor
+		* deep: perform a deep (recursive) extend
+		* maxDepth: used in conjunction with deep, when max depth is reached an exception is raised, default to 100 when
+			the 'circular' option is off, or default to null if 'circular' is on
+		* circular: circular references reconnection
+		* move: move properties to target (delete properties from the sources)
+		* preserve: existing properties in the target object are not overwritten
+		* nofunc: skip functions
+		* deepFunc: in conjunction with 'deep', this will process sources functions like objects rather than
+			copying/referencing them directly into the source, thus, the result will not be a function, it forces 'deep'
+		* proto: try to clone objects with the right prototype, using Object.create() or mutating it with Object.setPrototypeOf(),
+			it forces option 'own'.
+		* inherit: rather than mutating target prototype for source prototype like the 'proto' option does, here it is
+			the source itself that IS the prototype for the target. Force option 'own' and disable 'proto'.
+		* skipRoot: the prototype of the target root object is NOT mutated only if this option is set.
+		* flat: extend into the target top-level only, compose name with the path of the source, force 'deep',
+			disable 'unflat', 'proto', 'inherit'
+		* unflat: assume sources are in the 'flat' format, expand all properties deeply into the target, disable 'flat'
+		* deepFilter
+			* blacklist: list of black-listed prototype: the recursiveness of the 'deep' option will be disabled
+				for object whose prototype is listed
+			* whitelist: the opposite of blacklist
+*/
+function extend( options , target )
+{
+	//console.log( "\nextend():\n" , arguments ) ;
+	var i , source , newTarget = false , length = arguments.length ;
+	
+	if ( length < 3 ) { return target ; }
+	
+	var sources = Array.prototype.slice.call( arguments , 2 ) ;
+	length = sources.length ;
+	
+	if ( ! options || typeof options !== 'object' ) { options = {} ; }
+	
+	var runtime = { depth: 0 , prefix: '' } ;
+	
+	if ( ! options.maxDepth && options.deep && ! options.circular ) { options.maxDepth = 100 ; }
+	
+	if ( options.deepFunc ) { options.deep = true ; }
+	
+	if ( options.deepFilter && typeof options.deepFilter === 'object' )
+	{
+		if ( options.deepFilter.whitelist && ( ! Array.isArray( options.deepFilter.whitelist ) || ! options.deepFilter.whitelist.length ) ) { delete options.deepFilter.whitelist ; }
+		if ( options.deepFilter.blacklist && ( ! Array.isArray( options.deepFilter.blacklist ) || ! options.deepFilter.blacklist.length ) ) { delete options.deepFilter.blacklist ; }
+		if ( ! options.deepFilter.whitelist && ! options.deepFilter.blacklist ) { delete options.deepFilter ; }
+	}
+	
+	// 'flat' option force 'deep'
+	if ( options.flat )
+	{
+		options.deep = true ;
+		options.proto = false ;
+		options.inherit = false ;
+		options.unflat = false ;
+		if ( typeof options.flat !== 'string' ) { options.flat = '.' ; }
+	}
+	
+	if ( options.unflat )
+	{
+		options.deep = false ;
+		options.proto = false ;
+		options.inherit = false ;
+		options.flat = false ;
+		if ( typeof options.unflat !== 'string' ) { options.unflat = '.' ; }
+	}
+	
+	// If the prototype is applied, only owned properties should be copied
+	if ( options.inherit ) { options.own = true ; options.proto = false ; }
+	else if ( options.proto ) { options.own = true ; }
+	
+	if ( ! target || ( typeof target !== 'object' && typeof target !== 'function' ) )
+	{
+		newTarget = true ;
+	}
+	
+	if ( ! options.skipRoot && ( options.inherit || options.proto ) )
+	{
+		for ( i = length - 1 ; i >= 0 ; i -- )
+		{
+			source = sources[ i ] ;
+			if ( source && ( typeof source === 'object' || typeof source === 'function' ) )
+			{
+				if ( options.inherit )
+				{
+					if ( newTarget ) { target = Object.create( source ) ; }
+					else { Object.setPrototypeOf( target , source ) ; }
+				}
+				else if ( options.proto )
+				{
+					if ( newTarget ) { target = Object.create( Object.getPrototypeOf( source ) ) ; }
+					else { Object.setPrototypeOf( target , Object.getPrototypeOf( source ) ) ; }
+				}
+				
+				break ;
+			}
+		}
+	}
+	else if ( newTarget )
+	{
+		target = {} ;
+	}
+	
+	runtime.references = { sources: [] , targets: [] } ;
+	
+	for ( i = 0 ; i < length ; i ++ )
+	{
+		source = sources[ i ] ;
+		if ( ! source || ( typeof source !== 'object' && typeof source !== 'function' ) ) { continue ; }
+		extendOne( runtime , options , target , source ) ;
+	}
+	
+	return target ;
+}
+
+module.exports = extend ;
+
+
+
+function extendOne( runtime , options , target , source )
+{
+	//console.log( "\nextendOne():\n" , arguments ) ;
+	//process.exit() ;
+	
+	var j , jmax , sourceKeys , sourceKey , sourceValue , sourceValueProto ,
+		value , sourceDescriptor , targetKey , targetPointer , path ,
+		indexOfSource = -1 ;
+	
+	// Max depth check
+	if ( options.maxDepth && runtime.depth > options.maxDepth )
+	{
+		throw new Error( '[tree] extend(): max depth reached(' + options.maxDepth + ')' ) ;
+	}
+	
+		
+	if ( options.circular )
+	{
+		runtime.references.sources.push( source ) ;
+		runtime.references.targets.push( target ) ;
+	}
+	
+	if ( options.own )
+	{
+		if ( options.nonEnum ) { sourceKeys = Object.getOwnPropertyNames( source ) ; }
+		else { sourceKeys = Object.keys( source ) ; }
+	}
+	else { sourceKeys = source ; }
+	
+	for ( sourceKey in sourceKeys )
+	{
+		if ( options.own ) { sourceKey = sourceKeys[ sourceKey ] ; }
+		
+		// If descriptor is on, get it now
+		if ( options.descriptor )
+		{
+			sourceDescriptor = Object.getOwnPropertyDescriptor( source , sourceKey ) ;
+			sourceValue = sourceDescriptor.value ;
+		}
+		else
+		{
+			// We have to trigger an eventual getter only once
+			sourceValue = source[ sourceKey ] ;
+		}
+		
+		targetPointer = target ;
+		targetKey = runtime.prefix + sourceKey ;
+		
+		// Do not copy if property is a function and we don't want them
+		if ( options.nofunc && typeof sourceValue === 'function' ) { continue; }
+		
+		// 'unflat' mode computing
+		if ( options.unflat && runtime.depth === 0 )
+		{
+			path = sourceKey.split( options.unflat ) ;
+			jmax = path.length - 1 ;
+			
+			if ( jmax )
+			{
+				for ( j = 0 ; j < jmax ; j ++ )
+				{
+					if ( ! targetPointer[ path[ j ] ] ||
+						( typeof targetPointer[ path[ j ] ] !== 'object' &&
+							typeof targetPointer[ path[ j ] ] !== 'function' ) )
+					{
+						targetPointer[ path[ j ] ] = {} ;
+					}
+					
+					targetPointer = targetPointer[ path[ j ] ] ;
+				}
+				
+				targetKey = runtime.prefix + path[ jmax ] ;
+			}
+		}
+		
+		
+		if ( options.deep &&
+			sourceValue &&
+			( typeof sourceValue === 'object' || ( options.deepFunc && typeof sourceValue === 'function' ) ) &&
+			( ! options.descriptor || ! sourceDescriptor.get ) &&
+			// not a condition we just cache sourceValueProto now
+			( ( sourceValueProto = Object.getPrototypeOf( sourceValue ) ) || true ) &&
+			( ! options.deepFilter ||
+				( ( ! options.deepFilter.whitelist || options.deepFilter.whitelist.indexOf( sourceValueProto ) !== -1 ) &&
+					( ! options.deepFilter.blacklist || options.deepFilter.blacklist.indexOf( sourceValueProto ) === -1 ) ) ) )
+		{
+			if ( options.circular )
+			{
+				indexOfSource = runtime.references.sources.indexOf( sourceValue ) ;
+			}
+			
+			if ( options.flat )
+			{
+				// No circular references reconnection when in 'flat' mode
+				if ( indexOfSource >= 0 ) { continue ; }
+				
+				extendOne(
+					{ depth: runtime.depth + 1 , prefix: runtime.prefix + sourceKey + options.flat , references: runtime.references } ,
+					options , targetPointer , sourceValue
+				) ;
+			}
+			else
+			{
+				if ( indexOfSource >= 0 )
+				{
+					// Circular references reconnection...
+					if ( options.descriptor )
+					{
+						Object.defineProperty( targetPointer , targetKey , {
+							value: runtime.references.targets[ indexOfSource ] ,
+							enumerable: sourceDescriptor.enumerable ,
+							writable: sourceDescriptor.writable ,
+							configurable: sourceDescriptor.configurable
+						} ) ;
+					}
+					else
+					{
+						targetPointer[ targetKey ] = runtime.references.targets[ indexOfSource ] ;
+					}
+					
+					continue ;
+				}
+				
+				if ( ! targetPointer[ targetKey ] || ! targetPointer.hasOwnProperty( targetKey ) || ( typeof targetPointer[ targetKey ] !== 'object' && typeof targetPointer[ targetKey ] !== 'function' ) )
+				{
+					if ( Array.isArray( sourceValue ) ) { value = [] ; }
+					else if ( options.proto ) { value = Object.create( sourceValueProto ) ; }	// jshint ignore:line
+					else if ( options.inherit ) { value = Object.create( sourceValue ) ; }
+					else { value = {} ; }
+					
+					if ( options.descriptor )
+					{
+						Object.defineProperty( targetPointer , targetKey , {
+							value: value ,
+							enumerable: sourceDescriptor.enumerable ,
+							writable: sourceDescriptor.writable ,
+							configurable: sourceDescriptor.configurable
+						} ) ;
+					}
+					else
+					{
+						targetPointer[ targetKey ] = value ;
+					}
+				}
+				else if ( options.proto && Object.getPrototypeOf( targetPointer[ targetKey ] ) !== sourceValueProto )
+				{
+					Object.setPrototypeOf( targetPointer[ targetKey ] , sourceValueProto ) ;
+				}
+				else if ( options.inherit && Object.getPrototypeOf( targetPointer[ targetKey ] ) !== sourceValue )
+				{
+					Object.setPrototypeOf( targetPointer[ targetKey ] , sourceValue ) ;
+				}
+				
+				if ( options.circular )
+				{
+					runtime.references.sources.push( sourceValue ) ;
+					runtime.references.targets.push( targetPointer[ targetKey ] ) ;
+				}
+				
+				// Recursively extends sub-object
+				extendOne(
+					{ depth: runtime.depth + 1 , prefix: '' , references: runtime.references } ,
+					options , targetPointer[ targetKey ] , sourceValue
+				) ;
+			}
+		}
+		else if ( options.preserve && targetPointer[ targetKey ] !== undefined )
+		{
+			// Do not overwrite, and so do not delete source's properties that were not moved
+			continue ;
+		}
+		else if ( ! options.inherit )
+		{
+			if ( options.descriptor ) { Object.defineProperty( targetPointer , targetKey , sourceDescriptor ) ; }
+			else { targetPointer[ targetKey ] = sourceValue ; }
+		}
+		
+		// Delete owned property of the source object
+		if ( options.move ) { delete source[ sourceKey ] ; }
+	}
+}
+
+
+},{}]},{},[1])(1)
 });

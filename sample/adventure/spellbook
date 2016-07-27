@@ -6,8 +6,8 @@
 	[scene intro1]
 		[message]
 			$> ^/Once upon a time...
-		#[next intro2]
-		[goto intro2]
+		[next intro2]
+		#[goto intro2]
 	
 	[scene intro2]
 		[image] > background.png
