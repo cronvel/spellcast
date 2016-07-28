@@ -96,12 +96,19 @@ SpellcastClient.prototype.run = function run( callback )
 		self.proxy.addRemoteService( 'bookInput' ) ;
 		
 		self.ui.forEach( function( ui ) {
-			if ( uiList[ ui ] ) { uiList[ ui ]( window.spellcastClient ) ; }
+			
+			if ( uiList[ ui ] )
+			{
+				uiList[ ui ](
+					window.spellcastClient.proxy.remoteServices.book ,
+					window.spellcastClient.proxy.remoteServices.bookInput
+				) ;
+			}
 		} ) ;
 		
-		// Send 'ready' to server
-		self.proxy.remoteServices.bookInput.emit( 'ready' ) ;
-		//self.input.emit( 'ready' ) ;
+		// Send 'ready' to server? 
+		// No, let the UI send it.
+		//self.proxy.remoteServices.bookInput.emit( 'ready' ) ;
 		
 		console.log( "Websocket opened!" ) ;
 		if ( typeof callback === 'function' ) { callback() ; }
@@ -127,7 +134,6 @@ SpellcastClient.prototype.run = function run( callback )
 		console.log( "Message received: " , message ) ;
 		
 		self.proxy.receive( message ) ;
-		//self.emit.apply( self , [ message.event ].concat( message.args ) ) ;
 	} ;
 	
 	self.proxy.send = function send( message ) {
@@ -228,13 +234,13 @@ var markup = markupMethod.bind( markupConfig ) ;
 
 
 
-function UI( client , self )
+function UI( input , output , self )
 {
 	if ( ! self )
 	{
 		self = Object.create( UI.prototype , {
-			client: { value: client , enumerable: true } ,
-			remote: { value: client.proxy.remoteServices , enumerable: true } ,
+			input: { value: input , enumerable: true } ,
+			output: { value: output , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
 		} ) ;
@@ -243,26 +249,28 @@ function UI( client , self )
 	self.$text = document.querySelector( '#text' ) ;
 	self.$next = document.querySelector( '#next' ) ;
 	
-	//self.remote.book.on( 'coreMessage' , UI.coreMessage.bind( self ) ) ;
-	//self.remote.book.on( 'errorMessage' , UI.errorMessage.bind( self ) ) ;
-	self.remote.book.on( 'extOutput' , UI.extOutput.bind( self ) ) ;
-	self.remote.book.on( 'extErrorOutput' , UI.extErrorOutput.bind( self ) ) ;
+	//self.input.on( 'coreMessage' , UI.coreMessage.bind( self ) ) ;
+	//self.input.on( 'errorMessage' , UI.errorMessage.bind( self ) ) ;
+	self.input.on( 'extOutput' , UI.extOutput.bind( self ) ) ;
+	self.input.on( 'extErrorOutput' , UI.extErrorOutput.bind( self ) ) ;
 	
-	self.remote.book.on( 'message' , UI.message.bind( self ) , { async: true } ) ;
-	self.remote.book.on( 'image' , UI.image.bind( self ) ) ;
-	self.remote.book.on( 'sound' , UI.sound.bind( self ) ) ;
-	self.remote.book.on( 'music' , UI.music.bind( self ) ) ;
+	self.input.on( 'message' , UI.message.bind( self ) , { async: true } ) ;
+	self.input.on( 'image' , UI.image.bind( self ) ) ;
+	self.input.on( 'sound' , UI.sound.bind( self ) ) ;
+	self.input.on( 'music' , UI.music.bind( self ) ) ;
 	
-	self.remote.book.on( 'enterScene' , UI.enterScene.bind( self ) ) ;
-	self.remote.book.on( 'leaveScene' , UI.leaveScene.bind( self ) , { async: true } ) ;
-	self.remote.book.on( 'nextList' , UI.nextList.bind( self ) ) ;
-	self.remote.book.on( 'nextTriggered' , UI.nextTriggered.bind( self ) ) ;
+	self.input.on( 'enterScene' , UI.enterScene.bind( self ) ) ;
+	self.input.on( 'leaveScene' , UI.leaveScene.bind( self ) , { async: true } ) ;
+	self.input.on( 'nextList' , UI.nextList.bind( self ) ) ;
+	self.input.on( 'nextTriggered' , UI.nextTriggered.bind( self ) ) ;
 	
-	self.remote.book.on( 'textInput' , UI.textInput.bind( self ) ) ;
+	self.input.on( 'textInput' , UI.textInput.bind( self ) ) ;
 	
-	self.remote.book.on( 'end' , UI.end.bind( self ) ) ;
+	self.input.on( 'end' , UI.end.bind( self ) ) ;
 	
-	self.remote.book.on( 'exit' , UI.exit.bind( self ) ) ;
+	self.input.on( 'exit' , UI.exit.bind( self ) ) ;
+	
+	self.output.emit( 'ready' ) ;
 	
 	return self ;
 }
@@ -404,7 +412,7 @@ UI.prototype.nextListConfirm = function nextListConfirm( next )
 	$next = document.querySelector( '#next_0' ) ;
 	
 	$next.onclick = function() {
-		self.remote.bookInput.emit( 'selectNext' , 0 ) ;
+		self.output.emit( 'selectNext' , 0 ) ;
 		$next.onclick = null ;
 	} ;
 } ;
@@ -430,7 +438,7 @@ UI.prototype.nextListMenu = function nextListMenu( nexts )
 	
 	$nexts.forEach( function( e , i ) {
 		e.onclick = function() {
-			self.remote.bookInput.emit( 'selectNext' , i ) ;
+			self.output.emit( 'selectNext' , i ) ;
 			$nexts.forEach( function( e , i ) { e.onclick = null ; } ) ;
 		} ;
 	} ) ;
@@ -474,8 +482,8 @@ UI.textInput = function textInput( label )
 	
 	term.inputField( options , function( error , input ) {
 		term( '\n' ) ;
-		if ( error ) { self.remote.bookInput.emit( error ) ; }
-		else { self.remote.bookInput.emit( 'textInput' , input ) ; }
+		if ( error ) { self.output.emit( error ) ; }
+		else { self.output.emit( 'textInput' , input ) ; }
 	} ) ;
 	*/
 } ;
