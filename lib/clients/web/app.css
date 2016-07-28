@@ -46,6 +46,27 @@ body {
 
 
 
+.end.classic-ui {
+	background-color: #fce94f;
+	margin: 2em 30%;
+	border-radius: 10px;
+	padding: 10px 20px;
+	text-align: center;
+	text-shadow: 1px 1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff, -1px -1px 1px #fff;
+}
+
+.win.classic-ui {
+	background-color: #34e2e2;
+}
+
+.lost.classic-ui {
+	background-color: #ef2929;
+}
+
+.draw.classic-ui {
+	background-color: #8ae234;
+}
+
 
 
 button.next.classic-ui {

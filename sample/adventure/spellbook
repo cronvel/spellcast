@@ -20,13 +20,13 @@
 				$> ${this.data} was blasted!
 		
 		[message] $> ...
-		[pause] 0.5
+		[pause] 0.2
 		[emit blast] Bill
 		[message] $> ...
-		[pause] 0.5
+		[pause] 0.2
 		[emit blast] Bob
 		[message] $> ...
-		[pause] 0.5
+		[pause] 0.2
 		[subscene sub1]
 		[message]
 			$> ...
@@ -64,6 +64,18 @@
 			> You started learning how to forge horseshoe since the age of 12 with your father, the local smith.
 			> At the age of 15, you got tired of horseshoes and wanted to forge more exciting things like axes and swords,
 			> but your father was not competent for this kind of stuff.
+		
+		[next end/master]
+			[label] > You seek for a master at forgery.
+		
+		[include common-background]
+	
+	[scene rogue]
+		[message]
+			> You lived in the forest and becomes an highwayman.
+			> That's really bad!
+		
+		[lost]
 		
 		[next end/master]
 			[label] > You seek for a master at forgery.
