@@ -5,7 +5,7 @@
 	
 	[scene intro1]
 		[message]
-			$> ^/Once upon a time...
+			$> ^/Once ^Bupon a time...
 		[next intro2]
 		#[goto intro2]
 	

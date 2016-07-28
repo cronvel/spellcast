@@ -1,4 +1,8 @@
 
+body {
+	font-family: sans-serif;
+	font-size: 16px;
+}
 
 #text {
 	margin: 1.5em ;
@@ -8,39 +12,80 @@
 	margin: 1.5em ;
 }
 
-button.next.classic-ui {
-	display: block ;
-	background-color: #faa ;
-	padding: 0.8em 2em ;
-	margin: 0.8em 0 ;
-	border-radius: 1em ;
-	cursor: pointer ;
-}
-
-button.next.classic-ui:hover {
-	background-color: #f77 ;
-	text-decoration: underline ;
-}
 
 
 
 /* Styles */
 
-/* Terminal kit gnome color scheme */
+/* Terminal-kit gnome color scheme */
 .black { color: #000000; }
 .brightBlack { color: #555753; }
 .red { color: #cc0000; }
 .brightRed { color: #ef2929; }
+.green { color: #4e9a06; }
+.brightGreen { color: #8ae234; }
+.yellow { color: #c4a000; }
+.brightYellow { color: #fce94f; }
 .blue { color: #3465a4; }
 .brightBlue { color: #729fcf; }
+.magenta { color: #75507b; }
+.brightMagenta { color: #ad7fa8; }
+.cyan { color: #06989a; }
+.brightCyan { color: #34e2e2; }
+.white { color: #d3d7cf; }
+.brightWhite { color: #eeeeec; }
+
+.dim { opacity: 0.5; }
+.bold { font-weight: bold; }
+.underline { text-decoration: underline; }
+.italic { font-style: italic; }
+
+/* this does not inverse background and foreground, but it is not possible using only CSS */
+.inverse { filter: invert(100%); }
+/* .inverse { mix-blend-mode: difference; } */
 
 
-.italic {
-	font-style: italic;
+
+
+
+button.next.classic-ui {
+	display: block;
+	position: relative;
+	top: 0px;
+	border: none;
+	outline: none;
+	background-color: #faa ;
+	padding: 10px 20px;
+	margin: 15px 0px;
+	border-radius: 15px ;
+	box-shadow: 0 6px #ab3c3c;
+	cursor: pointer ;
+	font-family: inherit;
+	font-size: inherit;
+	color: inherit;
+	letter-spacing: 1px;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	transition: all 0.3s;
 }
 
-.bold {
-	font-weight: bold;
+button.next.classic-ui:hover {
+	background-color: #f77 ;
+	box-shadow: 0 4px #ab3c3c;
+	top: 2px;
 }
 
+button.next.classic-ui:active {
+	box-shadow: 0 0 #ab3c3c;
+	top: 6px;
+}
+
+button.next.classic-ui:after {
+	content: '';
+	position: absolute;
+	z-index: -1;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	transition: all 0.3s;
+}
 
