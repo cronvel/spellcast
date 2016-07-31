@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
-    "async-kit": "^2.1.5",
+    "async-kit": "^2.1.6",
     "babel-tower": "^0.7.0",
     "chokidar": "^1.6.0",
     "dom-kit": "^0.1.0",
@@ -21,10 +21,10 @@
     "logfella": "^0.3.42",
     "math-kit": "^0.3.5",
     "minimist": "^1.2.0",
-    "nextgen-events": "^0.6.5",
+    "nextgen-events": "^0.9.0",
     "semver": "^5.3.0",
     "string-kit": "^0.5.10",
-    "terminal-kit": "^0.24.20",
+    "terminal-kit": "^0.24.21",
     "tif-parser": "^0.3.3",
     "tree-kit": "^0.5.26",
     "ws": "^1.1.1"
