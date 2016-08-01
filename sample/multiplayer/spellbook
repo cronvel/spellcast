@@ -1,0 +1,21 @@
+
+[[doctype adventure-book]]
+
+[role alice]
+	[label] Alice
+
+[role bob]
+	[label] Bob
+
+[chapter intro]
+	
+	[scene intro1]
+		[message]
+			$> ^/Once ^Bupon a time...
+		[next end]
+		
+	[scene end]
+		[message]
+			$> The end.
+		[end]
+		
