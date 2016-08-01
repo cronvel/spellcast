@@ -8,6 +8,8 @@
 * busy: [state] emitted when the core of spellcast is not idling
 * undeadRaised (undeadList): emitted when a file or directory watched (undead mode) has changed, usually causing
   the book to reset and to run again the related action
+* newClient (client): emitted when a new client is added to the book
+* removeClient (client): emitted when a client is removed from the book
 
 
 
