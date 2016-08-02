@@ -48,6 +48,8 @@ SpellcastClient.create = function create( options )
 {
 	var self = Object.create( SpellcastClient.prototype , {
 		token: { value: options.token || 'null' , writable: true , enumerable: true } ,
+		port: { value: options.port || 57311 , writable: true , enumerable: true } ,
+		userName: { value: options.name || null , writable: true , enumerable: true } ,
 		ws: { value: null , writable: true , enumerable: true } ,
 		proxy: { value: null , writable: true , enumerable: true } ,
 	} ) ;
@@ -85,7 +87,7 @@ SpellcastClient.prototype.run = function run( callback )
 	var self = this ;
 	
 	//console.log( "Ready event received!" , this.spellcastClient.token ) ;
-	this.ws = new WebSocket( 'ws://127.0.0.1:57311/' + this.token ) ;
+	this.ws = new WebSocket( 'ws://127.0.0.1:' + this.port + '/' + this.token ) ;
 	
 	this.proxy = new Ngev.Proxy() ;
 	
@@ -103,6 +105,13 @@ SpellcastClient.prototype.run = function run( callback )
 				) ;
 			}
 		} ) ;
+		
+		if ( self.userName )
+		{
+			self.proxy.remoteServices.bus.emit( 'user' , {
+				name: self.userName
+			} )
+		}
 		
 		// Send 'ready' to server? 
 		// No, let the UI send it.
@@ -280,10 +289,8 @@ module.exports = UI ;
 
 UI.roleList = function roleList( roles , assigned )
 {
-	var self = this , $nexts ,
+	var self = this , $roles ,
 		max = 0x61 + roles.length - 1 ;
-	
-	console.log( 'Hey!' , roles ) ;
 	
 	this.$next.innerHTML = '' ;
 	
@@ -291,18 +298,27 @@ UI.roleList = function roleList( roles , assigned )
 		
 		self.$next.insertAdjacentHTML( 'beforeend' ,
 			'<button id="next_' + i + '" class="role classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + e.label +
-			( e.userName ? '<span class="italic">' + e.userName + '</span>' : '' ) +
+			( e.userName ? ' <span class="italic brightBlack">' + e.userName + '</span>' : '' ) +
 			'</button>'
 		) ;
 	} ) ;
 	
-	$nexts = document.querySelectorAll( '.role' ) ;
-	$nexts = Array.prototype.slice.call( $nexts ) ;
+	if ( assigned )
+	{
+		this.afterLeave = true ;	// tmp
+		this.$next.insertAdjacentHTML( 'beforeend' ,
+			'<h2 class="end classic-ui">Start!</h2>'
+		) ;
+		return ;
+	}
 	
-	$nexts.forEach( function( e , i ) {
+	$roles = document.querySelectorAll( '.role' ) ;
+	$roles = Array.prototype.slice.call( $roles ) ;
+	
+	$roles.forEach( function( e , i ) {
 		e.onclick = function() {
 			self.bus.emit( 'selectRole' , i ) ;
-			$nexts.forEach( function( e , i ) { e.onclick = null ; } ) ;
+			$roles.forEach( function( e , i ) { e.onclick = null ; } ) ;
 		} ;
 	} ) ;
 } ;
