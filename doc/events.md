@@ -39,8 +39,10 @@
 * textInput (label): the book require that the user enter a text, `label` is the text describing what is required,
   the client response should emit a `textSubmit` event
 
-* roleList (roles): a list of roles that should be chosen by each client, `roles` is an array of object containing
-  those roles, where:
+* roleList (roles, assigned): a list of roles that should be chosen by each client. Argument `assigned` is a boolean.
+  If false, some client still need to choose a role, sending a `selectRole` event.
+  If true, all clients have chosen their role, the game is about to start, and `selectRole` events are ignored.
+  Argument `roles` is an array of object containing those roles, where:
 	* label `string` contains the text describing the role
 	* userName `null` or `string` if set, the role is currently taken by this user
 
