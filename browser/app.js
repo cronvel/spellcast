@@ -246,6 +246,8 @@ function UI( bus , self )
 	self.$text = document.querySelector( '#text' ) ;
 	self.$next = document.querySelector( '#next' ) ;
 	
+	self.bus.on( 'roleList' , UI.roleList.bind( self ) ) ;
+	
 	//self.bus.on( 'coreMessage' , UI.coreMessage.bind( self ) ) ;
 	//self.bus.on( 'errorMessage' , UI.errorMessage.bind( self ) ) ;
 	self.bus.on( 'extOutput' , UI.extOutput.bind( self ) ) ;
@@ -273,6 +275,37 @@ function UI( bus , self )
 }
 
 module.exports = UI ;
+
+
+
+UI.roleList = function roleList( roles , assigned )
+{
+	var self = this , $nexts ,
+		max = 0x61 + roles.length - 1 ;
+	
+	console.log( 'Hey!' , roles ) ;
+	
+	this.$next.innerHTML = '' ;
+	
+	roles.forEach( function( e , i ) {
+		
+		self.$next.insertAdjacentHTML( 'beforeend' ,
+			'<button id="next_' + i + '" class="role classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + e.label +
+			( e.userName ? '<span class="italic">' + e.userName + '</span>' : '' ) +
+			'</button>'
+		) ;
+	} ) ;
+	
+	$nexts = document.querySelectorAll( '.role' ) ;
+	$nexts = Array.prototype.slice.call( $nexts ) ;
+	
+	$nexts.forEach( function( e , i ) {
+		e.onclick = function() {
+			self.bus.emit( 'selectRole' , i ) ;
+			$nexts.forEach( function( e , i ) { e.onclick = null ; } ) ;
+		} ;
+	} ) ;
+} ;
 
 
 
@@ -396,13 +429,13 @@ UI.prototype.nextListConfirm = function nextListConfirm( next )
 	if ( next.label )
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_0" class="next classic-ui">Next: ' + next.label + '</a>'
+			'<button id="next_0" class="next classic-ui">Next: ' + next.label + '</button>'
 		) ;
 	}
 	else
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_0" class="next classic-ui">Next.</a>'
+			'<button id="next_0" class="next classic-ui">Next.</button>'
 		) ;
 	}
 	
@@ -426,7 +459,7 @@ UI.prototype.nextListMenu = function nextListMenu( nexts )
 	nexts.forEach( function( e , i ) {
 		
 		self.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_' + i + '" class="next classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + e.label + '</a>'
+			'<button id="next_' + i + '" class="next classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + e.label + '</button>'
 		) ;
 	} ) ;
 	
@@ -2776,7 +2809,7 @@ NextGenEvents.prototype.removeAllListeners = function removeAllListeners( eventN
 	{
 		// Remove all listeners for a particular event
 		
-		if ( ! eventName || typeof eventName !== 'string' ) { throw new TypeError( ".removeAllListener(): argument #0 should be undefined or a non-empty string" ) ; }
+		if ( ! eventName || typeof eventName !== 'string' ) { throw new TypeError( ".removeAllListeners(): argument #0 should be undefined or a non-empty string" ) ; }
 		
 		if ( ! this.__ngev.listeners[ eventName ] ) { this.__ngev.listeners[ eventName ] = [] ; }
 		
@@ -2932,7 +2965,7 @@ NextGenEvents.prototype.emit = function emit()
 
 
 /*
-	At this stage, event should have properties for the event:
+	At this stage, 'event' should be an object having those properties:
 		* emitter: the event emitter
 		* name: the event name
 		* args: array, the arguments of the event
@@ -2943,9 +2976,30 @@ NextGenEvents.prototype.emit = function emit()
 NextGenEvents.emitEvent = function emitEvent( event )
 {
 	var self = event.emitter ,
-		i , iMax , count = 0 , removedListeners ;
+		i , iMax , count = 0 , state , removedListeners ;
 	
 	if ( ! self.__ngev ) { NextGenEvents.init.call( self ) ; }
+	
+	state = self.__ngev.states[ event.name ] ;
+	
+	// This is a state event, register it now!
+	if ( state !== undefined )
+	{
+		
+		if ( state && event.args.length === state.args.length &&
+			event.args.every( function( arg , index ) { return arg === state.args[ index ] ; } ) )
+		{
+			// The emitter is already in this exact state, skip it now!
+			return ;
+		}
+		
+		// Unset all states of that group
+		self.__ngev.stateGroups[ event.name ].forEach( function( eventName ) {
+			self.__ngev.states[ eventName ] = null ;
+		} ) ;
+		
+		self.__ngev.states[ event.name ] = event ;
+	}
 	
 	if ( ! self.__ngev.listeners[ event.name ] ) { self.__ngev.listeners[ event.name ] = [] ; }
 	
@@ -2958,17 +3012,6 @@ NextGenEvents.emitEvent = function emitEvent( event )
 	// Trouble arise when a listener is removed from another listener, while we are still in the loop.
 	// So we have to COPY the listener array right now!
 	if ( ! event.listeners ) { event.listeners = self.__ngev.listeners[ event.name ].slice() ; }
-	
-	// This is a state event, register it now!
-	if ( self.__ngev.states[ event.name ] !== undefined )
-	{
-		// Unset all states of that group
-		self.__ngev.stateGroups[ event.name ].forEach( function( eventName ) {
-			self.__ngev.states[ eventName ] = null ;
-		} ) ;
-		
-		self.__ngev.states[ event.name ] = event ;
-	}
 	
 	// Increment self.__ngev.recursion
 	self.__ngev.recursion ++ ;
@@ -3152,6 +3195,16 @@ NextGenEvents.share = function( source , target )
 
 
 
+NextGenEvents.reset = function reset( emitter )
+{
+	Object.defineProperty( emitter , '__ngev' , {
+        configurable: true ,
+        value: null
+	} ) ;
+} ;
+
+
+
 // There is no such thing in NextGenEvents, however, we need to be compatible with node.js events at best
 NextGenEvents.prototype.setMaxListeners = function() {} ;
 
@@ -3184,6 +3237,7 @@ NextGenEvents.prototype.defineStates = function defineStates()
 
 NextGenEvents.prototype.hasState = function hasState( state )
 {
+	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	return !! this.__ngev.states[ state ] ;
 } ;
 
@@ -3192,6 +3246,7 @@ NextGenEvents.prototype.hasState = function hasState( state )
 NextGenEvents.prototype.getAllStates = function getAllStates()
 {
 	var self = this ;
+	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	return Object.keys( this.__ngev.states ).filter( function( e ) { return self.__ngev.states[ e ] ; } ) ;
 } ;
 
@@ -3307,6 +3362,15 @@ NextGenEvents.groupRemoveListener = function groupRemoveListener( emitters , eve
 } ;
 
 NextGenEvents.groupOff = NextGenEvents.groupRemoveListener ;
+
+
+
+NextGenEvents.groupRemoveAllListeners = function groupRemoveAllListeners( emitters , eventName )
+{
+	emitters.forEach( function( emitter ) {
+		emitter.removeAllListeners( eventName ) ;
+	} ) ;
+} ;
 
 
 

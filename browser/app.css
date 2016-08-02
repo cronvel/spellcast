@@ -110,3 +110,46 @@ button.next.classic-ui:after {
 	transition: all 0.3s;
 }
 
+
+
+button.role.classic-ui {
+	display: block;
+	position: relative;
+	top: 0px;
+	border: none;
+	outline: none;
+	background-color: #aaf ;
+	padding: 10px 20px;
+	margin: 15px 0px;
+	border-radius: 15px ;
+	box-shadow: 0 6px #3c3cab;
+	cursor: pointer ;
+	font-family: inherit;
+	font-size: inherit;
+	color: inherit;
+	letter-spacing: 1px;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	transition: all 0.3s;
+}
+
+button.role.classic-ui:hover {
+	background-color: #77f ;
+	box-shadow: 0 4px #3c3cab;
+	top: 2px;
+}
+
+button.role.classic-ui:active {
+	box-shadow: 0 0 #3c3cab;
+	top: 6px;
+}
+
+button.role.classic-ui:after {
+	content: '';
+	position: absolute;
+	z-index: -1;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	transition: all 0.3s;
+}
+
