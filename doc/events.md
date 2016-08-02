@@ -8,7 +8,7 @@
 * busy: [state] emitted when the core of spellcast is not idling
 * undeadRaised (undeadList): emitted when a file or directory watched (undead mode) has changed, usually causing
   the book to reset and to run again the related action
-* newClient (client): emitted when a new client is added to the book
+* newClient (client): emitted when a new client is added to the book, once it emitted 'ready'
 * removeClient (client): emitted when a client is removed from the book
 
 
@@ -39,6 +39,11 @@
 * textInput (label): the book require that the user enter a text, `label` is the text describing what is required,
   the client response should emit a `textSubmit` event
 
+* roleList (roles): a list of roles that should be chosen by each client, `roles` is an array of object containing
+  those roles, where:
+	* label `string` contains the text describing the role
+	* userName `null` or `string` if set, the role is currently taken by this user
+
 * enterScene: the book enter a new scene
 * leaveScene: the book is leaving the current scene
 * nextList (nexts): the user should make a choice between multiple alternative, `nexts` is an array of object containing
@@ -57,5 +62,15 @@
 
 * ready: [state] emitted once the client is init
 * textSubmit (text): the text the user submit in response of a `textInput` event
+
+* selectRole (index): in response of a `roleList` event, it contains the index of the role the current client want
+  to be assigned to, if `index` is `null`, the client is unassigned to a role
+
 * selectNext (index): in response of a `nextList` event, it contains the index of the item selected by the user
+
+* user (userObject): [state] the client sent an object describing its user. No formal format exist, it depends on the host
+  application, but a property is searched to be used as a user name in that order:
+  	* name
+  	* login
+  	* id
 
