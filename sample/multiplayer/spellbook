@@ -14,8 +14,10 @@
 			$> ^/Once ^Bupon a time...
 		[next a]
 			[label] A
+#			[vote-style] absolute
 		[next b]
 			[label] B
+			[vote-style] immediate
 		
 	[scene a]
 		[message]

@@ -53,9 +53,9 @@
 	* label `string` contains the text describing the choice
 	* image `url` if set, the choice as an image that would usually be displayed as an icon
   Once the user has selected a choice, the client should emit a `selectNext` event
-* nextTriggered (nextIndex, roleIndex): a next action was triggered, `nextIndex` contains its index in the `nextList` event's
-  argument `nexts`, and `roleIndex`, if not null, is the index of the role that activated it (if relevant), provided in the
-  last `roleList` event's argument `roles`.
+* nextTriggered (nextIndex, roleIndexes): a next action was triggered, `nextIndex` contains its index in the `nextList` event's
+  argument `nexts`, and `roleIndexes`, if not null, is an array of indexes of roles that activated it (if relevant),
+  provided in the last `roleList` event's argument `roles`.
 * image
 * sound
 * music

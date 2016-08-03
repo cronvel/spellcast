@@ -97,6 +97,8 @@
 		[message]
 			> You found the master and learn everything he taught to you.
 			> You became famous in the entire country.
+		
+		[win]
 	
 	[scene vengeance]
 		[message]

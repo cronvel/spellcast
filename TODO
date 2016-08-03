@@ -3,6 +3,9 @@
 
 == ADVENTURE MODE ==
 
+Multiplayer:
+- activeScene and sceneStack should move from the Book instance to the execContext.
+
 Tags:
 - aside
 - action
