@@ -110,7 +110,7 @@ SpellcastClient.prototype.run = function run( callback )
 		{
 			self.proxy.remoteServices.bus.emit( 'user' , {
 				name: self.userName
-			} )
+			} ) ;
 		}
 		
 		// Send 'ready' to server? 
@@ -189,6 +189,8 @@ dom.ready( function() {
 
 
 
+/* global alert */
+
 var dom = require( 'dom-kit' ) ;
 
 var markupMethod = require( 'string-kit/lib/format.js' ).markupMethod ;
@@ -247,6 +249,8 @@ function UI( bus , self )
 	{
 		self = Object.create( UI.prototype , {
 			bus: { value: bus , enumerable: true } ,
+			roles: { value: null , writable: true , enumerable: true } ,
+			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
 		} ) ;
@@ -292,13 +296,21 @@ UI.roleList = function roleList( roles , assigned )
 	var self = this , $roles ,
 		max = 0x61 + roles.length - 1 ;
 	
+	this.roles = roles ;
+	
+	if ( assigned && roles.length <= 1 )
+	{
+		// Nothing to do and nothing to display...
+		return ;
+	}
+	
 	this.$next.innerHTML = '' ;
 	
-	roles.forEach( function( e , i ) {
+	roles.forEach( function( role , i ) {
 		
 		self.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_' + i + '" class="role classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + e.label +
-			( e.userName ? ' <span class="italic brightBlack">' + e.userName + '</span>' : '' ) +
+			'<button id="next_' + i + '" class="role classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + role.label +
+			( role.userName ? ' <span class="italic brightBlack">' + role.userName + '</span>' : '' ) +
 			'</button>'
 		) ;
 	} ) ;
@@ -423,35 +435,46 @@ UI.nextTriggered = function nextTriggered()
 
 
 
-UI.nextList = function nextList( nexts ) //, callback )
+UI.nextList = function nextList( nexts , isUpdate )
 {
+	this.nexts = nexts ;
 	this.afterNext = true ;
+	
+	// No need to update if we are alone
+	if ( isUpdate && this.roles.length === 1 ) { return ; }
+	
 	//if ( nexts.length === 0 ) { this.nextEnd() ; }
 	//else 
-	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] ) ; }
-	else { this.nextListMenu( nexts ) ; }
+	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] , isUpdate ) ; }
+	else { this.nextListMenu( nexts , isUpdate ) ; }
 } ;
 
 
 
-//UI.prototype.nextListEnd = function nextListEnd() { term.brightBlue( 'End.\n' ) ; } ;
-
-UI.prototype.nextListConfirm = function nextListConfirm( next )
+UI.prototype.nextListConfirm = function nextListConfirm( next , isUpdate )
 {
-	var self = this , $next ;
+	var self = this , $next , roles ;
 	
-	//this.$next.innerHTML = '' ;
+	this.$next.innerHTML = '' ;
 	
 	if ( next.label )
 	{
+		roles = next.roleIndexes.map( function( index ) { return self.roles[ index ].label ; } ).join( ', ' ) ;
+		
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_0" class="next classic-ui">Next: ' + next.label + '</button>'
+			'<button id="next_0" class="next classic-ui">Next: ' + next.label +
+			( roles ? ' <span class="italic brightBlack">' + roles + '</span>' : '' ) +
+			'</button>'
 		) ;
 	}
 	else
 	{
+		roles = next.roleIndexes.map( function( index ) { return self.roles[ index ].label ; } ).join( ', ' ) ;
+		
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_0" class="next classic-ui">Next.</button>'
+			'<button id="next_0" class="next classic-ui">Next.' +
+			( roles ? ' <span class="italic brightBlack">' + roles + '</span>' : '' ) +
+			'</button>'
 		) ;
 	}
 	
@@ -465,17 +488,21 @@ UI.prototype.nextListConfirm = function nextListConfirm( next )
 
 
 
-UI.prototype.nextListMenu = function nextListMenu( nexts )
+UI.prototype.nextListMenu = function nextListMenu( nexts , isUpdate )
 {
 	var self = this , $nexts ,
 		max = 0x61 + nexts.length - 1 ;
 	
 	this.$next.innerHTML = '' ;
 	
-	nexts.forEach( function( e , i ) {
+	nexts.forEach( function( next , i ) {
+		
+		var roles = next.roleIndexes.map( function( index ) { return self.roles[ index ].label ; } ).join( ', ' ) ;
 		
 		self.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_' + i + '" class="next classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + e.label + '</button>'
+			'<button id="next_' + i + '" class="next classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + next.label +
+			( roles ? ' <span class="italic brightBlack">' + roles + '</span>' : '' ) +
+			'</button>'
 		) ;
 	} ) ;
 	
