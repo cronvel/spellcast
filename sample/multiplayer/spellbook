@@ -10,6 +10,8 @@
 [chapter intro]
 	
 	[scene intro1]
+#		[vote-style] immediate
+		
 		[message]
 			$> ^/Once ^Bupon a time...
 		[next a]
@@ -17,7 +19,7 @@
 #			[vote-style] absolute
 		[next b]
 			[label] B
-			[vote-style] immediate
+#			[vote-style] immediate
 		
 	[scene a]
 		[message]
