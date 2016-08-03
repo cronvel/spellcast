@@ -48,14 +48,17 @@
 
 * enterScene: the book enter a new scene
 * leaveScene: the book is leaving the current scene
-* nextList (nexts): the user should make a choice between multiple alternative, `nexts` is an array of object containing
+* nextList (nexts, isUpdate): the user should make a choice between multiple alternative, `nexts` is an array of object containing
   those alternatives, where:
 	* label `string` contains the text describing the choice
 	* image `url` if set, the choice as an image that would usually be displayed as an icon
-  Once the user has selected a choice, the client should emit a `selectNext` event
+  Once the user has selected a choice, the client should emit a `selectNext` event.
+  Argument `isUpdate` is a boolean, it is true if the provided *next list* is an update of the previous one (i.e. it is not a new
+  choice to make, but an update of the values of the current choice, e.g. when a choice get a vote, etc).
 * nextTriggered (nextIndex, roleIndexes): a next action was triggered, `nextIndex` contains its index in the `nextList` event's
   argument `nexts`, and `roleIndexes`, if not null, is an array of indexes of roles that activated it (if relevant),
   provided in the last `roleList` event's argument `roles`.
+
 * image
 * sound
 * music
