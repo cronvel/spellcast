@@ -79,6 +79,17 @@ span.unassigned-users.classic-ui {
 
 
 
+p.waiting-roles.classic-ui {
+	color: #555753;
+}
+
+span.waiting-roles.classic-ui {
+	color: #555753;
+	font-style: italic;
+}
+
+
+
 button.classic-ui {
 	display: block;
 	position: relative;

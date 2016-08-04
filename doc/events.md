@@ -9,6 +9,7 @@
 * undeadRaised (undeadList): emitted when a file or directory watched (undead mode) has changed, usually causing
   the book to reset and to run again the related action
 * newClient (client): emitted when a new client is added to the book, once it emitted 'ready'
+* newUser (client): emitted when a user has authenticated through a client
 * removeClient (client): emitted when a client is removed from the book
 
 
@@ -50,27 +51,28 @@
 	* name `string` if set, the role is currently taken by this user
 
 * roleList (roles, unassignedClients , assigned): this give the list of roles that should be chosen by each client.
-  Argument `assigned` is a boolean. If false, some client still need to choose a role, sending a `selectRole` event.
+  Argument `assigned` is a boolean. If false, some clients still need to choose a role, sending a `selectRole` event.
   If true, all clients have chosen their role, the game is about to start, and `selectRole` events are ignored.
-  Argument `unassignedUsers` is an array of user's names that hasn't chosen a role yet.
+  Argument `unassignedUsers` is an array of client ID names that hasn't chosen a role yet.
   Argument `roles` is an array of object containing those roles, where:
 	* id `string` contains the unique ID of this role
 	* label `string` contains the text describing the role
-	* userName `null` or `string` if set, the role is currently taken by this user
-	* clientId `null` or `string` if set, it's the client ID of the user holding this role
+	* clientId `null` or `string` if not null, it's the client ID of the user holding this role
 
 * enterScene: the book enter a new scene
 * leaveScene: the book is leaving the current scene
-* nextList (nexts, isUpdate): the user should make a choice between multiple alternative, `nexts` is an array of object containing
-  those alternatives, where:
+* nextList (nexts, undecidedRoles , isUpdate): the user should make a choice between multiple alternative, `nexts` is
+  an array of object containing those alternatives, where:
 	* label `string` contains the text describing the choice
 	* image `url` if set, the choice as an image that would usually be displayed as an icon
+	* roleIds `array` of role's IDif not null, it's the client ID of the user holding this role
   Once the user has selected a choice, the client should emit a `selectNext` event.
   Argument `isUpdate` is a boolean, it is true if the provided *next list* is an update of the previous one (i.e. it is not a new
   choice to make, but an update of the values of the current choice, e.g. when a choice get a vote, etc).
-* nextTriggered (nextIndex, roleIndexes): a next action was triggered, `nextIndex` contains its index in the `nextList` event's
-  argument `nexts`, and `roleIndexes`, if not null, is an array of indexes of roles that activated it (if relevant),
-  provided in the last `roleList` event's argument `roles`.
+  `undecidedRoles` is a array of role's IDs that hasn't chosen anything yet.
+* nextTriggered (nextIndex, roleIds): a next action was triggered, `nextIndex` contains its index in the `nextList` event's
+  argument `nexts`, and `roleIds`, if not null, is an array of IDs of roles that activated it (if relevant),
+  provided in the last `roleList` event, in the `roles` argument.
 
 * image
 * sound

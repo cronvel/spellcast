@@ -100,13 +100,13 @@ SpellcastClient.prototype.run = function run( callback )
 			
 			if ( uiList[ ui ] )
 			{
-				uiList[ ui ]( self.proxy.remoteServices.bus , self ) ;
+				uiList[ ui ]( self.proxy.remoteServices.bus ) ;
 			}
 		} ) ;
 		
 		if ( self.userName )
 		{
-			self.proxy.remoteServices.bus.emit( 'user' , {
+			self.proxy.remoteServices.bus.emit( 'authenticate' , {
 				name: self.userName
 			} ) ;
 		}
@@ -241,15 +241,18 @@ var markup = markupMethod.bind( markupConfig ) ;
 
 
 
-function UI( bus , client , self )
+function UI( bus , self )
 {
+	console.log( Array.from( arguments ) ) ;
+	
 	if ( ! self )
 	{
 		self = Object.create( UI.prototype , {
 			bus: { value: bus , enumerable: true } ,
-			client: { value: client , enumerable: true } ,
+			user: { value: null , writable: true , enumerable: true } ,
+			users: { value: null , writable: true , enumerable: true } ,
 			roles: { value: null , writable: true , enumerable: true } ,
-			roleIndex: { value: null , writable: true , enumerable: true } ,
+			roleId: { value: null , writable: true , enumerable: true } ,
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
@@ -259,6 +262,8 @@ function UI( bus , client , self )
 	self.$text = document.querySelector( '#text' ) ;
 	self.$next = document.querySelector( '#next' ) ;
 	
+	self.bus.on( 'user' , UI.user.bind( self ) ) ;
+	self.bus.on( 'userList' , UI.userList.bind( self ) ) ;
 	self.bus.on( 'roleList' , UI.roleList.bind( self ) ) ;
 	
 	//self.bus.on( 'coreMessage' , UI.coreMessage.bind( self ) ) ;
@@ -291,19 +296,44 @@ module.exports = UI ;
 
 
 
+function arrayGetById( id ) { return this.find( function( e ) { return e.id === id ; } ) ; }
+
+
+
+UI.user = function user( user_ )
+{
+	console.log( 'User received: ' , user_ ) ;
+	this.user = user_ ;
+} ;
+
+
+
+UI.userList = function userList( users )
+{
+	console.log( 'User-list received: ' , users ) ;
+	
+	// Add the get method to the array
+	users.get = arrayGetById ;
+	this.users = users ;
+} ;
+
+
+
 UI.roleList = function roleList( roles , unassignedUsers , assigned )
 {
-	var self = this , $roles ,
+	var self = this , $roles , userName ,
 		max = 0x61 + roles.length - 1 ;
 	
+	// Add the get method to the array
+	roles.get = arrayGetById ;
+
 	this.roles = roles ;
 	
 	if ( assigned && roles.length <= 1 )
 	{
 		// Nothing to do and nothing to display...
-		
-		console.log( "self.roleIndex: " , self.roleIndex ) ;
-		this.roleIndex = 0 ;
+		this.roleId = this.role[ 0 ].id ;
+		console.log( "this.roleIndex: " , this.roleId ) ;
 		return ;
 	}
 	
@@ -311,17 +341,19 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 	
 	roles.forEach( function( role , i ) {
 		
+		userName = role.clientId && self.users.get( role.clientId ).name ;
+		
 		self.$next.insertAdjacentHTML( 'beforeend' ,
 			'<button id="next_' + i + '" class="role classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + role.label +
-			( role.userName ? ' <span class="italic brightBlack">' + role.userName + '</span>' : '' ) +
+			( userName ? ' <span class="italic brightBlack">' + userName + '</span>' : '' ) +
 			'</button>'
 		) ;
 	} ) ;
 	
 	if ( assigned )
 	{
-		this.roles.find( function( e , i ) {
-			if ( e.userName === self.client.userName ) { self.roleIndex = i ; return true ; }
+		roles.find( function( e , i ) {
+			if ( e.clientId === self.user.id ) { self.roleId = e.id ; return true ; }
 			return false ;
 		} ) ;
 		
@@ -336,7 +368,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
 			'<p class="unassigned-users classic-ui">Idling: <span class="unassigned-users classic-ui">' +
-			unassignedUsers.join( ', ' ) +
+			unassignedUsers.map( function( e ) { return self.users.get( e ).name ; } ).join( ', ' ) +
 			'</span></p>'
 		) ;
 	}
@@ -346,10 +378,15 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 	
 	$roles.forEach( function( e , i ) {
 		e.onclick = function() {
-			if ( roles[ i ].userName === self.client.userName )
+			if ( roles[ i ].clientId === self.user.id )
 			{
 				// Here we want to unassign
 				self.bus.emit( 'selectRole' , null ) ;
+			}
+			else if ( roles[ i ].clientId !== null )
+			{
+				// Already holded by someone else
+				return ;
 			}
 			else
 			{
@@ -461,7 +498,7 @@ UI.nextTriggered = function nextTriggered()
 
 
 
-UI.nextList = function nextList( nexts , isUpdate )
+UI.nextList = function nextList( nexts , undecidedRoles , isUpdate )
 {
 	this.nexts = nexts ;
 	this.afterNext = true ;
@@ -471,13 +508,13 @@ UI.nextList = function nextList( nexts , isUpdate )
 	
 	//if ( nexts.length === 0 ) { this.nextEnd() ; }
 	//else 
-	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] , isUpdate ) ; }
-	else { this.nextListMenu( nexts , isUpdate ) ; }
+	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] , undecidedRoles , isUpdate ) ; }
+	else { this.nextListMenu( nexts , undecidedRoles , isUpdate ) ; }
 } ;
 
 
 
-UI.prototype.nextListConfirm = function nextListConfirm( next , isUpdate )
+UI.prototype.nextListConfirm = function nextListConfirm( next , undecidedRoles , isUpdate )
 {
 	var self = this , $next , roles ;
 	
@@ -485,7 +522,7 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , isUpdate )
 	
 	if ( next.label )
 	{
-		roles = next.roleIndexes.map( function( index ) { return self.roles[ index ].label ; } ).join( ', ' ) ;
+		roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
 		
 		this.$next.insertAdjacentHTML( 'beforeend' ,
 			'<button id="next_0" class="next classic-ui">Next: ' + next.label +
@@ -495,12 +532,21 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , isUpdate )
 	}
 	else
 	{
-		roles = next.roleIndexes.map( function( index ) { return self.roles[ index ].label ; } ).join( ', ' ) ;
+		roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
 		
 		this.$next.insertAdjacentHTML( 'beforeend' ,
 			'<button id="next_0" class="next classic-ui">Next.' +
 			( roles ? ' <span class="italic brightBlack">' + roles + '</span>' : '' ) +
 			'</button>'
+		) ;
+	}
+	
+	if ( undecidedRoles.length )
+	{
+		this.$next.insertAdjacentHTML( 'beforeend' ,
+			'<p class="waiting-roles classic-ui">Waiting: <span class="waiting-roles classic-ui">' +
+			undecidedRoles.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
+			'</span></p>'
 		) ;
 	}
 	
@@ -514,7 +560,7 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , isUpdate )
 
 
 
-UI.prototype.nextListMenu = function nextListMenu( nexts , isUpdate )
+UI.prototype.nextListMenu = function nextListMenu( nexts , undecidedRoles , isUpdate )
 {
 	var self = this , $nexts ,
 		max = 0x61 + nexts.length - 1 ;
@@ -523,7 +569,7 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , isUpdate )
 	
 	nexts.forEach( function( next , i ) {
 		
-		var roles = next.roleIndexes.map( function( index ) { return self.roles[ index ].label ; } ).join( ', ' ) ;
+		var roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
 		
 		self.$next.insertAdjacentHTML( 'beforeend' ,
 			'<button id="next_' + i + '" class="next classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + next.label +
@@ -532,12 +578,21 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , isUpdate )
 		) ;
 	} ) ;
 	
+	if ( undecidedRoles.length )
+	{
+		this.$next.insertAdjacentHTML( 'beforeend' ,
+			'<p class="waiting-roles classic-ui">Waiting: <span class="waiting-roles classic-ui">' +
+			undecidedRoles.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
+			'</span></p>'
+		) ;
+	}
+	
 	$nexts = document.querySelectorAll( '.next' ) ;
 	$nexts = Array.prototype.slice.call( $nexts ) ;
 	
 	$nexts.forEach( function( e , i ) {
 		e.onclick = function() {
-			if ( nexts[ i ].roleIndexes.indexOf( self.roleIndex ) !== -1 )
+			if ( nexts[ i ].roleIds.indexOf( self.roleId ) !== -1 )
 			{
 				self.bus.emit( 'selectNext' , null ) ;
 			}
