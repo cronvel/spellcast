@@ -16,7 +16,7 @@
 			$> ^/Once ^Bupon a time...
 		[next a]
 			[label] A
-#			[vote-style] absolute
+#			[vote-style] absolute-majority
 		[next b]
 			[label] B
 #			[vote-style] immediate
