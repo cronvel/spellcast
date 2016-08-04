@@ -11,6 +11,7 @@
 	
 	[scene intro1]
 #		[vote-style] immediate
+		[vote-time] 5
 		
 		[message]
 			$> ^/Once ^Bupon a time...
