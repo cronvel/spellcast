@@ -100,9 +100,7 @@ SpellcastClient.prototype.run = function run( callback )
 			
 			if ( uiList[ ui ] )
 			{
-				uiList[ ui ](
-					window.spellcastClient.proxy.remoteServices.bus
-				) ;
+				uiList[ ui ]( self.proxy.remoteServices.bus , self ) ;
 			}
 		} ) ;
 		
@@ -243,13 +241,15 @@ var markup = markupMethod.bind( markupConfig ) ;
 
 
 
-function UI( bus , self )
+function UI( bus , client , self )
 {
 	if ( ! self )
 	{
 		self = Object.create( UI.prototype , {
 			bus: { value: bus , enumerable: true } ,
+			client: { value: client , enumerable: true } ,
 			roles: { value: null , writable: true , enumerable: true } ,
+			roleIndex: { value: null , writable: true , enumerable: true } ,
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
@@ -291,7 +291,7 @@ module.exports = UI ;
 
 
 
-UI.roleList = function roleList( roles , assigned )
+UI.roleList = function roleList( roles , unassignedUsers , assigned )
 {
 	var self = this , $roles ,
 		max = 0x61 + roles.length - 1 ;
@@ -301,6 +301,9 @@ UI.roleList = function roleList( roles , assigned )
 	if ( assigned && roles.length <= 1 )
 	{
 		// Nothing to do and nothing to display...
+		
+		console.log( "self.roleIndex: " , self.roleIndex ) ;
+		this.roleIndex = 0 ;
 		return ;
 	}
 	
@@ -317,6 +320,11 @@ UI.roleList = function roleList( roles , assigned )
 	
 	if ( assigned )
 	{
+		this.roles.find( function( e , i ) {
+			if ( e.userName === self.client.userName ) { self.roleIndex = i ; return true ; }
+			return false ;
+		} ) ;
+		
 		this.afterLeave = true ;	// tmp
 		this.$next.insertAdjacentHTML( 'beforeend' ,
 			'<h2 class="end classic-ui">Start!</h2>'
@@ -324,12 +332,30 @@ UI.roleList = function roleList( roles , assigned )
 		return ;
 	}
 	
+	if ( unassignedUsers.length )
+	{
+		this.$next.insertAdjacentHTML( 'beforeend' ,
+			'<p class="unassigned-users classic-ui">Idling: <span class="unassigned-users classic-ui">' +
+			unassignedUsers.join( ', ' ) +
+			'</span></p>'
+		) ;
+	}
+
 	$roles = document.querySelectorAll( '.role' ) ;
 	$roles = Array.prototype.slice.call( $roles ) ;
 	
 	$roles.forEach( function( e , i ) {
 		e.onclick = function() {
-			self.bus.emit( 'selectRole' , i ) ;
+			if ( roles[ i ].userName === self.client.userName )
+			{
+				// Here we want to unassign
+				self.bus.emit( 'selectRole' , null ) ;
+			}
+			else
+			{
+				self.bus.emit( 'selectRole' , i ) ;
+			}
+			
 			$roles.forEach( function( e , i ) { e.onclick = null ; } ) ;
 		} ;
 	} ) ;
@@ -511,7 +537,15 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , isUpdate )
 	
 	$nexts.forEach( function( e , i ) {
 		e.onclick = function() {
-			self.bus.emit( 'selectNext' , i ) ;
+			if ( nexts[ i ].roleIndexes.indexOf( self.roleIndex ) !== -1 )
+			{
+				self.bus.emit( 'selectNext' , null ) ;
+			}
+			else
+			{
+				self.bus.emit( 'selectNext' , i ) ;
+			}
+			
 			$nexts.forEach( function( e , i ) { e.onclick = null ; } ) ;
 		} ;
 	} ) ;
