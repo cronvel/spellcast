@@ -39,12 +39,17 @@
 * textInput (label): the book require that the user enter a text, `label` is the text describing what is required,
   the client response should emit a `textSubmit` event
 
-* userList (users): a list of users
-  Argument `users` is an array of object containing those roles, where:
-	* id `string` it's the unique client ID
-	* userName `string` if set, the role is currently taken by this user
+* user (userObject): this contains the user related to the client. Argument `userObject` is an object containing
+  at least those properties:
+	* id `string` it's the client ID for THIS SESSION
+	* name `string` if set, the role is currently taken by this user
 
-* roleList (roles, unassignedClients , assigned): a list of roles that should be chosen by each client.
+* userList (users): this contains the  list of connected users. Argument `users` is an array of object
+  containing those users, where:
+	* id `string` it's the client ID for THIS SESSION
+	* name `string` if set, the role is currently taken by this user
+
+* roleList (roles, unassignedClients , assigned): this give the list of roles that should be chosen by each client.
   Argument `assigned` is a boolean. If false, some client still need to choose a role, sending a `selectRole` event.
   If true, all clients have chosen their role, the game is about to start, and `selectRole` events are ignored.
   Argument `unassignedUsers` is an array of user's names that hasn't chosen a role yet.
@@ -83,9 +88,5 @@
 
 * selectNext (index): in response of a `nextList` event, it contains the index of the item selected by the user
 
-* user (userObject): [state] the client sent an object describing its user. No formal format exist, it depends on the host
-  application, but a property is searched to be used as a user name in that order:
-  	* name
-  	* login
-  	* id
+* authenticate (data): authenticate a user. WIP API.
 
