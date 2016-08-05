@@ -11,7 +11,8 @@
 	
 	[scene intro1]
 #		[vote-style] immediate
-		[vote-time] 5
+		[vote-time] 20
+		[hurry-time] 5
 		
 		[message]
 			$> ^/Once ^Bupon a time...
@@ -20,6 +21,7 @@
 #			[vote-style] absolute-majority
 		[next b]
 			[label] B
+			[auto] 8
 #			[vote-style] immediate
 		
 	[scene a]
