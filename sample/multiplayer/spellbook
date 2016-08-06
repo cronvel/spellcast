@@ -16,12 +16,11 @@
 #		[show-timer] false
 		
 		[split]
-			[part]
-				[subscene alice]
+#			[branch]
+			[subscene alice]
 				[roles]
 					- alice
-			[part]
-				[subscene bob]
+			[subscene bob]
 				[roles]
 					- bob
 		
@@ -37,8 +36,21 @@
 		
 	[scene alice]
 		[message]
-			$> A!
-		[next end]
+			$> Alice lived in England.
+		[next alice2]
+	
+	[scene alice2]
+		[message]
+			$> She loves reading books.
+	
+	[scene bob]
+		[message]
+			$> Bob lived in America.
+		[next bob2]
+	
+	[scene bob2]
+		[message]
+			$> Bob loves playing chess.
 	
 	[scene a]
 		[message]

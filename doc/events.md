@@ -75,6 +75,13 @@
   argument `nexts`, and `roleIds`, if not null, is an array of IDs of roles that activated it (if relevant),
   provided in the last `roleList` event, in the `roles` argument.
 
+* split: roles/players are splitted in 2 or more groups
+* join: roles/players are joined again
+
+* wait (what): currently waiting for something to happen, `what` is the code (`string`), where:
+	* otherBranches: roles were splitted into multiple branches, and the client must wait for other branches to finish,
+	  roles are done waiting once the 'join' event is received.
+
 * image
 * sound
 * music
