@@ -76,7 +76,7 @@
   provided in the last `roleList` event, in the `roles` argument.
 
 * split: roles/players are splitted in 2 or more groups
-* join: roles/players are joined again
+* rejoin: roles/players are joined again after they have been splitted (see the `split` event)
 
 * wait (what): currently waiting for something to happen, `what` is the code (`string`), where:
 	* otherBranches: roles were splitted into multiple branches, and the client must wait for other branches to finish,

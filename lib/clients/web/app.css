@@ -67,6 +67,16 @@ body {
 	background-color: #8ae234;
 }
 
+.wait.classic-ui {
+	background-color: #75507b;
+	margin: 2em 20%;
+	border-radius: 10px;
+	padding: 10px 20px;
+	text-align: center;
+	text-shadow: 1px 1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff, -1px -1px 1px #fff;
+}
+
+
 
 p.unassigned-users.classic-ui {
 	color: #555753;
@@ -86,6 +96,30 @@ p.waiting-roles.classic-ui {
 span.waiting-roles.classic-ui {
 	color: #555753;
 	font-style: italic;
+}
+
+
+
+@keyframes pulse-animation {
+	0% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	100% {
+		opacity: 0.2;
+		transform: scale(1.1);
+	}
+}
+
+.pulse-animation {
+	animation-name: pulse-animation;
+	animation-duration: 1.5s; 
+	animation-timing-function: ease-in-out; 
+	animation-delay: 0ms;
+	animation-direction: alternate;
+	animation-iteration-count: infinite;
+	animation-fill-mode: none;
+	animation-play-state: running; 
 }
 
 

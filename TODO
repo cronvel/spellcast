@@ -12,12 +12,12 @@ Tags:
 Multiplayer tags:
 - chat
 - profile
-- split
 - next tag:
 	- on-select
 	- deselectable (deselect before others have done)
 
 Browser UI event implementation:
+- textInput
 - image
 - sound
 - music

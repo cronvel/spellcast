@@ -261,6 +261,7 @@ function UI( bus , self )
 	
 	self.$text = document.querySelector( '#text' ) ;
 	self.$next = document.querySelector( '#next' ) ;
+	self.$hint = document.querySelector( '#hint' ) ;
 	
 	self.bus.on( 'user' , UI.user.bind( self ) ) ;
 	self.bus.on( 'userList' , UI.userList.bind( self ) ) ;
@@ -283,7 +284,12 @@ function UI( bus , self )
 	
 	self.bus.on( 'textInput' , UI.textInput.bind( self ) ) ;
 	
-	self.bus.on( 'end' , UI.end.bind( self ) ) ;
+	//self.bus.on( 'split' , UI.split.bind( self ) ) ;
+    self.bus.on( 'rejoin' , UI.rejoin.bind( self ) ) ;
+    
+    self.bus.on( 'wait' , UI.wait.bind( self ) ) ;
+    
+    self.bus.on( 'end' , UI.end.bind( self ) ) ;
 	
 	self.bus.on( 'exit' , UI.exit.bind( self ) ) ;
 	
@@ -470,6 +476,7 @@ UI.enterScene = function enterScene()
 	{
 		this.$text.innerHTML = '' ;
 		this.$next.innerHTML = '' ;
+		this.$hint.innerHTML = '' ;
 	}
 	
 	this.afterNext = this.afterLeave = this.afterNextTriggered = false ;
@@ -498,7 +505,7 @@ UI.nextTriggered = function nextTriggered()
 
 
 
-UI.nextList = function nextList( nexts , undecidedRoles , isUpdate )
+UI.nextList = function nextList( nexts , undecidedRoles , timeout , isUpdate )
 {
 	this.nexts = nexts ;
 	this.afterNext = true ;
@@ -508,13 +515,13 @@ UI.nextList = function nextList( nexts , undecidedRoles , isUpdate )
 	
 	//if ( nexts.length === 0 ) { this.nextEnd() ; }
 	//else 
-	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] , undecidedRoles , isUpdate ) ; }
-	else { this.nextListMenu( nexts , undecidedRoles , isUpdate ) ; }
+	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] , undecidedRoles , timeout , isUpdate ) ; }
+	else { this.nextListMenu( nexts , undecidedRoles , timeout , isUpdate ) ; }
 } ;
 
 
 
-UI.prototype.nextListConfirm = function nextListConfirm( next , undecidedRoles , isUpdate )
+UI.prototype.nextListConfirm = function nextListConfirm( next , undecidedRoles , timeout , isUpdate )
 {
 	var self = this , $next , roles ;
 	
@@ -560,7 +567,7 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , undecidedRoles ,
 
 
 
-UI.prototype.nextListMenu = function nextListMenu( nexts , undecidedRoles , isUpdate )
+UI.prototype.nextListMenu = function nextListMenu( nexts , undecidedRoles , timeout , isUpdate )
 {
 	var self = this , $nexts ,
 		max = 0x61 + nexts.length - 1 ;
@@ -652,28 +659,54 @@ UI.textInput = function textInput( label )
 
 
 
+// rejoin event
+UI.rejoin = function rejoin() {} ;
+
+
+
+UI.wait = function wait( what )
+{
+	var self = this ;
+	
+	switch ( what )
+	{
+		case 'otherBranches' :
+			this.$hint.insertAdjacentHTML( 'beforeend' ,
+				'<h2 class="wait pulse-animation classic-ui">WAITING FOR OTHER BRANCHES TO FINISH...</h2>'
+			) ;
+			this.bus.once( 'rejoin' , function() { self.$hint.innerHTML = '' ; } ) ;
+			break ;
+		default :
+			this.$hint.insertAdjacentHTML( 'beforeend' ,
+				'<h2 class="wait pulse-animation classic-ui">WAITING FOR ' + what +'</h2>'
+			) ;
+	}
+} ;
+
+
+
 // Exit event
 UI.end = function end( result , data )
 {
 	switch ( result )
 	{
 		case 'end' :
-			this.$text.insertAdjacentHTML( 'beforeend' ,
+			this.$hint.insertAdjacentHTML( 'beforeend' ,
 				'<h2 class="end classic-ui">The End.</h2>'
 			) ;
 			break ;
 		case 'win' :
-			this.$text.insertAdjacentHTML( 'beforeend' ,
+			this.$hint.insertAdjacentHTML( 'beforeend' ,
 				'<h2 class="end win classic-ui">You win!</h2>'
 			) ;
 			break ;
 		case 'lost' :
-			this.$text.insertAdjacentHTML( 'beforeend' ,
+			this.$hint.insertAdjacentHTML( 'beforeend' ,
 				'<h2 class="end lost classic-ui">You lose...</h2>'
 			) ;
 			break ;
 		case 'draw' :
-			this.$text.insertAdjacentHTML( 'beforeend' ,
+			this.$hint.insertAdjacentHTML( 'beforeend' ,
 				'<h2 class="end draw classic-ui">Draw.</h2>'
 			) ;
 			break ;
