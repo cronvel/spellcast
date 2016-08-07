@@ -26,6 +26,15 @@
 		
 		[message]
 			$> ^/Once ^Bupon a time...
+		
+		[input $aliceLike]
+			roles:
+				- alice
+			label: > What do you like, Alice? 
+		
+		[message]
+			$> Alice like ^/${aliceLike}.
+		
 		[next a]
 			[label] A
 #			[vote-style] absolute-majority

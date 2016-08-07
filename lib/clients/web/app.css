@@ -78,6 +78,12 @@ body {
 
 
 
+input[type=text].text-input.classic-ui {
+	display: inline;
+}
+
+
+
 p.unassigned-users.classic-ui {
 	color: #555753;
 }

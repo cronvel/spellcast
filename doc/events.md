@@ -37,8 +37,8 @@
 	* image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
 	  of what is described
 	* sound `url` if set, a sound that should be played along with the message
-* textInput (label): the book require that the user enter a text, `label` is the text describing what is required,
-  the client response should emit a `textSubmit` event
+* textInput (label, grantedRoles): the book require that the user enter a text, `label` is the text describing what is required,
+  the client response should emit a `textSubmit` event, `grantedRoles` is an array of role's ID, roles that can respond
 
 * user (userObject): this contains the user related to the client. Argument `userObject` is an object containing
   at least those properties:
@@ -61,7 +61,7 @@
 
 * enterScene: the book enter a new scene
 * leaveScene: the book is leaving the current scene
-* nextList (nexts, undecidedRoles , timeout , isUpdate): the user should make a choice between multiple alternative, `nexts` is
+* nextList (nexts, undecidedRoles, timeout, isUpdate): the user should make a choice between multiple alternative, `nexts` is
   an array of object containing those alternatives, where:
 	* label `string` contains the text describing the choice
 	* image `url` if set, the choice as an image that would usually be displayed as an icon

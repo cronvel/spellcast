@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "It's like 'make', but with a touch of Wizardry.",
   "main": "lib/Book.js",
   "directories": {
@@ -17,7 +17,7 @@
     "dom-kit": "^0.1.0",
     "doormen": "^0.6.5",
     "glob": "^7.0.5",
-    "kung-fig": "^0.24.0",
+    "kung-fig": "^0.24.1",
     "logfella": "^0.3.42",
     "math-kit": "^0.3.5",
     "minimist": "^1.2.0",

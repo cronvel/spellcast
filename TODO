@@ -17,6 +17,7 @@ Multiplayer tags:
 	- deselectable (deselect before others have done)
 
 Browser UI event implementation:
+- timers
 - textInput
 - image
 - sound
