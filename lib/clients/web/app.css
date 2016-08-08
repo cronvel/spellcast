@@ -11,35 +11,45 @@ body {
 	padding: 0;
 }
 
-#scene-image {
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	min-height: 100vh;
+.scene-image {
+	position: fixed;
+	z-index: 0;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	
 	background-image: url("default.jpg");
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
-	background-attachment: fixed;
+	
+	opacity: 1;
+	transition: opacity 2s ;
 }
 
 #content {
+	position: relative;
+	z-index: 1;
+	padding-top: 1em;
+	padding-bottom: 1em;
 	margin: 0;
+	margin-left: 0%;
 	min-height: 100vh;
+	box-sizing: border-box;
 	width: 50%;
 	background-color: rgba(200,200,200,0.5);
-	overflow: hidden;
 	opacity: 1;
 	box-shadow: 0px 0px 10px 1px #000;
-	transition: opacity 0.5s;
+	transition: opacity 0.5s , margin 0.3s;
 }
 
 #content[data-position="right"] {
 	margin-left: 50%;
 }
 
-#content.hidden {
-	opacity: 0;
+.hidden {
+	opacity: 0 !important;
 }
 
 #text {

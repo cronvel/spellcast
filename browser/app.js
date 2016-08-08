@@ -300,25 +300,24 @@ function UI( bus , self )
 	self.bus.emit( 'ready' ) ;
 	
 	
-	var toggle = function toggle( event ) {
-		if ( fullScreenImageTimer !== null )
-		{
-			clearTimeout( fullScreenImageTimer ) ;
-			fullScreenImageTimer = null ;
-		}
+	var fromFullScreenImage = function fromFullScreenImage( event ) {
+		if ( fullScreenImageTimer !== null ) { clearTimeout( fullScreenImageTimer ) ; fullScreenImageTimer = null ; }
+		self.$content.classList.remove( 'hidden' ) ;
+	} ;
+	
+	var toFullScreenImage = function toFullScreenImage( event ) {
+		if ( fullScreenImageTimer !== null ) { clearTimeout( fullScreenImageTimer ) ; fullScreenImageTimer = null ; }
+		
+		self.$content.classList.toggle( 'hidden' ) ;
 		
 		if ( self.$content.classList.contains( 'hidden' ) )
 		{
-			self.$content.classList.toggle( 'hidden' ) ;
-		}
-		else if ( event.target === self.$sceneImage )
-		{
-			self.$content.classList.toggle( 'hidden' ) ;
-			fullScreenImageTimer = setTimeout( toggle , 5000 ) ;
+			fullScreenImageTimer = setTimeout( fromFullScreenImage , 5000 ) ;
 		}
 	} ;
 	
-	self.$sceneImage.addEventListener( 'click' , toggle , false ) ;
+	self.$content.addEventListener( 'click' , fromFullScreenImage , false ) ;
+	self.$sceneImage.addEventListener( 'click' , toFullScreenImage , false ) ;
 	
 	return self ;
 }
@@ -474,43 +473,6 @@ UI.message = function message( text , options , callback )
 UI.prototype.messageNext = function messageNext( callback )
 {
 	callback() ;
-} ;
-
-
-
-UI.image = function image( imageUrl , options , callback )
-{
-	var self = this ;
-	
-	this.$sceneImage.style.backgroundImage = 'url("' + imageUrl + '")' ;
-	
-	switch ( options.position )
-	{
-		case 'left' :
-			this.$content.setAttribute( 'data-position' , 'right' ) ;
-			break ;
-		case 'right' :	// jshint ignore:line
-		default :
-			this.$content.setAttribute( 'data-position' , 'left' ) ;
-			break ;
-	}
-	
-	if ( options.origin && typeof options.origin === 'string' )
-	{
-		this.$sceneImage.style.backgroundPosition = options.origin ;
-	}
-} ;
-
-
-
-UI.sound = function sound( soundUrl , options , callback )
-{
-	console.warn( '[sound] tag not supported ATM' , sound , options ) ;
-} ;
-
-UI.music = function music( musicUrl , options , callback )
-{
-	console.warn( '[music] tag not supported ATM' , music , options ) ;
 } ;
 
 
@@ -777,6 +739,59 @@ UI.wait = function wait( what )
 				'<h2 class="wait pulse-animation classic-ui">WAITING FOR ' + what +'</h2>'
 			) ;
 	}
+} ;
+
+
+
+UI.image = function image( imageUrl , options , callback )
+{
+	var self = this ;
+	
+	var div = document.createElement('div') ;
+	div.style.backgroundImage = 'url("' + imageUrl + '")' ;
+	div.classList.add( 'scene-image' ) ;
+	
+	if ( options.origin && typeof options.origin === 'string' )
+	{
+		div.style.backgroundPosition = options.origin ;
+	}
+	
+	var oldImage = this.$sceneImage.firstElementChild || null ;
+	
+	this.$sceneImage.insertBefore( div , oldImage ) ;
+	
+	if ( oldImage )
+	{
+		oldImage.classList.add( 'hidden' ) ;
+		oldImage.addEventListener( 'transitionend' , function() {
+			oldImage.remove() ;
+		} , false ) ;
+	}
+	
+	switch ( options.position )
+	{
+		case 'left' :
+			this.$content.setAttribute( 'data-position' , 'right' ) ;
+			break ;
+		case 'right' :	// jshint ignore:line
+		default :
+			this.$content.setAttribute( 'data-position' , 'left' ) ;
+			break ;
+	}
+} ;
+
+
+
+UI.sound = function sound( soundUrl , options , callback )
+{
+	console.warn( '[sound] tag not supported ATM' , sound , options ) ;
+} ;
+
+
+
+UI.music = function music( musicUrl , options , callback )
+{
+	console.warn( '[music] tag not supported ATM' , music , options ) ;
 } ;
 
 
