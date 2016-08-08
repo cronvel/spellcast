@@ -243,6 +243,8 @@ var markup = markupMethod.bind( markupConfig ) ;
 
 function UI( bus , self )
 {
+	var fullScreenImageTimer = null ;
+	
 	console.log( Array.from( arguments ) ) ;
 	
 	if ( ! self )
@@ -296,6 +298,27 @@ function UI( bus , self )
 	self.bus.on( 'exit' , UI.exit.bind( self ) ) ;
 	
 	self.bus.emit( 'ready' ) ;
+	
+	
+	var toggle = function toggle( event ) {
+		if ( fullScreenImageTimer !== null )
+		{
+			clearTimeout( fullScreenImageTimer ) ;
+			fullScreenImageTimer = null ;
+		}
+		
+		if ( self.$content.classList.contains( 'hidden' ) )
+		{
+			self.$content.classList.toggle( 'hidden' ) ;
+		}
+		else if ( event.target === self.$sceneImage )
+		{
+			self.$content.classList.toggle( 'hidden' ) ;
+			fullScreenImageTimer = setTimeout( toggle , 5000 ) ;
+		}
+	} ;
+	
+	self.$sceneImage.addEventListener( 'click' , toggle , false ) ;
 	
 	return self ;
 }
@@ -457,7 +480,8 @@ UI.prototype.messageNext = function messageNext( callback )
 
 UI.image = function image( imageUrl , options , callback )
 {
-	var self = this , timer = null ;
+	var self = this ;
+	
 	this.$sceneImage.style.backgroundImage = 'url("' + imageUrl + '")' ;
 	
 	switch ( options.position )
@@ -475,27 +499,9 @@ UI.image = function image( imageUrl , options , callback )
 	{
 		this.$sceneImage.style.backgroundPosition = options.origin ;
 	}
-	
-	var toggle = function toggle( event ) {
-		if ( timer !== null )
-		{
-			clearTimeout( timer ) ;
-			timer = null ;
-		}
-		
-		if ( self.$content.classList.contains( 'hidden' ) )
-		{
-			self.$content.classList.toggle( 'hidden' ) ;
-		}
-		else if ( event.target === self.$sceneImage )
-		{
-			self.$content.classList.toggle( 'hidden' ) ;
-			timer = setTimeout( toggle , 5000 ) ;
-		}
-	} ;
-	
-	this.$sceneImage.addEventListener( 'click' , toggle , false ) ;
 } ;
+
+
 
 UI.sound = function sound( soundUrl , options , callback )
 {
