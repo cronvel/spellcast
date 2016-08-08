@@ -13,6 +13,7 @@
 		[image]
 			image: ../sample/story1.jpg
 			position: right
+			origin: top
 		
 #		[vote-style] immediate
 		[vote-time] 20
@@ -68,6 +69,7 @@
 	[scene a]
 		[image]
 			image: ../sample/story1.jpg
+			origin: top
 			position: left
 		
 		[message]
@@ -77,6 +79,7 @@
 	[scene b]
 		[image]
 			image: ../sample/story1.jpg
+			origin: top
 			position: left
 		
 		[message]

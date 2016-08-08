@@ -88,6 +88,7 @@
 * image (url, options): instruct the client (if it is capable) to set an image as the scene image. Argument `url` is the URL
   pointing to that image, `options` is an object of options, where:
 	* position `string` is one of 'left' or 'right', indicating if the image should be on the left or on the right
+	* origin `string` indicating how the image is centered, one of 'center', 'top', 'bottom', 'left', right', ...
 * sound
 * music
 

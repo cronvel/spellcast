@@ -463,13 +463,17 @@ UI.image = function image( imageUrl , options , callback )
 	switch ( options.position )
 	{
 		case 'left' :
-			console.warn( 'Hey!!!' ) ;
 			this.$content.setAttribute( 'data-position' , 'right' ) ;
 			break ;
 		case 'right' :	// jshint ignore:line
 		default :
 			this.$content.setAttribute( 'data-position' , 'left' ) ;
 			break ;
+	}
+	
+	if ( options.origin && typeof options.origin === 'string' )
+	{
+		this.$sceneImage.style.backgroundPosition = options.origin ;
 	}
 	
 	var toggle = function toggle( event ) {
