@@ -85,7 +85,9 @@
 	* otherBranches: roles were splitted into multiple branches, and the client must wait for other branches to finish,
 	  roles are done waiting once the 'join' event is received.
 
-* image
+* image (url, options): instruct the client (if it is capable) to set an image as the scene image. Argument `url` is the URL
+  pointing to that image, `options` is an object of options, where:
+	* position `string` is one of 'left' or 'right', indicating if the image should be on the left or on the right
 * sound
 * music
 

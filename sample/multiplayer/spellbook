@@ -10,6 +10,10 @@
 [chapter intro]
 	
 	[scene intro1]
+		[image]
+			image: ../sample/story1.jpg
+			position: right
+		
 #		[vote-style] immediate
 		[vote-time] 20
 		[hurry-time] 5
@@ -62,11 +66,19 @@
 			$> Bob loves playing chess.
 	
 	[scene a]
+		[image]
+			image: ../sample/story1.jpg
+			position: left
+		
 		[message]
 			$> A!
 		[next end]
 	
 	[scene b]
+		[image]
+			image: ../sample/story1.jpg
+			position: left
+		
 		[message]
 			$> B!
 		[next end]
