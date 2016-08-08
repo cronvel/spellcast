@@ -302,7 +302,7 @@ module.exports = UI ;
 
 
 
-function arrayGetById( id ) { return this.find( function( e ) { return e.id === id ; } ) ; }
+function arrayGetById( id ) { return this.find( function( e ) { return e.id === id ; } ) ; }	// jshint ignore:line
 
 
 
@@ -524,7 +524,8 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , tim
 
 UI.prototype.nextListConfirm = function nextListConfirm( next , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
 {
-	var self = this , $next , roles ;
+	var self = this , $next , roles ,
+		startTime , timer , $timer ;
 	
 	this.$next.innerHTML = '' ;
 	
@@ -558,6 +559,24 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , grantedRoleIds ,
 		) ;
 	}
 	
+	if ( timeout !== null )
+	{
+		startTime = Date.now() ;
+		
+		this.$next.insertAdjacentHTML( 'beforeend' ,
+			'<p class="timer classic-ui">Time limit: <span class="time">' + Math.round( timeout / 1000 ) + 's' + '</span></p>'
+		) ;
+		
+		$timer = document.querySelector( '.timer .time' ) ;
+		
+		timer = setInterval( function() {
+			// If no parentNode, the element has been removed...
+			if ( ! $timer.parentNode ) { clearInterval( timer ) ; return ; }
+			
+			$timer.textContent = Math.round( ( timeout + startTime - Date.now() ) / 1000 ) + 's' ;
+		} , 1000 ) ;
+	}
+	
 	$next = document.querySelector( '#next_0' ) ;
 	
 	$next.onclick = function() {
@@ -571,6 +590,7 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , grantedRoleIds ,
 UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
 {
 	var self = this , $nexts ,
+		startTime , timer , $timer ,
 		max = 0x61 + nexts.length - 1 ;
 	
 	this.$next.innerHTML = '' ;
@@ -593,6 +613,24 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , unde
 			undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
 			'</span></p>'
 		) ;
+	}
+	
+	if ( timeout !== null )
+	{
+		startTime = Date.now() ;
+		
+		this.$next.insertAdjacentHTML( 'beforeend' ,
+			'<p class="timer classic-ui">Time limit: <span class="time">' + Math.round( timeout / 1000 ) + 's' + '</span></p>'
+		) ;
+		
+		$timer = document.querySelector( '.timer .time' ) ;
+		
+		timer = setInterval( function() {
+			// If no parentNode, the element has been removed...
+			if ( ! $timer.parentNode ) { clearInterval( timer ) ; return ; }
+			
+			$timer.textContent = Math.round( ( timeout + startTime - Date.now() ) / 1000 ) + 's' ;
+		} , 1000 ) ;
 	}
 	
 	$nexts = document.querySelectorAll( '.next' ) ;
@@ -637,6 +675,8 @@ UI.extErrorOutput = function extErrorOutput( output )
 // Text input field
 UI.textInput = function textInput( label , grantedRoleIds )
 {
+	var self = this , $form , $input ;
+	
 	//alert( 'textInput is not coded ATM!' ) ;
 	
 	if ( grantedRoleIds.indexOf( this.roleId ) === -1 )
@@ -644,38 +684,26 @@ UI.textInput = function textInput( label , grantedRoleIds )
 		// Not granted!
 		this.$text.insertAdjacentHTML( 'beforeend' ,
 			'<p class="text classic-ui">' + label +
-			'<input type="text" id="textInput" class="text-input classic-ui" disabled /></p>'
+			'<input type="text" id="textInput" class="text-input classic-ui" placeholder="YOU CAN\'T RESPOND - WAIT..." disabled /></p>'
 		) ;
 		return ;
 	}
 
 	this.$text.insertAdjacentHTML( 'beforeend' ,
-		'<p class="text classic-ui">' + label +
-		'<input type="text" id="textInput" class="text-input classic-ui" /></p>'
+		'<form class="form-text-input classic-ui"><p class="text classic-ui">' + label +
+		'<input type="text" class="text-input classic-ui" /></p></form>'
 	) ;
 	
+	$form = document.querySelector( '.form-text-input' ) ;
+	$input = $form.querySelector( '.text-input' ) ;
 	
-	
-	
-	
-	/*
-	var self = this ;
-	
-	if ( label ) { term( label ) ; }
-	
-	var options = {
-		//history : history ,
-		//autoComplete: autoComplete ,
-		//autoCompleteMenu: true ,
-		//maxLength: 3
+	var onSubmit = function onSubmit( event ) {
+		event.preventDefault() ;
+		$form.onsubmit = null ;
+		self.bus.emit( 'textSubmit' , $input.value ) ; 
 	} ;
 	
-	term.inputField( options , function( error , input ) {
-		term( '\n' ) ;
-		if ( error ) { self.output.emit( error ) ; }
-		else { self.output.emit( 'textSubmit' , input ) ; }
-	} ) ;
-	*/
+	$form.onsubmit = onSubmit ;
 } ;
 
 

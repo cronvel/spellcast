@@ -40,7 +40,7 @@
 #			[vote-style] absolute-majority
 		[next b]
 			[label] B
-			[auto] 8
+#			[auto] 8
 #			[vote-style] immediate
 		
 	[scene alice]

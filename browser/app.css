@@ -82,6 +82,9 @@ input[type=text].text-input.classic-ui {
 	display: inline;
 }
 
+form.form-text-input.classic-ui {
+}
+
 
 
 p.unassigned-users.classic-ui {
