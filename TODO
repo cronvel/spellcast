@@ -4,6 +4,12 @@
 == ADVENTURE MODE ==
 
 Tags:
+- image refacto: should not be an 'action' tag, but a 'init' tag:
+	- the image event should be fired at the begining of the scene
+	- when returning from a sub-scene, the image of the scene should be sent again
+	- image tag can be found into chapter tag, to avoid specifying the image again and again
+	- the spellbook should have a default image mechanism
+	- music tag should work the same, but not the sound tag
 - aside
 - action
 - quest
@@ -17,7 +23,6 @@ Multiplayer tags:
 	- deselectable (deselect before others have done)
 
 Browser UI event implementation:
-- image
 - sound
 - music
 
