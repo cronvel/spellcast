@@ -506,7 +506,7 @@ UI.nextTriggered = function nextTriggered()
 
 
 
-UI.nextList = function nextList( nexts , undecidedRoles , timeout , isUpdate )
+UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
 {
 	this.nexts = nexts ;
 	this.afterNext = true ;
@@ -516,13 +516,13 @@ UI.nextList = function nextList( nexts , undecidedRoles , timeout , isUpdate )
 	
 	//if ( nexts.length === 0 ) { this.nextEnd() ; }
 	//else 
-	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] , undecidedRoles , timeout , isUpdate ) ; }
-	else { this.nextListMenu( nexts , undecidedRoles , timeout , isUpdate ) ; }
+	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] , grantedRoleIds , undecidedRoleIds , timeout , isUpdate ) ; }
+	else { this.nextListMenu( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate ) ; }
 } ;
 
 
 
-UI.prototype.nextListConfirm = function nextListConfirm( next , undecidedRoles , timeout , isUpdate )
+UI.prototype.nextListConfirm = function nextListConfirm( next , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
 {
 	var self = this , $next , roles ;
 	
@@ -549,11 +549,11 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , undecidedRoles ,
 		) ;
 	}
 	
-	if ( undecidedRoles.length )
+	if ( undecidedRoleIds.length )
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
 			'<p class="waiting-roles classic-ui">Waiting: <span class="waiting-roles classic-ui">' +
-			undecidedRoles.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
+			undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
 			'</span></p>'
 		) ;
 	}
@@ -568,7 +568,7 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , undecidedRoles ,
 
 
 
-UI.prototype.nextListMenu = function nextListMenu( nexts , undecidedRoles , timeout , isUpdate )
+UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
 {
 	var self = this , $nexts ,
 		max = 0x61 + nexts.length - 1 ;
@@ -586,11 +586,11 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , undecidedRoles , time
 		) ;
 	} ) ;
 	
-	if ( undecidedRoles.length )
+	if ( undecidedRoleIds.length )
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
 			'<p class="waiting-roles classic-ui">Waiting: <span class="waiting-roles classic-ui">' +
-			undecidedRoles.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
+			undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
 			'</span></p>'
 		) ;
 	}
@@ -635,11 +635,11 @@ UI.extErrorOutput = function extErrorOutput( output )
 
 
 // Text input field
-UI.textInput = function textInput( label , grantedRoles )
+UI.textInput = function textInput( label , grantedRoleIds )
 {
 	//alert( 'textInput is not coded ATM!' ) ;
 	
-	if ( grantedRoles.indexOf( this.roleId ) === -1 )
+	if ( grantedRoleIds.indexOf( this.roleId ) === -1 )
 	{
 		// Not granted!
 		this.$text.insertAdjacentHTML( 'beforeend' ,

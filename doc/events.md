@@ -37,8 +37,8 @@
 	* image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
 	  of what is described
 	* sound `url` if set, a sound that should be played along with the message
-* textInput (label, grantedRoles): the book require that the user enter a text, `label` is the text describing what is required,
-  the client response should emit a `textSubmit` event, `grantedRoles` is an array of role's ID, roles that can respond
+* textInput (label, grantedRoleIds): the book require that the user enter a text, `label` is the text describing what is required,
+  the client response should emit a `textSubmit` event, `grantedRoleIds` is an array of role's ID, roles that can respond.
 
 * user (userObject): this contains the user related to the client. Argument `userObject` is an object containing
   at least those properties:
@@ -61,19 +61,22 @@
 
 * enterScene: the book enter a new scene
 * leaveScene: the book is leaving the current scene
-* nextList (nexts, undecidedRoles, timeout, isUpdate): the user should make a choice between multiple alternative, `nexts` is
-  an array of object containing those alternatives, where:
+* nextList (nexts, grantedRoleIds, undecidedRoleIds, timeout, isUpdate): users should make a choice between multiple
+  alternatives, `nexts` is an array of object containing those alternatives, where:
 	* label `string` contains the text describing the choice
 	* image `url` if set, the choice as an image that would usually be displayed as an icon
-	* roleIds `array` of role's IDif not null, it's the client ID of the user holding this role
+	* roleIds `array` of role's IDs, if not null, it's the client ID of the user holding this role
   Once the user has selected a choice, the client should emit a `selectNext` event.
   Argument `isUpdate` is a boolean, it is true if the provided *next list* is an update of the previous one (i.e. it is not a new
   choice to make, but an update of the values of the current choice, e.g. when a choice get a vote, etc).
-  `undecidedRoles` is a array of role's IDs that hasn't chosen anything yet.
+  `undecidedRoleIds` is a array of role's IDs that hasn't chosen anything yet.
   `timeout` is the time in ms before the vote finish.
-* nextTriggered (nextIndex, roleIds): a next action was triggered, `nextIndex` contains its index in the `nextList` event's
-  argument `nexts`, and `roleIds`, if not null, is an array of IDs of roles that activated it (if relevant),
-  provided in the last `roleList` event, in the `roles` argument.
+  `grantedRoleIds` is an array of role's ID, roles that can select a response (TODO).
+* nextTriggered (nextIndex, roleIds, special): a next action was triggered, `nextIndex` contains its index in the
+  `nextList` event's argument `nexts`, and `roleIds`, if not null, is an array of IDs of roles that activated it (if relevant),
+  provided in the last `roleList` event, in the `roles` argument. The last argument `special`, if set, it contains a code:
+  special trigger conditions. Codes:
+	* auto: next was triggered automatically (e.g. by an [auto] tag timeout)
 
 * split: roles/players are splitted in 2 or more groups
 * rejoin: roles/players are joined again after they have been splitted (see the `split` event)
