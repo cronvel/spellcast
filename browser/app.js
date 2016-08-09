@@ -830,6 +830,7 @@ UI.textInput = function textInput( label , grantedRoleIds )
 	var onSubmit = function onSubmit( event ) {
 		event.preventDefault() ;
 		$form.onsubmit = null ;
+		$input.setAttribute( 'disabled' , true ) ;
 		self.bus.emit( 'textSubmit' , $input.value ) ; 
 	} ;
 	
@@ -864,32 +865,44 @@ UI.wait = function wait( what )
 
 
 
-UI.image = function image( imageUrl , options , callback )
+UI.image = function image( data )
 {
-	var self = this ;
+	var self = this , cleaned = false ;
 	
-	var div = document.createElement('div') ;
-	div.style.backgroundImage = 'url("' + imageUrl + '")' ;
+	var div = document.createElement( 'div' ) ;
 	div.classList.add( 'scene-image' ) ;
 	
-	if ( options.origin && typeof options.origin === 'string' )
+	if ( data.url ) { div.style.backgroundImage = 'url("' + data.url + '")' ; }
+	
+	if ( data.origin && typeof data.origin === 'string' )
 	{
-		div.style.backgroundPosition = options.origin ;
+		div.style.backgroundPosition = data.origin ;
 	}
 	
 	var oldImage = this.$sceneImage.firstElementChild || null ;
 	
-	this.$sceneImage.insertBefore( div , oldImage ) ;
+	var cleanUp = function cleanUp() {
+		if ( cleaned ) { return ; }
+		cleaned = true ;
+		oldImage.remove() ;
+	} ;
 	
 	if ( oldImage )
 	{
+		oldImage.addEventListener( 'transitionend' , cleanUp , false ) ;
+		this.$sceneImage.insertBefore( div , oldImage ) ;
 		oldImage.classList.add( 'hidden' ) ;
-		oldImage.addEventListener( 'transitionend' , function() {
-			oldImage.remove() ;
-		} , false ) ;
+		
+		// For some very obscure reason, sometime we don't get the 'transitionend' event,
+		// Maybe no transition happend at all... So we need to clean up anyway after a while...
+		setTimeout( cleanUp , 2000 ) ;
+	}
+	else
+	{
+		this.$sceneImage.append( div ) ;
 	}
 	
-	switch ( options.position )
+	switch ( data.position )
 	{
 		case 'left' :
 			this.$content.setAttribute( 'data-position' , 'right' ) ;
@@ -903,16 +916,16 @@ UI.image = function image( imageUrl , options , callback )
 
 
 
-UI.sound = function sound( soundUrl , options , callback )
+UI.sound = function sound( data )	// maybe? , callback )
 {
-	console.warn( '[sound] tag not supported ATM' , sound , options ) ;
+	console.warn( '[sound] tag not supported ATM' , data ) ;
 } ;
 
 
 
-UI.music = function music( musicUrl , options , callback )
+UI.music = function music( data )
 {
-	console.warn( '[music] tag not supported ATM' , music , options ) ;
+	console.warn( '[music] tag not supported ATM' , data ) ;
 } ;
 
 

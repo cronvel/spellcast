@@ -76,11 +76,6 @@
 			> That's really bad!
 		
 		[lost]
-		
-		[next end/master]
-			[label] > You seek for a master at forgery.
-		
-		[include common-background]
 	
 	[scene common-background]
 		[message]

@@ -85,12 +85,15 @@
 	* otherBranches: roles were splitted into multiple branches, and the client must wait for other branches to finish,
 	  roles are done waiting once the 'join' event is received.
 
-* image (url, options): instruct the client (if it is capable) to set an image as the scene image. Argument `url` is the URL
-  pointing to that image, `options` is an object of options, where:
-	* position `string` is one of 'left' or 'right', indicating if the image should be on the left or on the right
-	* origin `string` indicating how the image is centered, one of 'center', 'top', 'bottom', 'left', right', ...
+* image (data): instruct the client (if it is capable) to set an image as the scene image. Argument `data` is an object, where:
+	* url `string` (optional) if set this is the URL of the image, else the client *MAY* display a default image if any
+	* position `string` (optional) is one of 'left' or 'right', indicating if the image should be on the left or on the right
+	* origin `string` (optional) indicating how the image should be centered. One of 'center', 'top', 'bottom', 'left', right', ...
+
+* music (data): instruct the client (if it is capable) play the music as the scene music. Argument `data` is an object, where:
+	* url `string` (optional) if set this is the URL of the music to play, else the client should stop playing music
+
 * sound
-* music
 
 
 

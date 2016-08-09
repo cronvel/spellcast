@@ -9,11 +9,12 @@
 
 [chapter intro]
 	
+	[image]
+		url: ../sample/story1.jpg
+		position: right
+		origin: top
+	
 	[scene intro1]
-		[image]
-			image: ../sample/story1.jpg
-			position: right
-			origin: top
 		
 #		[vote-style] immediate
 		[vote-time] 20
@@ -68,23 +69,26 @@
 	
 	[scene a]
 		[image]
-			image: ../sample/story1.jpg
+			url: ../sample/story1.jpg
 			origin: top
 			position: left
 		
 		[message]
 			$> A!
-		[next end]
+		[next end/end]
 	
 	[scene b]
 		[image]
-			image: ../sample/story1.jpg
+			url: ../sample/story1.jpg
 			origin: top
 			position: left
 		
 		[message]
 			$> B!
-		[next end]
+		[next end/end]
+	
+
+[chapter end]
 	
 	[scene end]
 		[message]
