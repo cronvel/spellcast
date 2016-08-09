@@ -1,18 +1,15 @@
 
 
 
-== ADVENTURE MODE ==
+== ADVENTURER MODE ==
+
+Bugs:
+- when a client reconnect, it should not trigger a roleList event again for other players (it freezes clients)
 
 Tags:
-- image refacto: should not be an 'action' tag, but a 'init' tag:
-	- the image event should be fired at the begining of the scene
-	- when returning from a sub-scene, the image of the scene should be sent again
-	- image tag can be found into chapter tag, to avoid specifying the image again and again
-	- the spellbook should have a default image mechanism
-	- music tag should work the same, but not the sound tag
 - aside
 - action
-- quest
+- quest (a kind of sub-scene that can be resumed, like a *generator* in programming language)
 - entry / widget / item
 
 Multiplayer tags:
@@ -28,7 +25,7 @@ Browser UI event implementation:
 
 
 
-== BUILDER ==
+== SPELLCASTER MODE (a.k.a. TASK RUNNER) ==
 
 - be compatible with Gulp plugins?
 - group dependencies into a [dependencies] tag?
