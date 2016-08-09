@@ -678,7 +678,7 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , grantedRoleIds ,
 		) ;
 	}
 	
-	if ( undecidedRoleIds.length )
+	if ( undecidedRoleIds.length && this.roles.length > 1 )
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
 			'<p class="waiting-roles classic-ui">Waiting: <span class="waiting-roles classic-ui">' +
@@ -734,7 +734,7 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , unde
 		) ;
 	} ) ;
 	
-	if ( undecidedRoleIds.length )
+	if ( undecidedRoleIds.length && this.roles.length )
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
 			'<p class="waiting-roles classic-ui">Waiting: <span class="waiting-roles classic-ui">' +
