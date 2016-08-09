@@ -84,26 +84,44 @@ SpellcastClient.autoCreate = function autoCreate()
 
 SpellcastClient.prototype.run = function run( callback )
 {
-	var self = this ;
-	
-	//console.log( "Ready event received!" , this.spellcastClient.token ) ;
-	this.ws = new WebSocket( 'ws://127.0.0.1:' + this.port + '/' + this.token ) ;
+	var self = this , isOpen = false ;
 	
 	this.proxy = new Ngev.Proxy() ;
 	
+	// Add the remote service we want to access
+	this.proxy.addRemoteService( 'bus' ) ;
+	
+	this.ui.forEach( function( ui ) {
+		if ( uiList[ ui ] ) { uiList[ ui ]( self.proxy.remoteServices.bus , self ) ; }
+	} ) ;
+	
+	this.ws = new WebSocket( 'ws://127.0.0.1:' + this.port + '/' + this.token ) ;
+	
+	this.emit( 'connecting' ) ;
+	
+	this.ws.onerror = function onError()
+	{
+		if ( ! isOpen )
+		{
+			// The connection has never opened, we can't connect to the server.
+			console.log( "Can't open Websocket (error)..." ) ;
+			self.emit( 'error' , 'unreachable' ) ;
+			return ;
+		}
+	} ;
+	
 	this.ws.onopen = function onOpen()
 	{
-		// Add the remote service we want to access
-		self.proxy.addRemoteService( 'bus' ) ;
+		isOpen = true ;
 		
-		self.ui.forEach( function( ui ) {
-			
-			if ( uiList[ ui ] )
-			{
-				uiList[ ui ]( self.proxy.remoteServices.bus ) ;
-			}
-		} ) ;
+		// Send 'ready' to server? 
+		// No, let the UI send it.
+		//self.proxy.remoteServices.bus.emit( 'ready' ) ;
 		
+		console.log( "Websocket opened!" ) ;
+		self.emit( 'open' ) ;
+		
+		// Should be done after emitting 'open'
 		if ( self.userName )
 		{
 			self.proxy.remoteServices.bus.emit( 'authenticate' , {
@@ -111,18 +129,23 @@ SpellcastClient.prototype.run = function run( callback )
 			} ) ;
 		}
 		
-		// Send 'ready' to server? 
-		// No, let the UI send it.
-		//self.proxy.remoteServices.bus.emit( 'ready' ) ;
-		
-		console.log( "Websocket opened!" ) ;
 		if ( typeof callback === 'function' ) { callback() ; }
 	} ;
 	
 	this.ws.onclose = function onClose()
 	{
+		if ( ! isOpen )
+		{
+			// The connection has never opened, we can't connect to the server.
+			console.log( "Can't open Websocket (close)..." ) ;
+			self.emit( 'error' , 'unreachable' ) ;
+			return ;
+		}
+		
+		isOpen = false ;
 		self.proxy.destroy() ;
 		console.log( "Websocket closed!" ) ;
+		self.emit( 'close' ) ;
 	} ;
 	
 	this.ws.onmessage = function onMessage( wsMessage )
@@ -156,7 +179,7 @@ dom.ready( function() {
 
 
 
-},{"./ui/classic.js":2,"dom-kit":12,"nextgen-events":14,"url":10}],2:[function(require,module,exports){
+},{"./ui/classic.js":3,"dom-kit":13,"nextgen-events":15,"url":11}],2:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -187,9 +210,10 @@ dom.ready( function() {
 
 
 
-/* global alert */
+var toolkit = {} ;
+module.exports = toolkit ;
 
-var dom = require( 'dom-kit' ) ;
+
 
 var markupMethod = require( 'string-kit/lib/format.js' ).markupMethod ;
 
@@ -237,20 +261,60 @@ var markupConfig = {
 	}
 } ;
 
-var markup = markupMethod.bind( markupConfig ) ;
+toolkit.markup = markupMethod.bind( markupConfig ) ;
 
 
 
-function UI( bus , self )
-{
-	var fullScreenImageTimer = null ;
+
+
+
+},{"string-kit/lib/format.js":19}],3:[function(require,module,exports){
+/*
+	Spellcast
 	
+	Copyright (c) 2014 - 2016 Cédric Ronvel
+	
+	The MIT License (MIT)
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+/* global alert */
+
+var dom = require( 'dom-kit' ) ;
+var toolkit = require( '../toolkit.js' ) ;
+
+
+
+function UI( bus , client , self )
+{
 	console.log( Array.from( arguments ) ) ;
 	
 	if ( ! self )
 	{
 		self = Object.create( UI.prototype , {
 			bus: { value: bus , enumerable: true } ,
+			client: { value: client , enumerable: true } ,
 			user: { value: null , writable: true , enumerable: true } ,
 			users: { value: null , writable: true , enumerable: true } ,
 			roles: { value: null , writable: true , enumerable: true } ,
@@ -266,39 +330,29 @@ function UI( bus , self )
 	self.$text = document.querySelector( '#text' ) ;
 	self.$next = document.querySelector( '#next' ) ;
 	self.$hint = document.querySelector( '#hint' ) ;
+	self.$connection = document.querySelector( '#connection' ) ;
 	
-	self.bus.on( 'user' , UI.user.bind( self ) ) ;
-	self.bus.on( 'userList' , UI.userList.bind( self ) ) ;
-	self.bus.on( 'roleList' , UI.roleList.bind( self ) ) ;
+	self.initInteractions() ;
 	
-	//self.bus.on( 'coreMessage' , UI.coreMessage.bind( self ) ) ;
-	//self.bus.on( 'errorMessage' , UI.errorMessage.bind( self ) ) ;
-	self.bus.on( 'extOutput' , UI.extOutput.bind( self ) ) ;
-	self.bus.on( 'extErrorOutput' , UI.extErrorOutput.bind( self ) ) ;
+	self.client.once( 'connecting' , UI.clientConnecting.bind( self ) ) ;
+	self.client.once( 'open' , UI.clientOpen.bind( self ) ) ;
+	self.client.once( 'close' , UI.clientClose.bind( self ) ) ;
+	self.client.on( 'error' , UI.clientError.bind( self ) ) ;
 	
-	self.bus.on( 'message' , UI.message.bind( self ) , { async: true } ) ;
-	self.bus.on( 'image' , UI.image.bind( self ) ) ;
-	self.bus.on( 'sound' , UI.sound.bind( self ) ) ;
-	self.bus.on( 'music' , UI.music.bind( self ) ) ;
-	
-	self.bus.on( 'enterScene' , UI.enterScene.bind( self ) ) ;
-	self.bus.on( 'leaveScene' , UI.leaveScene.bind( self ) , { async: true } ) ;
-	self.bus.on( 'nextList' , UI.nextList.bind( self ) ) ;
-	self.bus.on( 'nextTriggered' , UI.nextTriggered.bind( self ) ) ;
-	
-	self.bus.on( 'textInput' , UI.textInput.bind( self ) ) ;
-	
-	//self.bus.on( 'split' , UI.split.bind( self ) ) ;
-    self.bus.on( 'rejoin' , UI.rejoin.bind( self ) ) ;
-    
-    self.bus.on( 'wait' , UI.wait.bind( self ) ) ;
-    
-    self.bus.on( 'end' , UI.end.bind( self ) ) ;
-	
-	self.bus.on( 'exit' , UI.exit.bind( self ) ) ;
-	
-	self.bus.emit( 'ready' ) ;
-	
+	return self ;
+}
+
+module.exports = UI ;
+
+
+
+function arrayGetById( id ) { return this.find( function( e ) { return e.id === id ; } ) ; }	// jshint ignore:line
+
+
+
+UI.prototype.initInteractions = function initInteractions()
+{
+	var self = this , fullScreenImageTimer = null ;
 	
 	var fromFullScreenImage = function fromFullScreenImage( event ) {
 		if ( fullScreenImageTimer !== null ) { clearTimeout( fullScreenImageTimer ) ; fullScreenImageTimer = null ; }
@@ -316,17 +370,84 @@ function UI( bus , self )
 		}
 	} ;
 	
-	self.$content.addEventListener( 'click' , fromFullScreenImage , false ) ;
-	self.$sceneImage.addEventListener( 'click' , toFullScreenImage , false ) ;
+	this.$content.addEventListener( 'click' , fromFullScreenImage , false ) ;
+	this.$sceneImage.addEventListener( 'click' , toFullScreenImage , false ) ;
+} ;
+
+
+
+// 'open' event on client
+UI.prototype.initBus = function initBus()
+{
+	this.bus.on( 'user' , UI.user.bind( this ) ) ;
+	this.bus.on( 'userList' , UI.userList.bind( this ) ) ;
+	this.bus.on( 'roleList' , UI.roleList.bind( this ) ) ;
 	
-	return self ;
-}
+	//this.bus.on( 'coreMessage' , UI.coreMessage.bind( this ) ) ;
+	//this.bus.on( 'errorMessage' , UI.errorMessage.bind( this ) ) ;
+	this.bus.on( 'extOutput' , UI.extOutput.bind( this ) ) ;
+	this.bus.on( 'extErrorOutput' , UI.extErrorOutput.bind( this ) ) ;
+	
+	this.bus.on( 'message' , UI.message.bind( this ) , { async: true } ) ;
+	this.bus.on( 'image' , UI.image.bind( this ) ) ;
+	this.bus.on( 'sound' , UI.sound.bind( this ) ) ;
+	this.bus.on( 'music' , UI.music.bind( this ) ) ;
+	
+	this.bus.on( 'enterScene' , UI.enterScene.bind( this ) ) ;
+	this.bus.on( 'leaveScene' , UI.leaveScene.bind( this ) , { async: true } ) ;
+	this.bus.on( 'nextList' , UI.nextList.bind( this ) ) ;
+	this.bus.on( 'nextTriggered' , UI.nextTriggered.bind( this ) ) ;
+	
+	this.bus.on( 'textInput' , UI.textInput.bind( this ) ) ;
+	
+	//this.bus.on( 'split' , UI.split.bind( this ) ) ;
+    this.bus.on( 'rejoin' , UI.rejoin.bind( this ) ) ;
+    
+    this.bus.on( 'wait' , UI.wait.bind( this ) ) ;
+    
+    this.bus.on( 'end' , UI.end.bind( this ) ) ;
+	
+	this.bus.on( 'exit' , UI.exit.bind( this ) ) ;
+	
+	this.bus.emit( 'ready' ) ;
+} ;
 
-module.exports = UI ;
+
+
+UI.clientConnecting = function clientConnecting()
+{
+	console.log( 'Connecting!' ) ;
+	this.$connection.innerHTML = '<span class="blue bold">connecting...</span>' ;
+} ;
 
 
 
-function arrayGetById( id ) { return this.find( function( e ) { return e.id === id ; } ) ; }	// jshint ignore:line
+UI.clientOpen = function clientOpen()
+{
+	console.log( 'Connected!' ) ;
+	this.$connection.innerHTML = '<span class="green bold">connected</span>' ;
+	this.initBus() ;
+} ;
+
+
+
+UI.clientClose = function clientClose()
+{
+	console.log( 'Closed!' ) ;
+	this.$connection.innerHTML = '<span class="red bold">closed</span>' ;
+} ;
+
+
+
+UI.clientError = function clientError( code )
+{
+	switch ( code )
+	{
+		case 'unreachable' :
+			this.$connection.innerHTML = '<span class="red bold">unreachable</span>' ;
+			break ;
+	}
+} ;
 
 
 
@@ -442,7 +563,7 @@ UI.message = function message( text , options , callback )
 {
 	var self = this , triggered = false ;
 	
-	text = markup( text ) ;
+	text = toolkit.markup( text ) ;
 	
 	if ( ! options ) { options = {} ; }
 	
@@ -836,9 +957,9 @@ UI.exit = function exit()
 
 
 
-},{"dom-kit":12,"string-kit/lib/format.js":18}],3:[function(require,module,exports){
+},{"../toolkit.js":2,"dom-kit":13}],4:[function(require,module,exports){
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /**
  * Determine if an object is Buffer
  *
@@ -857,7 +978,7 @@ module.exports = function (obj) {
     ))
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -978,7 +1099,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -1515,7 +1636,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1601,7 +1722,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1688,13 +1809,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":7,"./encode":8}],10:[function(require,module,exports){
+},{"./decode":8,"./encode":9}],11:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2428,7 +2549,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":11,"punycode":6,"querystring":9}],11:[function(require,module,exports){
+},{"./util":12,"punycode":7,"querystring":10}],12:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -2446,7 +2567,7 @@ module.exports = {
   }
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*
 	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
 
@@ -2675,7 +2796,7 @@ dom.html = function html( element , html ) { element.innerHTML = html ; } ;
 
 
 
-},{"./svg.js":13}],13:[function(require,module,exports){
+},{"./svg.js":14}],14:[function(require,module,exports){
 /*
 	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
 
@@ -2875,7 +2996,7 @@ domSvg.ajax.ajaxStatus = function ajaxStatus( callback )
 
 
 
-},{"./dom.js":12,"fs":3}],14:[function(require,module,exports){
+},{"./dom.js":13,"fs":4}],15:[function(require,module,exports){
 /*
 	Next Gen Events
 	
@@ -3924,7 +4045,7 @@ NextGenEvents.off = NextGenEvents.prototype.off ;
 NextGenEvents.Proxy = require( './Proxy.js' ) ;
 
 
-},{"./Proxy.js":15}],15:[function(require,module,exports){
+},{"./Proxy.js":16}],16:[function(require,module,exports){
 /*
 	Next Gen Events
 	
@@ -4527,7 +4648,7 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message )
 
 
 
-},{"./NextGenEvents.js":14}],16:[function(require,module,exports){
+},{"./NextGenEvents.js":15}],17:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -4587,7 +4708,7 @@ module.exports = {
 
 
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -4686,7 +4807,7 @@ exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
 
 
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -5096,7 +5217,7 @@ exports.format.hasFormatting = function hasFormatting( str )
 
 
 
-},{"./ansi.js":16,"./inspect.js":19}],19:[function(require,module,exports){
+},{"./ansi.js":17,"./inspect.js":20}],20:[function(require,module,exports){
 (function (Buffer,process){
 /*
 	String Kit
@@ -5660,7 +5781,7 @@ inspectStyle.html = treeExtend( null , {} , inspectStyle.none , {
 
 
 }).call(this,{"isBuffer":require("../../browserify/node_modules/insert-module-globals/node_modules/is-buffer/index.js")},require('_process'))
-},{"../../browserify/node_modules/insert-module-globals/node_modules/is-buffer/index.js":4,"./ansi.js":16,"./escape.js":17,"_process":5,"tree-kit/lib/extend.js":20}],20:[function(require,module,exports){
+},{"../../browserify/node_modules/insert-module-globals/node_modules/is-buffer/index.js":5,"./ansi.js":17,"./escape.js":18,"_process":6,"tree-kit/lib/extend.js":21}],21:[function(require,module,exports){
 /*
 	Tree Kit
 	
