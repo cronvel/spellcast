@@ -17,6 +17,12 @@
 	[music]
 		url: ../sample/music1.ogg
 	
+	[scene intro]
+		
+		[message]
+			$> ^/Once ^Bupon a time...
+		[next intro1]
+		
 	[scene intro1]
 		
 #		[vote-style] immediate
@@ -32,9 +38,6 @@
 			[subscene bob]
 				[roles]
 					- bob
-		
-		[message]
-			$> ^/Once ^Bupon a time...
 		
 		[input $aliceLike]
 			roles:
