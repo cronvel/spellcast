@@ -323,6 +323,7 @@ function UI( bus , client , self )
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
+			nextSoundChannel: { value: 0 , writable: true , enumerable: true } ,
 		} ) ;
 	}
 	
@@ -333,6 +334,10 @@ function UI( bus , client , self )
 	self.$hint = document.querySelector( '#hint' ) ;
 	self.$connection = document.querySelector( '#connection' ) ;
 	self.$music = document.querySelector( '#music' ) ;
+	self.$sound0 = document.querySelector( '#sound0' ) ;
+	self.$sound1 = document.querySelector( '#sound1' ) ;
+	self.$sound2 = document.querySelector( '#sound2' ) ;
+	self.$sound3 = document.querySelector( '#sound3' ) ;
 	
 	self.initInteractions() ;
 	
@@ -923,6 +928,19 @@ UI.image = function image( data )
 
 
 
+UI.sound = function sound( data )	// maybe? , callback )
+{
+	var element = this[ '$sound' + this.nextSoundChannel ] ;
+	console.warn( '$sound' + this.nextSoundChannel , data , element ) ;
+	this.nextSoundChannel = ( this.nextSoundChannel + 1 ) % 4 ;
+	
+	element.setAttribute( 'src' , data.url ) ;
+	//element.volume = 1 ;
+	element.play() ;
+} ;
+
+
+
 UI.music = function music( data )
 {
 	var self = this ,
@@ -940,7 +958,12 @@ UI.music = function music( data )
 					fadeIn( self.$music ) ;
 				} ) ;
 			}
-			// else? play again the music if it has stopped already?
+			else if ( this.$music.ended )
+			{
+				// We are receiving a music event for the same last music url,
+				// but last playback ended, so play it again.
+				this.$music.play() ;
+			}
 		}
 		else
 		{
@@ -997,13 +1020,6 @@ function fadeOut( element , callback )
 	element.volume = Math.max( 0 , element.volume - FADE_VALUE ) ;
 	element.__fadeTimer = setTimeout( fadeOut.bind( undefined , element , callback ) , FADE_TIMEOUT ) ;
 }
-
-
-
-UI.sound = function sound( data )	// maybe? , callback )
-{
-	console.warn( '[sound] tag not supported ATM' , data ) ;
-} ;
 
 
 

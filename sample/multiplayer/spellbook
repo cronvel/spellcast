@@ -44,6 +44,9 @@
 				- alice
 			label: > What do you like, Alice? 
 		
+		[sound]
+			url: ../sample/open.wav
+		
 		[message]
 			$> Alice like ^/${aliceLike}.
 		

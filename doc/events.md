@@ -90,10 +90,13 @@
 	* position `string` (optional) is one of 'left' or 'right', indicating if the image should be on the left or on the right
 	* origin `string` (optional) indicating how the image should be centered. One of 'center', 'top', 'bottom', 'left', right', ...
 
-* music (data): instruct the client (if it is capable) play the music as the scene music. Argument `data` is an object, where:
+* music (data): instruct the client (if it is capable) play a music as the scene music. Argument `data` is an object, where:
 	* url `string` (optional) if set this is the URL of the music to play, else the client should stop playing music
+  There is only one music that must be played at any time, so a music replace another.
 
-* sound
+* sound (data): instruct the client (if it is capable) play a sound right now. Argument `data` is an object, where:
+	* url `string` this is the URL of the sound to play
+  Multiple sounds may be played at any time. If the client supports sounds, it is recommended to support at least 2 channels.
 
 
 
