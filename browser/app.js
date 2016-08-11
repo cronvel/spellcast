@@ -365,6 +365,10 @@ UI.prototype.initInteractions = function initInteractions()
 {
 	var self = this , fullScreenImageTimer = null ;
 	
+	// Chat
+	this.$chatForm.onsubmit = UI.onChatSubmit.bind( this ) ;
+	
+	// Switch to fullscreen background image on click
 	var fromFullScreenImage = function fromFullScreenImage( event ) {
 		if ( fullScreenImageTimer !== null ) { clearTimeout( fullScreenImageTimer ) ; fullScreenImageTimer = null ; }
 		self.$content.classList.remove( 'hidden' ) ;
@@ -621,13 +625,33 @@ UI.chatConfig = function chatConfig( data )
 	
 	if ( this.chatConfig[ this.roleId ] && this.chatConfig[ this.roleId ].write )
 	{
-		this.$chat.classList.remove( 'hidden' ) ;
-		this.$chatInput.setAttribute( 'disabled' , null ) ;
+		if ( this.$chatInput.getAttribute( 'disabled' ) )
+		{
+			this.$chat.classList.remove( 'hidden' ) ;
+			this.$chatInput.removeAttribute( 'disabled' ) ;
+		}
 	}
 	else
 	{
-		this.$chat.classList.add( 'hidden' ) ;
-		this.$chatInput.setAttribute( 'disabled' , true ) ;
+		if ( ! this.$chatInput.getAttribute( 'disabled' ) )
+		{
+			this.$chat.classList.add( 'hidden' ) ;
+			this.$chatInput.setAttribute( 'disabled' , true ) ;
+		}
+	}
+} ;
+
+
+
+// Dom event
+UI.onChatSubmit = function onChatSubmit( event )
+{
+	event.preventDefault() ;
+	
+	if ( ! this.$chatInput.getAttribute( 'disabled' ) )
+	{
+		this.bus.emit( 'chat' , this.$chatInput.value ) ;
+		this.$chatInput.value = '' ;
 	}
 } ;
 
@@ -1002,7 +1026,7 @@ UI.music = function music( data )
 		if ( oldSrc )
 		{
 			fadeOut( this.$music , function() {
-				self.$music.setAttribute( 'src' , null ) ;
+				self.$music.removeAttribute( 'src' ) ;
 			} ) ;
 		}
 	}
