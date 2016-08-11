@@ -319,7 +319,7 @@ function UI( bus , client , self )
 			users: { value: null , writable: true , enumerable: true } ,
 			roles: { value: null , writable: true , enumerable: true } ,
 			roleId: { value: null , writable: true , enumerable: true } ,
-			chatStatus: { value: null , writable: true , enumerable: true } ,
+			chatConfig: { value: null , writable: true , enumerable: true } ,
 			inGame: { value: false , writable: true , enumerable: true } ,
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
@@ -400,7 +400,7 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'extErrorOutput' , UI.extErrorOutput.bind( this ) ) ;
 	
 	this.bus.on( 'message' , UI.message.bind( this ) , { async: true } ) ;
-	this.bus.on( 'chatStatus' , UI.chatStatus.bind( this ) ) ;
+	this.bus.on( 'chatConfig' , UI.chatConfig.bind( this ) ) ;
 	
 	this.bus.on( 'image' , UI.image.bind( this ) ) ;
 	this.bus.on( 'sound' , UI.sound.bind( this ) ) ;
@@ -614,10 +614,21 @@ UI.prototype.messageNext = function messageNext( callback )
 
 
 
-UI.chatStatus = function chatStatus( data )
+UI.chatConfig = function chatConfig( data )
 {
-	this.chatStatus = data ;
-	console.warn( 'chatStatus:' , this.chatStatus ) ;
+	this.chatConfig = data ;
+	console.warn( 'chatConfig:' , this.chatConfig ) ;
+	
+	if ( this.chatConfig[ this.roleId ] && this.chatConfig[ this.roleId ].write )
+	{
+		this.$chat.classList.remove( 'hidden' ) ;
+		this.$chatInput.setAttribute( 'disabled' , null ) ;
+	}
+	else
+	{
+		this.$chat.classList.add( 'hidden' ) ;
+		this.$chatInput.setAttribute( 'disabled' , true ) ;
+	}
 } ;
 
 

@@ -22,6 +22,9 @@ Browser UI event implementation:
 - extOutput
 - extOutputError
 
+Terminal UI implementation:
+- chat
+
 
 
 == SPELLCASTER MODE (a.k.a. TASK RUNNER) ==

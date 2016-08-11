@@ -98,7 +98,7 @@
 	* url `string` this is the URL of the sound to play
   Multiple sounds may be played at any time. If the client supports sounds, it is recommended to support at least 2 channels.
 
-* chatStatus (statusObject): [state] this pass the chat status for each roles. Argument `statusObject` is an object, where keys
+* chatConfig (statusObject): [state] this pass the chat status for each roles. Argument `statusObject` is an object, where keys
   are existing role IDs, and value is an object, where:
 	* active: `boolean` true if the role can chat
 
