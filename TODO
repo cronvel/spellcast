@@ -10,7 +10,8 @@ Tags:
 - entry / widget / item
 
 Multiplayer tags:
-- chat
+- chat:
+	- [on chat] listener
 - profile
 - next tag:
 	- on-select

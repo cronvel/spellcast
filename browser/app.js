@@ -321,6 +321,7 @@ function UI( bus , client , self )
 			roleId: { value: null , writable: true , enumerable: true } ,
 			chatConfig: { value: null , writable: true , enumerable: true } ,
 			inGame: { value: false , writable: true , enumerable: true } ,
+			redirectChat: { value: null , writable: true , enumerable: true } ,
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
@@ -648,11 +649,18 @@ UI.onChatSubmit = function onChatSubmit( event )
 {
 	event.preventDefault() ;
 	
-	if ( ! this.$chatInput.getAttribute( 'disabled' ) )
+	if ( this.$chatInput.getAttribute( 'disabled' ) ) { return ; }
+	
+	if ( this.redirectChat )
+	{
+		this.redirectChat( this.$chatInput.value ) ;
+	}
+	else
 	{
 		this.bus.emit( 'chat' , this.$chatInput.value ) ;
-		this.$chatInput.value = '' ;
 	}
+	
+	this.$chatInput.value = '' ;
 } ;
 
 
@@ -864,7 +872,7 @@ UI.extErrorOutput = function extErrorOutput( output )
 // Text input field
 UI.textInput = function textInput( label , grantedRoleIds )
 {
-	var self = this , $form , $input ;
+	var self = this , $form , $input , finalized = false ;
 	
 	//alert( 'textInput is not coded ATM!' ) ;
 	
@@ -886,16 +894,39 @@ UI.textInput = function textInput( label , grantedRoleIds )
 	$form = document.querySelector( '.form-text-input' ) ;
 	$input = $form.querySelector( '.text-input' ) ;
 	
+	$input.value = this.$chatInput.value ;
+	
 	$input.focus() ;
 	
-	var onSubmit = function onSubmit( event ) {
-		event.preventDefault() ;
-		$form.onsubmit = null ;
+	var finalize = function finalize( text ) {
+		if ( finalized ) { return ; }
+		finalized = true ;
+		
+		self.redirectChat = null ;
+		$form.onsubmit = function() {} ;
+		$input.oninput = null ;
+		self.$chatInput.oninput = null ;
 		$input.setAttribute( 'disabled' , true ) ;
-		self.bus.emit( 'textSubmit' , $input.value ) ; 
+		
+		self.bus.emit( 'textSubmit' , text ) ; 
 	} ;
 	
-	$form.onsubmit = onSubmit ;
+	this.redirectChat = function redirectChat( text ) {
+		finalize( text ) ;
+	} ;
+	
+	$form.onsubmit = function onSubmit( event ) {
+		event.preventDefault() ;
+		finalize( $input.value ) ; 
+	} ;
+	
+	$input.oninput = function onInput() {
+		self.$chatInput.value = $input.value ;
+	} ;
+	
+	this.$chatInput.oninput = function onChatInput() {
+		$input.value = self.$chatInput.value ;
+	} ;
 } ;
 
 
