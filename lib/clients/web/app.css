@@ -83,6 +83,24 @@ body {
 	background-color: rgba(50,50,150,0.5);
 }
 
+#chat {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	z-index: 2;
+	padding: 0.2em 1em;
+	box-sizing: border-box;
+	background-color: rgba(200,200,220,0.6);
+}
+
+#chat-form {
+}
+
+#chat-input {
+	width: 85%;
+}
+
+
 
 
 
@@ -149,12 +167,12 @@ body {
 
 
 
+form.form-text-input.classic-ui {
+}
+
 input[type=text].text-input.classic-ui {
 	display: inline;
 	width: 50%;
-}
-
-form.form-text-input.classic-ui {
 }
 
 

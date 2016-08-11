@@ -98,6 +98,10 @@
 	* url `string` this is the URL of the sound to play
   Multiple sounds may be played at any time. If the client supports sounds, it is recommended to support at least 2 channels.
 
+* chatStatus (statusObject): [state] this pass the chat status for each roles. Argument `statusObject` is an object, where keys
+  are existing role IDs, and value is an object, where:
+	* active: `boolean` true if the role can chat
+
 
 
 ### output
@@ -105,8 +109,11 @@
 * ready: [state] emitted once the client is init
 * textSubmit (text): the text the user submit in response of a `textInput` event
 
+* chat (text): the text sent by a player/role as a chat message. If the role can chat, it will be sent to all player in
+  a message event.
+
 * selectRole (index): in response of a `roleList` event, it contains the index of the role the current client want
-  to be assigned to, if `index` is `null`, the client is unassigned to a role
+  to be assigned to, if `index` is `null`, the client is unassigned to any role
 
 * selectNext (index): in response of a `nextList` event, it contains the index of the item selected by the user
 

@@ -319,6 +319,7 @@ function UI( bus , client , self )
 			users: { value: null , writable: true , enumerable: true } ,
 			roles: { value: null , writable: true , enumerable: true } ,
 			roleId: { value: null , writable: true , enumerable: true } ,
+			chatStatus: { value: null , writable: true , enumerable: true } ,
 			inGame: { value: false , writable: true , enumerable: true } ,
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
@@ -330,6 +331,9 @@ function UI( bus , client , self )
 	self.$sceneImage = document.querySelector( '#scene-image' ) ;
 	self.$content = document.querySelector( '#content' ) ;
 	self.$text = document.querySelector( '#text' ) ;
+	self.$chat = document.querySelector( '#chat' ) ;
+	self.$chatForm = document.querySelector( '#chat-form' ) ;
+	self.$chatInput = document.querySelector( '#chat-input' ) ;
 	self.$next = document.querySelector( '#next' ) ;
 	self.$hint = document.querySelector( '#hint' ) ;
 	self.$connection = document.querySelector( '#connection' ) ;
@@ -396,6 +400,8 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'extErrorOutput' , UI.extErrorOutput.bind( this ) ) ;
 	
 	this.bus.on( 'message' , UI.message.bind( this ) , { async: true } ) ;
+	this.bus.on( 'chatStatus' , UI.chatStatus.bind( this ) ) ;
+	
 	this.bus.on( 'image' , UI.image.bind( this ) ) ;
 	this.bus.on( 'sound' , UI.sound.bind( this ) ) ;
 	this.bus.on( 'music' , UI.music.bind( this ) ) ;
@@ -604,6 +610,14 @@ UI.message = function message( text , options , callback )
 UI.prototype.messageNext = function messageNext( callback )
 {
 	callback() ;
+} ;
+
+
+
+UI.chatStatus = function chatStatus( data )
+{
+	this.chatStatus = data ;
+	console.warn( 'chatStatus:' , this.chatStatus ) ;
 } ;
 
 
@@ -828,7 +842,7 @@ UI.textInput = function textInput( label , grantedRoleIds )
 		) ;
 		return ;
 	}
-
+	
 	this.$text.insertAdjacentHTML( 'beforeend' ,
 		'<form class="form-text-input classic-ui"><p class="text classic-ui">' + label +
 		'<input type="text" class="text-input classic-ui" /></p></form>'
@@ -935,7 +949,6 @@ UI.sound = function sound( data )	// maybe? , callback )
 	this.nextSoundChannel = ( this.nextSoundChannel + 1 ) % 4 ;
 	
 	element.setAttribute( 'src' , data.url ) ;
-	//element.volume = 1 ;
 	element.play() ;
 } ;
 
