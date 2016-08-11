@@ -422,7 +422,6 @@ UI.prototype.initBus = function initBus()
     this.bus.on( 'rejoin' , UI.rejoin.bind( this ) ) ;
     
     this.bus.on( 'wait' , UI.wait.bind( this ) ) ;
-    
     this.bus.on( 'end' , UI.end.bind( this ) ) ;
 	
 	this.bus.on( 'exit' , UI.exit.bind( this ) ) ;
@@ -624,7 +623,7 @@ UI.chatConfig = function chatConfig( data )
 	this.chatConfig = data ;
 	console.warn( 'chatConfig:' , this.chatConfig ) ;
 	
-	if ( this.chatConfig[ this.roleId ] && this.chatConfig[ this.roleId ].write )
+	if ( this.roleId && this.chatConfig[ this.roleId ].write )
 	{
 		if ( this.$chatInput.getAttribute( 'disabled' ) )
 		{
