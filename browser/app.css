@@ -119,9 +119,33 @@ body {
 
 
 
+			/* Paragraph, span, text message... */
+
+p {
+	margin: 0.2em 0em;
+}
+
+p.unassigned-users.classic-ui {
+	color: #555753;
+}
+
+span.unassigned-users.classic-ui {
+	color: #555753;
+	font-style: italic;
+}
+
+p.waiting-roles.classic-ui {
+	color: #555753;
+}
+
+span.waiting-roles.classic-ui {
+	color: #555753;
+	font-style: italic;
+}
 
 
-/* Styles */
+
+			/* Markup style support */
 
 /* Terminal-kit's gnome color scheme */
 .black { color: #000000; }
@@ -190,28 +214,6 @@ form.form-text-input.classic-ui {
 input[type=text].text-input.classic-ui {
 	display: inline;
 	width: 50%;
-}
-
-
-
-p.unassigned-users.classic-ui {
-	color: #555753;
-}
-
-span.unassigned-users.classic-ui {
-	color: #555753;
-	font-style: italic;
-}
-
-
-
-p.waiting-roles.classic-ui {
-	color: #555753;
-}
-
-span.waiting-roles.classic-ui {
-	color: #555753;
-	font-style: italic;
 }
 
 
