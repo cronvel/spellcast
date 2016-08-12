@@ -69,32 +69,25 @@ body {
 #connection {
 	position: fixed;
 	z-index: 5;
-	bottom: 0%;
+	overflow: hidden;
+	top: 0%;
 	right: 0%;
 	width: 10%;
 	margin: 0;
+	padding: 0.2em 0.5em;
+	box-sizing: border-box;
+	font-size: 10px;
 	text-align: center;
-	pointer-events: none;
-	transition: bottom 1s, right 1s, width 1s;
-}
-
-#connection.alert {
-	bottom: 50%;
-	width: 100%;
-/*	right: 25%;*/
-}
-
-#connection .message {
-	padding: 0.4em 1.2em;
-	font-size: 14px;
 /*	text-shadow: 1px 1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, -1px -1px 1px #fff;*/
 	text-shadow: 1px 1px 0px #ccc, -1px 1px 0px #ccc, 1px -1px 0px #ccc, -1px -1px 0px #ccc;
 	background-color: rgba(50,50,150,0.5);
-	transition: font-size 1s, padding 1s;
+	transition: top 1s, right 1s, width 1s, font-size 1s;
 }
 
-#connection.alert .message {
-	padding: 0.8em 2em;
+#connection.alert {
+	top: 40%;
+	width: 30%;
+	right: 35%;
 	font-size: 32px;
 }
 

@@ -25,6 +25,9 @@ Browser UI event implementation:
 
 Terminal UI implementation:
 
+Bugs:
+- sending % char in chat, only markup ^ should be authorized
+
 
 
 == SPELLCASTER MODE (a.k.a. TASK RUNNER) ==
