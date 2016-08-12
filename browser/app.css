@@ -69,18 +69,33 @@ body {
 #connection {
 	position: fixed;
 	z-index: 5;
-	bottom: 0;
-	right: 0;
-/*	width: 10%;*/
-	height: 1em;
-	overflow: hidden;
+	bottom: 0%;
+	right: 0%;
+	width: 10%;
 	margin: 0;
+	text-align: center;
+	pointer-events: none;
+	transition: bottom 1s, right 1s, width 1s;
+}
+
+#connection.alert {
+	bottom: 50%;
+	width: 100%;
+/*	right: 25%;*/
+}
+
+#connection .message {
 	padding: 0.4em 1.2em;
 	font-size: 14px;
 /*	text-shadow: 1px 1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, -1px -1px 1px #fff;*/
 	text-shadow: 1px 1px 0px #ccc, -1px 1px 0px #ccc, 1px -1px 0px #ccc, -1px -1px 0px #ccc;
-	text-align: center;
 	background-color: rgba(50,50,150,0.5);
+	transition: font-size 1s, padding 1s;
+}
+
+#connection.alert .message {
+	padding: 0.8em 2em;
+	font-size: 32px;
 }
 
 #chat {
@@ -204,11 +219,9 @@ span.waiting-roles.classic-ui {
 @keyframes pulse-animation {
 	0% {
 		opacity: 1;
-/*		transform: scale(1);*/
 	}
 	100% {
 		opacity: 0.4;
-/*		transform: scale(1.025);*/
 	}
 }
 

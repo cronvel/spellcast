@@ -338,6 +338,7 @@ function UI( bus , client , self )
 	self.$next = document.querySelector( '#next' ) ;
 	self.$hint = document.querySelector( '#hint' ) ;
 	self.$connection = document.querySelector( '#connection' ) ;
+	self.$connectionMessage = document.querySelector( '#connection .message' ) ;
 	self.$music = document.querySelector( '#music' ) ;
 	self.$sound0 = document.querySelector( '#sound0' ) ;
 	self.$sound1 = document.querySelector( '#sound1' ) ;
@@ -434,7 +435,8 @@ UI.prototype.initBus = function initBus()
 UI.clientConnecting = function clientConnecting()
 {
 	console.log( 'Connecting!' ) ;
-	this.$connection.innerHTML = '<span class="blue bold">connecting...</span>' ;
+	this.$connectionMessage.innerHTML = '<span class="blue bold">connecting...</span>' ;
+	this.$connection.classList.remove( 'alert' ) ;
 } ;
 
 
@@ -442,7 +444,8 @@ UI.clientConnecting = function clientConnecting()
 UI.clientOpen = function clientOpen()
 {
 	console.log( 'Connected!' ) ;
-	this.$connection.innerHTML = '<span class="green bold">connected</span>' ;
+	this.$connectionMessage.innerHTML = '<span class="green bold">connected</span>' ;
+	this.$connection.classList.remove( 'alert' ) ;
 	this.initBus() ;
 } ;
 
@@ -451,7 +454,8 @@ UI.clientOpen = function clientOpen()
 UI.clientClose = function clientClose()
 {
 	console.log( 'Closed!' ) ;
-	this.$connection.innerHTML = '<span class="red bold">closed</span>' ;
+	this.$connectionMessage.innerHTML = '<span class="red bold">closed</span>' ;
+	this.$connection.classList.add( 'alert' ) ;
 } ;
 
 
@@ -461,7 +465,8 @@ UI.clientError = function clientError( code )
 	switch ( code )
 	{
 		case 'unreachable' :
-			this.$connection.innerHTML = '<span class="red bold">unreachable</span>' ;
+			this.$connectionMessage.innerHTML = '<span class="red bold">unreachable</span>' ;
+			this.$connection.classList.add( 'alert' ) ;
 			break ;
 	}
 } ;
