@@ -26,6 +26,7 @@ Browser UI event implementation:
 Terminal UI implementation:
 
 Bugs:
+cli.exit() is async, but callers act as if it was not
 
 
 
