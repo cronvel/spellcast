@@ -102,6 +102,9 @@
   are existing role IDs, and value is an object, where:
 	* active: `boolean` true if the role can chat
 
+* actionConfig (configObject): [state]   ..................
+	* disabled `boolean` true if all role actions are disabled
+
 
 
 ### output
@@ -111,6 +114,12 @@
 
 * chat (text): the text sent by a player/role as a chat message. If the role can chat, it will be sent to all player in
   a message event.
+
+* action (data):   ...........................
+	* action `string` the action ID
+	* subject `string` the Entity ID performing the action, if the role controle multiple Entity
+	* object `string` the Item ID used for the action, if relevant
+	* target `string` an Entity ID target of the action
 
 * selectRole (index): in response of a `roleList` event, it contains the index of the role the current client want
   to be assigned to, if `index` is `null`, the client is unassigned to any role

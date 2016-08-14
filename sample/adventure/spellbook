@@ -1,6 +1,10 @@
 
 [[doctype adventure]]
 
+[action drink]
+	[message]
+		$> You drink a cup of vine...
+
 [chapter intro]
 	
 	[scene intro1]

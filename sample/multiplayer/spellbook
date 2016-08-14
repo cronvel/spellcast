@@ -1,11 +1,15 @@
 
-[[doctype adventure-book]]
+[[doctype adventure]]
 
 [role alice]
 	[label] Alice
 
 [role bob]
 	[label] Bob
+
+[action drink]
+	[message]
+		$> ${this.role.label} drink a cup of vine.
 
 [chapter intro]
 	
