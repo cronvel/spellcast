@@ -33,4 +33,4 @@ Bugs:
 
 - be compatible with Gulp plugins?
 - group dependencies into a [dependencies] tag?
-
+- [transmute] tag
