@@ -27,7 +27,7 @@
 
 [spell echo]
 	[scroll]
-		- echo echo
+		- $> echo ${alert}
 
 [spell set]
 	[set $a] something
@@ -67,7 +67,7 @@
 	#[foreach $list => $value]
 	[foreach $list => $key : $value]
 		[scroll]
-			- $> echo ${value}
+			- $> echo 'The value is: ${value}'
 
 [spell blah]
 	[scroll]
@@ -142,7 +142,7 @@
 	[cast]
 		- blah
 	[summon]
-		- dependency.txt
+		- spellcast-dependency.txt
 	[scroll]
 		- echo Dependencies should be rebuilt
 
@@ -181,8 +181,8 @@
 	# Need globs, check all files matching the glob, target * use string matching the source *
 	# If there are less * on the target, source * are used FROM THE LAST TO THE FIRST
 	[mapping]
-		*.md: build/*.html
-		doc/*.md: build/doc-*.html
+		../../*.md: build/*.html
+		../../doc/*.md: build/doc-*.html
 	
 	[summon]
 		- $> ${this.source}
