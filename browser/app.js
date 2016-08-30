@@ -49,7 +49,7 @@ SpellcastClient.create = function create( options )
 	var self = Object.create( SpellcastClient.prototype , {
 		token: { value: options.token || 'null' , writable: true , enumerable: true } ,
 		port: { value: options.port || 57311 , writable: true , enumerable: true } ,
-		userName: { value: options.name || null , writable: true , enumerable: true } ,
+		userName: { value: options.name || 'unknown_' + Math.floor( Math.random() * 10000 ) , writable: true , enumerable: true } ,
 		ws: { value: null , writable: true , enumerable: true } ,
 		proxy: { value: null , writable: true , enumerable: true } ,
 	} ) ;
@@ -122,12 +122,9 @@ SpellcastClient.prototype.run = function run( callback )
 		self.emit( 'open' ) ;
 		
 		// Should be done after emitting 'open'
-		if ( self.userName )
-		{
-			self.proxy.remoteServices.bus.emit( 'authenticate' , {
-				name: self.userName
-			} ) ;
-		}
+		self.proxy.remoteServices.bus.emit( 'authenticate' , {
+			name: self.userName
+		} ) ;
 		
 		if ( typeof callback === 'function' ) { callback() ; }
 	} ;

@@ -1,4 +1,4 @@
-[[doctype spellbook]]
+[[doctype spellcaster]]
 
 [formula]
 	browserify: ./node_modules/.bin/browserify
