@@ -24,7 +24,8 @@
 	[scene intro]
 		
 		[message]
-			$> ^/Once ^Bupon a time...
+			$> ^/Once ^Bupon a time... 
+			# (${roles.alice.client.user.name})
 		[next intro1]
 		
 	[scene intro1]

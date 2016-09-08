@@ -5,46 +5,40 @@
 	[message]
 		$> You drink a cup of vine...
 
-[entity]
-	[label] You
+[entity-model player]
+	[label] human
 	[stats]
 		strength: 12
 		ability: 14
-		arcane: 7
-		resilience: 11
+	[status]
+		hp: 20
+
+[entity-model guardian]
+	[label] the guardian
+	[stats]
+		strength: 12
+		ability: 14
+	[status]
 		hp: 20
 
 [role hero]
 	[label] You
-	[entity]
-		[label] You
-		[stats]
-			strength: 12
-			ability: 14
-			arcane: 7
-			resilience: 11
-			hp: 20
+	[entity] player
+
+
 
 [chapter intro]
-	
 	[scene intro]
-		
-		[entity guardian]
-			[label] the guardian
-			[stats]
-				strength: 12
-				ability: 14
-				arcane: 7
-				resilience: 11
-				hp: 20
-		
 		[subscene battle/init]
 			[this]
 				foes:
 					- guardian
-		
+
+
+
 [chapter battle]
 	[scene init]
+		[entity $this.enemy] $this.foes[0]
 		
 
 
