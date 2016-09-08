@@ -6,19 +6,21 @@
 		$> You drink a cup of vine...
 
 [entity-model player]
-	[label] human
-	[stats]
+	class: character
+	label: you
+	stats:
 		strength: 12
-		ability: 14
-	[status]
+		dexterity: 14
+	status:
 		hp: 20
 
 [entity-model guardian]
-	[label] the guardian
-	[stats]
+	class: character
+	label: the guardian
+	stats:
 		strength: 12
-		ability: 14
-	[status]
+		dexterity: 14
+	status:
 		hp: 20
 
 [role hero]
@@ -31,6 +33,7 @@
 	[scene intro]
 		[subscene battle/init]
 			[this]
+				bob: bobby
 				foes:
 					- guardian
 
@@ -38,8 +41,9 @@
 
 [chapter battle]
 	[scene init]
-		[entity $this.enemy] $this.foes[0]
+		#[message] $> Hello ${this.foes[0]}
+		[create-entity $this.enemy] $this.foes[0]
 		
-
+		
 
 

@@ -40,7 +40,7 @@
 			[subscene alice]
 				[roles]
 					- alice
-			[subscene bob]
+				[subscene bob]
 				[roles]
 					- bob
 		
