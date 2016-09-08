@@ -7,10 +7,12 @@
 
 [entity-model player]
 	class: character
-	label: you
+	label: the hero
 	stats:
-		strength: 12
-		dexterity: 14
+		damageBase: 0
+		damageDice: 1
+		damageFaces: 4
+		melee: 16
 	status:
 		hp: 20
 
@@ -18,8 +20,10 @@
 	class: character
 	label: the guardian
 	stats:
-		strength: 12
-		dexterity: 14
+		damageBase: 2
+		damageDice: 1
+		damageFaces: 4
+		melee: 14
 	status:
 		hp: 20
 
@@ -33,7 +37,6 @@
 	[scene intro]
 		[subscene battle/init]
 			[this]
-				bob: bobby
 				foes:
 					- guardian
 
@@ -41,9 +44,52 @@
 
 [chapter battle]
 	[scene init]
-		#[message] $> Hello ${this.foes[0]}
+		#[message] $> Hello ${roles.hero.entity.label}
+		[set $this.hero] $roles.hero.entity
 		[create-entity $this.enemy] $this.foes[0]
+		[next hero-turn]
+	
+	[scene hero-turn]
+		[set $this.attackScore] $= $this.hero.stats.melee + ( 2 D 6 )
+		[set $this.defenseScore] $= $this.enemy.stats.melee + ( 2 D 6 )
 		
+		[message] $> ${this.attackScore} vs ${this.defenseScore}
 		
-
+		[if $this.attackScore > $this.defenseScore]
+			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
+			[set $this.damages] $= $this.hero.stats.damageBase + ( $this.hero.stats.damageDice D $this.hero.stats.damageFaces )
+			[message] $> ${this.hero.label//uc1} hit ${this.enemy.label} for ${this.damages} hp.
+			[set $this.enemy.status.hp] $= $this.enemy.status.hp - $this.damages
+			[if $this.enemy.status.hp <= 0]
+				[message] $> ${this.enemy.label//uc1} is dead.
+				[goto win]
+		[else]
+			[message] $> ${this.hero.label//uc1} miss ${this.enemy.label}.
+		
+		[next enemy-turn]
+	
+	[scene enemy-turn]
+		[set $this.attackScore] $= $this.enemy.stats.melee + ( 2 D 6 )
+		[set $this.defenseScore] $= $this.hero.stats.melee + ( 2 D 6 )
+		
+		[message] $> ${this.attackScore} vs ${this.defenseScore}
+		
+		[if $this.attackScore > $this.defenseScore]
+			[set $this.damages] $= $this.enemy.stats.damageBase + ( $this.enemy.stats.damageDice D $this.enemy.stats.damageFaces )
+			[message] $> ${this.enemy.label//uc1} hit ${this.hero.label} for ${this.damages} hp.
+			[set $this.hero.status.hp] $= $this.hero.status.hp - $this.damages
+			[if $this.hero.status.hp <= 0]
+				[message] $> ${this.hero.label//uc1} is dead.
+				[goto lose]
+		[else]
+			[message] $> ${this.enemy.label//uc1} miss ${this.hero.label}.
+			
+		[next hero-turn]
+		
+	[scene win]
+		[message] $> ${this.hero.label//uc1} win the battle.
+	
+	[scene lose]
+		[message] $> ${this.hero.label//uc1} died on the battlefield.
+		[lost]
 
