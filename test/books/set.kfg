@@ -1,0 +1,20 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	alert: bob
+	ref: $alert
+
+[spell set]
+	[set $a] something
+	[set $b] $> ${ref} something
+	[set $c] $alert
+	[set $d] $ref
+	[message]
+		- $> Value of $$a: ${a}
+		- $> Value of $$b: ${b}
+		- $> Value of $$c: ${c}
+		- $> Value of $$d: ${d}
+		- $> Value of alert: ${alert}
+		- $> Value of ref: ${ref}
+

@@ -1,0 +1,10 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	alert: bob
+
+[spell echo]
+	[scroll]
+		- $> echo ${alert}
+

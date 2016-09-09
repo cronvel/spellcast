@@ -1,0 +1,15 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	list:
+		- one
+		- two
+		- three
+
+[spell foreach]
+	#[foreach $list => $value]
+	[foreach $list => $key : $value]
+		[scroll]
+			- $> echo 'The value is: ${value}'
+

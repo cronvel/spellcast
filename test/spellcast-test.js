@@ -29,11 +29,15 @@
 
 
 var Book = require( '../lib/Book.js' ) ;
+var Client = require( '../lib/Client.js' ) ;
+var UnitUI = require( '../lib/ui/unit.js' ) ;
 var string = require( 'string-kit' ) ;
+var doormen = require( 'doormen' ) ;
 
 
 
-			/* Tests */
+			/* Helpers */
+
 
 
 function deb( something )
@@ -43,15 +47,133 @@ function deb( something )
 
 
 
-describe( "..." , function() {
+function runBook( bookPath , action , uiCallback , doneCallback )
+{
+	var ui , uiId = 0 , book = Book.load( bookPath ) ;
 	
-	it( "..." , function( done ) {
+	book.initBook( function( error ) {
 		
-		var book = Book.load( __dirname + '/../sample/spellcaster/spellbook' ) ;
+		//console.log( 'init done' ) ;
+		if ( error ) { callback( error ) ; return ; }
 		
-		book.initBook( function() {
-			book.cast( 'ls' , done ) ;
+		book.assignRoles( function( error ) {
+			
+			//console.log( 'assignRoles done' ) ;
+			if ( error ) { callback( error ) ; return ; }
+			
+			switch ( action.type )
+			{
+				case 'cast' :
+					book.cast( action.target , doneCallback ) ;
+					break ;
+			}
+			
 		} ) ;
+		
+		book.addClient( Client.create( { name: 'default' } ) ) ;
+		ui = UnitUI( book.clients[ 0 ] ) ;
+		ui.id = uiId ++ ;
+		
+		if ( uiCallback ) { uiCallback( ui ) ; }
+		
+		// This must be done, or some events will be missing
+		book.clients[ 0 ].authenticate( {} ) ;
+	} ) ;
+}
+
+
+
+			/* Tests */
+
+
+
+describe( "Basic spellcaster features" , function() {
+	
+	it( "scroll tag with the 'echo' command" , function( done ) {
+		
+		var extOutputs = [] ;
+		
+		runBook( __dirname + '/books/echo-scroll.kfg' , { type: 'cast' , target: 'echo' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				/*
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				ui.bus.on( 'coreMessage' , function() {
+					coreMessages.push( Array.from( arguments ) ) ;
+				} ) ;
+				*/
+			} ,
+			function() {
+				doormen.equals( extOutputs , [
+					[ 'bob\n' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+} ) ;
+
+
+	
+describe( "Core tags" , function() {
+	
+	it( "[foreach] tag" , function( done ) {
+		
+		var extOutputs = [] ;
+		
+		runBook( __dirname + '/books/foreach.kfg' , { type: 'cast' , target: 'foreach' } ,
+			function( ui ) {
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( extOutputs , [
+					[ 'The value is: one\n' ] ,
+					[ 'The value is: two\n' ] ,
+					[ 'The value is: three\n' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[set] tag and dynamic resolution" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/set.kfg' , { type: 'cast' , target: 'set' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Value of $a: something' ] ,
+					[ 'Value of $b: bob something' ] ,
+					[ 'Value of $c: bob' ] ,
+					[ 'Value of $d: bob' ] ,
+					[ 'Value of alert: bob' ] ,
+					[ 'Value of ref: bob' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
 	} ) ;
 } ) ;
 

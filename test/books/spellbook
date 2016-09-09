@@ -1,0 +1,172 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	wizard: Zang'dar
+	alert: bob
+	blah: blih
+	allcaps: FUUU
+	list:
+		- one
+		- two
+		- three
+	list-fr:
+		- un
+		- deux
+		- trois
+	version: 0.1.2
+	value: 2
+	ref: $alert
+
+[wand fire staff] @@firestaff.js
+
+[spell wand]
+	[zap fire staff's fireball] gnoll
+	[zap fire staff's delayed fireball] troll berserker
+	[zap fire staff.fireball] orc
+
+[spell if]
+	[if $value > 4]
+		[chant]
+			- > Condition #1 if OK
+	[else]
+		[chant]
+			- > Condition #1 NOT OK
+	
+	[if $value > 4]
+		[chant]
+			- > Condition #2 if OK
+	[elsif $value > 2]
+		[chant]
+			- > Condition #2 elsif OK
+	[elseif $value > 1]
+		[chant]
+			- > Condition #2 elseif OK
+	[else]
+		[chant]
+			- > Condition #2 NOT OK
+
+[spell blah]
+	[scroll]
+		- echo blah
+
+[spell delayed-echo]
+	[scroll]
+		- sleep 1
+		- echo delayed-echo
+
+[spell fail-dependency]
+	[cast]
+		- fail-scroll
+	[scroll]
+		- echo "after fail dependency"
+
+[spell fail-scroll]
+	[scroll]
+		- exit 1
+		- echo "after fail"
+
+[spell ls]
+	[scroll store=$ls split="\n"]
+		> ls -l
+	[chant]
+		$> Command first line output: ${ls[1]}
+
+[spell input]
+	[input $name]
+		$> Enter your name: 
+	[message]
+		$> Hello ^/${name}^:!
+
+[spell love]
+	[chant]
+		$> ^M^/Star of love, burn so bright
+		$> Aid me in my spell tonight
+		$> Unite my true love to me
+		$> As I will ${alert}, so mote it be. 
+
+[spell terminal]
+	[message]
+		next: true
+		slowTyping: true
+		text:
+			$> Welcome to The Shadow Terminal.
+			$> Enjoy techno-magi!
+
+[spell event]
+	[on blast]
+		[message]
+			$> ^RBlasted ${this.data}!
+	[once blast]
+		[message]
+			$> ^RRoasted ${this.data}!
+	[emit blast] Troll
+	[emit blast] Gnoll
+
+[spell js]
+	[message]
+		$> Hello ${wizard}!
+	[js]
+		> wizard = "Oz" ;
+	[message]
+		$> Hello ${wizard}!
+
+[spell kawarimi]
+	[scroll]
+		- $> echo ${alert//sharg} ${blah//sharg}${blah//sharg} ${list//sharg}
+
+[spell depend]
+	[cast]
+		- blah
+	[summon]
+		- spellcast-dependency.txt
+	[scroll]
+		- echo Dependencies should be rebuilt
+
+[summoning fake.txt]
+	[scroll]
+		- echo Run some command that does nothing at all
+
+[summoning spellcast-dependency.txt]
+	[scroll]
+		- echo Creating spellcast-dependency.txt
+		- echo "This is a dummy static dependency file." > spellcast-dependency.txt
+
+[summoning regex: /.*\.bob/i]
+	[summon]
+		- spellbook
+	[scroll]
+		# Kung-Fig should allow another feature in proxy/tag: force filtering in template?
+		#- $> echo Creating ${this.summoning}
+		- $> echo "This is a dummy regex dependency file." > ${this.summoning}
+
+[summoning *.bill]
+	[summon]
+		- spellcast-dependency.txt
+	
+	[scroll]
+		# Kung-Fig should allow another feature in proxy/tag: force filtering in template?
+		#- $> echo Creating ${this.summoning}
+		- $> echo "This is a dummy glob dependency file." > ${this.summoning}
+
+
+
+# Reverse summonings are tested after all summonings have been tried.
+# The label of the [reverse-summoning] tag is used to summon everything.
+[reverse-summoning md2html]
+	
+	# Need globs, check all files matching the glob, target * use string matching the source *
+	# If there are less * on the target, source * are used FROM THE LAST TO THE FIRST
+	[mapping]
+		../../*.md: build/*.html
+		../../doc/*.md: build/doc-*.html
+	
+	[summon]
+		- $> ${this.source}
+	
+	[chant]
+		# fake command
+		- $> md2html -o ${this.summoning} ${this.source}
+
+
+
