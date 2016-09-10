@@ -1,6 +1,9 @@
 
 [[doctype spellcaster]]
 
+[formula]
+	wizard: Zang'dar
+
 [wand fire staff] @@../wands/firestaff.js
 
 [spell wand]

@@ -1,16 +1,17 @@
 
 exports.fireball = function( book , tag , ctx )
 {
-	console.log( "ZASH... ROOOOARRRR-CRASHHHHH!" ) ;
-	console.log( ctx.data.wizard + ' killed the ' + tag.getFinalContent( ctx.data ) + "..." ) ;
+	book.sendMessageToAll( ctx , "ZASH... ROOOOARRRR-CRASHHHHH!" ) ;
+	book.sendMessageToAll( ctx , ctx.data.wizard + ' killed the ' + tag.getFinalContent( ctx.data ) + "..." ) ;
 } ;
 
 exports['delayed fireball'] = function( book , tag , ctx , callback )
 {
-	console.log( "ssssshhhhh... SSSSSHHHHH..." ) ;
+	book.sendMessageToAll( ctx , "ssssshhhhh... SSSSSHHHHH..." ) ;
+	
 	setTimeout( function() {
-		console.log( "ROOOOARRRR-CRASHHHHH!" ) ;
-		console.log( ctx.data.wizard + ' killed the ' + tag.getFinalContent( ctx.data ) + ", with a delay..." ) ;
+		book.sendMessageToAll( ctx , "ROOOOARRRR-CRASHHHHH!" ) ;
+		book.sendMessageToAll( ctx , ctx.data.wizard + ' killed the ' + tag.getFinalContent( ctx.data ) + ", with a delay..." ) ;
 		callback() ;
 	} , 500 ) ;
 } ;

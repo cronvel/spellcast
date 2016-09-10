@@ -167,19 +167,25 @@ describe( "Core tags" , function() {
 
 describe( "Wands/extensions" , function() {
 	
-	it.skip( "[wand] tag" , function( done ) {
+	it( "[wand] tag" , function( done ) {
 		
 		var messages = [] ;
 		
 		runBook( __dirname + '/books/wand.kfg' , { type: 'cast' , target: 'wand' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ) ) ;
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
 				} ) ;
 			} ,
 			function() {
 				doormen.equals( messages , [
-					[ 'Some text.' , null ] ,
+					[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
+					[ "Zang'dar killed the gnoll..." ] ,
+					[ "ssssshhhhh... SSSSSHHHHH..." ] ,
+					[ "ROOOOARRRR-CRASHHHHH!" ] ,
+					[ "Zang'dar killed the troll berserker, with a delay..." ] ,
+					[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
+					[ "Zang'dar killed the orc..." ] ,
 				] ) ;
 				
 				done() ;
