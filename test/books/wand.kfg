@@ -1,0 +1,10 @@
+
+[[doctype spellcaster]]
+
+[wand fire staff] @@../wands/firestaff.js
+
+[spell wand]
+	[zap fire staff's fireball] gnoll
+	[zap fire staff's delayed fireball] troll berserker
+	[zap fire staff.fireball] orc
+

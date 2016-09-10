@@ -1,0 +1,16 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	var: text
+
+[spell message]
+	[message]
+		$> Some ${var}.
+	[chant]
+		$> Some other ${var}.
+	[message]
+		next: true
+		slowTyping: true
+		text:
+			$> Welcome to The Shadow Terminal.

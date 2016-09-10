@@ -18,13 +18,6 @@
 	value: 2
 	ref: $alert
 
-[wand fire staff] @@firestaff.js
-
-[spell wand]
-	[zap fire staff's fireball] gnoll
-	[zap fire staff's delayed fireball] troll berserker
-	[zap fire staff.fireball] orc
-
 [spell if]
 	[if $value > 4]
 		[chant]
@@ -77,21 +70,6 @@
 		$> Enter your name: 
 	[message]
 		$> Hello ^/${name}^:!
-
-[spell love]
-	[chant]
-		$> ^M^/Star of love, burn so bright
-		$> Aid me in my spell tonight
-		$> Unite my true love to me
-		$> As I will ${alert}, so mote it be. 
-
-[spell terminal]
-	[message]
-		next: true
-		slowTyping: true
-		text:
-			$> Welcome to The Shadow Terminal.
-			$> Enjoy techno-magi!
 
 [spell event]
 	[on blast]

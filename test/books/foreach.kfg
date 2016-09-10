@@ -10,6 +10,6 @@
 [spell foreach]
 	#[foreach $list => $value]
 	[foreach $list => $key : $value]
-		[scroll]
-			- $> echo 'The value is: ${value}'
+		[message]
+			$> The value is: ${value}
 

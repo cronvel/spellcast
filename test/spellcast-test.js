@@ -87,6 +87,109 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 
 
 
+describe( "Core tags" , function() {
+	
+	it( "[message]/[chant] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Some text.' , null ] ,
+					[ 'Some other text.' , null ] ,
+					[ 'Welcome to The Shadow Terminal.' , {
+						next: true ,
+						slowTyping: true
+					} ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[set] tag and dynamic resolution" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/set.kfg' , { type: 'cast' , target: 'set' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Value of $a: something' ] ,
+					[ 'Value of $b: bob something' ] ,
+					[ 'Value of $c: bob' ] ,
+					[ 'Value of $d: bob' ] ,
+					[ 'Value of alert: bob' ] ,
+					[ 'Value of ref: bob' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[foreach] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/foreach.kfg' , { type: 'cast' , target: 'foreach' } ,
+			function( ui ) {
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'The value is: one' ] ,
+					[ 'The value is: two' ] ,
+					[ 'The value is: three' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+} ) ;
+
+
+describe( "Wands/extensions" , function() {
+	
+	it.skip( "[wand] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/wand.kfg' , { type: 'cast' , target: 'wand' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Some text.' , null ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+} ) ;
+
+
+
 describe( "Basic spellcaster features" , function() {
 	
 	it( "scroll tag with the 'echo' command" , function( done ) {
@@ -123,58 +226,5 @@ describe( "Basic spellcaster features" , function() {
 	} ) ;
 } ) ;
 
-
-	
-describe( "Core tags" , function() {
-	
-	it( "[foreach] tag" , function( done ) {
-		
-		var extOutputs = [] ;
-		
-		runBook( __dirname + '/books/foreach.kfg' , { type: 'cast' , target: 'foreach' } ,
-			function( ui ) {
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				doormen.equals( extOutputs , [
-					[ 'The value is: one\n' ] ,
-					[ 'The value is: two\n' ] ,
-					[ 'The value is: three\n' ] ,
-				] ) ;
-				
-				done() ;
-			}
-		) ;
-	} ) ;
-	
-	it( "[set] tag and dynamic resolution" , function( done ) {
-		
-		var messages = [] ;
-		
-		runBook( __dirname + '/books/set.kfg' , { type: 'cast' , target: 'set' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				doormen.equals( messages , [
-					[ 'Value of $a: something' ] ,
-					[ 'Value of $b: bob something' ] ,
-					[ 'Value of $c: bob' ] ,
-					[ 'Value of $d: bob' ] ,
-					[ 'Value of alert: bob' ] ,
-					[ 'Value of ref: bob' ]
-				] ) ;
-				
-				done() ;
-			}
-		) ;
-	} ) ;
-} ) ;
 
 
