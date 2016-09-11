@@ -1,0 +1,9 @@
+
+[[doctype spellcaster]]
+
+[spell input]
+	[input $name]
+		$> Enter your name: 
+	[message]
+		$> Hello ${name}!
+

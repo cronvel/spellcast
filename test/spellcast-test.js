@@ -28,11 +28,13 @@
 /* global describe, it, before, after */
 
 
+var async = require( 'async-kit' ) ;
+var string = require( 'string-kit' ) ;
+var doormen = require( 'doormen' ) ;
+
 var Book = require( '../lib/Book.js' ) ;
 var Client = require( '../lib/Client.js' ) ;
 var UnitUI = require( '../lib/ui/unit.js' ) ;
-var string = require( 'string-kit' ) ;
-var doormen = require( 'doormen' ) ;
 
 
 
@@ -79,6 +81,8 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 		// This must be done, or some events will be missing
 		book.clients[ 0 ].authenticate( {} ) ;
 	} ) ;
+	
+	return book ;
 }
 
 
@@ -87,7 +91,7 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 
 
 
-describe( "Core tags" , function() {
+describe( "I/O tags" , function() {
 	
 	it( "[message]/[chant] tag" , function( done ) {
 		
@@ -114,6 +118,35 @@ describe( "Core tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[input] tag" , function( done ) {
+		
+		var book , messages = [] ;
+		
+		book = runBook( __dirname + '/books/input.kfg' , { type: 'cast' , target: 'input' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+				ui.bus.on( 'textInput' , function( label ) {
+					doormen.equals( label , 'Enter your name: ' ) ;
+					book.roles[ 0 ].emit( 'textSubmit' , 'Jack Wallace' )
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Hello Jack Wallace!' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "Core tags" , function() {
+	
 	it( "[set] tag and dynamic resolution" , function( done ) {
 		
 		var messages = [] ;
@@ -137,6 +170,81 @@ describe( "Core tags" , function() {
 				done() ;
 			}
 		) ;
+	} ) ;
+	
+	it( "[if], [elsif]/[elseif] and [else] tags" , function( done ) {
+		
+		var book , messages = [] ;
+				
+		
+		async.series( [
+			function( seriesCallback ) {
+				
+				messages = [] ;
+				
+				book = runBook( __dirname + '/books/if-elseif-else.kfg' , { type: 'cast' , target: 'if-elseif-else' } ,
+					function( ui ) {
+						ui.bus.on( 'message' , function() {
+							messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+						} ) ;
+					} ,
+					function() {
+						doormen.equals( messages , [
+							[ 'Condition #1 else' ] ,
+							[ 'Condition #2 else' ] ,
+						] ) ;
+						
+						seriesCallback() ;
+					}
+				) ;
+			} ,
+			function( seriesCallback ) {
+				
+				// Reset messages and change the value to be tested
+				messages = [] ;
+				book.data.value = 2 ;
+				
+				book.cast( 'if-elseif-else' , function() {
+					doormen.equals( messages , [
+						[ 'Condition #1 else' ] ,
+						[ 'Condition #2 elseif' ] ,
+					] ) ;
+					
+					seriesCallback() ;
+				} ) ;
+			} ,
+			function( seriesCallback ) {
+				
+				// Reset messages and change the value to be tested
+				messages = [] ;
+				book.data.value = 3 ;
+				
+				book.cast( 'if-elseif-else' , function() {
+					doormen.equals( messages , [
+						[ 'Condition #1 else' ] ,
+						[ 'Condition #2 elsif' ] ,
+					] ) ;
+					
+					seriesCallback() ;
+				} ) ;
+			} ,
+			function( seriesCallback ) {
+				
+				// Reset messages and change the value to be tested
+				messages = [] ;
+				book.data.value = 5 ;
+				
+				book.cast( 'if-elseif-else' , function() {
+					doormen.equals( messages , [
+						[ 'Condition #1 if' ] ,
+						[ 'Condition #2 if' ] ,
+					] ) ;
+					
+					seriesCallback() ;
+				} ) ;
+			} ,
+		] )
+		.exec( done ) ;
 	} ) ;
 	
 	it( "[foreach] tag" , function( done ) {
@@ -163,6 +271,36 @@ describe( "Core tags" , function() {
 		) ;
 	} ) ;
 } ) ;
+
+
+
+describe( "API" , function() {
+	
+	it( "Event [on]/[once]/[emit] tags" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/event.kfg' , { type: 'cast' , target: 'event' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Blasted Troll!' ] ,
+					[ 'Roasted Troll!' ] ,
+					[ 'Blasted Gnoll!' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "Global listeners [on-global]/[once-global] tags" ) ;
+} ) ;
+
 
 
 describe( "Wands/extensions" , function() {
@@ -210,20 +348,40 @@ describe( "Basic spellcaster features" , function() {
 				ui.bus.on( 'extOutput' , function() {
 					extOutputs.push( Array.from( arguments ) ) ;
 				} ) ;
-				
-				/*
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ) ) ;
-				} ) ;
-				
-				ui.bus.on( 'coreMessage' , function() {
-					coreMessages.push( Array.from( arguments ) ) ;
-				} ) ;
-				*/
 			} ,
 			function() {
 				doormen.equals( extOutputs , [
 					[ 'bob\n' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "Historical bugs" , function() {
+	
+	it.next( "should be able to load the same book twice" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Some text.' , null ] ,
+					[ 'Some other text.' , null ] ,
+					[ 'Welcome to The Shadow Terminal.' , {
+						next: true ,
+						slowTyping: true
+					} ]
 				] ) ;
 				
 				done() ;

@@ -18,27 +18,6 @@
 	value: 2
 	ref: $alert
 
-[spell if]
-	[if $value > 4]
-		[chant]
-			- > Condition #1 if OK
-	[else]
-		[chant]
-			- > Condition #1 NOT OK
-	
-	[if $value > 4]
-		[chant]
-			- > Condition #2 if OK
-	[elsif $value > 2]
-		[chant]
-			- > Condition #2 elsif OK
-	[elseif $value > 1]
-		[chant]
-			- > Condition #2 elseif OK
-	[else]
-		[chant]
-			- > Condition #2 NOT OK
-
 [spell blah]
 	[scroll]
 		- echo blah
@@ -64,22 +43,6 @@
 		> ls -l
 	[chant]
 		$> Command first line output: ${ls[1]}
-
-[spell input]
-	[input $name]
-		$> Enter your name: 
-	[message]
-		$> Hello ^/${name}^:!
-
-[spell event]
-	[on blast]
-		[message]
-			$> ^RBlasted ${this.data}!
-	[once blast]
-		[message]
-			$> ^RRoasted ${this.data}!
-	[emit blast] Troll
-	[emit blast] Gnoll
 
 [spell js]
 	[message]

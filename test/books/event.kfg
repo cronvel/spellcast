@@ -1,0 +1,12 @@
+
+[[doctype spellcaster]]
+
+[spell event]
+	[on blast]
+		[message]
+			$> Blasted ${this.data}!
+	[once blast]
+		[message]
+			$> Roasted ${this.data}!
+	[emit blast] Troll
+	[emit blast] Gnoll
