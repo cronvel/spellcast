@@ -1,0 +1,9 @@
+
+[[doctype spellcaster]]
+
+[spell ls]
+	[scroll store=$ls split="\n"]
+		> ls -1 ../ls
+	[message]
+		$> Command second line output: ${ls[1]}
+

@@ -1,0 +1,14 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	wizard: Zang'dar
+
+[spell js]
+	[message]
+		$> Hello ${wizard}!
+	[js]
+		> wizard = "Oz" ;
+	[message]
+		$> Hello ${wizard}!
+

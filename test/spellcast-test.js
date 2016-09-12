@@ -334,13 +334,41 @@ describe( "Wands/extensions" , function() {
 
 
 
-describe( "Basic spellcaster features" , function() {
+describe( "Embedded Javascript code" , function() {
 	
-	it( "scroll tag with the 'echo' command" , function( done ) {
+	it( "[js] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ "Hello Zang'dar!" ] ,
+					[ "Hello Oz!" ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "Security tests" ) ;
+} ) ;
+
+
+
+describe( "Basic spellcaster tags and features" , function() {
+	
+	it( "[scroll] tag" , function( done ) {
 		
 		var extOutputs = [] ;
 		
-		runBook( __dirname + '/books/echo-scroll.kfg' , { type: 'cast' , target: 'echo' } ,
+		runBook( __dirname + '/books/scroll.kfg' , { type: 'cast' , target: 'echo' } ,
 			function( ui ) {
 				//console.log( 'UI ready' ) ;
 				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -352,6 +380,37 @@ describe( "Basic spellcaster features" , function() {
 			function() {
 				doormen.equals( extOutputs , [
 					[ 'bob\n' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[scroll] tag: store and split attribute" , function( done ) {
+		
+		var extOutputs = [] , messages = [] ;
+		
+		runBook( __dirname + '/books/scroll-store-split.kfg' , { type: 'cast' , target: 'ls' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( extOutputs , [
+					[ 'one\nthree\ntwo\n' ]
+				] ) ;
+				
+				doormen.equals( messages , [
+					[ 'Command second line output: three' ]
 				] ) ;
 				
 				done() ;

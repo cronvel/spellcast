@@ -38,20 +38,6 @@
 		- exit 1
 		- echo "after fail"
 
-[spell ls]
-	[scroll store=$ls split="\n"]
-		> ls -l
-	[chant]
-		$> Command first line output: ${ls[1]}
-
-[spell js]
-	[message]
-		$> Hello ${wizard}!
-	[js]
-		> wizard = "Oz" ;
-	[message]
-		$> Hello ${wizard}!
-
 [spell kawarimi]
 	[scroll]
 		- $> echo ${alert//sharg} ${blah//sharg}${blah//sharg} ${list//sharg}
