@@ -22,6 +22,21 @@
 * end (result, data): [state,completion] emitted once the book is finished, `result` constains the outcome for *that* client.
   It can be: *end* (end, nothing special), *win*, *lost*, *draw* (this spellbook is a game and the client win/lost or
   it was a draw game). `data` contains end of game details, depending on the spellbook (things like score, etc).
+* cast (spellName, status, [error]): a spell has been casted or has fizzled (spellcaster mode), where:
+	* spellName `string` the name of the spell
+	* status `string` is one of:
+		* 'ok': the spell was casted successfully
+		* 'upToDate': the spell was not casted because all its dependencies are up to date
+		* 'error': the spell was not casted because of an error
+	* error `object` (optional) when status='error' this contains the error object
+* summon (summoning, status, [error]): a summoning has been summoned or has fizzled (spellcaster mode), where:
+	* summoning `string` the path of the summoning
+	* status `string` is one of:
+		* 'ok': the summoning was summoned successfully
+		* 'upToDate': the summoning was not summoned because it already exists and all its dependencies are up to date
+		* 'noop': everything went fine but nothing was produced
+		* 'error': the summoning was not summoned because of an error
+	* error `object` (optional) when status='error' this contains the error object
 * coreMessage (message, ...): message emitted by the core of spellcast, `message` is the message and may
   contains markup and be formated with variables (printf-like)
 * errorMessage (message, ...): error emitted by the core of spellcast or from anywhere else, `message` is the message and may

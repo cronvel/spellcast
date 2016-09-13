@@ -28,13 +28,21 @@
 /* global describe, it, before, after */
 
 
+var fs = require( 'fs' ) ;
+
 var async = require( 'async-kit' ) ;
+var fsKit = require( 'fs-kit' ) ;
 var string = require( 'string-kit' ) ;
 var doormen = require( 'doormen' ) ;
 
 var Book = require( '../lib/Book.js' ) ;
 var Client = require( '../lib/Client.js' ) ;
 var UnitUI = require( '../lib/ui/unit.js' ) ;
+
+
+
+// Create the 'build' directory into the current 'test' directory
+fsKit.ensurePathSync( __dirname + '/build' ) ;
 
 
 
@@ -374,6 +382,10 @@ describe( "Embedded Javascript code" , function() {
 
 describe( "Basic spellcaster tags and features" , function() {
 	
+	beforeEach( function( done ) {
+		fsKit.deltree( __dirname + '/build/*' , done ) ;
+	} ) ;
+	
 	it( "[scroll] tag" , function( done ) {
 		
 		var extOutputs = [] ;
@@ -428,9 +440,138 @@ describe( "Basic spellcaster tags and features" , function() {
 		) ;
 	} ) ;
 	
+	it( "regular summoning" , function( done ) {
+		
+		var extOutputs = [] , summons = [] ;
+		
+		runBook( __dirname + '/books/summoning.kfg' , { type: 'summon' , target: '../build/summoning.txt' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				ui.bus.on( 'summon' , function() {
+					summons.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( extOutputs , [] ) ;
+				
+				doormen.equals( summons , [
+					[ '../build/summoning.txt' , 'ok' ]
+				] ) ;
+				
+				doormen.equals(
+					fs.readFileSync( __dirname + '/build/summoning.txt' , 'utf8' ) ,
+					"This is a dummy static dependency file.\n"
+				) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "glob summoning" , function( done ) {
+		
+		var extOutputs = [] , summons = [] ;
+		
+		runBook( __dirname + '/books/glob-summoning.kfg' , { type: 'summon' , target: '../build/file.ext' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				ui.bus.on( 'summon' , function() {
+					summons.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( extOutputs , [] ) ;
+				
+				doormen.equals( summons , [
+					[ '../build/file.ext' , 'ok' ]
+				] ) ;
+				
+				doormen.equals(
+					fs.readFileSync( __dirname + '/build/file.ext' , 'utf8' ) ,
+					"This is a dummy static dependency file.\n"
+				) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "regex summoning" , function( done ) {
+		
+		var extOutputs = [] , summons = [] ;
+		
+		async.series( [
+			function( seriesCallback ) {
+			
+				book = runBook( __dirname + '/books/regex-summoning.kfg' , { type: 'summon' , target: '../build/file.ext' } ,
+					function( ui ) {
+						//console.log( 'UI ready' ) ;
+						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+						
+						ui.bus.on( 'extOutput' , function() {
+							extOutputs.push( Array.from( arguments ) ) ;
+						} ) ;
+						
+						ui.bus.on( 'summon' , function() {
+							summons.push( Array.from( arguments ) ) ;
+						} ) ;
+					} ,
+					function() {
+						doormen.equals( extOutputs , [] ) ;
+						
+						doormen.equals( summons , [
+							[ '../build/file.ext' , 'ok' ]
+						] ) ;
+						
+						doormen.equals(
+							fs.readFileSync( __dirname + '/build/file.ext' , 'utf8' ) ,
+							"This is a dummy static dependency file.\n"
+						) ;
+						
+						seriesCallback() ;
+					}
+				) ;
+			} ,
+			function( seriesCallback ) {
+				
+				// Reset
+				extOutputs = [] ;
+				summons = [] ;
+				
+				book.summon( '../build/FiLe2.ExT' , function() {
+					doormen.equals( extOutputs , [] ) ;
+					
+					doormen.equals( summons , [
+						[ '../build/FiLe2.ExT' , 'ok' ]
+					] ) ;
+					
+					doormen.equals(
+						fs.readFileSync( __dirname + '/build/FiLe2.ExT' , 'utf8' ) ,
+						"This is a dummy static dependency file.\n"
+					) ;
+					
+					seriesCallback() ;
+				} ) ;
+			} ,
+		] )
+		.exec( done )
+	} ) ;
+	
 	it( "fake summoning" , function( done ) {
 		
-		var extOutputs = [] ;
+		var extOutputs = [] , summons = [] ;
 		
 		runBook( __dirname + '/books/fake-summoning.kfg' , { type: 'summon' , target: 'fake.txt' } ,
 			function( ui ) {
@@ -440,41 +581,24 @@ describe( "Basic spellcaster tags and features" , function() {
 				ui.bus.on( 'extOutput' , function() {
 					extOutputs.push( Array.from( arguments ) ) ;
 				} ) ;
-			} ,
-			function() {
-				doormen.equals( extOutputs , [
-					[ 'does nothing\n' ]
-				] ) ;
 				
-				done() ;
-			}
-		) ;
-	} ) ;
-	
-	/*
-	it( "summoning and the [summoning] tag" , function( done ) {
-		
-		var extOutputs = [] ;
-		
-		runBook( __dirname + '/books/fake-summoning.kfg' , { type: 'cast' , target: 'echo' } ,
-			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
+				ui.bus.on( 'summon' , function() {
+					summons.push( Array.from( arguments ) ) ;
 				} ) ;
 			} ,
 			function() {
 				doormen.equals( extOutputs , [
-					[ 'bob\n' ]
+					[ 'this produces nothing\n' ]
+				] ) ;
+				
+				doormen.equals( summons , [
+					[ 'fake.txt' , 'noop' ]
 				] ) ;
 				
 				done() ;
 			}
 		) ;
 	} ) ;
-	//*/
 } ) ;
 
 

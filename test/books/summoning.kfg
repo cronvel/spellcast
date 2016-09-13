@@ -1,0 +1,7 @@
+
+[[doctype spellcaster]]
+
+[summoning ../build/summoning.txt]
+	[scroll]
+		- echo "This is a dummy static dependency file." > ../build/summoning.txt
+

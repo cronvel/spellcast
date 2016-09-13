@@ -1,32 +1,6 @@
 
 [[doctype spellcaster]]
 
-[formula]
-	wizard: Zang'dar
-	alert: bob
-	blah: blih
-	allcaps: FUUU
-	list:
-		- one
-		- two
-		- three
-	list-fr:
-		- un
-		- deux
-		- trois
-	version: 0.1.2
-	value: 2
-	ref: $alert
-
-[spell blah]
-	[scroll]
-		- echo blah
-
-[spell delayed-echo]
-	[scroll]
-		- sleep 1
-		- echo delayed-echo
-
 [spell fail-dependency]
 	[cast]
 		- fail-scroll
@@ -38,10 +12,6 @@
 		- exit 1
 		- echo "after fail"
 
-[spell kawarimi]
-	[scroll]
-		- $> echo ${alert//sharg} ${blah//sharg}${blah//sharg} ${list//sharg}
-
 [spell depend]
 	[cast]
 		- blah
@@ -49,28 +19,6 @@
 		- spellcast-dependency.txt
 	[scroll]
 		- echo Dependencies should be rebuilt
-
-[summoning spellcast-dependency.txt]
-	[scroll]
-		- echo Creating spellcast-dependency.txt
-		- echo "This is a dummy static dependency file." > spellcast-dependency.txt
-
-[summoning regex: /.*\.bob/i]
-	[summon]
-		- spellbook
-	[scroll]
-		# Kung-Fig should allow another feature in proxy/tag: force filtering in template?
-		#- $> echo Creating ${this.summoning}
-		- $> echo "This is a dummy regex dependency file." > ${this.summoning}
-
-[summoning *.bill]
-	[summon]
-		- spellcast-dependency.txt
-	
-	[scroll]
-		# Kung-Fig should allow another feature in proxy/tag: force filtering in template?
-		#- $> echo Creating ${this.summoning}
-		- $> echo "This is a dummy glob dependency file." > ${this.summoning}
 
 
 

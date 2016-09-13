@@ -1,0 +1,7 @@
+
+[[doctype spellcaster]]
+
+[summoning ../build/*.ext]
+	[scroll]
+		- $> echo "This is a dummy static dependency file." > ${this.summoning}
+
