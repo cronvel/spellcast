@@ -35,6 +35,8 @@ var fsKit = require( 'fs-kit' ) ;
 var string = require( 'string-kit' ) ;
 var doormen = require( 'doormen' ) ;
 
+var log = require( 'logfella' ).global.use( 'unit-tests' ) ;
+
 var Book = require( '../lib/Book.js' ) ;
 var Client = require( '../lib/Client.js' ) ;
 var UnitUI = require( '../lib/ui/unit.js' ) ;
@@ -292,94 +294,6 @@ describe( "Core tags" , function() {
 
 
 
-describe( "API" , function() {
-	
-	it( "Event [on]/[once]/[emit] tags" , function( done ) {
-		
-		var messages = [] ;
-		
-		runBook( __dirname + '/books/event.kfg' , { type: 'cast' , target: 'event' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				doormen.equals( messages , [
-					[ 'Blasted Troll!' ] ,
-					[ 'Roasted Troll!' ] ,
-					[ 'Blasted Gnoll!' ] ,
-				] ) ;
-				
-				done() ;
-			}
-		) ;
-	} ) ;
-	
-	it( "Global listeners [on-global]/[once-global] tags" ) ;
-} ) ;
-
-
-
-describe( "Wands/extensions" , function() {
-	
-	it( "[wand] tag" , function( done ) {
-		
-		var messages = [] ;
-		
-		runBook( __dirname + '/books/wand.kfg' , { type: 'cast' , target: 'wand' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				doormen.equals( messages , [
-					[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
-					[ "Zang'dar killed the gnoll..." ] ,
-					[ "ssssshhhhh... SSSSSHHHHH..." ] ,
-					[ "ROOOOARRRR-CRASHHHHH!" ] ,
-					[ "Zang'dar killed the troll berserker, with a delay..." ] ,
-					[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
-					[ "Zang'dar killed the orc..." ] ,
-				] ) ;
-				
-				done() ;
-			}
-		) ;
-	} ) ;
-} ) ;
-
-
-
-describe( "Embedded Javascript code" , function() {
-	
-	it( "[js] tag" , function( done ) {
-		
-		var messages = [] ;
-		
-		runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				doormen.equals( messages , [
-					[ "Hello Zang'dar!" ] ,
-					[ "Hello Oz!" ] ,
-				] ) ;
-				
-				done() ;
-			}
-		) ;
-	} ) ;
-	
-	it( "Security tests" ) ;
-} ) ;
-
-
-
 describe( "Basic spellcaster tags and features" , function() {
 	
 	beforeEach( function( done ) {
@@ -402,6 +316,37 @@ describe( "Basic spellcaster tags and features" , function() {
 			function() {
 				doormen.equals( extOutputs , [
 					[ 'bob\n' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[scroll] tag failure" , function( done ) {
+		
+		var extOutputs = [] , casts = [] ;
+		
+		runBook( __dirname + '/books/scroll-of-failing.kfg' , { type: 'cast' , target: 'scroll-of-failing' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				ui.bus.on( 'cast' , function() {
+					casts.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( extOutputs , [
+					[ 'before fail\n' ]
+				] ) ;
+				
+				doormen.equals( casts , [
+					[ 'scroll-of-failing' , 'error' , { code: 'nonZeroExit' } ]
 				] ) ;
 				
 				done() ;
@@ -595,10 +540,134 @@ describe( "Basic spellcaster tags and features" , function() {
 					[ 'fake.txt' , 'noop' ]
 				] ) ;
 				
+				doormen.shouldThrow( () => fs.accessSync( __dirname + '/build/fake.txt' ) ) ;
+				
 				done() ;
 			}
 		) ;
 	} ) ;
+	
+	it( "failed summoning" , function( done ) {
+		
+		var extOutputs = [] , summons = [] ;
+		
+		runBook( __dirname + '/books/failed-summoning.kfg' , { type: 'summon' , target: 'failed.txt' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				ui.bus.on( 'summon' , function() {
+					summons.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( extOutputs , [] ) ;
+				
+				doormen.shouldThrow( () => fs.accessSync( __dirname + '/build/failed.txt' ) ) ;
+				
+				doormen.equals( summons , [
+					[ 'failed.txt' , 'error' , { code: 'nonZeroExit' } ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "Reverse summoning" ) ;
+	it( "Dependencies" ) ;
+} ) ;
+
+
+
+describe( "API" , function() {
+	
+	it( "Event [on]/[once]/[emit] tags" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/event.kfg' , { type: 'cast' , target: 'event' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Blasted Troll!' ] ,
+					[ 'Roasted Troll!' ] ,
+					[ 'Blasted Gnoll!' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "Global listeners [on-global]/[once-global] tags" ) ;
+} ) ;
+
+
+
+describe( "Wands/extensions" , function() {
+	
+	it( "[wand] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/wand.kfg' , { type: 'cast' , target: 'wand' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
+					[ "Zang'dar killed the gnoll..." ] ,
+					[ "ssssshhhhh... SSSSSHHHHH..." ] ,
+					[ "ROOOOARRRR-CRASHHHHH!" ] ,
+					[ "Zang'dar killed the troll berserker, with a delay..." ] ,
+					[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
+					[ "Zang'dar killed the orc..." ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+} ) ;
+
+
+
+describe( "Embedded Javascript code" , function() {
+	
+	it( "[js] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ "Hello Zang'dar!" ] ,
+					[ "Hello Oz!" ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "Security tests" ) ;
 } ) ;
 
 

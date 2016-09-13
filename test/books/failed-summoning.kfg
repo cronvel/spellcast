@@ -1,0 +1,8 @@
+
+[[doctype spellcaster]]
+
+[summoning failed.txt]
+	[scroll]
+		- exit 1
+		- echo "This is a dummy static dependency file." > ../build/failed.txt
+

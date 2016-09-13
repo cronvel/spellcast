@@ -1,0 +1,8 @@
+
+[[doctype spellcaster]]
+
+[spell scroll-of-failing]
+	[scroll]
+		- echo "before fail"
+		- exit 1
+		- echo "after fail"

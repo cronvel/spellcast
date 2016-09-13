@@ -7,11 +7,6 @@
 	[scroll]
 		- echo "after fail dependency"
 
-[spell fail-scroll]
-	[scroll]
-		- exit 1
-		- echo "after fail"
-
 [spell depend]
 	[cast]
 		- blah
