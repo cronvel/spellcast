@@ -1,0 +1,7 @@
+
+[[doctype spellcaster]]
+
+[summoning fake.txt]
+	[scroll]
+		- echo does nothing
+
