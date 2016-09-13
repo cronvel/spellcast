@@ -51,7 +51,14 @@ function deb( something )
 
 function runBook( bookPath , action , uiCallback , doneCallback )
 {
-	var ui , uiId = 0 , book = Book.load( bookPath ) ;
+	var ui , uiId = 0 , triggered = false , book = Book.load( bookPath ) ;
+	
+	var triggerCallback = function() {
+		if ( triggered ) { return ; }
+		triggered = true ;
+		book.destroy() ;
+		doneCallback.apply( undefined , arguments ) ;
+	} ;
 	
 	book.initBook( function( error ) {
 		
@@ -66,7 +73,10 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 			switch ( action.type )
 			{
 				case 'cast' :
-					book.cast( action.target , doneCallback ) ;
+					book.cast( action.target , triggerCallback ) ;
+					break ;
+				case 'summon' :
+					book.summon( action.target , triggerCallback ) ;
 					break ;
 			}
 			
@@ -417,6 +427,54 @@ describe( "Basic spellcaster tags and features" , function() {
 			}
 		) ;
 	} ) ;
+	
+	it( "fake summoning" , function( done ) {
+		
+		var extOutputs = [] ;
+		
+		runBook( __dirname + '/books/fake-summoning.kfg' , { type: 'summon' , target: 'fake.txt' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( extOutputs , [
+					[ 'does nothing\n' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	/*
+	it( "summoning and the [summoning] tag" , function( done ) {
+		
+		var extOutputs = [] ;
+		
+		runBook( __dirname + '/books/fake-summoning.kfg' , { type: 'cast' , target: 'echo' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( extOutputs , [
+					[ 'bob\n' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	//*/
 } ) ;
 
 

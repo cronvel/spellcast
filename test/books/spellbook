@@ -50,10 +50,6 @@
 	[scroll]
 		- echo Dependencies should be rebuilt
 
-[summoning fake.txt]
-	[scroll]
-		- echo Run some command that does nothing at all
-
 [summoning spellcast-dependency.txt]
 	[scroll]
 		- echo Creating spellcast-dependency.txt
