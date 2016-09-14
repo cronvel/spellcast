@@ -636,7 +636,297 @@ describe( "Basic spellcaster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "Dependencies" ) ;
+	it( "reverse-summoning, summon one" , function( done ) {
+		
+		var extOutputs = [] , summons = [] ;
+		
+		runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'summon' , target: '../build/file1.rev' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				ui.bus.on( 'summon' , function() {
+					summons.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( extOutputs , [] ) ;
+				
+				doormen.equals( summons , [
+					[ '../build/file1.rev' , 'ok' ]
+				] ) ;
+				
+				doormen.equals(
+					fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ,
+					"...txet modnar emoS\n"
+				) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "direct static dependencies" , function( done ) {
+		
+		var book , extOutputs = [] , summons = [] ;
+		
+		// Touch files, because some of them may have time set in the future by other tests
+		fsKit.touchSync( __dirname + '/src/file1.txt' ) ;
+		fsKit.touchSync( __dirname + '/src/file2.txt' ) ;
+		fsKit.touchSync( __dirname + '/src/file3.txt' ) ;
+		
+		async.series( [
+			function( seriesCallback ) {
+			
+				book = runBook( __dirname + '/books/summoning-static-dependencies.kfg' , { type: 'summon' , target: '../build/concat.txt' } ,
+					function( ui ) {
+						//console.log( 'UI ready' ) ;
+						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+						
+						ui.bus.on( 'extOutput' , function() {
+							extOutputs.push( Array.from( arguments ) ) ;
+						} ) ;
+						
+						ui.bus.on( 'summon' , function() {
+							summons.push( Array.from( arguments ) ) ;
+						} ) ;
+					} ,
+					function() {
+						doormen.equals( extOutputs , [] ) ;
+						
+						doormen.equals( summons , [
+							[ '../build/concat.txt' , 'ok' ]
+						] ) ;
+						
+						doormen.equals(
+							fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) ,
+							"Some random text...\nSome random text...\nSome random text...\n"
+						) ;
+						
+						seriesCallback() ;
+					}
+				) ;
+			} ,
+			function( seriesCallback ) {
+				
+				// Reset
+				extOutputs = [] ;
+				summons = [] ;
+				
+				book.summon( '../build/concat.txt' , function() {
+					doormen.equals( extOutputs , [] ) ;
+					
+					doormen.equals( summons , [
+						[ '../build/concat.txt' , 'upToDate' ]
+					] ) ;
+					
+					doormen.equals(
+						fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) ,
+						"Some random text...\nSome random text...\nSome random text...\n"
+					) ;
+					
+					seriesCallback() ;
+				} ) ;
+			} ,
+			function( seriesCallback ) {
+				
+				// Force a rebuild by 'touching' the dependency, but set the date one second in the future
+				// (if not, the test would not works consistently)
+				fsKit.touchSync( __dirname + '/src/file1.txt' , { time: Date.now() + 1000 } ) ;
+				
+				// Reset
+				extOutputs = [] ;
+				summons = [] ;
+				
+				book.summon( '../build/concat.txt' , function() {
+					doormen.equals( extOutputs , [] ) ;
+					
+					doormen.equals( summons , [
+						[ '../build/concat.txt' , 'ok' ]
+					] ) ;
+					
+					doormen.equals(
+						fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) ,
+						"Some random text...\nSome random text...\nSome random text...\n"
+					) ;
+					
+					seriesCallback() ;
+				} ) ;
+			} ,
+		] )
+		.exec( done ) ;
+	} ) ;
+	
+	it( "cascading dependencies" , function( done ) {
+		
+		var book , extOutputs = [] , summons = [] ;
+		
+		// Touch files, because some of them may have time set in the future by other tests
+		fsKit.touchSync( __dirname + '/src/file1.txt' ) ;
+		fsKit.touchSync( __dirname + '/src/file2.txt' ) ;
+		fsKit.touchSync( __dirname + '/src/file3.txt' ) ;
+		fsKit.touchSync( __dirname + '/src/something' ) ;
+		
+		async.series( [
+			function( seriesCallback ) {
+				
+				book = runBook( __dirname + '/books/summoning-cascading-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
+					function( ui ) {
+						//console.log( 'UI ready' ) ;
+						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+						
+						ui.bus.on( 'extOutput' , function() {
+							extOutputs.push( Array.from( arguments ) ) ;
+						} ) ;
+						
+						ui.bus.on( 'summon' , function() {
+							summons.push( Array.from( arguments ) ) ;
+						} ) ;
+					} ,
+					function() {
+						doormen.equals( extOutputs , [] ) ;
+						
+						doormen.equals( summons , [
+							[ '../build/concat.txt' , 'ok' ] ,
+							[ '../build/cascade.txt' , 'ok' ]
+						] ) ;
+						
+						doormen.equals(
+							fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) ,
+							"Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething"
+						) ;
+						
+						seriesCallback() ;
+					}
+				) ;
+			} ,
+			function( seriesCallback ) {
+				
+				// Reset
+				extOutputs = [] ;
+				summons = [] ;
+				
+				book.summon( '../build/cascade.txt' , function() {
+					doormen.equals( extOutputs , [] ) ;
+					
+					doormen.equals( summons , [
+						[ '../build/concat.txt' , 'upToDate' ] ,
+						[ '../build/cascade.txt' , 'upToDate' ]
+					] ) ;
+					
+					doormen.equals(
+						fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) ,
+						"Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething"
+					) ;
+					
+					seriesCallback() ;
+				} ) ;
+			} ,
+			function( seriesCallback ) {
+				
+				// Force a rebuild by 'touching' the dependency, but set the date one second in the future
+				// (if not, the test would not works consistently)
+				fsKit.touchSync( __dirname + '/src/something' , { time: Date.now() + 1000 } ) ;
+				
+				// Reset
+				extOutputs = [] ;
+				summons = [] ;
+				
+				book.summon( '../build/cascade.txt' , function() {
+					doormen.equals( extOutputs , [] ) ;
+					
+					doormen.equals( summons , [
+						[ '../build/concat.txt' , 'upToDate' ] ,
+						[ '../build/cascade.txt' , 'ok' ]
+					] ) ;
+					
+					doormen.equals(
+						fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) ,
+						"Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething"
+					) ;
+					
+					seriesCallback() ;
+				} ) ;
+			} ,
+			function( seriesCallback ) {
+				
+				// Force a rebuild by 'touching' the dependency, but set the date one second in the future
+				// (if not, the test would not works consistently)
+				fsKit.touchSync( __dirname + '/src/file1.txt' , { time: Date.now() + 1000 } ) ;
+				
+				// Reset
+				extOutputs = [] ;
+				summons = [] ;
+				
+				book.summon( '../build/cascade.txt' , function() {
+					doormen.equals( extOutputs , [] ) ;
+					
+					doormen.equals( summons , [
+						[ '../build/concat.txt' , 'ok' ] ,
+						[ '../build/cascade.txt' , 'ok' ]
+					] ) ;
+					
+					doormen.equals(
+						fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) ,
+						"Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething"
+					) ;
+					
+					seriesCallback() ;
+				} ) ;
+			} ,
+		] )
+		.exec( done ) ;
+	} ) ;
+	
+	it.next( "cascading failing dependencies should abort current cast/summon" , function( done ) {
+		
+		var book , extOutputs = [] , summons = [] ;
+		
+		// Touch files, because some of them may have time set in the future by other tests
+		/*
+		fsKit.touchSync( __dirname + '/src/file1.txt' ) ;
+		fsKit.touchSync( __dirname + '/src/file2.txt' ) ;
+		fsKit.touchSync( __dirname + '/src/file3.txt' ) ;
+		fsKit.touchSync( __dirname + '/src/something' ) ;
+		*/
+		
+		async.series( [
+			function( seriesCallback ) {
+				
+				book = runBook( __dirname + '/books/summoning-failing-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
+					function( ui ) {
+						//console.log( 'UI ready' ) ;
+						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+						
+						ui.bus.on( 'extOutput' , function() {
+							extOutputs.push( Array.from( arguments ) ) ;
+						} ) ;
+						
+						ui.bus.on( 'summon' , function() {
+							summons.push( Array.from( arguments ) ) ;
+						} ) ;
+					} ,
+					function() {
+						doormen.equals( extOutputs , [] ) ;
+						
+						doormen.equals( summons , [
+							[ '../build/concat.txt' , 'error' , { code: 'nonZeroExit' } ] ,
+							[ '../build/cascade.txt' , 'error' , { code: 'nonZeroExit' } ]
+						] ) ;
+						
+						doormen.shouldThrow( () => fs.accessSync( __dirname + '/build/cascade.txt' ) ) ;
+						
+						seriesCallback() ;
+					}
+				) ;
+			} ,
+		] )
+		.exec( done ) ;
+	} ) ;
 } ) ;
 
 
@@ -784,6 +1074,5 @@ describe( "Historical bugs" , function() {
 		.exec( done ) ;
 	} ) ;
 } ) ;
-
 
 

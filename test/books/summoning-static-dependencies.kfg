@@ -1,0 +1,12 @@
+
+[[doctype spellcaster]]
+
+[summoning ../build/concat.txt]
+	[summon]
+		- ../src/file1.txt
+		- ../src/file2.txt
+		- ../src/file3.txt
+	
+	[scroll]
+		- $> cat ${this.summoned}[enum] > ../build/concat.txt
+

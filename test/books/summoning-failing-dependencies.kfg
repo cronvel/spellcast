@@ -1,0 +1,21 @@
+
+[[doctype spellcaster]]
+
+[summoning ../build/concat.txt]
+	[summon]
+		- ../src/file1.txt
+		- ../src/file2.txt
+		- ../src/file3.txt
+	
+	[scroll]
+		- exit 1
+
+[summoning ../build/cascade.txt]
+	[summon]
+		- ../build/concat.txt
+		- ../src/something
+	
+	[scroll]
+		- $> echo 'Cascade:' > ../build/cascade.txt
+		- $> cat ${this.summoned}[enum] >> ../build/cascade.txt
+
