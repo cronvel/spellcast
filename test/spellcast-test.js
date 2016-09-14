@@ -882,7 +882,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		.exec( done ) ;
 	} ) ;
 	
-	it.next( "cascading failing dependencies should abort current cast/summon" , function( done ) {
+	it( "cascading failing dependencies should abort current cast/summon" , function( done ) {
 		
 		var book , extOutputs = [] , summons = [] ;
 		
@@ -915,7 +915,7 @@ describe( "Basic spellcaster tags and features" , function() {
 						
 						doormen.equals( summons , [
 							[ '../build/concat.txt' , 'error' , { code: 'nonZeroExit' } ] ,
-							[ '../build/cascade.txt' , 'error' , { code: 'nonZeroExit' } ]
+							[ '../build/cascade.txt' , 'error' , { code: 'dependencyFailed' } ]
 						] ) ;
 						
 						doormen.shouldThrow( () => fs.accessSync( __dirname + '/build/cascade.txt' ) ) ;
