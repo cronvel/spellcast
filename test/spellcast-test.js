@@ -25,7 +25,7 @@
 */
 
 /* jshint unused:false */
-/* global describe, it, before, after */
+/* global describe, it, before, after, beforeEach */
 
 
 var fs = require( 'fs' ) ;
@@ -73,12 +73,12 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 	book.initBook( function( error ) {
 		
 		//console.log( 'init done' ) ;
-		if ( error ) { callback( error ) ; return ; }
+		if ( error ) { triggerCallback( error ) ; return ; }
 		
 		book.assignRoles( function( error ) {
 			
 			//console.log( 'assignRoles done' ) ;
-			if ( error ) { callback( error ) ; return ; }
+			if ( error ) { triggerCallback( error ) ; return ; }
 			
 			switch ( action.type )
 			{
@@ -93,7 +93,7 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 		} ) ;
 		
 		book.addClient( Client.create( { name: 'default' } ) ) ;
-		ui = UnitUI( book.clients[ 0 ] ) ;
+		ui = UnitUI( book.clients[ 0 ] ) ;	// jshint ignore:line
 		ui.id = uiId ++ ;
 		
 		if ( uiCallback ) { uiCallback( ui ) ; }
@@ -149,7 +149,7 @@ describe( "I/O tags" , function() {
 				} ) ;
 				ui.bus.on( 'textInput' , function( label ) {
 					doormen.equals( label , 'Enter your name: ' ) ;
-					book.roles[ 0 ].emit( 'textSubmit' , 'Jack Wallace' )
+					book.roles[ 0 ].emit( 'textSubmit' , 'Jack Wallace' ) ;
 				} ) ;
 			} ,
 			function() {
@@ -455,7 +455,7 @@ describe( "Basic spellcaster tags and features" , function() {
 	
 	it( "regex summoning" , function( done ) {
 		
-		var extOutputs = [] , summons = [] ;
+		var book , extOutputs = [] , summons = [] ;
 		
 		async.series( [
 			function( seriesCallback ) {
@@ -511,7 +511,7 @@ describe( "Basic spellcaster tags and features" , function() {
 				} ) ;
 			} ,
 		] )
-		.exec( done )
+		.exec( done ) ;
 	} ) ;
 	
 	it( "fake summoning" , function( done ) {
@@ -578,7 +578,49 @@ describe( "Basic spellcaster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "Reverse summoning" ) ;
+	it( "reverse-summoning, summon everything" , function( done ) {
+		
+		var extOutputs = [] , casts = [] , summons = [] ;
+		
+		runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'cast' , target: 'gzip' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				ui.bus.on( 'cast' , function() {
+					log.error( "'cast' event: %I" , Array.from( arguments ) ) ;
+					casts.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				ui.bus.on( 'summon' , function() {
+					log.error( "'summon' event: %I" , Array.from( arguments ) ) ;
+					summons.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				log.error( "CB: %I" , Array.from( arguments ) ) ;
+				
+				doormen.equals( extOutputs , [] ) ;
+				
+				doormen.equals( casts , [
+					[ 'gzip' , 'ok' ]
+				] ) ;
+				
+				/*
+				doormen.equals(
+					fs.readFileSync( __dirname + '/build/summoning.txt' , 'utf8' ) ,
+					"This is a dummy static dependency file.\n"
+				) ;
+				*/
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "Dependencies" ) ;
 } ) ;
 

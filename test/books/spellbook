@@ -17,22 +17,5 @@
 
 
 
-# Reverse summonings are tested after all summonings have been tried.
-# The label of the [reverse-summoning] tag is used to summon everything.
-[reverse-summoning md2html]
-	
-	# Need globs, check all files matching the glob, target * use string matching the source *
-	# If there are less * on the target, source * are used FROM THE LAST TO THE FIRST
-	[mapping]
-		../../*.md: build/*.html
-		../../doc/*.md: build/doc-*.html
-	
-	[summon]
-		- $> ${this.source}
-	
-	[chant]
-		# fake command
-		- $> md2html -o ${this.summoning} ${this.source}
-
 
 
