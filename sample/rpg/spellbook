@@ -58,22 +58,22 @@
 		[set $this.enemyScore] $= $this.enemy.stats.melee + ( 2 D 6 )
 		
 		[if $this.heroScore >= $this.enemyScore]
-			[message] $> ${this.hero.label//uc1} take the initiative.
+			[message] $> ${this.hero.label//uc1} takes the initiative.
 			[set $this.heroTurn] true
 			[goto hero-turn]
 		[else]
-			[message] $> ${this.enemy.label//uc1} take the initiative.
+			[message] $> ${this.enemy.label//uc1} takes the initiative.
 			[set $this.heroTurn] false
 			[goto enemy-turn]
 		
 		[goto new-turn]
 		
-	
-	
 	[scene new-turn]
 		[if $this.heroTurn]
+			[set $this.heroTurn] false
 			[goto hero-turn]
 		[else]
+			[set $this.heroTurn] true
 			[goto enemy-turn]
 	
 	[scene end-turn]
@@ -95,8 +95,38 @@
 		[next hero-charge-melee]
 			[label] Charge!
 	
+	[scene hero-melee]
+		
+		[message] hero-melee debug
+		[debug] $this.hero
+		[subscene melee]
+			[args]
+				attacker: $this.hero
+				defender: $this.enemy
+		[goto end-turn]
 	
+	[scene enemy-turn]
+		[subscene melee]
+			[args]
+				attacker: $this.enemy
+				defender: $this.hero
+		[goto end-turn]
+	
+	[scene win]
+		[message] $> ${this.hero.label//uc1} win the battle.
+		[set $this.hero.status.xp] $= $this.hero.status.xp + $this.enemy.stats.xpReward
+		[message] $> You gain ${this.enemy.stats.xpReward} xp (=${this.hero.status.xp}).
+	
+	[scene lose]
+		[message] $> ${this.hero.label//uc1} died on the battlefield.
+		[lost]
+
 	[scene melee]
+		[message] melee debug
+		[debug] $this.hero
+		[message] Args
+		[debug] $args
+		
 		[set $this.attackScore] $= $args.attacker.stats.melee + ( 2 D 6 )
 		[set $this.defenseScore] $= $args.defender.stats.melee + ( 2 D 6 )
 		
@@ -110,35 +140,7 @@
 		[else]
 			[message] $> ${args.attacker.label//uc1} miss ${args.defender.label}.
 	
-	
-	[scene hero-melee]
-		[subscene melee]
-			[args]
-				attacker: $this.hero
-				defender: $this.enemy
-		[goto end-turn]
-	
-	
-	[scene hero-melee_old]
-		[set $this.attackScore] $= $this.hero.stats.melee + ( 2 D 6 )
-		[set $this.defenseScore] $= $this.enemy.stats.melee + ( 2 D 6 )
-		
-		#[message] $> ${this.attackScore} vs ${this.defenseScore}
-		
-		[if $this.attackScore > $this.defenseScore]
-			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
-			[set $this.damages] $= $this.hero.stats.damageBase + ( $this.hero.stats.damageDice D $this.hero.stats.damageFaces )
-			[message] $> ^y${this.hero.label//uc1} hit ${this.enemy.label} for ${this.damages} hp.
-			[set $this.enemy.status.hp] $= $this.enemy.status.hp - $this.damages
-			[if $this.enemy.status.hp <= 0]
-				[message] $> ${this.enemy.label//uc1} is dead.
-				[goto win]
-		[else]
-			[message] $> ${this.hero.label//uc1} miss ${this.enemy.label}.
-		
-		[goto enemy-turn]
-	
-	[scene hero-charge-melee]
+	[scene charge]
 		[set $this.heroSkip] 1
 		[set $this.attackScore] $= ( $this.hero.stats.melee + 2 ) + ( 2 D 6 )
 		[set $this.defenseScore] $= $this.enemy.stats.melee + ( 2 D 6 )
@@ -156,30 +158,3 @@
 		
 		[goto enemy-turn]
 	
-	[scene enemy-turn]
-		[set $this.attackScore] $= $this.enemy.stats.melee + ( 2 D 6 )
-		[set $this.defenseScore] $= $this.hero.stats.melee + ( 2 D 6 )
-		
-		#[message] $> ${this.attackScore} vs ${this.defenseScore}
-		
-		[if $this.attackScore > $this.defenseScore]
-			[set $this.damages] $= $this.enemy.stats.damageBase + ( $this.enemy.stats.damageDice D $this.enemy.stats.damageFaces )
-			[message] $> ^R${this.enemy.label//uc1} hit ${this.hero.label} for ${this.damages} hp.
-			[set $this.hero.status.hp] $= $this.hero.status.hp - $this.damages
-			[if $this.hero.status.hp <= 0]
-				[message] $> ${this.hero.label//uc1} is dead.
-				[goto lose]
-		[else]
-			[message] $> ${this.enemy.label//uc1} miss ${this.hero.label}.
-			
-		[goto hero-turn]
-		
-	[scene win]
-		[message] $> ${this.hero.label//uc1} win the battle.
-		[set $this.hero.status.xp] $= $this.hero.status.xp + $this.enemy.stats.xpReward
-		[message] $> You gain ${this.enemy.stats.xpReward} xp (=${this.hero.status.xp}).
-	
-	[scene lose]
-		[message] $> ${this.hero.label//uc1} died on the battlefield.
-		[lost]
-
