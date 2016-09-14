@@ -931,6 +931,13 @@ describe( "Basic spellcaster tags and features" , function() {
 
 
 
+describe( "Basic adventure tags and features" , function() {
+	it( "Special data 'this' stack" ) ;
+	it( "Special data 'args' stack" ) ;
+} ) ;
+
+
+
 describe( "API" , function() {
 	
 	it( "Event [on]/[once]/[emit] tags" , function( done ) {

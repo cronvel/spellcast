@@ -38,7 +38,7 @@
 [chapter intro]
 	[scene intro]
 		[subscene battle/init]
-			[this]
+			[args]
 				foes:
 					- guardian
 
@@ -48,8 +48,9 @@
 	[scene init]
 		#[message] $> Hello ${roles.hero.entity.label}
 		[set $this.hero] $roles.hero.entity
+		[set $this.heroTurn] true
 		[set $this.heroSkip] 0
-		[create-entity $this.enemy] $this.foes[0]
+		[create-entity $this.enemy] $args.foes[0]
 		[next initiative]
 	
 	[scene initiative]
@@ -58,11 +59,31 @@
 		
 		[if $this.heroScore >= $this.enemyScore]
 			[message] $> ${this.hero.label//uc1} take the initiative.
+			[set $this.heroTurn] true
 			[goto hero-turn]
 		[else]
 			[message] $> ${this.enemy.label//uc1} take the initiative.
+			[set $this.heroTurn] false
 			[goto enemy-turn]
 		
+		[goto new-turn]
+		
+	
+	
+	[scene new-turn]
+		[if $this.heroTurn]
+			[goto hero-turn]
+		[else]
+			[goto enemy-turn]
+	
+	[scene end-turn]
+		[if $this.hero.status.hp <= 0]
+			[goto lose]
+		[elseif $this.enemy.status.hp <= 0]
+			[goto win]
+		[goto new-turn]
+	
+	
 	[scene hero-turn]
 		[if $this.heroSkip > 0]
 			[set $this.heroSkip] $= $this.heroSkip - 1
@@ -74,7 +95,31 @@
 		[next hero-charge-melee]
 			[label] Charge!
 	
+	
+	[scene melee]
+		[set $this.attackScore] $= $args.attacker.stats.melee + ( 2 D 6 )
+		[set $this.defenseScore] $= $args.defender.stats.melee + ( 2 D 6 )
+		
+		[if $this.attackScore > $this.defenseScore]
+			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
+			[set $this.damages] $= $args.attacker.stats.damageBase + ( $args.attacker.stats.damageDice D $args.attacker.stats.damageFaces )
+			[message] $> ^y${args.attacker.label//uc1} hit ${args.defender.label} for ${this.damages} hp.
+			[set $args.defender.status.hp] $= $args.defender.status.hp - $this.damages
+			[if $args.defender.status.hp <= 0]
+				[message] $> ${args.defender.label//uc1} is dead.
+		[else]
+			[message] $> ${args.attacker.label//uc1} miss ${args.defender.label}.
+	
+	
 	[scene hero-melee]
+		[subscene melee]
+			[args]
+				attacker: $this.hero
+				defender: $this.enemy
+		[goto end-turn]
+	
+	
+	[scene hero-melee_old]
 		[set $this.attackScore] $= $this.hero.stats.melee + ( 2 D 6 )
 		[set $this.defenseScore] $= $this.enemy.stats.melee + ( 2 D 6 )
 		
