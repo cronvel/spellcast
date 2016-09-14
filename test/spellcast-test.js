@@ -731,29 +731,57 @@ describe( "Embedded Javascript code" , function() {
 
 describe( "Historical bugs" , function() {
 	
-	it.next( "should be able to load the same book twice" , function( done ) {
+	it( "should be able to load the same book twice" , function( done ) {
 		
-		var messages = [] ;
-		
-		runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				doormen.equals( messages , [
-					[ 'Some text.' , null ] ,
-					[ 'Some other text.' , null ] ,
-					[ 'Welcome to The Shadow Terminal.' , {
-						next: true ,
-						slowTyping: true
-					} ]
-				] ) ;
+		async.series( [
+			function( seriesCallback ) {
+				var messages = [] ;
 				
-				done() ;
-			}
-		) ;
+				runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
+					function( ui ) {
+						ui.bus.on( 'message' , function() {
+							messages.push( Array.from( arguments ) ) ;
+						} ) ;
+					} ,
+					function() {
+						doormen.equals( messages , [
+							[ 'Some text.' , null ] ,
+							[ 'Some other text.' , null ] ,
+							[ 'Welcome to The Shadow Terminal.' , {
+								next: true ,
+								slowTyping: true
+							} ]
+						] ) ;
+						
+						seriesCallback() ;
+					}
+				) ;
+			} ,
+			function( seriesCallback ) {
+				var messages = [] ;
+				
+				runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
+					function( ui ) {
+						ui.bus.on( 'message' , function() {
+							messages.push( Array.from( arguments ) ) ;
+						} ) ;
+					} ,
+					function() {
+						doormen.equals( messages , [
+							[ 'Some text.' , null ] ,
+							[ 'Some other text.' , null ] ,
+							[ 'Welcome to The Shadow Terminal.' , {
+								next: true ,
+								slowTyping: true
+							} ]
+						] ) ;
+						
+						seriesCallback() ;
+					}
+				) ;
+			} ,
+		] )
+		.exec( done ) ;
 	} ) ;
 } ) ;
 
