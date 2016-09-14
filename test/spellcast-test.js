@@ -582,7 +582,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		
 		var extOutputs = [] , casts = [] , summons = [] ;
 		
-		runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'cast' , target: 'gzip' } ,
+		runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'cast' , target: 'reverse' } ,
 			function( ui ) {
 				//console.log( 'UI ready' ) ;
 				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -591,31 +591,46 @@ describe( "Basic spellcaster tags and features" , function() {
 					extOutputs.push( Array.from( arguments ) ) ;
 				} ) ;
 				
+				/*
 				ui.bus.on( 'cast' , function() {
-					log.error( "'cast' event: %I" , Array.from( arguments ) ) ;
 					casts.push( Array.from( arguments ) ) ;
 				} ) ;
+				*/
 				
 				ui.bus.on( 'summon' , function() {
-					log.error( "'summon' event: %I" , Array.from( arguments ) ) ;
 					summons.push( Array.from( arguments ) ) ;
 				} ) ;
 			} ,
 			function() {
-				log.error( "CB: %I" , Array.from( arguments ) ) ;
-				
 				doormen.equals( extOutputs , [] ) ;
 				
+				/*
 				doormen.equals( casts , [
 					[ 'gzip' , 'ok' ]
 				] ) ;
-				
-				/*
-				doormen.equals(
-					fs.readFileSync( __dirname + '/build/summoning.txt' , 'utf8' ) ,
-					"This is a dummy static dependency file.\n"
-				) ;
 				*/
+				
+				doormen.equals( summons , [
+					[ '../build/file1.rev' , 'ok' ] ,
+					[ '../build/file2.rev' , 'ok' ] ,
+					[ '../build/file3.rev' , 'ok' ]
+				] ) ;
+				
+				doormen.equals(
+					fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ,
+					"...txet modnar emoS\n"
+				) ;
+				
+				doormen.equals(
+					fs.readFileSync( __dirname + '/build/file2.rev' , 'utf8' ) ,
+					"...txet modnar emoS\n"
+				) ;
+				
+				doormen.equals(
+					fs.readFileSync( __dirname + '/build/file3.rev' , 'utf8' ) ,
+					"...txet modnar emoS\n"
+				) ;
+				
 				done() ;
 			}
 		) ;

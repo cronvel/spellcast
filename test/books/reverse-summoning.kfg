@@ -3,17 +3,16 @@
 
 # Reverse summonings are tested after all summonings have been tried.
 # The label of the [reverse-summoning] tag is used as a spell name to summon everything.
-[reverse-summoning gzip]
+[reverse-summoning reverse]
 	
 	# Need globs, check all files matching the glob, target * use string matching the source *
 	# If there are less * on the target, source * are used FROM THE LAST TO THE FIRST
 	[mapping]
-		*.kfg: ../build/*.gz
+		../src/*.txt: ../build/*.rev
 	
 	[summon]
 		- $> ${this.source}
 	
 	[scroll]
-		- $> echo bob
-		- $> gzip -c ${this.source} > ${this.summoning}
+		- $> rev ${this.source} > ${this.summoning}
 
