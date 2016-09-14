@@ -15,11 +15,13 @@
 		melee: 16
 	status:
 		hp: 20
+		xp: 0
 
 [entity-model guardian]
 	class: character
 	label: the guardian
 	stats:
+		xpReward: 10
 		damageBase: 2
 		damageDice: 1
 		damageFaces: 4
@@ -46,19 +48,42 @@
 	[scene init]
 		#[message] $> Hello ${roles.hero.entity.label}
 		[set $this.hero] $roles.hero.entity
+		[set $this.heroSkip] 0
 		[create-entity $this.enemy] $this.foes[0]
-		[next hero-turn]
+		[next initiative]
 	
+	[scene initiative]
+		[set $this.heroScore] $= $this.hero.stats.melee + ( 2 D 6 )
+		[set $this.enemyScore] $= $this.enemy.stats.melee + ( 2 D 6 )
+		
+		[if $this.heroScore >= $this.enemyScore]
+			[message] $> ${this.hero.label//uc1} take the initiative.
+			[goto hero-turn]
+		[else]
+			[message] $> ${this.enemy.label//uc1} take the initiative.
+			[goto enemy-turn]
+		
 	[scene hero-turn]
+		[if $this.heroSkip > 0]
+			[set $this.heroSkip] $= $this.heroSkip - 1
+			[goto enemy-turn]
+		
+		[next hero-melee]
+			[label] Melee attack.
+	
+		[next hero-charge-melee]
+			[label] Charge!
+	
+	[scene hero-melee]
 		[set $this.attackScore] $= $this.hero.stats.melee + ( 2 D 6 )
 		[set $this.defenseScore] $= $this.enemy.stats.melee + ( 2 D 6 )
 		
-		[message] $> ${this.attackScore} vs ${this.defenseScore}
+		#[message] $> ${this.attackScore} vs ${this.defenseScore}
 		
 		[if $this.attackScore > $this.defenseScore]
 			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
 			[set $this.damages] $= $this.hero.stats.damageBase + ( $this.hero.stats.damageDice D $this.hero.stats.damageFaces )
-			[message] $> ${this.hero.label//uc1} hit ${this.enemy.label} for ${this.damages} hp.
+			[message] $> ^y${this.hero.label//uc1} hit ${this.enemy.label} for ${this.damages} hp.
 			[set $this.enemy.status.hp] $= $this.enemy.status.hp - $this.damages
 			[if $this.enemy.status.hp <= 0]
 				[message] $> ${this.enemy.label//uc1} is dead.
@@ -66,17 +91,35 @@
 		[else]
 			[message] $> ${this.hero.label//uc1} miss ${this.enemy.label}.
 		
-		[next enemy-turn]
+		[goto enemy-turn]
+	
+	[scene hero-charge-melee]
+		[set $this.heroSkip] 1
+		[set $this.attackScore] $= ( $this.hero.stats.melee + 2 ) + ( 2 D 6 )
+		[set $this.defenseScore] $= $this.enemy.stats.melee + ( 2 D 6 )
+		
+		[if $this.attackScore > $this.defenseScore]
+			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
+			[set $this.damages] $= ( $this.hero.stats.damageBase + 2 ) + ( ( $this.hero.stats.damageDice + 1 ) D $this.hero.stats.damageFaces )
+			[message] $> ^y${this.hero.label//uc1} hit ${this.enemy.label} for ${this.damages} hp.
+			[set $this.enemy.status.hp] $= $this.enemy.status.hp - $this.damages
+			[if $this.enemy.status.hp <= 0]
+				[message] $> ${this.enemy.label//uc1} is dead.
+				[goto win]
+		[else]
+			[message] $> ${this.hero.label//uc1} miss ${this.enemy.label}.
+		
+		[goto enemy-turn]
 	
 	[scene enemy-turn]
 		[set $this.attackScore] $= $this.enemy.stats.melee + ( 2 D 6 )
 		[set $this.defenseScore] $= $this.hero.stats.melee + ( 2 D 6 )
 		
-		[message] $> ${this.attackScore} vs ${this.defenseScore}
+		#[message] $> ${this.attackScore} vs ${this.defenseScore}
 		
 		[if $this.attackScore > $this.defenseScore]
 			[set $this.damages] $= $this.enemy.stats.damageBase + ( $this.enemy.stats.damageDice D $this.enemy.stats.damageFaces )
-			[message] $> ${this.enemy.label//uc1} hit ${this.hero.label} for ${this.damages} hp.
+			[message] $> ^R${this.enemy.label//uc1} hit ${this.hero.label} for ${this.damages} hp.
 			[set $this.hero.status.hp] $= $this.hero.status.hp - $this.damages
 			[if $this.hero.status.hp <= 0]
 				[message] $> ${this.hero.label//uc1} is dead.
@@ -84,10 +127,12 @@
 		[else]
 			[message] $> ${this.enemy.label//uc1} miss ${this.hero.label}.
 			
-		[next hero-turn]
+		[goto hero-turn]
 		
 	[scene win]
 		[message] $> ${this.hero.label//uc1} win the battle.
+		[set $this.hero.status.xp] $= $this.hero.status.xp + $this.enemy.stats.xpReward
+		[message] $> You gain ${this.enemy.stats.xpReward} xp (=${this.hero.status.xp}).
 	
 	[scene lose]
 		[message] $> ${this.hero.label//uc1} died on the battlefield.
