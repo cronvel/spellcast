@@ -88,6 +88,9 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 				case 'summon' :
 					book.summon( action.target , triggerCallback ) ;
 					break ;
+				case 'adventure' :
+					book.startAdventure( triggerCallback ) ;
+					break ;
 			}
 			
 		} ) ;
@@ -161,6 +164,9 @@ describe( "I/O tags" , function() {
 			}
 		) ;
 	} ) ;
+	
+	it( "[fortune] tag" ) ;
+	it( "[sound] tag" ) ;
 } ) ;
 
 
@@ -290,6 +296,11 @@ describe( "Core tags" , function() {
 			}
 		) ;
 	} ) ;
+	
+	it( "[clone] tag" ) ;
+	it( "[concat] tag" ) ;
+	it( "[append] tag" ) ;
+	it( "[pause] tag" ) ;
 } ) ;
 
 
@@ -385,7 +396,9 @@ describe( "Basic spellcaster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "regular summoning" , function( done ) {
+	it( "[spell] tag" ) ;
+	
+	it( "[summoning] tag: regular summoning" , function( done ) {
 		
 		var extOutputs = [] , summons = [] ;
 		
@@ -419,7 +432,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "glob summoning" , function( done ) {
+	it( "[summoning] tag: glob summoning" , function( done ) {
 		
 		var extOutputs = [] , summons = [] ;
 		
@@ -453,7 +466,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "regex summoning" , function( done ) {
+	it( "[summoning] tag: regex summoning" , function( done ) {
 		
 		var book , extOutputs = [] , summons = [] ;
 		
@@ -514,7 +527,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		.exec( done ) ;
 	} ) ;
 	
-	it( "fake summoning" , function( done ) {
+	it( "[summoning] tag: fake summoning" , function( done ) {
 		
 		var extOutputs = [] , summons = [] ;
 		
@@ -547,7 +560,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "failed summoning" , function( done ) {
+	it( "[summoning] tag: failed summoning" , function( done ) {
 		
 		var extOutputs = [] , summons = [] ;
 		
@@ -578,7 +591,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "reverse-summoning, summon everything" , function( done ) {
+	it( "[reverse-summoning] tag: summon everything" , function( done ) {
 		
 		var extOutputs = [] , casts = [] , summons = [] ;
 		
@@ -636,7 +649,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "reverse-summoning, summon one" , function( done ) {
+	it( "[reverse-summoning] tag: summon one" , function( done ) {
 		
 		var extOutputs = [] , summons = [] ;
 		
@@ -670,7 +683,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "direct static dependencies" , function( done ) {
+	it( "[summon] tag: direct static dependencies" , function( done ) {
 		
 		var book , extOutputs = [] , summons = [] ;
 		
@@ -761,7 +774,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		.exec( done ) ;
 	} ) ;
 	
-	it( "cascading dependencies" , function( done ) {
+	it( "[summon] tag: cascading dependencies" , function( done ) {
 		
 		var book , extOutputs = [] , summons = [] ;
 		
@@ -882,7 +895,7 @@ describe( "Basic spellcaster tags and features" , function() {
 		.exec( done ) ;
 	} ) ;
 	
-	it( "cascading failing dependencies should abort current cast/summon" , function( done ) {
+	it( "[summon] tag: cascading failing dependencies should abort current cast/summon" , function( done ) {
 		
 		var book , extOutputs = [] , summons = [] ;
 		
@@ -927,13 +940,94 @@ describe( "Basic spellcaster tags and features" , function() {
 		] )
 		.exec( done ) ;
 	} ) ;
+	
+	it( "[cast] tag" ) ;
+	it( "[formula] tag" ) ;
+	it( "[prologue] tag" ) ;
+	it( "[epilogue] tag" ) ;
+	it( "[glob] tag" ) ;
 } ) ;
 
 
 
-describe( "Basic adventure tags and features" , function() {
-	it( "Special data 'this' stack" ) ;
+describe( "Basic adventurer tags and features" , function() {
+	
+	it.skip( "Basic adventurer book, with [chapter], [scene] and [next] tags" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'adventure' } ,
+			function( ui ) {
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[end]/[win]/[lose]/[draw] tags" ) ;
+	it( "[subscene] tag" ) ;
+	it( "[goto] tag" ) ;
+	it( "[include] tag" ) ;
+	it( "[action] tag" ) ;
+	
+	it.skip( "Special data 'this' stack" , function( done ) {
+		
+		var extOutputs = [] , summons = [] ;
+		
+		runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'summon' , target: '../build/file1.rev' } ,
+			function( ui ) {
+				//console.log( 'UI ready' ) ;
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'extOutput' , function() {
+					extOutputs.push( Array.from( arguments ) ) ;
+				} ) ;
+				
+				ui.bus.on( 'summon' , function() {
+					summons.push( Array.from( arguments ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( extOutputs , [] ) ;
+				
+				doormen.equals( summons , [
+					[ '../build/file1.rev' , 'ok' ]
+				] ) ;
+				
+				doormen.equals(
+					fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ,
+					"...txet modnar emoS\n"
+				) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "Special data 'args' stack" ) ;
+} ) ;
+
+
+
+describe( "Multiplayer adventure tags and features" , function() {
+	it( "[role] tag" ) ;
+	it( "[split] tag" ) ;
+} ) ;
+
+
+
+describe( "RPG tags and features" , function() {
+	it( "[entity-model] and [create-entity] tags" ) ;
+	it( "[item-model] and [create-item] tags" ) ;
 } ) ;
 
 
@@ -963,13 +1057,14 @@ describe( "API" , function() {
 	} ) ;
 	
 	it( "Global listeners [on-global]/[once-global] tags" ) ;
+	it( "[emit] tag" ) ;
 } ) ;
 
 
 
 describe( "Wands/extensions" , function() {
 	
-	it( "[wand] tag" , function( done ) {
+	it( "[wand] and [zap] tags" , function( done ) {
 		
 		var messages = [] ;
 		
@@ -1022,6 +1117,20 @@ describe( "Embedded Javascript code" , function() {
 	} ) ;
 	
 	it( "Security tests" ) ;
+} ) ;
+
+
+
+describe( "Misc tags" , function() {
+	it( "[debug] tag" ) ;
+} ) ;
+	
+
+
+describe( "Spellcast exe features" , function() {
+	it( "summon a makefile (--summon-makefile option)" ) ;
+	it( "watch mode (--undead option)" ) ;
+	it( "force building even if up to date (--again option)" ) ;
 } ) ;
 
 

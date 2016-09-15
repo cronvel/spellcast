@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.15.7",
+  "version": "0.16.0",
   "description": "It's like 'make', but with a touch of Wizardry.",
   "main": "lib/Book.js",
   "directories": {
@@ -24,7 +24,7 @@
     "nextgen-events": "^0.9.5",
     "semver": "^5.3.0",
     "string-kit": "^0.5.10",
-    "terminal-kit": "^0.24.26",
+    "terminal-kit": "^0.24.29",
     "tif-parser": "^0.3.3",
     "tree-kit": "^0.5.26",
     "ws": "^1.1.1"

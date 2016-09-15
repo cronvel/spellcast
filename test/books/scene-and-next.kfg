@@ -1,0 +1,10 @@
+
+[[doctype adventurer]]
+
+[chapter a-chapter]
+	[scene step1]
+		[message] Once upon a time...
+		[next end]
+
+	[scene end]
+		[end]
