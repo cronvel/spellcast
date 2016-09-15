@@ -89,10 +89,10 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 					book.summon( action.target , triggerCallback ) ;
 					break ;
 				case 'adventure' :
+					if ( action.path ) { followPath( book , ui , action.path , triggerCallback ) ; }
 					book.startAdventure( triggerCallback ) ;
 					break ;
 			}
-			
 		} ) ;
 		
 		book.addClient( Client.create( { name: 'default' } ) ) ;
@@ -106,6 +106,19 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 	} ) ;
 	
 	return book ;
+}
+
+
+
+function followPath( book , ui , path , callback )
+{
+	var pathIndex = 0 ;
+	
+	ui.bus.on( 'nextList' , function( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate ) {
+		if ( isUpdate ) { return ; }
+		//log.info( 'nextList: %I' , Array.from( arguments ) ) ;
+		ui.bus.emit( 'selectNext' , path[ pathIndex ++ ] ) ;
+	} ) ;
 }
 
 
@@ -200,9 +213,8 @@ describe( "Core tags" , function() {
 	
 	it( "[if], [elsif]/[elseif] and [else] tags" , function( done ) {
 		
-		var book , messages = [] ;
+		var book , messages ;
 				
-		
 		async.series( [
 			function( seriesCallback ) {
 				
@@ -952,28 +964,78 @@ describe( "Basic spellcaster tags and features" , function() {
 
 describe( "Basic adventurer tags and features" , function() {
 	
-	it.skip( "Basic adventurer book, with [chapter], [scene] and [next] tags" , function( done ) {
+	it( "Basic adventurer book, with [chapter], [scene] and [next] tags" , function( done ) {
 		
-		var messages = [] ;
+		var book , messages , ends ;
 		
-		runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'adventure' } ,
-			function( ui ) {
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
+		async.series( [
+			function( seriesCallback ) {
+				messages = [] ;
+				ends = [] ;
+						
+				runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'adventure' , path: [ 2 , 0 , 2 ] } ,
+					function( ui ) {
+						
+						ui.bus.on( 'message' , function() {
+							messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+						} ) ;
+						
+						ui.bus.on( 'end' , function() {
+							ends.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+						} ) ;
+					} ,
+					function() {
+						doormen.equals( messages , [
+							[ 'Once upon a time...' ],
+							[ 'There was a child...' ],
+							[ 'Who was constantly...' ],
+							[ 'Crying...' ]
+						] ) ;
+						
+						doormen.equals( ends , [
+							[ 'lost' ]
+						] ) ;
+						
+						seriesCallback() ;
+					}
+				) ;
 			} ,
-			function() {
-				doormen.equals( messages , [
-					[]
-				] ) ;
-				
-				done() ;
-			}
-		) ;
+			function( seriesCallback ) {
+				messages = [] ;
+				ends = [] ;
+						
+				runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'adventure' , path: [ 1 , 0 , 0 ] } ,
+					function( ui ) {
+						
+						ui.bus.on( 'message' , function() {
+							messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+						} ) ;
+						
+						ui.bus.on( 'end' , function() {
+							ends.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+						} ) ;
+					} ,
+					function() {
+						doormen.equals( messages , [
+							[ 'Once upon a time...' ],
+							[ 'There was a woman...' ],
+							[ 'Who was constantly...' ],
+							[ 'Fencing...' ]
+						] ) ;
+						
+						doormen.equals( ends , [
+							[ 'win' ]
+						] ) ;
+						
+						seriesCallback() ;
+					}
+				) ;
+			} ,
+		] )
+		.exec( done ) ;
 	} ) ;
 	
-	it( "[end]/[win]/[lose]/[draw] tags" ) ;
+	it( "[end]/[win]/[lost]/[draw] tags" ) ;
 	it( "[subscene] tag" ) ;
 	it( "[goto] tag" ) ;
 	it( "[include] tag" ) ;
