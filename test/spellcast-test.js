@@ -966,7 +966,7 @@ describe( "Basic adventurer tags and features" , function() {
 	
 	it( "Basic adventurer book, with [chapter], [scene] and [next] tags" , function( done ) {
 		
-		var book , messages , ends ;
+		var messages , ends ;
 		
 		async.series( [
 			function( seriesCallback ) {
@@ -1041,41 +1041,29 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "[include] tag" ) ;
 	it( "[action] tag" ) ;
 	
-	it.skip( "Special data 'this' stack" , function( done ) {
+	it.next( "Special data 'args' stack" , function( done ) {
 		
-		var extOutputs = [] , summons = [] ;
+		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'summon' , target: '../build/file1.rev' } ,
+		runBook( __dirname + '/books/args-stack.kfg' , { type: 'adventure' } ,
 			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-				
-				ui.bus.on( 'summon' , function() {
-					summons.push( Array.from( arguments ) ) ;
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( extOutputs , [] ) ;
-				
-				doormen.equals( summons , [
-					[ '../build/file1.rev' , 'ok' ]
+				doormen.equals( messages , [
+					[ 'sub args before: 1 2' ] ,
+					[ 'subsub args.a: 5 7' ] ,
+					[ 'sub args after: 1 2' ]
 				] ) ;
-				
-				doormen.equals(
-					fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ,
-					"...txet modnar emoS\n"
-				) ;
 				
 				done() ;
 			}
 		) ;
 	} ) ;
 	
-	it( "Special data 'args' stack" ) ;
+	it( "Special data 'this' stack" ) ;
 } ) ;
 
 
