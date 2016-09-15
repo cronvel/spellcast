@@ -1,0 +1,20 @@
+
+[[doctype adventurer]]
+
+[chapter a-chapter]
+	[scene init]
+		[subscene sub]
+			[args]
+				a: 1
+				b: 2
+	
+	[scene sub]
+		[message] $> sub args before: ${args.a} ${args.b}
+		[subscene subsub]
+			[args]
+				a: 5
+				b: 7
+		[message] $> sub args after: ${args.a} ${args.b}
+	
+	[scene subsub]
+		[message] $> subsub args.a: ${args.a} ${args.b}
