@@ -40,7 +40,7 @@
 			[subscene alice]
 				[roles]
 					- alice
-				[subscene bob]
+			[subscene bob]
 				[roles]
 					- bob
 		
@@ -53,7 +53,7 @@
 			url: ../sample/open.wav
 		
 		[message]
-			$> Alice like ^/${aliceLike}.
+			$> Alice likes ^/${aliceLike}.
 		
 		[next a]
 			[label] A

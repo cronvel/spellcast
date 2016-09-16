@@ -93,11 +93,11 @@
   special trigger conditions. Codes:
 	* auto: next was triggered automatically (e.g. by an [auto] tag timeout)
 
-* split: roles/players are splitted in 2 or more groups
-* rejoin: roles/players are joined again after they have been splitted (see the `split` event)
+* split: roles/players are split in 2 or more groups
+* rejoin: roles/players are joined again after they have been split (see the `split` event)
 
 * wait (what): currently waiting for something to happen, `what` is the code (`string`), where:
-	* otherBranches: roles were splitted into multiple branches, and the client must wait for other branches to finish,
+	* otherBranches: roles were split into multiple branches, and the client must wait for other branches to finish,
 	  roles are done waiting once the 'join' event is received.
 
 * image (data): instruct the client (if it is capable) to set an image as the scene image. Argument `data` is an object, where:

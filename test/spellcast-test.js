@@ -117,7 +117,9 @@ function followPath( book , ui , path , callback )
 	ui.bus.on( 'nextList' , function( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate ) {
 		if ( isUpdate ) { return ; }
 		//log.info( 'nextList: %I' , Array.from( arguments ) ) ;
-		ui.bus.emit( 'selectNext' , path[ pathIndex ++ ] ) ;
+		
+		// Avoid concurrency issues:
+		setTimeout( () => ui.bus.emit( 'selectNext' , path[ pathIndex ++ ] ) , 0 ) ;
 	} ) ;
 }
 
