@@ -9,10 +9,8 @@
 	class: character
 	label: the hero
 	stats:
-		damageBase: 0
-		damageDice: 1
-		damageFaces: 4
-		melee: 16
+		fighting: 16
+		strength: 12
 	status:
 		hp: 20
 		xp: 0
@@ -22,10 +20,8 @@
 	label: the guardian
 	stats:
 		xpReward: 10
-		damageBase: 2
-		damageDice: 1
-		damageFaces: 4
-		melee: 14
+		fighting: 14
+		strength: 16
 	status:
 		hp: 20
 
@@ -36,38 +32,74 @@
 
 
 [chapter intro]
-	[scene intro]
+	[scene first-encounter]
+		[message]
+			$> You are walking alongside a dangerous cliff.
+			$> Suddenly, big and tough guy appears.
+			$> He does not say much except grumbling something like “I'm the guardian” and start rushing you with a giant club.
+		
+		[template $local.deadlyPushFlavour]
+			$> ^R${args.attacker.label//uc1} pushes ${args.defender.label} and ${args.defender.label} falls off the cliff!
+		
 		[subscene battle/init]
 			[args]
 				foes:
 					- guardian
+				deadlyPush:
+					bonus: 0
+					flavour: $local.deadlyPushFlavour
+		
+		[next second-encounter]
+
+	[scene second-encounter]
+		[message]
+			$> You are moving slowly on a wooden beam, over a chasm.
+			$> You find it really difficult to walk without falling, yet, another guardian appears at the other end of the beam.
+			$> Instead of waiting for you, he starts walking on the beam toward you.
+			$> He swings the air with its giant club as he taunt you, inviting you to go ahead fighting him.
+		
+		[template $local.deadlyPushFlavour]
+			$> ^RAs ${args.attacker.label} charges, ${args.defender.label} slips from the wooden beam!
+			$> ${args.defender.label//uc1} falls into the chasm!
+		
+		[subscene battle/init]
+			[args]
+				foes:
+					- guardian
+				deadlyPush:
+					bonus: 6
+					flavour: $local.deadlyPushFlavour
 
 
 
 [chapter battle]
+	
 	[scene init]
 		#[message] $> Hello ${roles.hero.entity.label}
 		[set $this.hero] $roles.hero.entity
-		[set $this.heroTurn] true
-		[set $this.heroSkip] 0
 		[create-entity $this.enemy] $args.foes[0]
+		[set $this.hero.status.cooldown] 0
+		[set $this.enemy.status.cooldown] 0
+		[set $this.deadlyPush] $args.deadlyPush
 		[next initiative]
 	
+	
+	
 	[scene initiative]
-		[set $this.heroScore] $= $this.hero.stats.melee + ( 2 D 6 )
-		[set $this.enemyScore] $= $this.enemy.stats.melee + ( 2 D 6 )
+		[set $this.heroScore] $= $this.hero.stats.fighting + ( 2 D 8 )
+		[set $this.enemyScore] $= $this.enemy.stats.fighting + ( 2 D 8 )
 		
 		[if $this.heroScore >= $this.enemyScore]
 			[message] $> ${this.hero.label//uc1} takes the initiative.
 			[set $this.heroTurn] true
-			[goto hero-turn]
 		[else]
 			[message] $> ${this.enemy.label//uc1} takes the initiative.
 			[set $this.heroTurn] false
-			[goto enemy-turn]
 		
 		[goto new-turn]
 		
+	
+	
 	[scene new-turn]
 		[if $this.heroTurn]
 			[set $this.heroTurn] false
@@ -76,34 +108,47 @@
 			[set $this.heroTurn] true
 			[goto enemy-turn]
 	
+	
+	
 	[scene end-turn]
 		[if $this.hero.status.hp <= 0]
-			[goto lose]
+			[goto lost]
 		[elseif $this.enemy.status.hp <= 0]
 			[goto win]
 		[goto new-turn]
 	
 	
+	
 	[scene hero-turn]
-		[if $this.heroSkip > 0]
-			[set $this.heroSkip] $= $this.heroSkip - 1
-			[goto enemy-turn]
+		[if $this.hero.status.cooldown > 0]
+			[set $this.hero.status.cooldown] $= $this.hero.status.cooldown - 1
+			[goto end-turn]
 		
 		[next hero-melee]
-			[label] Melee attack.
+			[label] Attack.
 	
-		[next hero-charge-melee]
+		[next hero-charge]
 			[label] Charge!
 	
+	
+	
 	[scene hero-melee]
-		
-		[message] hero-melee debug
-		[debug] $this.hero
 		[subscene melee]
 			[args]
 				attacker: $this.hero
 				defender: $this.enemy
 		[goto end-turn]
+	
+	
+	
+	[scene hero-charge]
+		[subscene charge]
+			[args]
+				attacker: $this.hero
+				defender: $this.enemy
+		[goto end-turn]
+	
+	
 	
 	[scene enemy-turn]
 		[subscene melee]
@@ -112,49 +157,102 @@
 				defender: $this.hero
 		[goto end-turn]
 	
+	
+	
 	[scene win]
 		[message] $> ${this.hero.label//uc1} win the battle.
 		[set $this.hero.status.xp] $= $this.hero.status.xp + $this.enemy.stats.xpReward
 		[message] $> You gain ${this.enemy.stats.xpReward} xp (=${this.hero.status.xp}).
 	
-	[scene lose]
+	
+	
+	[scene lost]
 		[message] $> ${this.hero.label//uc1} died on the battlefield.
 		[lost]
 
+	
+	
+	[scene deal-damages]
+		[set $this.damages] $= random ( $args.attacker.stats.strength / 4 ) ( $args.attacker.stats.strength / 2 )
+		[if $args.bonus]
+			[set $args.damages] $= $this.damages + $args.bonus
+		[set $args.defender.status.hp] $= $args.defender.status.hp - $this.damages
+			
+	
+	
 	[scene melee]
-		[message] melee debug
-		[debug] $this.hero
-		[message] Args
-		[debug] $args
-		
-		[set $this.attackScore] $= $args.attacker.stats.melee + ( 2 D 6 )
-		[set $this.defenseScore] $= $args.defender.stats.melee + ( 2 D 6 )
+		[set $this.attackScore] $= $args.attacker.stats.fighting + ( 2 D 8 )
+		[set $this.defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
 		
 		[if $this.attackScore > $this.defenseScore]
 			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
-			[set $this.damages] $= $args.attacker.stats.damageBase + ( $args.attacker.stats.damageDice D $args.attacker.stats.damageFaces )
-			[message] $> ^y${args.attacker.label//uc1} hit ${args.defender.label} for ${this.damages} hp.
-			[set $args.defender.status.hp] $= $args.defender.status.hp - $this.damages
+			[subscene deal-damages]
+				[args]
+					attacker: $args.attacker
+					defender: $args.defender
+			
+			[if $args.defender.npc]
+				[message] $> ^y${args.attacker.label//uc1} hits ${args.defender.label} for ${this.damages} hp.
+			[else]
+				[message] $> ^R${args.attacker.label//uc1} hits ${args.defender.label} for ${this.damages} hp.
+			
 			[if $args.defender.status.hp <= 0]
 				[message] $> ${args.defender.label//uc1} is dead.
 		[else]
-			[message] $> ${args.attacker.label//uc1} miss ${args.defender.label}.
+			[fortune]
+				- $> ${args.attacker.label//uc1} misses ${args.defender.label}.
+				- $> ${args.defender.label//uc1} blocks ${args.attacker.label}.
+				- $> ${args.defender.label//uc1} avoids ${args.attacker.label}.
+	
+	
 	
 	[scene charge]
-		[set $this.heroSkip] 1
-		[set $this.attackScore] $= ( $this.hero.stats.melee + 2 ) + ( 2 D 6 )
-		[set $this.defenseScore] $= $this.enemy.stats.melee + ( 2 D 6 )
+		[set $args.attacker.status.cooldown] 1
+		[set $this.attackScore] $= ( $args.attacker.stats.fighting + 2 ) + ( 2 D 8 )
+		[set $this.defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
+		#[message] $> Scores: ${this.attackScore} vs ${this.defenseScore}
 		
 		[if $this.attackScore > $this.defenseScore]
 			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
-			[set $this.damages] $= ( $this.hero.stats.damageBase + 2 ) + ( ( $this.hero.stats.damageDice + 1 ) D $this.hero.stats.damageFaces )
-			[message] $> ^y${this.hero.label//uc1} hit ${this.enemy.label} for ${this.damages} hp.
-			[set $this.enemy.status.hp] $= $this.enemy.status.hp - $this.damages
-			[if $this.enemy.status.hp <= 0]
-				[message] $> ${this.enemy.label//uc1} is dead.
-				[goto win]
+			[subscene deal-damages]
+				[args]
+					attacker: $args.attacker
+					defender: $args.defender
+					bonus: 2
+			
+			[if $args.defender.npc]
+				[message] $> ^y${args.attacker.label//uc1} hits ${args.defender.label} for ${this.damages} hp.
+			[else]
+				[message] $> ^R${args.attacker.label//uc1} hits ${args.defender.label} for ${this.damages} hp.
+			
+			[set $args.defender.status.hp] $= $args.defender.status.hp - $this.damages
+			[if $args.defender.status.hp <= 0]
+				[message] $> ${args.defender.label//uc1} is dead.
+			[if $this.deadlyPush]
+				[subscene deadly-push]
+					[args] $args
+		[elseif ( $this.attackScore = $this.defenseScore ) && $this.deadlyPush]
+			[message] $> ${args.defender.label//uc1} blocks ${args.attacker.label}.
+			[subscene deadly-push]
+				[args] $args
 		[else]
-			[message] $> ${this.hero.label//uc1} miss ${this.enemy.label}.
+			[fortune]
+				- $> ${args.attacker.label//uc1} misses ${args.defender.label}.
+				- $> ${args.defender.label//uc1} blocks ${args.attacker.label}.
+				- $> ${args.defender.label//uc1} avoids ${args.attacker.label}.
 		
-		[goto enemy-turn]
+	
+	
+	[scene deadly-push]
+		[set $this.attackScore] $= ( $args.attacker.stats.strength + $this.deadlyPush.bonus ) + ( 2 D 6 )
+		[set $this.defenseScore] $= $args.defender.stats.strength + ( 2 D 6 )
+		
+		[if $this.attackScore > $this.defenseScore]
+			[set $args.defender.status.hp] 0
+			[set $this.victim] $args.defender.label
+			[apply-to $flavour] $this.deadlyPush.flavour
+			[message] $flavour
+		
+		
+	
 	

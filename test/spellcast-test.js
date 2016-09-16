@@ -314,6 +314,9 @@ describe( "Core tags" , function() {
 	it( "[clone] tag" ) ;
 	it( "[concat] tag" ) ;
 	it( "[append] tag" ) ;
+	it( "[template] tag" ) ;
+	it( "[apply-to] tag" ) ;
+	
 	it( "[pause] tag" ) ;
 } ) ;
 
@@ -1043,7 +1046,10 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "[include] tag" ) ;
 	it( "[action] tag" ) ;
 	
-	it.next( "Special data 'args' stack" , function( done ) {
+	it( "Special var $local" ) ;
+	it( "Special var $global" ) ;
+	
+	it( "Special var $args" , function( done ) {
 		
 		var messages = [] , ends = [] ;
 		
@@ -1065,7 +1071,8 @@ describe( "Basic adventurer tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "Special data 'this' stack" ) ;
+	it( "Special var $return" ) ;	// Not coded ATM, should be used to pass something from a sub-scene to a scene
+	it( "Special var $this" ) ;
 } ) ;
 
 
