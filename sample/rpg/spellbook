@@ -19,7 +19,7 @@
 	class: character
 	label: the guardian
 	params:
-		charge: 80
+		charge: 0.5
 	stats:
 		xpReward: 10
 		fighting: 14
@@ -119,20 +119,23 @@
 	
 	
 	[scene enemy-turn]
-		#[if $this.enemy.status.cooldown > 0]
-		#	[set $this.enemy.status.cooldown] $= $this.enemy.status.cooldown - 1
-		#	[goto end-turn]
+		[if $this.enemy.status.cooldown > 0]
+			[set $this.enemy.status.cooldown] $= $this.enemy.status.cooldown - 1
+			[goto end-turn]
 		
-		#[if $this.enemy.params.charge && ( $this.enemy.params.charge >= ( 1 D 100 ) )]
-		[if $this.enemy.params.charge]
-			[set $local.score] $= 1 D 100
-			[if $this.enemy.params.charge >= $local.score]
-				[subscene charge]
-					[args]
-						attacker: $this.enemy
-						defender: $this.hero
-				
-				[goto end-turn]
+		[if $this.enemy.params.charge && ( ( random ) <= $this.enemy.params.charge )]
+			[subscene charge]
+				[args]
+					attacker: $this.enemy
+					defender: $this.hero
+			
+			[goto end-turn]
+		
+		[subscene melee]
+			[args]
+				attacker: $this.enemy
+				defender: $this.hero
+		[goto end-turn]
 		
 	
 	
@@ -163,14 +166,6 @@
 			[args]
 				attacker: $this.hero
 				defender: $this.enemy
-		[goto end-turn]
-	
-	
-	
-		[subscene melee]
-			[args]
-				attacker: $this.enemy
-				defender: $this.hero
 		[goto end-turn]
 	
 	
@@ -274,7 +269,6 @@
 		
 		[if $this.attackScore > $this.defenseScore]
 			[set $args.defender.status.hp] 0
-			[set $this.victim] $args.defender.label
 			[apply-to $flavour] $this.deadlyPush.flavour
 			[message] $flavour
 		
