@@ -40,16 +40,14 @@
 			$> Suddenly, a big and tough guy appears.
 			$> He does not say much except grumbling something like “I'm the guardian” and start rushing you with a giant club.
 		
-		[template $local.deadlyPushFlavour]
-			$> ^R${args.attacker.label//uc1} pushes ${args.defender.label} and ${args.defender.label} falls off the cliff!
-		
 		[subscene battle/init]
 			[args]
 				foes:
 					- guardian
 				deadlyPush:
 					bonus: 0
-					flavour: $local.deadlyPushFlavour
+					flavour:
+						$$> ^R${args.attacker.label//uc1} pushes ${args.defender.label} and ${args.defender.label} falls off the cliff!
 		
 		[next second-encounter]
 
@@ -60,17 +58,16 @@
 			$> Instead of waiting for you, he starts walking on the beam toward you.
 			$> He swings the air with its giant club as he taunt you, inviting you to go ahead fighting him.
 		
-		[template $local.deadlyPushFlavour]
-			$> ^RAs ${args.attacker.label} charges, ${args.defender.label} slips from the wooden beam!
-			$> ${args.defender.label//uc1} falls into the chasm!
-		
 		[subscene battle/init]
 			[args]
 				foes:
 					- guardian
 				deadlyPush:
 					bonus: 6
-					flavour: $local.deadlyPushFlavour
+					flavour:
+						$$> ^RAs ${args.attacker.label} charges, ${args.defender.label} slips from the wooden beam!
+						$$> ${args.defender.label//uc1} falls into the chasm!
+		
 
 
 
@@ -121,6 +118,24 @@
 	
 	
 	
+	[scene enemy-turn]
+		#[if $this.enemy.status.cooldown > 0]
+		#	[set $this.enemy.status.cooldown] $= $this.enemy.status.cooldown - 1
+		#	[goto end-turn]
+		
+		#[if $this.enemy.params.charge && ( $this.enemy.params.charge >= ( 1 D 100 ) )]
+		[if $this.enemy.params.charge]
+			[set $local.score] $= 1 D 100
+			[if $this.enemy.params.charge >= $local.score]
+				[subscene charge]
+					[args]
+						attacker: $this.enemy
+						defender: $this.hero
+				
+				[goto end-turn]
+		
+	
+	
 	[scene hero-turn]
 		[if $this.hero.status.cooldown > 0]
 			[set $this.hero.status.cooldown] $= $this.hero.status.cooldown - 1
@@ -152,18 +167,6 @@
 	
 	
 	
-	[scene enemy-turn]
-		#[if $this.enemy.params.charge && ( $this.enemy.params.charge >= ( 1 D 100 ) )]
-		[if $this.enemy.params.charge]
-			[set $local.score] $= 1 D 100
-			[if $this.enemy.params.charge >= $local.score]
-				[subscene charge]
-					[args]
-						attacker: $this.enemy
-						defender: $this.hero
-				
-				[goto end-turn]
-		
 		[subscene melee]
 			[args]
 				attacker: $this.enemy
@@ -266,7 +269,7 @@
 	
 	
 	[scene deadly-push]
-		[set $this.attackScore] $= ( $args.attacker.stats.strength + $this.deadlyPush.bonus ) + ( 2 D 6 )
+		[set $this.attackScore] $= ( ( max $args.attacker.stats.strength ( $args.attacker.stats.fighting - 3 ) ) + $this.deadlyPush.bonus ) + ( 2 D 6 )
 		[set $this.defenseScore] $= $args.defender.stats.strength + ( 2 D 6 )
 		
 		[if $this.attackScore > $this.defenseScore]
