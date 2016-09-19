@@ -15,6 +15,16 @@
 		hp: 20
 		xp: 0
 
+[entity-model goblin]
+	class: character
+	label: the goblin
+	stats:
+		xpReward: 2
+		fighting: 8
+		strength: 6
+	status:
+		hp: 6
+
 [entity-model guardian]
 	class: character
 	label: the guardian
@@ -34,6 +44,23 @@
 
 
 [chapter intro]
+	[scene goblin-camp]
+		[message]
+			$> You are in a middle of a goblin camp, there are three tents.
+			$> A goblin go out of his tent, see you, and shouts!
+			$> Four other goblins are going out of their tents, ready to fight you!
+		
+		[subscene battle/init]
+			[args]
+				foes:
+					- goblin
+					- goblin
+					- goblin
+					- goblin
+					- goblin
+		
+		[next second-encounter]
+
 	[scene first-encounter]
 		[message]
 			$> You are walking alongside a dangerous cliff.
@@ -56,7 +83,7 @@
 			$> You are moving slowly on a wooden beam, over a chasm.
 			$> You find it really difficult to walk without falling, yet, another guardian appears at the other end of the beam.
 			$> Instead of waiting for you, he starts walking on the beam toward you.
-			$> He swings the air with its giant club as he taunt you, inviting you to go ahead fighting him.
+			$> He swings the air with its giant club as he taunts you, inviting you to go ahead fighting him.
 		
 		[subscene battle/init]
 			[args]
@@ -67,7 +94,6 @@
 					flavour:
 						$$> ^RAs ${args.attacker.label} charges, ${args.defender.label} slips from the wooden beam!
 						$$> ${args.defender.label//uc1} falls into the chasm!
-		
 
 
 
@@ -76,9 +102,15 @@
 	[scene init]
 		#[message] $> Hello ${roles.hero.entity.label}
 		[set $this.hero] $roles.hero.entity
-		[create-entity $this.enemy] $args.foes[0]
+		
+		[set $this.enemies] <Array>
+		
+		[foreach $args.foes => $index : $type]
+			[create-entity $this.enemies[$index]] $args.foes[$index]
+			[set $this.enemies[$index].status.cooldown] 0
+		
+		
 		[set $this.hero.status.cooldown] 0
-		[set $this.enemy.status.cooldown] 0
 		[set $this.deadlyPush] $args.deadlyPush
 		[next initiative]
 	
