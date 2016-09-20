@@ -63,7 +63,7 @@
 
 [chapter intro]
 	[scene init]
-		[next gobliin-camp]
+		[next goblin-camp]
 	
 	[scene goblin-camp]
 		[message]
