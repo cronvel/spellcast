@@ -1,0 +1,22 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	array:
+		- one
+		- two
+		- three
+	array2:
+		- four
+		- five
+		- six
+	a: 1
+
+[spell concat]
+	[concat $array] $array2
+	[message]
+		- $> Array: ${array}[enum]
+
+[spell bad-concat]
+	[concat $a] $array2
+

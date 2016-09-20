@@ -1,0 +1,16 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	var: text
+	var2:
+		one: 1
+		two: 2
+		three:
+			- four
+			- five
+
+[spell debug]
+	[debug info]
+		$> Some debug ${var}.
+	[debug] $var2

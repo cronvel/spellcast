@@ -186,32 +186,7 @@ describe( "I/O tags" , function() {
 
 
 
-describe( "Core tags" , function() {
-	
-	it( "[set] tag and dynamic resolution" , function( done ) {
-		
-		var messages = [] ;
-		
-		runBook( __dirname + '/books/set.kfg' , { type: 'cast' , target: 'set' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				doormen.equals( messages , [
-					[ 'Value of $a: something' ] ,
-					[ 'Value of $b: bob something' ] ,
-					[ 'Value of $c: bob' ] ,
-					[ 'Value of $d: bob' ] ,
-					[ 'Value of alert: bob' ] ,
-					[ 'Value of ref: bob' ]
-				] ) ;
-				
-				done() ;
-			}
-		) ;
-	} ) ;
+describe( "Control flow tags" , function() {
 	
 	it( "[if], [elsif]/[elseif] and [else] tags" , function( done ) {
 		
@@ -310,14 +285,142 @@ describe( "Core tags" , function() {
 			}
 		) ;
 	} ) ;
+} ) ;
+
+
+
+describe( "Operations tags" , function() {
 	
-	it( "[clone] tag" ) ;
-	it( "[concat] tag" ) ;
-	it( "[append] tag" ) ;
-	it( "[template] tag" ) ;
-	it( "[apply-to] tag" ) ;
+	it( "[set] tag and dynamic resolution" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/set.kfg' , { type: 'cast' , target: 'set' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Value of $a: something' ] ,
+					[ 'Value of $b: bob something' ] ,
+					[ 'Value of $c: bob' ] ,
+					[ 'Value of $d: bob' ] ,
+					[ 'Value of alert: bob' ] ,
+					[ 'Value of ref: bob' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
 	
-	it( "[pause] tag" ) ;
+	it( "[append] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/append.kfg' , { type: 'cast' , target: 'append' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Array: one two three four' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[prepend] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/prepend.kfg' , { type: 'cast' , target: 'prepend' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Array: zero one two three' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[concat] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/concat.kfg' , { type: 'cast' , target: 'concat' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Array: one two three four five six' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[apply-to] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/apply-to.kfg' , { type: 'cast' , target: 'apply-to' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'This is a template! Here some characters.' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[clone] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/clone.kfg' , { type: 'cast' , target: 'clone' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Value of clone.c.d: 4' ],
+					[ 'Value of clone.c.d: Dee!' ],
+					[ 'Value of original.c.d: 4' ],
+					[ 'Value of clone.c.d: (undefined)' ],
+					[ 'Value of clone.c.one: ONE!' ],
+					[ 'Value of original.c.d: 4' ],
+					[ 'Value of original.c.one: (undefined)' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
 } ) ;
 
 
@@ -1152,6 +1255,13 @@ describe( "Wands/extensions" , function() {
 
 
 
+describe( "Misc tags" , function() {
+	it( "[pause] tag" ) ;
+	it( "[debug] tag" ) ;
+} ) ;
+	
+
+
 describe( "Embedded Javascript code" , function() {
 	
 	it( "[js] tag" , function( done ) {
@@ -1178,12 +1288,6 @@ describe( "Embedded Javascript code" , function() {
 	it( "Security tests" ) ;
 } ) ;
 
-
-
-describe( "Misc tags" , function() {
-	it( "[debug] tag" ) ;
-} ) ;
-	
 
 
 describe( "Spellcast exe features" , function() {

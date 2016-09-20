@@ -1,0 +1,24 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	original:
+		a: 1
+		b: 2
+		c:
+			d: 4
+			e: 5
+
+[spell clone]
+	[clone $clone] $original
+	[message] $> Value of clone.c.d: ${clone.c.d}
+	[set $clone.c.d] Dee!
+	[message] $> Value of clone.c.d: ${clone.c.d}
+	[message] $> Value of original.c.d: ${original.c.d}
+	[set $clone.c]
+		one: ONE!
+		two: TWO!
+	[message] $> Value of clone.c.d: ${clone.c.d}
+	[message] $> Value of clone.c.one: ${clone.c.one}
+	[message] $> Value of original.c.d: ${original.c.d}
+	[message] $> Value of original.c.one: ${original.c.one}
