@@ -102,48 +102,53 @@
 	[scene init]
 		#[message] $> Hello ${roles.hero.entity.label}
 		[set $this.hero] $roles.hero.entity
-		
 		[set $this.enemies] <Array>
+		[set $this.turnIndex] 0
+		[set $this.turns]
+			- $this.hero
 		
 		[foreach $args.foes => $index : $type]
 			[create-entity $this.enemies[$index]] $args.foes[$index]
 			[set $this.enemies[$index].status.cooldown] 0
+			[append $this.turns] $this.enemies[$index]
 		
-		
-		[debug info] $this.enemies
+		#[debug info] $this.enemies
+		#[debug info] $this.turns
 		
 		[set $this.hero.status.cooldown] 0
+		
 		[set $this.deadlyPush] $args.deadlyPush
+		
 		[next initiative]
 	
 	
 	
 	[scene initiative]
-		[set $this.heroScore] $= $this.hero.stats.fighting + ( 2 D 8 )
-		[set $this.enemyScore] $= $this.enemy.stats.fighting + ( 2 D 8 )
+		[foreach $this.turns => $index : $entity]
+			[set $this.turns[$index].status.initiativeScore] $= $this.turns[$index].stats.fighting + ( 2 D 8 )
 		
-		[if $this.heroScore >= $this.enemyScore]
-			[message] $> ${this.hero.label//uc1} takes the initiative.
-			[set $this.heroTurn] true
-		[else]
-			[message] $> ${this.enemy.label//uc1} takes the initiative.
-			[set $this.heroTurn] false
+		[sort $this.turns]
+			key: $status.initiativeScore
+			order: desc
 		
+		[debug info] $this.turns
+		[message] $> ${this.turns[0].label//uc1} takes the initiative.
 		[goto new-turn]
 		
 	
 	
 	[scene new-turn]
-		[if $this.heroTurn]
-			[set $this.heroTurn] false
+		[set $this.entityTurn] $= $this.turns[$this.turnIndex]
+		
+		[if $this.entityTurn = $this.hero]
 			[goto hero-turn]
 		[else]
-			[set $this.heroTurn] true
 			[goto enemy-turn]
 	
 	
 	
 	[scene end-turn]
+		[set $this.turnIndex] $= ( $this.turnIndex + 1 ) % $this.turns.length
 		[if $this.hero.status.hp <= 0]
 			[goto lost]
 		[elseif $this.enemy.status.hp <= 0]
@@ -154,20 +159,20 @@
 	
 	[scene enemy-turn]
 		[if $this.enemy.status.cooldown > 0]
-			[set $this.enemy.status.cooldown] $= $this.enemy.status.cooldown - 1
+			[set $this.entityTurn.status.cooldown] $= $this.entityTurn.status.cooldown - 1
 			[goto end-turn]
 		
-		[if $this.enemy.params.charge && ( ( random ) <= $this.enemy.params.charge )]
+		[if $this.entityTurn.params.charge && ( ( random ) <= $this.entityTurn.params.charge )]
 			[subscene charge]
 				[args]
-					attacker: $this.enemy
+					attacker: $this.entityTurn
 					defender: $this.hero
 			
 			[goto end-turn]
 		
 		[subscene melee]
 			[args]
-				attacker: $this.enemy
+				attacker: $this.entityTurn
 				defender: $this.hero
 		[goto end-turn]
 		
@@ -180,17 +185,34 @@
 		
 		[next hero-melee]
 			[label] Attack
-	
+		
 		[next hero-charge]
 			[label] Charge!
 	
 	
 	
+	[scene hero-target]
+		[foreach $this.enemies => $index : $entity]
+			[next hero-target-empty]
+				[args]
+					index: $index
+				[label] $> ${entity.label//uc1}
+				[on-trigger]
+					[set $this.target] $this.enemies[$args.index]
+					[message] $> Targetting ${args.index}
+	
+	[scene hero-target-empty]
+		[empty]
+	
+	
+	
 	[scene hero-melee]
+		[message] Who do you attack?
+		[subscene hero-target]
 		[subscene melee]
 			[args]
 				attacker: $this.hero
-				defender: $this.enemy
+				defender: $this.target
 		[goto end-turn]
 	
 	
