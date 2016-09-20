@@ -466,6 +466,32 @@ describe( "Operations tags" , function() {
 			}
 		) ;
 	} ) ;
+	
+	it( "[sort] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/sort.kfg' , { type: 'cast' , target: 'sort' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Array: 8 13 15' ],
+					[ 'Array: 8 13 15' ],
+					[ 'Array: 15 13 8' ],
+					[ 'Array: 16 19 23' ],
+					[ 'Array: 16 19 23' ],
+					[ 'Array: 23 19 16' ],
+					[ 'Array: 16 23 19' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
 } ) ;
 
 
