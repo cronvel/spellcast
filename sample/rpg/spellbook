@@ -62,11 +62,14 @@
 
 
 [chapter intro]
+	[scene init]
+		[next gobliin-camp]
+	
 	[scene goblin-camp]
 		[message]
 			$> You are in a middle of a goblin camp, there are three tents.
 			$> A goblin go out of his tent, see you, and shouts!
-			$> Four other goblins are going out of their tents, ready to fight you!
+			$> Five other goblins are going out of their tents, ready to fight you!
 		
 		[subscene battle/init]
 			[args]
@@ -76,8 +79,9 @@
 					- goblin
 					- goblin
 					- goblin
+					- goblin
 		
-		[next second-encounter]
+		[next first-encounter]
 
 	[scene first-encounter]
 		[message]
@@ -149,7 +153,7 @@
 			key: $status.initiativeScore
 			order: desc
 		
-		[debug info] $this.turns
+		#[debug info] $this.turns
 		[message] $> ${this.turns[0].label//uc1} takes the initiative.
 		[goto new-turn]
 		
@@ -182,19 +186,17 @@
 				[set $continue] true
 		
 		[if $continue]
-			[message] lol1
 			[goto new-turn]
 		[else]
-			[message] lol2
 			[goto win]
 	
 	
 	
 	[scene enemy-turn]
-		[if $entity.status.hp <= 0]
+		[if $this.entityTurn.status.hp <= 0]
 			[goto end-turn]
 		
-		[if $this.enemy.status.cooldown > 0]
+		[if $this.entityTurn.status.cooldown > 0]
 			[set $this.entityTurn.status.cooldown] $= $this.entityTurn.status.cooldown - 1
 			[goto end-turn]
 		
@@ -228,6 +230,18 @@
 	
 	
 	[scene hero-target]
+		[set $count] 0
+		
+		[foreach $this.enemies => $index : $entity]
+			[if $entity.status.hp > 0]
+				[set $count] $= $count + 1
+				[set $this.target] $this.enemies[$index]
+		
+		[if $count <= 1]
+			[return]
+		
+		[message] Who?
+		
 		[foreach $this.enemies => $index : $entity]
 			[if $entity.status.hp > 0]
 				[next]
@@ -240,7 +254,6 @@
 	
 	
 	[scene hero-melee]
-		[message] Who do you attack?
 		[subscene hero-target]
 		[subscene melee]
 			[args]
@@ -251,18 +264,22 @@
 	
 	
 	[scene hero-charge]
+		[subscene hero-target]
 		[subscene charge]
 			[args]
 				attacker: $this.hero
-				defender: $this.enemy
+				defender: $this.target
 		[goto end-turn]
 	
 	
 	
 	[scene win]
 		[message] $> ${this.hero.label//uc1} win the battle.
-		[set $this.hero.status.xp] $= $this.hero.status.xp + $this.enemy.stats.xpReward
-		[message] $> You gain ${this.enemy.stats.xpReward} xp (=${this.hero.status.xp}).
+		[set $xpReward] 0
+		[foreach $this.enemies => $index : $entity]
+			[set $xpReward] $= $xpReward + $this.enemies[$index].stats.xpReward
+		[set $this.hero.status.xp] $= $this.hero.status.xp + $xpReward
+		[message] $> You gain ${xpReward} xp (=${this.hero.status.xp}).
 	
 	
 	
