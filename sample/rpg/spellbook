@@ -17,7 +17,25 @@
 
 [entity-model goblin]
 	class: character
-	label: the goblin
+	label:
+		- the pesky goblin
+		- the dirty goblin
+		- the mad goblin
+		- the maniac goblin
+		- the goofy goblin
+		- the irritating goblin
+		- the irksome goblin
+		- the bald-headed goblin
+		- the insane goblin
+		- the shaggy goblin
+		- the hairy goblin
+		- the stinking goblin
+		- the green goblin
+		- the brown goblin
+		- the glaucous goblin
+		- the tiny goblin
+		- the edgy goblin
+		- the restless goblin
 	stats:
 		xpReward: 2
 		fighting: 8
@@ -149,15 +167,33 @@
 	
 	[scene end-turn]
 		[set $this.turnIndex] $= ( $this.turnIndex + 1 ) % $this.turns.length
+		
 		[if $this.hero.status.hp <= 0]
 			[goto lost]
-		[elseif $this.enemy.status.hp <= 0]
+		
+		[set $continue] false
+		
+		[foreach $this.enemies => $index : $entity]
+			#[debug info] $entity
+			[if $entity.status.hp > 0]
+				# At least one enemy is alive, start a new turn
+				# [goto] is buggy inside of [foreach]
+				#[goto new-turn]
+				[set $continue] true
+		
+		[if $continue]
+			[message] lol1
+			[goto new-turn]
+		[else]
+			[message] lol2
 			[goto win]
-		[goto new-turn]
 	
 	
 	
 	[scene enemy-turn]
+		[if $entity.status.hp <= 0]
+			[goto end-turn]
+		
 		[if $this.enemy.status.cooldown > 0]
 			[set $this.entityTurn.status.cooldown] $= $this.entityTurn.status.cooldown - 1
 			[goto end-turn]
@@ -167,13 +203,13 @@
 				[args]
 					attacker: $this.entityTurn
 					defender: $this.hero
-			
 			[goto end-turn]
 		
 		[subscene melee]
 			[args]
 				attacker: $this.entityTurn
 				defender: $this.hero
+		
 		[goto end-turn]
 		
 	
@@ -193,16 +229,13 @@
 	
 	[scene hero-target]
 		[foreach $this.enemies => $index : $entity]
-			[next hero-target-empty]
-				[args]
-					index: $index
-				[label] $> ${entity.label//uc1}
-				[on-trigger]
-					[set $this.target] $this.enemies[$args.index]
-					[message] $> Targetting ${args.index}
-	
-	[scene hero-target-empty]
-		[empty]
+			[if $entity.status.hp > 0]
+				[next]
+					[args]
+						index: $index
+					[label] $> ${entity.label//uc1}
+					[on-trigger]
+						[set $this.target] $this.enemies[$args.index]
 	
 	
 	
