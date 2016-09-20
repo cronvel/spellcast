@@ -1,0 +1,43 @@
+
+[[doctype spellcaster]]
+
+[spell splice]
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[splice $array] 3
+	[message] $> Array: ${array}[enum]
+	
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[splice $array]
+		- 3
+		- 2
+	[message] $> Array: ${array}[enum]
+	
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[splice $array]
+		- 3
+		- 2
+		- 3
+		- 4
+	[message] $> Array: ${array}[enum]
+

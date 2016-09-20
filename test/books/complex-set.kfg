@@ -1,0 +1,19 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	stats:
+		strength: 18
+		dexterity: 12
+		intelligence: 7
+
+[spell complex-set]
+	[message] $> Strength: ${stats.strength}
+	[set $attribute] strength
+	[set $stats[$attribute]] $= $stats[$attribute] + 2
+	[message] $> Strength: ${stats.strength}
+	
+	[message] $> Intelligence: ${stats.intelligence}
+	[set $attribute] intelligence
+	[set $stats[$attribute]] $= $stats[$attribute] - 1
+	[message] $> Intelligence: ${stats.intelligence}

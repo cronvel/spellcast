@@ -316,6 +316,75 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[set] tag and complex references" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/complex-set.kfg' , { type: 'cast' , target: 'complex-set' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Strength: 18' ],
+					[ 'Strength: 20' ],
+					[ 'Intelligence: 7' ],
+					[ 'Intelligence: 6' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[apply-to] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/apply-to.kfg' , { type: 'cast' , target: 'apply-to' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'This is a template! Here some characters.' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[clone] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/clone.kfg' , { type: 'cast' , target: 'clone' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Value of clone.c.d: 4' ],
+					[ 'Value of clone.c.d: Dee!' ],
+					[ 'Value of original.c.d: 4' ],
+					[ 'Value of clone.c.d: (undefined)' ],
+					[ 'Value of clone.c.one: ONE!' ],
+					[ 'Value of original.c.d: 4' ],
+					[ 'Value of original.c.one: (undefined)' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "[append] tag" , function( done ) {
 		
 		var messages = [] ;
@@ -376,11 +445,11 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
-	it( "[apply-to] tag" , function( done ) {
+	it( "[splice] tag" , function( done ) {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/apply-to.kfg' , { type: 'cast' , target: 'apply-to' } ,
+		runBook( __dirname + '/books/splice.kfg' , { type: 'cast' , target: 'splice' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -388,33 +457,9 @@ describe( "Operations tags" , function() {
 			} ,
 			function() {
 				doormen.equals( messages , [
-					[ 'This is a template! Here some characters.' ]
-				] ) ;
-				
-				done() ;
-			}
-		) ;
-	} ) ;
-	
-	it( "[clone] tag" , function( done ) {
-		
-		var messages = [] ;
-		
-		runBook( __dirname + '/books/clone.kfg' , { type: 'cast' , target: 'clone' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				doormen.equals( messages , [
-					[ 'Value of clone.c.d: 4' ],
-					[ 'Value of clone.c.d: Dee!' ],
-					[ 'Value of original.c.d: 4' ],
-					[ 'Value of clone.c.d: (undefined)' ],
-					[ 'Value of clone.c.one: ONE!' ],
-					[ 'Value of original.c.d: 4' ],
-					[ 'Value of original.c.one: (undefined)' ]
+					[ 'Array: zero one two' ] ,
+					[ 'Array: zero one two five six' ] ,
+					[ 'Array: zero one two 3 4 five six' ]
 				] ) ;
 				
 				done() ;
