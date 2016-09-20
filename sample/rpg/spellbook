@@ -110,6 +110,8 @@
 			[set $this.enemies[$index].status.cooldown] 0
 		
 		
+		[debug info] $this.enemies
+		
 		[set $this.hero.status.cooldown] 0
 		[set $this.deadlyPush] $args.deadlyPush
 		[next initiative]

@@ -1,0 +1,15 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	array:
+		-	a:
+			b:
+		-	a:
+			b:
+
+[spell sort]
+	[sort $array] four
+	[message]
+		- $> Array: ${array}[enum]
+
