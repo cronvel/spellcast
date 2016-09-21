@@ -104,7 +104,7 @@
 				deadlyPush:
 					bonus: 0
 					flavour:
-						$$> ^R${args.attacker.label//uc1} pushes ${args.defender.label} and ${args.defender.label} falls off the cliff!
+						$$> ^R${attacker.label//uc1} pushes ${defender.label} and ${defender.label} falls off the cliff!
 		
 		[next second-encounter]
 
@@ -122,57 +122,59 @@
 				deadlyPush:
 					bonus: 6
 					flavour:
-						$$> ^RAs ${args.attacker.label} charges, ${args.defender.label} slips from the wooden beam!
-						$$> ${args.defender.label//uc1} falls into the chasm!
+						$$> ^RAs ${attacker.label} charges, ${defender.label} slips from the wooden beam!
+						$$> ${defender.label//uc1} falls into the chasm!
 
 
 
 [chapter battle]
 	
 	[scene init]
+		[set $battle] <Object>
+		
 		#[message] $> Hello ${roles.hero.entity.label}
-		[set $this.hero] $roles.hero.entity
-		[set $this.foes] <Array>
-		[set $this.turnIndex] 0
-		[set $this.turns]
-			- $this.hero
+		[set $battle.hero] $roles.hero.entity
+		[set $battle.foes] <Array>
+		[set $battle.turnIndex] 0
+		[set $battle.turns]
+			- $battle.hero
 		
 		[foreach $args.foes => $index : $type]
-			[create-entity $this.foes[$index]] $args.foes[$index]
-			[set $this.foes[$index].status.cooldown] 0
-			[set $this.foes[$index].side] foes
-			[append $this.turns] $this.foes[$index]
+			[create-entity $battle.foes[$index]] $args.foes[$index]
+			[set $battle.foes[$index].status.cooldown] 0
+			[set $battle.foes[$index].side] foes
+			[append $battle.turns] $battle.foes[$index]
 		
-		#[debug info] $this.foes
-		#[debug info] $this.turns
+		#[debug info] $battle.foes
+		#[debug info] $battle.turns
 		
-		[set $this.hero.status.cooldown] 0
-		[set $this.hero.side] allies
+		[set $battle.hero.status.cooldown] 0
+		[set $battle.hero.side] allies
 		
-		[set $this.deadlyPush] $args.deadlyPush
+		[set $battle.deadlyPush] $args.deadlyPush
 		
 		[next initiative]
 	
 	
 	
 	[scene initiative]
-		[foreach $this.turns => $entity]
+		[foreach $battle.turns => $entity]
 			[set $entity.status.initiativeScore] $= $entity.stats.fighting + ( 2 D 8 )
 		
-		[sort $this.turns]
+		[sort $battle.turns]
 			key: $status.initiativeScore
 			order: desc
 		
-		#[debug info] $this.turns
-		[message] $> ${this.turns[0].label//uc1} takes the initiative.
+		#[debug info] $battle.turns
+		[message] $> ${battle.turns[0].label//uc1} takes the initiative.
 		[goto new-turn]
 		
 	
 	
 	[scene new-turn]
-		[set $this.entityTurn] $= $this.turns[$this.turnIndex]
+		[set $battle.entityTurn] $= $battle.turns[$battle.turnIndex]
 		
-		[if $this.entityTurn = $this.hero]
+		[if $battle.entityTurn = $battle.hero]
 			[goto hero-turn]
 		[else]
 			[goto foe-turn]
@@ -180,12 +182,12 @@
 	
 	
 	[scene end-turn]
-		[set $this.turnIndex] $= ( $this.turnIndex + 1 ) % $this.turns.length
+		[set $battle.turnIndex] $= ( $battle.turnIndex + 1 ) % $battle.turns.length
 		
-		[if $this.hero.status.hp <= 0]
+		[if $battle.hero.status.hp <= 0]
 			[goto lost]
 		
-		[foreach $this.foes => $index : $entity]
+		[foreach $battle.foes => $index : $entity]
 			#[debug info] $entity
 			[if $entity.status.hp > 0]
 				# At least one enemy is alive, start a new turn
@@ -196,32 +198,32 @@
 	
 	
 	[scene foe-turn]
-		[if $this.entityTurn.status.hp <= 0]
+		[if $battle.entityTurn.status.hp <= 0]
 			[goto end-turn]
 		
-		[if $this.entityTurn.status.cooldown > 0]
-			[set $this.entityTurn.status.cooldown] $= $this.entityTurn.status.cooldown - 1
+		[if $battle.entityTurn.status.cooldown > 0]
+			[set $battle.entityTurn.status.cooldown] $= $battle.entityTurn.status.cooldown - 1
 			[goto end-turn]
 		
-		[if $this.entityTurn.params.charge && ( ( random ) <= $this.entityTurn.params.charge )]
+		[if $battle.entityTurn.params.charge && ( ( random ) <= $battle.entityTurn.params.charge )]
 			[subscene charge]
 				[args]
-					attacker: $this.entityTurn
-					defender: $this.hero
+					attacker: $battle.entityTurn
+					defender: $battle.hero
 			[goto end-turn]
 		
 		[subscene melee]
 			[args]
-				attacker: $this.entityTurn
-				defender: $this.hero
+				attacker: $battle.entityTurn
+				defender: $battle.hero
 		
 		[goto end-turn]
 		
 	
 	
 	[scene hero-turn]
-		[if $this.hero.status.cooldown > 0]
-			[set $this.hero.status.cooldown] $= $this.hero.status.cooldown - 1
+		[if $battle.hero.status.cooldown > 0]
+			[set $battle.hero.status.cooldown] $= $battle.hero.status.cooldown - 1
 			[goto end-turn]
 		
 		[next hero-melee]
@@ -238,24 +240,24 @@
 	[scene hero-target]
 		[set $count] 0
 		
-		[foreach $this.foes => $index : $entity]
+		[foreach $battle.foes => $index : $entity]
 			[if $entity.status.hp > 0]
 				[set $count] $= $count + 1
-				[set $this.target] $this.foes[$index]
+				[set $battle.target] $battle.foes[$index]
 		
 		[if $count <= 1]
 			[return]
 		
 		[message] Target?
 		
-		[foreach $this.foes => $index : $entity]
+		[foreach $battle.foes => $index : $entity]
 			[if $entity.status.hp > 0]
 				[next]
 					[args]
 						index: $index
 					[label] $> ${entity.label//uc1}
 					[on-trigger]
-						[set $this.target] $this.foes[$args.index]
+						[set $battle.target] $battle.foes[$args.index]
 	
 	
 	
@@ -263,8 +265,8 @@
 		[subscene hero-target]
 		[subscene melee]
 			[args]
-				attacker: $this.hero
-				defender: $this.target
+				attacker: $battle.hero
+				defender: $battle.target
 		[goto end-turn]
 	
 	
@@ -273,8 +275,8 @@
 		[subscene hero-target]
 		[subscene charge]
 			[args]
-				attacker: $this.hero
-				defender: $this.target
+				attacker: $battle.hero
+				defender: $battle.target
 		[goto end-turn]
 	
 	
@@ -283,41 +285,41 @@
 		[subscene hero-target]
 		[subscene fireball]
 			[args]
-				attacker: $this.hero
-				defender: $this.target
+				attacker: $battle.hero
+				defender: $battle.target
 		[goto end-turn]
 	
 	
 	
 	[scene win]
-		[message] $> ${this.hero.label//uc1} win the battle.
+		[message] $> ${battle.hero.label//uc1} win the battle.
 		[set $xpReward] 0
-		[foreach $this.foes => $index : $entity]
-			[set $xpReward] $= $xpReward + $this.foes[$index].stats.xpReward
-		[set $this.hero.status.xp] $= $this.hero.status.xp + $xpReward
-		[message] $> You gain ${xpReward} xp (=${this.hero.status.xp}).
+		[foreach $battle.foes => $index : $entity]
+			[set $xpReward] $= $xpReward + $battle.foes[$index].stats.xpReward
+		[set $battle.hero.status.xp] $= $battle.hero.status.xp + $xpReward
+		[message] $> You gain ${xpReward} xp (=${battle.hero.status.xp}).
 	
 	
 	
 	[scene lost]
-		[message] $> ${this.hero.label//uc1} died on the battlefield.
+		[message] $> ${battle.hero.label//uc1} died on the battlefield.
 		[lost]
 
 	
 	
 	[scene deal-damages]
 		[if $args.base]
-			[set $this.damages] $args.base
+			[set $damages] $args.base
 		[else]
-			[set $this.damages] $= random ( $args.attacker.stats.strength / 4 ) ( $args.attacker.stats.strength / 2 )
+			[set $damages] $= random ( $args.attacker.stats.strength / 4 ) ( $args.attacker.stats.strength / 2 )
 		
 		[if $args.mul]
-			[set $this.damages] $= $this.damages * $args.mul
+			[set $damages] $= $damages * $args.mul
 		[if $args.add]
-			[set $this.damages] $= $this.damages + $args.add
+			[set $damages] $= $damages + $args.add
 		
-		[set $this.damages] $= round $this.damages
-		[set $args.defender.status.hp] $= $args.defender.status.hp - $this.damages
+		[set $damages] $= round $damages
+		[set $args.defender.status.hp] $= $args.defender.status.hp - $damages
 		
 		[apply-to $flavour] $args.flavour
 		[message] $flavour
@@ -329,7 +331,7 @@
 	
 	[scene splash-damages]
 		# /!\ Should randomize the array first...
-		[foreach $this.turns => $target]
+		[foreach $battle.turns => $target]
 			[if $args.targetCount <= 0]
 				[break]
 			
@@ -341,9 +343,9 @@
 				[continue]
 			
 			[if ( random ) <= $args.targetChance )]
-				[apply-to $this.damages] $args.damages
+				[apply-to $damages] $args.damages
 				[set $args.targetCount] $= $args.targetCount - 1
-				[set $target.status.hp] $= $target.status.hp - $this.damages
+				[set $target.status.hp] $= $target.status.hp - $damages
 				[apply-to $flavour] $args.flavour
 				[message] $flavour
 				
@@ -353,16 +355,19 @@
 	
 	
 	[scene melee]
-		[set $this.attackScore] $= $args.attacker.stats.fighting + ( 2 D 8 )
-		[set $this.defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
+		[set $attacker] $args.attacker
+		[set $defender] $args.defender
 		
-		[if $this.attackScore > $this.defenseScore]
-			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
+		[set $attackScore] $= $args.attacker.stats.fighting + ( 2 D 8 )
+		[set $defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
+		
+		[if $attackScore > $defenseScore]
+			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
 			[subscene deal-damages]
 				[args]
 					attacker: $args.attacker
 					defender: $args.defender
-					flavour: $$> ^r${args.attacker.label//uc1} hits ${args.defender.label} for ${this.damages} hp.
+					flavour: $$> ^r${args.attacker.label//uc1} hits ${args.defender.label} for ${damages} hp.
 			
 		[else]
 			[fortune]
@@ -373,27 +378,30 @@
 	
 	
 	[scene charge]
+		[set $attacker] $args.attacker
+		[set $defender] $args.defender
+		
 		#[set $args.attacker.status.cooldown] 1
-		[set $this.attackScore] $= ( $args.attacker.stats.fighting + 2 ) + ( 2 D 8 )
-		[set $this.defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
-		#[message] $> Scores: ${this.attackScore} vs ${this.defenseScore}
+		[set $attackScore] $= ( $args.attacker.stats.fighting + 2 ) + ( 2 D 8 )
+		[set $defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
+		#[message] $> Scores: ${attackScore} vs ${defenseScore}
 		
 		[message] $> ${args.attacker.label//uc1} charges ${args.defender.label}!
 		
-		[if $this.attackScore > $this.defenseScore]
-			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
+		[if $attackScore > $defenseScore]
+			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
 			[subscene deal-damages]
 				[args]
 					attacker: $args.attacker
 					defender: $args.defender
-					flavour: $$> ^r${args.attacker.label//uc1} hits ${args.defender.label} for ${this.damages} hp.
+					flavour: $$> ^r${args.attacker.label//uc1} hits ${args.defender.label} for ${damages} hp.
 					mul: 1.5
 					add: 1
 			
-			[if $this.deadlyPush]
+			[if $battle.deadlyPush]
 				[subscene deadly-push]
 					[args] $args
-		[elseif ( $this.attackScore = $this.defenseScore ) && $this.deadlyPush]
+		[elseif ( $attackScore = $defenseScore ) && $battle.deadlyPush]
 			[message] $> ${args.defender.label//uc1} blocks ${args.attacker.label}.
 			[subscene deadly-push]
 				[args] $args
@@ -406,20 +414,30 @@
 	
 	
 	[scene fireball]
+		[set $attacker] $args.attacker
+		[set $defender] $args.defender
+		
+		[set $attacker.status.mana] $attacker.status.mana - 6
+		[message] $> mana: ${attacker.status.mana}
+		[if $attacker.status.mana < 0]
+			[set $attacker.status.mana] 0
+			[message] Not enough mana!
+			[return]
+		
 		[set $args.attacker.status.cooldown] 1
-		[set $this.attackScore] $= ( 20 ) + ( 2 D 8 )
-		[set $this.defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
-		#[message] $> Scores: ${this.attackScore} vs ${this.defenseScore}
+		[set $attackScore] $= ( 20 ) + ( 2 D 8 )
+		[set $defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
+		#[message] $> Scores: ${attackScore} vs ${defenseScore}
 		
 		[message] $> ${args.attacker.label//uc1} cast a ^rfireball^ at ${args.defender.label}!
 		
-		[if $this.attackScore > $this.defenseScore]
-			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
+		[if $attackScore > $defenseScore]
+			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
 			[subscene deal-damages]
 				[args]
 					attacker: $args.attacker
 					defender: $args.defender
-					flavour: $$> ^rThe fireball hits ${args.defender.label} for ${this.damages} hp.
+					flavour: $$> ^rThe fireball hits ${args.defender.label} for ${damages} hp.
 					base: $= 8 + ( 2 D 8 )
 			
 			[subscene splash-damages]
@@ -427,7 +445,7 @@
 					attacker: $args.attacker
 					defender: $args.defender
 					damages: $$= 4 + ( 2 D 4 )
-					flavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${this.damages} hp.
+					flavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
 					targetChance: 0.5
 					targetCount: 3
 			
@@ -440,12 +458,12 @@
 	
 	
 	[scene deadly-push]
-		[set $this.attackScore] $= ( ( max $args.attacker.stats.strength ( $args.attacker.stats.fighting - 3 ) ) + $this.deadlyPush.bonus ) + ( 2 D 6 )
-		[set $this.defenseScore] $= $args.defender.stats.strength + ( 2 D 6 )
+		[set $attackScore] $= ( ( max $args.attacker.stats.strength ( $args.attacker.stats.fighting - 3 ) ) + $battle.deadlyPush.bonus ) + ( 2 D 6 )
+		[set $defenseScore] $= $args.defender.stats.strength + ( 2 D 6 )
 		
-		[if $this.attackScore > $this.defenseScore]
+		[if $attackScore > $defenseScore]
 			[set $args.defender.status.hp] 0
-			[apply-to $flavour] $this.deadlyPush.flavour
+			[apply-to $flavour] $battle.deadlyPush.flavour
 			[message] $flavour
 		
 		
