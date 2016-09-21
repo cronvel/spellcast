@@ -311,6 +311,32 @@ describe( "Control flow tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[continue] tag (into [foreach])" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/foreach-continue.kfg' , { type: 'cast' , target: 'foreach-continue' } ,
+			function( ui ) {
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'The value is: zero' ] ,
+					[ 'The value is: one' ] ,
+					[ 'The value is: two' ] ,
+					[ 'The value is: four' ] ,
+					[ 'The value is: five' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "[return] tag" ) ;
 } ) ;
 
