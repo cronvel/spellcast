@@ -285,6 +285,33 @@ describe( "Control flow tags" , function() {
 			}
 		) ;
 	} ) ;
+	
+	it( "[break] tag (into [foreach])" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/foreach-break.kfg' , { type: 'cast' , target: 'foreach-break' } ,
+			function( ui ) {
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'The value is: zero' ] ,
+					[ 'The value is: one' ] ,
+					[ 'The value is: two' ] ,
+					[ 'The value is: three' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[return] tag" ) ;
 } ) ;
 
 

@@ -64,6 +64,9 @@
 [chapter intro]
 	[scene init]
 		[next goblin-camp]
+			[label] Multiple foes.
+		[next first-encounter]
+			[label] One foe.
 	
 	[scene goblin-camp]
 		[message]
@@ -181,14 +184,9 @@
 			#[debug info] $entity
 			[if $entity.status.hp > 0]
 				# At least one enemy is alive, start a new turn
-				# [goto] is buggy inside of [foreach]
-				#[goto new-turn]
-				[set $continue] true
+				[goto new-turn]
 		
-		[if $continue]
-			[goto new-turn]
-		[else]
-			[goto win]
+		[goto win]
 	
 	
 	

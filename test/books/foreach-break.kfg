@@ -1,0 +1,20 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	list:
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+
+[spell foreach-break]
+	#[foreach $list => $value]
+	[foreach $list => $key : $value]
+		[message]
+			$> The value is: ${value}
+		[if $value = "three"]
+			[break]
+

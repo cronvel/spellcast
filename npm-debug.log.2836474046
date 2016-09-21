@@ -1,0 +1,137 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/opt/node.js-v4.5.0/bin/node', '/usr/bin/npm', 'publish' ]
+2 info using npm@2.15.9
+3 info using node@v4.5.0
+4 verbose publish [ '.' ]
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec Result {
+7 silly cache add   raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: '/home/cedric/inside/github/spellcast',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /home/cedric/.npm/spellcast/0.17.8/package.tgz not in flight; packing
+9 verbose correctMkdir /home/cedric/.npm correctMkdir not in flight; initializing
+10 verbose tar pack [ '/home/cedric/.npm/spellcast/0.17.8/package.tgz',
+10 verbose tar pack   '/home/cedric/inside/github/spellcast' ]
+11 verbose tarball /home/cedric/.npm/spellcast/0.17.8/package.tgz
+12 verbose folder /home/cedric/inside/github/spellcast
+13 info prepublish spellcast@0.17.8
+14 verbose addLocalTarball adding from inside cache /home/cedric/.npm/spellcast/0.17.8/package.tgz
+15 verbose correctMkdir /home/cedric/.npm correctMkdir not in flight; initializing
+16 silly cache afterAdd spellcast@0.17.8
+17 verbose afterAdd /home/cedric/.npm/spellcast/0.17.8/package/package.json not in flight; writing
+18 verbose correctMkdir /home/cedric/.npm correctMkdir not in flight; initializing
+19 verbose afterAdd /home/cedric/.npm/spellcast/0.17.8/package/package.json written
+20 silly publish { name: 'spellcast',
+20 silly publish   version: '0.17.8',
+20 silly publish   description: 'It\'s like \'make\', but with a touch of Wizardry.',
+20 silly publish   main: 'lib/Book.js',
+20 silly publish   directories: { test: 'test' },
+20 silly publish   bin: { spellcast: './bin/spellcast' },
+20 silly publish   dependencies:
+20 silly publish    { '@cronvel/minimatch': '^3.0.2',
+20 silly publish      'async-kit': '^2.1.6',
+20 silly publish      'babel-tower': '^0.9.3',
+20 silly publish      chokidar: '^1.6.0',
+20 silly publish      'dom-kit': '^0.1.0',
+20 silly publish      doormen: '^0.6.5',
+20 silly publish      glob: '^7.0.6',
+20 silly publish      'kung-fig': '^0.27.1',
+20 silly publish      logfella: '^0.3.43',
+20 silly publish      'math-kit': '^0.3.5',
+20 silly publish      minimist: '^1.2.0',
+20 silly publish      'nextgen-events': '^0.9.8',
+20 silly publish      semver: '^5.3.0',
+20 silly publish      'string-kit': '^0.5.10',
+20 silly publish      'terminal-kit': '^0.24.29',
+20 silly publish      'tif-parser': '^0.3.3',
+20 silly publish      'tree-kit': '^0.5.26',
+20 silly publish      ws: '^1.1.1' },
+20 silly publish   devDependencies:
+20 silly publish    { browserify: '^13.1.0',
+20 silly publish      'expect.js': '^0.3.1',
+20 silly publish      'fs-kit': '^0.1.5',
+20 silly publish      jshint: '^2.9.2',
+20 silly publish      mocha: '^2.5.3',
+20 silly publish      'uglify-js': '^2.7.0' },
+20 silly publish   scripts: { test: 'tea-time -R dot -O' },
+20 silly publish   repository:
+20 silly publish    { type: 'git',
+20 silly publish      url: 'git+https://github.com/cronvel/spellcast.git' },
+20 silly publish   keywords:
+20 silly publish    [ 'make',
+20 silly publish      'makefile',
+20 silly publish      'spell',
+20 silly publish      'spellcast',
+20 silly publish      'cast',
+20 silly publish      'spellbook',
+20 silly publish      'magic',
+20 silly publish      'wizardry',
+20 silly publish      'dependency' ],
+20 silly publish   author: { name: 'Cédric Ronvel' },
+20 silly publish   license: 'MIT',
+20 silly publish   bugs: { url: 'https://github.com/cronvel/spellcast/issues' },
+20 silly publish   copyright:
+20 silly publish    { title: 'Spellcast',
+20 silly publish      years: [ 2014, 2016 ],
+20 silly publish      owner: 'Cédric Ronvel' },
+20 silly publish   readme: '\n\n# Spellcast!\n\nIt\'s like \'make\', but with a touch of Wizardry!\n\nThis Scroll is still a work in progress (specs, etc...)\n\n* License: MIT\n* Current status: early alpha / unstable / hazardous magical energy / DO NOT USE YET!\n* Platform: Node.js only\n* Are-we-better-yet: **Maybe.**\n\n\nUsage: `spellcast [--book <spellbook>] <spell or summoning> [<options 1>] [<options 2>] [...]`\n\n* *spell*: a spell to cast (i.e. some actions to perform) existing in the spellbook.\n* *summoning*: a file to summon, it\'s like *spell* but the result should build the file\n\nOptions:\n\n* `--book <spellbook>`: the magical book (i.e. the file, like `Makefile` for make) containing all spells and summonings.\n  It defaults to `./spellbook`.\n* `--again`: cast or summon even if it\'s not needed.\n* `--undead [<respawn time>]`: continously raise undead (i.e. do not exit, instead watch dependencies and cast/summon again),\n  `respawn time` is the debounce time in ms.\n* `--summon-makefile`: summon a Makefile having one rule for each spell and summoning of the spellbook.\n',
+20 silly publish   readmeFilename: 'README.md',
+20 silly publish   gitHead: '4ff34f576a325793bba7ff0a55d9e90a2c7c7de9',
+20 silly publish   homepage: 'https://github.com/cronvel/spellcast#readme',
+20 silly publish   _id: 'spellcast@0.17.8',
+20 silly publish   _shasum: 'a07bd934f1f7be7fa94cd802fb7cf15cf0f0523d',
+20 silly publish   _from: '.' }
+21 verbose getPublishConfig undefined
+22 silly mapToRegistry name spellcast
+23 silly mapToRegistry using default registry
+24 silly mapToRegistry registry https://registry.npmjs.org/
+25 silly mapToRegistry data Result {
+25 silly mapToRegistry   raw: 'spellcast',
+25 silly mapToRegistry   scope: null,
+25 silly mapToRegistry   name: 'spellcast',
+25 silly mapToRegistry   rawSpec: '',
+25 silly mapToRegistry   spec: 'latest',
+25 silly mapToRegistry   type: 'tag' }
+26 silly mapToRegistry uri https://registry.npmjs.org/spellcast
+27 verbose publish registryBase https://registry.npmjs.org/
+28 silly publish uploading /home/cedric/.npm/spellcast/0.17.8/package.tgz
+29 verbose request uri https://registry.npmjs.org/spellcast
+30 verbose request sending authorization for write operation
+31 info attempt registry request try #1 at 10:01:55 PM
+32 verbose request id 1b5ec19494539db7
+33 http request PUT https://registry.npmjs.org/spellcast
+34 http 200 https://registry.npmjs.org/spellcast
+35 verbose headers { 'content-type': 'application/json',
+35 verbose headers   'content-encoding': 'gzip',
+35 verbose headers   'cache-control': 'max-age=300',
+35 verbose headers   'transfer-encoding': 'chunked',
+35 verbose headers   'accept-ranges': 'bytes',
+35 verbose headers   date: 'Tue, 20 Sep 2016 20:02:05 GMT',
+35 verbose headers   via: '1.1 varnish',
+35 verbose headers   connection: 'keep-alive',
+35 verbose headers   'x-served-by': 'cache-lcy1122-LCY',
+35 verbose headers   'x-cache': 'MISS',
+35 verbose headers   'x-cache-hits': '0',
+35 verbose headers   'x-timer': 'S1474401715.775065,VS0,VE10199',
+35 verbose headers   vary: 'Accept-Encoding' }
+36 verbose request invalidating /home/cedric/.npm/registry.npmjs.org/spellcast on PUT
+37 info publish spellcast@0.17.8
+38 verbose stack Error: write EPIPE
+38 verbose stack     at exports._errnoException (util.js:907:11)
+38 verbose stack     at WriteWrap.afterWrite (net.js:785:14)
+39 verbose cwd /home/cedric/inside/github/spellcast
+40 error Linux 4.6.7-200.fc23.x86_64
+41 error argv "/opt/node.js-v4.5.0/bin/node" "/usr/bin/npm" "publish"
+42 error node v4.5.0
+43 error npm  v2.15.9
+44 error code EPIPE
+45 error errno EPIPE
+46 error syscall write
+47 error write EPIPE
+48 error If you need help, you may report this error at:
+48 error     <https://github.com/npm/npm/issues>
+49 verbose exit [ 1, true ]
