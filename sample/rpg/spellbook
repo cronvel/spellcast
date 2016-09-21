@@ -156,8 +156,8 @@
 	
 	
 	[scene initiative]
-		[foreach $this.turns => $index : $entity]
-			[set $this.turns[$index].status.initiativeScore] $= $this.turns[$index].stats.fighting + ( 2 D 8 )
+		[foreach $this.turns => $entity]
+			[set $entity.status.initiativeScore] $= $entity.stats.fighting + ( 2 D 8 )
 		
 		[sort $this.turns]
 			key: $status.initiativeScore
@@ -184,8 +184,6 @@
 		
 		[if $this.hero.status.hp <= 0]
 			[goto lost]
-		
-		[set $continue] false
 		
 		[foreach $this.foes => $index : $entity]
 			#[debug info] $entity
