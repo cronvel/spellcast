@@ -37,10 +37,10 @@
 		
 		[split]
 #			[branch]
-			[subscene alice]
+			[gosub alice]
 				[roles]
 					- alice
-			[subscene bob]
+			[gosub bob]
 				[roles]
 					- bob
 		

@@ -31,7 +31,7 @@
 		[emit blast] Bob
 		[message] $> ...
 		[pause] 0.2
-		[subscene sub1]
+		[gosub sub1]
 		[message]
 			$> ...
 		[next start]

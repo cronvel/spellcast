@@ -4,7 +4,7 @@
 This is just like an independent book. The execution can run the quest, leave it to the main-line, then resume
 to its exact position. [quest] tags constain [scene] tags. 
 In the main story line, the [resume-quest] tag is used to resume it.
-While [subscene] works like a kind of *function*, [quest] works more like a *generator*.
+While [gosub]+[scene] works like a kind of *function*, [quest] works more like a *generator*.
 
 Multiplayer mode:
 

@@ -79,7 +79,7 @@
 			$> A goblin go out of his tent, see you, and shouts!
 			$> Five other goblins are going out of their tents, ready to fight you!
 		
-		[subscene battle/init]
+		[gosub battle/init]
 			[args]
 				foes:
 					- goblin
@@ -97,7 +97,7 @@
 			$> Suddenly, a big and tough guy appears.
 			$> He does not say much except grumbling something like “I'm the guardian” and start rushing you with a giant club.
 		
-		[subscene battle/init]
+		[gosub battle/init]
 			[args]
 				foes:
 					- guardian
@@ -115,7 +115,7 @@
 			$> Instead of waiting for you, he starts walking on the beam toward you.
 			$> He swings the air with its giant club as he taunts you, inviting you to go ahead fighting him.
 		
-		[subscene battle/init]
+		[gosub battle/init]
 			[args]
 				foes:
 					- guardian
@@ -206,13 +206,13 @@
 			[goto end-turn]
 		
 		[if $battle.entityTurn.params.charge && ( ( random ) <= $battle.entityTurn.params.charge )]
-			[subscene charge]
+			[gosub charge]
 				[args]
 					attacker: $battle.entityTurn
 					defender: $battle.hero
 			[goto end-turn]
 		
-		[subscene melee]
+		[gosub melee]
 			[args]
 				attacker: $battle.entityTurn
 				defender: $battle.hero
@@ -262,8 +262,8 @@
 	
 	
 	[scene hero-melee]
-		[subscene hero-target]
-		[subscene melee]
+		[gosub hero-target]
+		[gosub melee]
 			[args]
 				attacker: $battle.hero
 				defender: $battle.target
@@ -272,8 +272,8 @@
 	
 	
 	[scene hero-charge]
-		[subscene hero-target]
-		[subscene charge]
+		[gosub hero-target]
+		[gosub charge]
 			[args]
 				attacker: $battle.hero
 				defender: $battle.target
@@ -282,8 +282,8 @@
 	
 	
 	[scene hero-fireball]
-		[subscene hero-target]
-		[subscene fireball]
+		[gosub hero-target]
+		[gosub fireball]
 			[args]
 				attacker: $battle.hero
 				defender: $battle.target
@@ -363,7 +363,7 @@
 		
 		[if $attackScore > $defenseScore]
 			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
-			[subscene deal-damages]
+			[gosub deal-damages]
 				[args]
 					attacker: $args.attacker
 					defender: $args.defender
@@ -390,7 +390,7 @@
 		
 		[if $attackScore > $defenseScore]
 			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
-			[subscene deal-damages]
+			[gosub deal-damages]
 				[args]
 					attacker: $args.attacker
 					defender: $args.defender
@@ -399,11 +399,11 @@
 					add: 1
 			
 			[if $battle.deadlyPush]
-				[subscene deadly-push]
+				[gosub deadly-push]
 					[args] $args
 		[elseif ( $attackScore = $defenseScore ) && $battle.deadlyPush]
 			[message] $> ${args.defender.label//uc1} blocks ${args.attacker.label}.
-			[subscene deadly-push]
+			[gosub deadly-push]
 				[args] $args
 		[else]
 			[fortune]
@@ -433,14 +433,14 @@
 		
 		[if $attackScore > $defenseScore]
 			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
-			[subscene deal-damages]
+			[gosub deal-damages]
 				[args]
 					attacker: $args.attacker
 					defender: $args.defender
 					flavour: $$> ^rThe fireball hits ${args.defender.label} for ${damages} hp.
 					base: $= 8 + ( 2 D 8 )
 			
-			[subscene splash-damages]
+			[gosub splash-damages]
 				[args]
 					attacker: $args.attacker
 					defender: $args.defender

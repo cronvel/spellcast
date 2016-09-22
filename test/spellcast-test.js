@@ -1267,14 +1267,18 @@ describe( "Basic adventurer tags and features" , function() {
 		.exec( done ) ;
 	} ) ;
 	
+	it( "[next] tag instances ([next] into loop)" ) ;
+	it( "[next]'s [on-trigger] tag" ) ;
+	
 	it( "[end]/[win]/[lost]/[draw] tags" ) ;
-	it( "[subscene] tag" ) ;
 	it( "[goto] tag" ) ;
+	it( "[gosub] tag" ) ;
 	it( "[include] tag" ) ;
 	it( "[action] tag" ) ;
 	
 	it( "Special var $local" ) ;
 	it( "Special var $global" ) ;
+	it( "Special var $static (TODO, should contains persistent data from the scene)" ) ;
 	
 	it( "Special var $args" , function( done ) {
 		
@@ -1298,7 +1302,7 @@ describe( "Basic adventurer tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "Special var $return" ) ;	// Not coded ATM, should be used to pass something from a sub-scene to a scene
+	it( "Special var $return (TODO, it should contains data from the children subscene)" ) ;
 	it( "Special var $this" ) ;
 } ) ;
 

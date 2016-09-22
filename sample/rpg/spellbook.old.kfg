@@ -50,7 +50,7 @@
 			$> A goblin go out of his tent, see you, and shouts!
 			$> Four other goblins are going out of their tents, ready to fight you!
 		
-		[subscene battle/init]
+		[gosub battle/init]
 			[args]
 				foes:
 					- goblin
@@ -67,7 +67,7 @@
 			$> Suddenly, a big and tough guy appears.
 			$> He does not say much except grumbling something like “I'm the guardian” and start rushing you with a giant club.
 		
-		[subscene battle/init]
+		[gosub battle/init]
 			[args]
 				foes:
 					- guardian
@@ -85,7 +85,7 @@
 			$> Instead of waiting for you, he starts walking on the beam toward you.
 			$> He swings the air with its giant club as he taunts you, inviting you to go ahead fighting him.
 		
-		[subscene battle/init]
+		[gosub battle/init]
 			[args]
 				foes:
 					- guardian
@@ -150,14 +150,14 @@
 			[goto end-turn]
 		
 		[if $this.enemy.params.charge && ( ( random ) <= $this.enemy.params.charge )]
-			[subscene charge]
+			[gosub charge]
 				[args]
 					attacker: $this.enemy
 					defender: $this.hero
 			
 			[goto end-turn]
 		
-		[subscene melee]
+		[gosub melee]
 			[args]
 				attacker: $this.enemy
 				defender: $this.hero
@@ -179,7 +179,7 @@
 	
 	
 	[scene hero-melee]
-		[subscene melee]
+		[gosub melee]
 			[args]
 				attacker: $this.hero
 				defender: $this.enemy
@@ -188,7 +188,7 @@
 	
 	
 	[scene hero-charge]
-		[subscene charge]
+		[gosub charge]
 			[args]
 				attacker: $this.hero
 				defender: $this.enemy
@@ -226,7 +226,7 @@
 		
 		[if $this.attackScore > $this.defenseScore]
 			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
-			[subscene deal-damages]
+			[gosub deal-damages]
 				[args]
 					attacker: $args.attacker
 					defender: $args.defender
@@ -258,7 +258,7 @@
 		
 		[if $this.attackScore > $this.defenseScore]
 			#[message] $> ${this.hero.stats.damageBase} + ${this.hero.stats.damageDice} D ${this.hero.stats.damageFaces}
-			[subscene deal-damages]
+			[gosub deal-damages]
 				[args]
 					attacker: $args.attacker
 					defender: $args.defender
@@ -275,11 +275,11 @@
 			[if $args.defender.status.hp <= 0]
 				[message] $> ${args.defender.label//uc1} is dead.
 			[if $this.deadlyPush]
-				[subscene deadly-push]
+				[gosub deadly-push]
 					[args] $args
 		[elseif ( $this.attackScore = $this.defenseScore ) && $this.deadlyPush]
 			[message] $> ${args.defender.label//uc1} blocks ${args.attacker.label}.
-			[subscene deadly-push]
+			[gosub deadly-push]
 				[args] $args
 		[else]
 			[fortune]
