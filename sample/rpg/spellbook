@@ -39,6 +39,9 @@
 		- the tiny goblin
 		- the edgy goblin
 		- the restless goblin
+		- the shivering goblin
+		- the malicious goblin
+		- the nasty goblin
 	stats:
 		xpReward: 2
 		fighting: 8
@@ -311,7 +314,7 @@
 		[if $args.base]
 			[set $damages] $args.base
 		[else]
-			[set $damages] $= random ( $args.attacker.stats.strength / 4 ) ( $args.attacker.stats.strength / 2 )
+			[set $damages] $= random ( $attacker.stats.strength / 4 ) ( $attacker.stats.strength / 2 )
 		
 		[if $args.mul]
 			[set $damages] $= $damages * $args.mul
@@ -319,13 +322,13 @@
 			[set $damages] $= $damages + $args.add
 		
 		[set $damages] $= round $damages
-		[set $args.defender.status.hp] $= $args.defender.status.hp - $damages
+		[set $defender.status.hp] $= $defender.status.hp - $damages
 		
 		[apply-to $flavour] $args.flavour
 		[message] $flavour
 		
-		[if $args.defender.status.hp <= 0]
-			[message] $> ^r${args.defender.label//uc1} is dead.
+		[if $defender.status.hp <= 0]
+			[message] $> ^r${defender.label//uc1} is dead.
 	
 	
 	
@@ -337,9 +340,9 @@
 			
 			[if ( $target.status.hp <= 0 )]
 				[continue]
-			[if ( $target = $args.defender ) || ( $target = $args.attacker )]
+			[if ( $target = $defender ) || ( $target = $attacker )]
 				[continue]
-			[if ( $target.side = $args.attacker.side )]
+			[if ( $target.side = $attacker.side )]
 				[continue]
 			
 			[if ( random ) <= $args.targetChance )]
@@ -358,22 +361,20 @@
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
 		
-		[set $attackScore] $= $args.attacker.stats.fighting + ( 2 D 8 )
-		[set $defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
+		[set $attackScore] $= $attacker.stats.fighting + ( 2 D 8 )
+		[set $defenseScore] $= $defender.stats.fighting + ( 2 D 8 )
 		
 		[if $attackScore > $defenseScore]
 			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
 			[gosub deal-damages]
 				[args]
-					attacker: $args.attacker
-					defender: $args.defender
-					flavour: $$> ^r${args.attacker.label//uc1} hits ${args.defender.label} for ${damages} hp.
+					flavour: $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
 			
 		[else]
 			[fortune]
-				- $> ${args.attacker.label//uc1} misses ${args.defender.label}.
-				- $> ${args.defender.label//uc1} blocks ${args.attacker.label}.
-				- $> ${args.defender.label//uc1} avoids ${args.attacker.label}.
+				- $> ${attacker.label//uc1} misses ${defender.label}.
+				- $> ${defender.label//uc1} blocks ${attacker.label}.
+				- $> ${defender.label//uc1} avoids ${attacker.label}.
 	
 	
 	
@@ -381,35 +382,31 @@
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
 		
-		#[set $args.attacker.status.cooldown] 1
-		[set $attackScore] $= ( $args.attacker.stats.fighting + 2 ) + ( 2 D 8 )
-		[set $defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
+		#[set $attacker.status.cooldown] 1
+		[set $attackScore] $= ( $attacker.stats.fighting + 2 ) + ( 2 D 8 )
+		[set $defenseScore] $= $defender.stats.fighting + ( 2 D 8 )
 		#[message] $> Scores: ${attackScore} vs ${defenseScore}
 		
-		[message] $> ${args.attacker.label//uc1} charges ${args.defender.label}!
+		[message] $> ${attacker.label//uc1} charges ${defender.label}!
 		
 		[if $attackScore > $defenseScore]
 			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
 			[gosub deal-damages]
 				[args]
-					attacker: $args.attacker
-					defender: $args.defender
-					flavour: $$> ^r${args.attacker.label//uc1} hits ${args.defender.label} for ${damages} hp.
+					flavour: $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
 					mul: 1.5
 					add: 1
 			
 			[if $battle.deadlyPush]
 				[gosub deadly-push]
-					[args] $args
 		[elseif ( $attackScore = $defenseScore ) && $battle.deadlyPush]
-			[message] $> ${args.defender.label//uc1} blocks ${args.attacker.label}.
+			[message] $> ${defender.label//uc1} blocks ${attacker.label}.
 			[gosub deadly-push]
-				[args] $args
 		[else]
 			[fortune]
-				- $> ${args.attacker.label//uc1} misses ${args.defender.label}.
-				- $> ${args.defender.label//uc1} blocks ${args.attacker.label}.
-				- $> ${args.defender.label//uc1} avoids ${args.attacker.label}.
+				- $> ${attacker.label//uc1} misses ${defender.label}.
+				- $> ${defender.label//uc1} blocks ${attacker.label}.
+				- $> ${defender.label//uc1} avoids ${attacker.label}.
 	
 	
 	
@@ -417,33 +414,29 @@
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
 		
-		[set $attacker.status.mana] $attacker.status.mana - 6
+		[set $attacker.status.mana] $= $attacker.status.mana - 6
 		[message] $> mana: ${attacker.status.mana}
 		[if $attacker.status.mana < 0]
 			[set $attacker.status.mana] 0
 			[message] Not enough mana!
 			[return]
 		
-		[set $args.attacker.status.cooldown] 1
+		[set $attacker.status.cooldown] 1
 		[set $attackScore] $= ( 20 ) + ( 2 D 8 )
-		[set $defenseScore] $= $args.defender.stats.fighting + ( 2 D 8 )
+		[set $defenseScore] $= $defender.stats.fighting + ( 2 D 8 )
 		#[message] $> Scores: ${attackScore} vs ${defenseScore}
 		
-		[message] $> ${args.attacker.label//uc1} cast a ^rfireball^ at ${args.defender.label}!
+		[message] $> ${attacker.label//uc1} cast a ^rfireball^ at ${defender.label}!
 		
 		[if $attackScore > $defenseScore]
 			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
 			[gosub deal-damages]
 				[args]
-					attacker: $args.attacker
-					defender: $args.defender
-					flavour: $$> ^rThe fireball hits ${args.defender.label} for ${damages} hp.
+					flavour: $$> ^rThe fireball hits ${defender.label} for ${damages} hp.
 					base: $= 8 + ( 2 D 8 )
 			
 			[gosub splash-damages]
 				[args]
-					attacker: $args.attacker
-					defender: $args.defender
 					damages: $$= 4 + ( 2 D 4 )
 					flavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
 					targetChance: 0.5
@@ -451,18 +444,18 @@
 			
 		[else]
 			[fortune]
-				- $> The ^rfireball^ misses ${args.defender.label}.
-				- $> ${args.defender.label//uc1} evades the ^rfireball^:.
-				- $> ${args.defender.label//uc1} avoids the ^rfireball^:.
+				- $> The ^rfireball^ misses ${defender.label}.
+				- $> ${defender.label//uc1} evades the ^rfireball^:.
+				- $> ${defender.label//uc1} avoids the ^rfireball^:.
 	
 	
 	
 	[scene deadly-push]
-		[set $attackScore] $= ( ( max $args.attacker.stats.strength ( $args.attacker.stats.fighting - 3 ) ) + $battle.deadlyPush.bonus ) + ( 2 D 6 )
-		[set $defenseScore] $= $args.defender.stats.strength + ( 2 D 6 )
+		[set $attackScore] $= ( ( max $attacker.stats.strength ( $attacker.stats.fighting - 3 ) ) + $battle.deadlyPush.bonus ) + ( 2 D 6 )
+		[set $defenseScore] $= $defender.stats.strength + ( 2 D 6 )
 		
 		[if $attackScore > $defenseScore]
-			[set $args.defender.status.hp] 0
+			[set $defender.status.hp] 0
 			[apply-to $flavour] $battle.deadlyPush.flavour
 			[message] $flavour
 		
