@@ -18,6 +18,17 @@
 		mana: 20
 		xp: 0
 
+[entity-model dog]
+	class: character
+	label: the dog
+	stats:
+		xpReward: 5
+		fighting: 12
+		strength: 12
+		hp: 12
+	status:
+		hp: 12
+
 [entity-model goblin]
 	class: character
 	label:
@@ -30,6 +41,7 @@
 		- the irksome goblin
 		- the bald-headed goblin
 		- the insane goblin
+		- the angry goblin
 		- the shaggy goblin
 		- the hairy goblin
 		- the stinking goblin
@@ -42,6 +54,8 @@
 		- the shivering goblin
 		- the malicious goblin
 		- the nasty goblin
+		- the disgusting goblin
+		- the ugly goblin
 	stats:
 		xpReward: 2
 		fighting: 8
@@ -78,13 +92,28 @@
 	
 	[scene goblin-camp]
 		[message]
-			$> You are in a middle of a goblin camp, there are three tents.
+			$> You are in a middle of a goblin camp, there are half a dozen of tents.
 			$> A goblin go out of his tent, see you, and shouts!
-			$> Five other goblins are going out of their tents, ready to fight you!
+			$> Twelve other goblins are going out of their tents, ready to fight you!
+			$> The stray dog that was following you barks angrily, and jump in the battle at your side!
+		
+		[create-entity $dog]
+			model: dog
+			label: the stray dog
 		
 		[gosub battle/init]
 			[args]
+				allies:
+					- $roles.hero.entity
+					- $dog
 				foes:
+					- goblin
+					- goblin
+					- goblin
+					- goblin
+					- goblin
+					- goblin
+					- goblin
 					- goblin
 					- goblin
 					- goblin
@@ -102,6 +131,8 @@
 		
 		[gosub battle/init]
 			[args]
+				allies:
+					- $roles.hero.entity
 				foes:
 					- guardian
 				deadlyPush:
@@ -120,6 +151,8 @@
 		
 		[gosub battle/init]
 			[args]
+				allies:
+					- $roles.hero.entity
 				foes:
 					- guardian
 				deadlyPush:
@@ -135,24 +168,34 @@
 	[scene init]
 		[set $battle] <Object>
 		
-		#[message] $> Hello ${roles.hero.entity.label}
-		[set $battle.hero] $roles.hero.entity
 		[set $battle.foes] <Array>
 		[set $battle.turnIndex] 0
-		[set $battle.turns]
-			- $battle.hero
+		[set $battle.turns] <Array>
 		
-		[foreach $args.foes => $index : $type]
-			[create-entity $battle.foes[$index]] $args.foes[$index]
-			[set $battle.foes[$index].status.cooldown] 0
+		[foreach $args.foes => $index : $foe]
+			[if $foe is-entity?]
+				[set $battle.foes[$index]] $foe
+			[else]
+				[create-entity $battle.foes[$index]] $foe
 			[set $battle.foes[$index].side] foes
 			[append $battle.turns] $battle.foes[$index]
 		
+		[foreach $args.allies => $index : $ally]
+			[if $ally is-entity?]
+				[set $battle.allies[$index]] $ally
+			[else]
+				[create-entity $battle.allies[$index]] $ally
+			[set $battle.allies[$index].side] allies
+			[append $battle.turns] $battle.allies[$index]
+			
+		
+		#[debug info] $battle.allies
 		#[debug info] $battle.foes
 		#[debug info] $battle.turns
 		
-		[set $battle.hero.status.cooldown] 0
-		[set $battle.hero.side] allies
+		# Init all entities
+		[foreach $battle.turns => $index : $type]
+			[set $battle.turns[$index].status.cooldown] 0
 		
 		[set $battle.deadlyPush] $args.deadlyPush
 		
@@ -177,30 +220,6 @@
 	[scene new-turn]
 		[set $battle.entityTurn] $= $battle.turns[$battle.turnIndex]
 		
-		[if $battle.entityTurn = $battle.hero]
-			[goto hero-turn]
-		[else]
-			[goto foe-turn]
-	
-	
-	
-	[scene end-turn]
-		[set $battle.turnIndex] $= ( $battle.turnIndex + 1 ) % $battle.turns.length
-		
-		[if $battle.hero.status.hp <= 0]
-			[goto lost]
-		
-		[foreach $battle.foes => $index : $entity]
-			#[debug info] $entity
-			[if $entity.status.hp > 0]
-				# At least one enemy is alive, start a new turn
-				[goto new-turn]
-		
-		[goto win]
-	
-	
-	
-	[scene foe-turn]
 		[if $battle.entityTurn.status.hp <= 0]
 			[goto end-turn]
 		
@@ -208,104 +227,169 @@
 			[set $battle.entityTurn.status.cooldown] $= $battle.entityTurn.status.cooldown - 1
 			[goto end-turn]
 		
+		[if $battle.entityTurn.npc]
+			[goto npc-turn]
+		[else]
+			[goto pc-turn]
+	
+	
+	
+	[scene end-turn]
+		[set $battle.turnIndex] $= ( $battle.turnIndex + 1 ) % $battle.turns.length
+		
+		[set $alliesAlive] 0
+		[set $foesAlive] 0
+		
+		[foreach $battle.allies => $entity]
+			[if $entity.status.hp > 0]
+				[set $alliesAlive] $= $alliesAlive + 1
+		
+		[foreach $battle.foes => $entity]
+			[if $entity.status.hp > 0]
+				[set $foesAlive] $= $foesAlive + 1
+		
+		#[message] $> Alive: ${alliesAlive} ${foesAlive}
+		
+		[if ! $alliesAlive]
+			[goto lost]
+		[elseif ! $foesAlive]
+			[goto win]
+		[else]
+			[goto new-turn]
+	
+	
+	
+	[scene npc-turn]
+		
+		[gosub npc-targeting]
+		
 		[if $battle.entityTurn.params.charge && ( ( random ) <= $battle.entityTurn.params.charge )]
 			[gosub charge]
 				[args]
 					attacker: $battle.entityTurn
-					defender: $battle.hero
+					defender: $battle.target
 			[goto end-turn]
 		
 		[gosub melee]
 			[args]
 				attacker: $battle.entityTurn
-				defender: $battle.hero
+				defender: $battle.target
 		
 		[goto end-turn]
 		
 	
 	
-	[scene hero-turn]
-		[if $battle.hero.status.cooldown > 0]
-			[set $battle.hero.status.cooldown] $= $battle.hero.status.cooldown - 1
-			[goto end-turn]
-		
-		[next hero-melee]
+	[scene pc-turn]
+		[next pc-melee]
 			[label] Attack
 		
-		[next hero-charge]
+		[next pc-charge]
 			[label] Charge!
 	
-		[next hero-fireball]
+		[next pc-fireball]
 			[label] Fireball
 	
 	
 	
-	[scene hero-target]
+	[scene npc-targeting]
+		
+		[if $battle.entityTurn.side = "allies"]
+			[set $enemies] $battle.foes
+		[else]
+			[set $enemies] $battle.allies
+		
+		[set $enemiesAlive] <Array>
+		
+		[foreach $enemies => $entity]
+			[if $entity.status.hp > 0]
+				[append $enemiesAlive] $entity
+				[set $battle.target] $entity
+		
+		[if $enemiesAlive.length <= 1]
+			[return]
+		
+		[set $index] $= random ( $enemiesAlive.length - 1 )
+		[set $battle.target] $enemiesAlive[$index]
+	
+	
+	
+	[scene pc-targeting]
 		[set $count] 0
 		
-		[foreach $battle.foes => $index : $entity]
+		[if $battle.entityTurn.side = "allies"]
+			[set $enemies] $battle.foes
+		[else]
+			[set $enemies] $battle.allies
+		
+		[foreach $enemies => $entity]
 			[if $entity.status.hp > 0]
 				[set $count] $= $count + 1
-				[set $battle.target] $battle.foes[$index]
+				[set $battle.target] $entity
 		
 		[if $count <= 1]
 			[return]
 		
 		[message] Target?
 		
-		[foreach $battle.foes => $index : $entity]
+		[foreach $enemies => $index : $entity]
 			[if $entity.status.hp > 0]
 				[next]
 					[args]
 						index: $index
 					[label] $> ${entity.label//uc1}
 					[on-trigger]
-						[set $battle.target] $battle.foes[$args.index]
+						[set $battle.target] $enemies[$args.index]
 	
 	
 	
-	[scene hero-melee]
-		[gosub hero-target]
+	[scene pc-melee]
+		[gosub pc-targeting]
 		[gosub melee]
 			[args]
-				attacker: $battle.hero
+				attacker: $battle.entityTurn
 				defender: $battle.target
 		[goto end-turn]
 	
 	
 	
-	[scene hero-charge]
-		[gosub hero-target]
+	[scene pc-charge]
+		[gosub pc-targeting]
 		[gosub charge]
 			[args]
-				attacker: $battle.hero
+				attacker: $battle.entityTurn
 				defender: $battle.target
 		[goto end-turn]
 	
 	
 	
-	[scene hero-fireball]
-		[gosub hero-target]
+	[scene pc-fireball]
+		[gosub pc-targeting]
 		[gosub fireball]
 			[args]
-				attacker: $battle.hero
+				attacker: $battle.entityTurn
 				defender: $battle.target
 		[goto end-turn]
 	
 	
 	
 	[scene win]
-		[message] $> ${battle.hero.label//uc1} win the battle.
+		[message] $> ${battle.allies[0].label//uc1} win the battle.
 		[set $xpReward] 0
-		[foreach $battle.foes => $index : $entity]
-			[set $xpReward] $= $xpReward + $battle.foes[$index].stats.xpReward
-		[set $battle.hero.status.xp] $= $battle.hero.status.xp + $xpReward
-		[message] $> You gain ${xpReward} xp (=${battle.hero.status.xp}).
+		
+		[foreach $battle.foes => $entity]
+			[set $xpReward] $= $xpReward + $entity.stats.xpReward
+		
+		[set $xpReward] $= ceil ( $xpReward / $battle.allies.length )
+		
+		[foreach $battle.allies => $index : $entity]
+			[set $entity.status.xp] $= $entity.status.xp + $xpReward
+		
+		[message] $> You gain ${xpReward} xp (=${battle.allies[0].status.xp}).
 	
 	
 	
 	[scene lost]
-		[message] $> ${battle.hero.label//uc1} died on the battlefield.
+		[message] $> ${battle.allies[0].label//uc1} died on the battlefield.
 		[lost]
 
 	
@@ -365,7 +449,6 @@
 		[set $defenseScore] $= $defender.stats.fighting + ( 2 D 8 )
 		
 		[if $attackScore > $defenseScore]
-			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
 			[gosub deal-damages]
 				[args]
 					flavour: $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
@@ -390,7 +473,6 @@
 		[message] $> ${attacker.label//uc1} charges ${defender.label}!
 		
 		[if $attackScore > $defenseScore]
-			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
 			[gosub deal-damages]
 				[args]
 					flavour: $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
@@ -429,7 +511,6 @@
 		[message] $> ${attacker.label//uc1} cast a ^rfireball^ at ${defender.label}!
 		
 		[if $attackScore > $defenseScore]
-			#[message] $> ${battle.hero.stats.damageBase} + ${battle.hero.stats.damageDice} D ${battle.hero.stats.damageFaces}
 			[gosub deal-damages]
 				[args]
 					flavour: $$> ^rThe fireball hits ${defender.label} for ${damages} hp.
