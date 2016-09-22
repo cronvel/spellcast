@@ -8,8 +8,11 @@
 		- three
 
 [spell foreach]
-	#[foreach $list => $value]
-	[foreach $list => $key : $value]
+	[foreach $list => $value]
 		[message]
 			$> The value is: ${value}
+	
+	[foreach $list => $key : $value]
+		[message]
+			$> The key/value is: ${key}/${value}
 

@@ -279,6 +279,9 @@ describe( "Control flow tags" , function() {
 					[ 'The value is: one' ] ,
 					[ 'The value is: two' ] ,
 					[ 'The value is: three' ] ,
+					[ 'The key/value is: 0/one' ] ,
+					[ 'The key/value is: 1/two' ] ,
+					[ 'The key/value is: 2/three' ] ,
 				] ) ;
 				
 				done() ;
@@ -286,7 +289,33 @@ describe( "Control flow tags" , function() {
 		) ;
 	} ) ;
 	
-	it( "[break] tag (into [foreach])" , function( done ) {
+	it( "[while] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/while.kfg' , { type: 'cast' , target: 'while' } ,
+			function( ui ) {
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Count: 5' ] ,
+					[ 'Count: 4' ] ,
+					[ 'Count: 3' ] ,
+					[ 'Count: 2' ] ,
+					[ 'Count: 1' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[break] tag into [foreach]" , function( done ) {
 		
 		var messages = [] ;
 		
@@ -311,7 +340,30 @@ describe( "Control flow tags" , function() {
 		) ;
 	} ) ;
 	
-	it( "[continue] tag (into [foreach])" , function( done ) {
+	it( "[break] tag into [while]" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/while-break.kfg' , { type: 'cast' , target: 'while-break' } ,
+			function( ui ) {
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Count: 5' ] ,
+					[ 'Count: 4' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[continue] tag into [foreach]" , function( done ) {
 		
 		var messages = [] ;
 		
@@ -330,6 +382,34 @@ describe( "Control flow tags" , function() {
 					[ 'The value is: two' ] ,
 					[ 'The value is: four' ] ,
 					[ 'The value is: five' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[continue] tag into [while]" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/while-continue.kfg' , { type: 'cast' , target: 'while-continue' } ,
+			function( ui ) {
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Count: 5' ] ,
+					[ 'End.' ] ,
+					[ 'Count: 4' ] ,
+					[ 'End.' ] ,
+					[ 'Count: 3' ] ,
+					[ 'Count: 2' ] ,
+					[ 'Count: 1' ] ,
 				] ) ;
 				
 				done() ;

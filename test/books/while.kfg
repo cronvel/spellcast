@@ -1,0 +1,9 @@
+
+[[doctype spellcaster]]
+
+[spell while]
+	[set $count] 5
+	[while $count > 0]
+		[message] $> Count: ${count}
+		[set $count] $= $count - 1
+

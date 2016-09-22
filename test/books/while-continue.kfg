@@ -1,0 +1,12 @@
+
+[[doctype spellcaster]]
+
+[spell while-continue]
+	[set $count] 5
+	[while $count > 0]
+		[message] $> Count: ${count}
+		[set $count] $= $count - 1
+		[if $count < 3]
+			[continue]
+		[message] End.
+
