@@ -1,0 +1,11 @@
+
+[[doctype adventurer]]
+
+[chapter a-chapter]
+	[scene step2]
+		[message] Last!
+
+	[starting-scene step1]
+		[message] First!
+		[next step2]
+

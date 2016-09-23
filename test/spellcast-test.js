@@ -1347,6 +1347,50 @@ describe( "Basic adventurer tags and features" , function() {
 		.exec( done ) ;
 	} ) ;
 	
+	it( "[starting-scene] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/starting-scene.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+			function( ui ) {
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'First!' ],
+					[ 'Last!' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[module] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/module-loader.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+			function( ui ) {
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Once upon a time...' ],
+					[ 'Cool story bro!' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "[next] tag instances ([next] into loop)" ) ;
 	it( "[next]'s [on-trigger] tag" ) ;
 	

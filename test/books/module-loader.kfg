@@ -1,0 +1,10 @@
+
+[[doctype adventurer]]
+
+[module] @@module.kfg
+
+[chapter a-chapter]
+	[starting-scene step1]
+		[message] Once upon a time...
+		[next module/step2]
+			[label] 
