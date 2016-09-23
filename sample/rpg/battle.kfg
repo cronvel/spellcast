@@ -1,0 +1,385 @@
+
+[[doctype adventurer]]
+
+[chapter battle]
+	
+	[scene init]
+		[set $battle] <Object>
+		
+		[set $battle.foes] <Array>
+		[set $battle.turnIndex] 0
+		[set $battle.turns] <Array>
+		
+		[foreach $args.foes => $local.index : $foe]
+			[if $foe is-entity?]
+				[set $battle.foes[$local.index]] $foe
+			[else]
+				[create-entity $battle.foes[$local.index]] $foe
+			[append $battle.turns] $battle.foes[$local.index]
+			[set $battle.foes[$local.index].adhoc.battle]
+				side: foes
+				cooldown: 0
+		
+		[foreach $args.allies => $local.index : $ally]
+			[if $ally is-entity?]
+				[set $battle.allies[$local.index]] $ally
+			[else]
+				[create-entity $battle.allies[$local.index]] $ally
+			[append $battle.turns] $battle.allies[$local.index]
+			[set $battle.allies[$local.index].adhoc.battle]
+				side: allies
+				cooldown: 0
+			
+		#[debug info] $battle.allies
+		#[debug info] $battle.foes
+		#[debug info] $battle.turns
+		
+		[set $battle.deadlyPush] $args.deadlyPush
+		
+		[next initiative]
+	
+	
+	
+	[scene initiative]
+		[foreach $battle.turns => $local.entity]
+			[set $local.entity.adhoc.battle.initiativeScore] $= $local.entity.stats.fighting + ( 2 D 8 )
+		
+		[sort $battle.turns]
+			key: $adhoc.battle.initiativeScore
+			order: desc
+		
+		#[debug info] $battle.turns
+		[message] $> ${battle.turns[0].label//uc1} takes the initiative.
+		[goto new-turn]
+		
+	
+	
+	[scene new-turn]
+		[set $battle.entityTurn] $= $battle.turns[$battle.turnIndex]
+		
+		[if $battle.entityTurn.status.hp <= 0]
+			[goto end-turn]
+		
+		[if $battle.entityTurn.adhoc.battle.cooldown > 0]
+			[set $battle.entityTurn.adhoc.battle.cooldown] $= $battle.entityTurn.adhoc.battle.cooldown - 1
+			[goto end-turn]
+		
+		[if $battle.entityTurn.npc]
+			[goto npc-turn]
+		[else]
+			[goto pc-turn]
+	
+	
+	
+	[scene end-turn]
+		[set $battle.turnIndex] $= ( $battle.turnIndex + 1 ) % $battle.turns.length
+		
+		[set $local.alliesAlive] 0
+		[set $local.foesAlive] 0
+		
+		[foreach $battle.allies => $local.entity]
+			[if $local.entity.status.hp > 0]
+				[set $local.alliesAlive] $= $local.alliesAlive + 1
+		
+		[foreach $battle.foes => $local.entity]
+			[if $local.entity.status.hp > 0]
+				[set $local.foesAlive] $= $local.foesAlive + 1
+		
+		#[message] $> Alive: ${local.alliesAlive} ${local.foesAlive}
+		
+		[if ! $local.alliesAlive]
+			[goto lost]
+		[elseif ! $local.foesAlive]
+			[goto win]
+		[else]
+			[goto new-turn]
+	
+	
+	
+	[scene npc-turn]
+		
+		[gosub npc-targeting]
+		
+		[if $battle.entityTurn.params.charge && ( ( random ) <= $battle.entityTurn.params.charge )]
+			[gosub charge]
+				[args]
+					attacker: $battle.entityTurn
+					defender: $battle.target
+			[goto end-turn]
+		
+		[gosub melee]
+			[args]
+				attacker: $battle.entityTurn
+				defender: $battle.target
+		
+		[goto end-turn]
+		
+	
+	
+	[scene pc-turn]
+		[next pc-melee]
+			[label] Attack
+		
+		[next pc-charge]
+			[label] Charge!
+	
+		[next pc-fireball]
+			[label] Fireball
+	
+	
+	
+	[scene npc-targeting]
+		
+		[if $battle.entityTurn.adhoc.battle.side = "allies"]
+			[set $local.enemies] $battle.foes
+		[else]
+			[set $local.enemies] $battle.allies
+		
+		[set $local.enemiesAlive] <Array>
+		
+		[foreach $local.enemies => $local.entity]
+			[if $local.entity.status.hp > 0]
+				[append $local.enemiesAlive] $local.entity
+				[set $battle.target] $local.entity
+		
+		[if $local.enemiesAlive.length <= 1]
+			[return]
+		
+		[set $local.index] $= random ( $local.enemiesAlive.length - 1 )
+		[set $battle.target] $local.enemiesAlive[$local.index]
+	
+	
+	
+	[scene pc-targeting]
+		[set $local.count] 0
+		
+		[if $battle.entityTurn.adhoc.battle.side = "allies"]
+			[set $local.enemies] $battle.foes
+		[else]
+			[set $local.enemies] $battle.allies
+		
+		[foreach $local.enemies => $local.entity]
+			[if $local.entity.status.hp > 0]
+				[set $local.count] $= $local.count + 1
+				[set $battle.target] $local.entity
+		
+		[if $local.count <= 1]
+			[return]
+		
+		[message] Target?
+		
+		[foreach $local.enemies => $local.index : $local.entity]
+			[if $local.entity.status.hp > 0]
+				[next]
+					[args]
+						index: $local.index
+					[label] $> ${local.entity.label//uc1}
+					[on-trigger]
+						[set $battle.target] $local.enemies[$args.index]
+	
+	
+	
+	[scene pc-melee]
+		[gosub pc-targeting]
+		[gosub melee]
+			[args]
+				attacker: $battle.entityTurn
+				defender: $battle.target
+		[goto end-turn]
+	
+	
+	
+	[scene pc-charge]
+		[gosub pc-targeting]
+		[gosub charge]
+			[args]
+				attacker: $battle.entityTurn
+				defender: $battle.target
+		[goto end-turn]
+	
+	
+	
+	[scene pc-fireball]
+		[gosub pc-targeting]
+		[gosub fireball]
+			[args]
+				attacker: $battle.entityTurn
+				defender: $battle.target
+		[goto end-turn]
+	
+	
+	
+	[scene win]
+		[message] $> ${battle.allies[0].label//uc1} win the battle.
+		[set $local.xpReward] 0
+		
+		[foreach $battle.foes => $local.entity]
+			[set $local.xpReward] $= $local.xpReward + $local.entity.params.xpReward
+		
+		[set $local.xpReward] $= ceil ( $local.xpReward / $battle.allies.length )
+		
+		[foreach $battle.allies => $local.index : $local.entity]
+			[set $local.entity.status.xp] $= $local.entity.status.xp + $local.xpReward
+		
+		[message] $> You gain ${local.xpReward} xp (=${battle.allies[0].status.xp}).
+	
+	
+	
+	[scene lost]
+		[message] $> ${battle.allies[0].label//uc1} died on the battlefield.
+		[lost]
+
+	
+	
+	[scene deal-damages]
+		[if $args.base]
+			[set $damages] $args.base
+		[else]
+			[set $damages] $= random ( $attacker.stats.strength / 4 ) ( $attacker.stats.strength / 2 )
+		
+		[if $args.mul]
+			[set $damages] $= $damages * $args.mul
+		[if $args.add]
+			[set $damages] $= $damages + $args.add
+		
+		[set $damages] $= round $damages
+		[set $defender.status.hp] $= $defender.status.hp - $damages
+		
+		[apply-to $local.flavour] $args.flavour
+		[message] $local.flavour
+		
+		[if $defender.status.hp <= 0]
+			[message] $> ^r${defender.label//uc1} is dead.
+	
+	
+	
+	[scene splash-damages]
+		# /!\ Should randomize the array first...
+		[foreach $battle.turns => $target]
+			[if $args.targetCount <= 0]
+				[break]
+			
+			[if ( $target.status.hp <= 0 )]
+				[continue]
+			[if ( $target = $defender ) || ( $target = $attacker )]
+				[continue]
+			[if ( $target.adhoc.battle.side = $attacker.adhoc.battle.side )]
+				[continue]
+			
+			[if ( random ) <= $args.targetChance )]
+				[apply-to $damages] $args.damages
+				[set $args.targetCount] $= $args.targetCount - 1
+				[set $target.status.hp] $= $target.status.hp - $damages
+				[apply-to $local.flavour] $args.flavour
+				[message] $local.flavour
+				
+				[if ( $target.status.hp <= 0 )]
+					[message] $> ^r${target.label//uc1} is dead.
+			
+	
+	
+	[scene melee]
+		[set $attacker] $args.attacker
+		[set $defender] $args.defender
+		
+		[set $local.attackScore] $= $attacker.stats.fighting + ( 2 D 8 )
+		[set $local.defenseScore] $= $defender.stats.fighting + ( 2 D 8 )
+		
+		[if $local.attackScore > $local.defenseScore]
+			[gosub deal-damages]
+				[args]
+					flavour: $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
+			
+		[else]
+			[fortune]
+				- $> ${attacker.label//uc1} misses ${defender.label}.
+				- $> ${defender.label//uc1} blocks ${attacker.label}.
+				- $> ${defender.label//uc1} avoids ${attacker.label}.
+	
+	
+	
+	[scene charge]
+		[set $attacker] $args.attacker
+		[set $defender] $args.defender
+		
+		#[set $attacker.adhoc.battle.cooldown] 1
+		[set $local.attackScore] $= ( $attacker.stats.fighting + 2 ) + ( 2 D 8 )
+		[set $local.defenseScore] $= $defender.stats.fighting + ( 2 D 8 )
+		#[message] $> Scores: ${local.attackScore} vs ${local.defenseScore}
+		
+		[message] $> ${attacker.label//uc1} charges ${defender.label}!
+		
+		[if $local.attackScore > $local.defenseScore]
+			[gosub deal-damages]
+				[args]
+					flavour: $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
+					mul: 1.5
+					add: 1
+			
+			[if $battle.deadlyPush]
+				[gosub deadly-push]
+		[elseif ( $local.attackScore = $local.defenseScore ) && $battle.deadlyPush]
+			[message] $> ${defender.label//uc1} blocks ${attacker.label}.
+			[gosub deadly-push]
+		[else]
+			[fortune]
+				- $> ${attacker.label//uc1} misses ${defender.label}.
+				- $> ${defender.label//uc1} blocks ${attacker.label}.
+				- $> ${defender.label//uc1} avoids ${attacker.label}.
+	
+	
+	
+	[scene fireball]
+		[set $attacker] $args.attacker
+		[set $defender] $args.defender
+		
+		[set $attacker.status.mana] $= $attacker.status.mana - 6
+		[message] $> mana: ${attacker.status.mana}
+		[if $attacker.status.mana < 0]
+			[set $attacker.status.mana] 0
+			[message] Not enough mana!
+			[return]
+		
+		[set $attacker.adhoc.battle.cooldown] 1
+		[set $local.attackScore] $= ( 20 ) + ( 2 D 8 )
+		[set $local.defenseScore] $= $defender.stats.fighting + ( 2 D 8 )
+		#[message] $> Scores: ${local.attackScore} vs ${local.defenseScore}
+		
+		[message] $> ${attacker.label//uc1} cast a ^rfireball^ at ${defender.label}!
+		
+		[if $local.attackScore > $local.defenseScore]
+			[gosub deal-damages]
+				[args]
+					flavour:
+						$$> ^rThe fireball hits ${defender.label} for ${damages} hp.^:
+						$$> The ^rfireball^ explodes!
+					base: $= 8 + ( 2 D 8 )
+			
+			
+			[gosub splash-damages]
+				[args]
+					damages: $$= 4 + ( 2 D 4 )
+					flavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
+					targetChance: 0.5
+					targetCount: 3
+			
+		[else]
+			[fortune]
+				- $> The ^rfireball^ misses ${defender.label}.
+				- $> ${defender.label//uc1} evades the ^rfireball^:.
+				- $> ${defender.label//uc1} avoids the ^rfireball^:.
+	
+	
+	
+	[scene deadly-push]
+		[set $local.attackScore] $= ( ( max $attacker.stats.strength ( $attacker.stats.fighting - 3 ) ) + $battle.deadlyPush.bonus ) + ( 2 D 6 )
+		[set $local.defenseScore] $= $defender.stats.strength + ( 2 D 6 )
+		
+		[if $local.attackScore > $local.defenseScore]
+			[set $defender.status.hp] 0
+			[apply-to $local.flavour] $battle.deadlyPush.flavour
+			[message] $local.flavour
+		
+		
+	
+	
