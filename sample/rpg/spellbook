@@ -7,9 +7,24 @@
 	[message]
 		$> You drink a cup of vine...
 
+[item-model sword]
+	class: melee-weapon
+	label: sword
+	slotType: hand
+	slotCount: 1
+	stats:
+		fighting: (+) 1
+		strength: (+) 4
+
 [entity-model player]
 	class: character
 	label: the hero
+	slots:
+		hand: 2
+		armor: 1
+	activeItems:
+		hand:
+			- sword
 	stats:
 		fighting: 16
 		strength: 12
@@ -89,6 +104,7 @@
 
 [chapter intro]
 	[starting-scene init]
+		[debug info] $roles.hero.entity.activeItems.hand
 		[next goblin-camp]
 			[label] Multiple foes.
 		[next first-encounter]
