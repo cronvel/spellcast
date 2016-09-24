@@ -7,6 +7,11 @@
 	[message]
 		$> You drink a cup of vine...
 
+#[stats character]
+	
+[stats character melee]
+	damages: $= $strength / 2
+
 [item-model sword]
 	class: melee-weapon
 	label: sword
@@ -16,11 +21,11 @@
 		fighting: (+) 4
 		strength: (+) 4
 	
-	#usages:
-	#	melee:
-	#		stats:
-	#			fighting: (+) 1
-	#			strength: (+) 4
+	usages:
+		melee:
+			stats:
+				fighting: (+) 4
+				damages: (+) 4
 
 [item-model spear]
 	class: melee-weapon
