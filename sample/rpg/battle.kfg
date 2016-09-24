@@ -42,7 +42,7 @@
 	
 	[scene initiative]
 		[foreach $battle.turns => $local.entity]
-			[set $local.entity.adhoc.battle.initiativeScore] $= $local.entity.stats.fighting + ( 2 D 8 )
+			[set $local.entity.adhoc.battle.initiativeScore] $= $local.entity.actual.stats.fighting + ( 2 D 8 )
 		
 		[sort $battle.turns]
 			key: $adhoc.battle.initiativeScore
@@ -235,7 +235,7 @@
 		[if $args.base]
 			[set $damages] $args.base
 		[else]
-			[set $damages] $= random ( $attacker.stats.strength / 4 ) ( $attacker.stats.strength / 2 )
+			[set $damages] $= random ( $attacker.actual.stats.strength / 4 ) ( $attacker.actual.stats.strength / 2 )
 		
 		[if $args.mul]
 			[set $damages] $= $damages * $args.mul
@@ -282,8 +282,8 @@
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
 		
-		[set $local.attackScore] $= $attacker.stats.fighting + ( 2 D 8 )
-		[set $local.defenseScore] $= $defender.stats.fighting + ( 2 D 8 )
+		[set $local.attackScore] $= $attacker.actual.stats.fighting + ( 2 D 8 )
+		[set $local.defenseScore] $= $defender.actual.stats.fighting + ( 2 D 8 )
 		
 		[if $local.attackScore > $local.defenseScore]
 			[gosub deal-damages]
@@ -303,8 +303,8 @@
 		[set $defender] $args.defender
 		
 		#[set $attacker.adhoc.battle.cooldown] 1
-		[set $local.attackScore] $= ( $attacker.stats.fighting + 2 ) + ( 2 D 8 )
-		[set $local.defenseScore] $= $defender.stats.fighting + ( 2 D 8 )
+		[set $local.attackScore] $= ( $attacker.actual.stats.fighting + 2 ) + ( 2 D 8 )
+		[set $local.defenseScore] $= $defender.actual.stats.fighting + ( 2 D 8 )
 		#[message] $> Scores: ${local.attackScore} vs ${local.defenseScore}
 		
 		[message] $> ${attacker.label//uc1} charges ${defender.label}!
@@ -342,7 +342,7 @@
 		
 		[set $attacker.adhoc.battle.cooldown] 1
 		[set $local.attackScore] $= ( 20 ) + ( 2 D 8 )
-		[set $local.defenseScore] $= $defender.stats.fighting + ( 2 D 8 )
+		[set $local.defenseScore] $= $defender.actual.stats.fighting + ( 2 D 8 )
 		#[message] $> Scores: ${local.attackScore} vs ${local.defenseScore}
 		
 		[message] $> ${attacker.label//uc1} cast a ^rfireball^ at ${defender.label}!
@@ -372,8 +372,8 @@
 	
 	
 	[scene deadly-push]
-		[set $local.attackScore] $= ( ( max $attacker.stats.strength ( $attacker.stats.fighting - 3 ) ) + $battle.deadlyPush.bonus ) + ( 2 D 6 )
-		[set $local.defenseScore] $= $defender.stats.strength + ( 2 D 6 )
+		[set $local.attackScore] $= ( ( max $attacker.actual.stats.strength ( $attacker.actual.stats.fighting - 3 ) ) + $battle.deadlyPush.bonus ) + ( 2 D 6 )
+		[set $local.defenseScore] $= $defender.actual.stats.strength + ( 2 D 6 )
 		
 		[if $local.attackScore > $local.defenseScore]
 			[set $defender.status.hp] 0

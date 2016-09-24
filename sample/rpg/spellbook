@@ -13,8 +13,44 @@
 	slotType: hand
 	slotCount: 1
 	stats:
-		fighting: (+) 1
+		fighting: (+) 4
 		strength: (+) 4
+	
+	#usages:
+	#	melee:
+	#		stats:
+	#			fighting: (+) 1
+	#			strength: (+) 4
+
+[item-model spear]
+	class: melee-weapon
+	label: spear
+	slotType: hand
+	slotCount: 1
+	stats:
+		fighting: (+) 2
+		strength: (+) 2
+	
+	#usages:
+	#	melee:
+	#		stats:
+	#			fighting: (+) 1
+	#			strength: (+) 4
+
+[item-model giant-club]
+	class: melee-weapon
+	label: giant club
+	slotType: hand
+	slotCount: 2
+	stats:
+		fighting: (+) 2
+		strength: (+) 8
+	
+	#usages:
+	#	melee:
+	#		stats:
+	#			fighting: (+) 1
+	#			strength: (+) 4
 
 [entity-model player]
 	class: character
@@ -22,9 +58,6 @@
 	slots:
 		hand: 2
 		armor: 1
-	activeItems:
-		hand:
-			- sword
 	stats:
 		fighting: 16
 		strength: 12
@@ -34,6 +67,9 @@
 		hp: 20
 		mana: 20
 		xp: 0
+	equippedItems:
+		hand:
+			- sword
 
 [entity-model dog]
 	class: character
@@ -76,12 +112,18 @@
 		- the ugly goblin
 	params:
 		xpReward: 2
+	slots:
+		hand: 2
+		armor: 1
 	stats:
 		fighting: 8
 		strength: 6
 		hp: 6
 	status:
 		hp: 6
+	equippedItems:
+		hand:
+			- spear
 
 [entity-model guardian]
 	class: character
@@ -89,12 +131,18 @@
 	params:
 		xpReward: 10
 		charge: 0.5
+	slots:
+		hand: 2
+		armor: 1
 	stats:
 		fighting: 14
 		strength: 16
 		hp: 20
 	status:
 		hp: 20
+	equippedItems:
+		hand:
+			- giant-club
 
 [role hero]
 	[label] You
@@ -104,7 +152,9 @@
 
 [chapter intro]
 	[starting-scene init]
-		[debug info] $roles.hero.entity.activeItems.hand
+		#[debug info] $roles.hero.entity.equippedItems.hand
+		#[debug info] $roles.hero.entity.actual
+		
 		[next goblin-camp]
 			[label] Multiple foes.
 		[next first-encounter]
