@@ -7,6 +7,10 @@
 	[message]
 		$> You drink a cup of vine...
 
+[entity-class character]
+	usages:
+
+
 [compound-stats character]
 	attack: $= $stats.fighting
 	defense: $= $stats.fighting
@@ -37,7 +41,7 @@
 		defense: (+) 4
 		damages: (+) 4
 	
-	usages:
+	domains:
 		melee:
 			compound:
 				attack: (+) 4
