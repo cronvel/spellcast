@@ -8,10 +8,22 @@
 		$> You drink a cup of vine...
 
 [compound-stats character]
+	attack: $= $stats.fighting
+	defense: $= $stats.fighting
 	damages: $= $stats.strength / 2
 	
 [compound-stats character melee]
+	attack: $= $stats.fighting
+	defense: $= $stats.fighting
 	damages: $= $stats.strength / 2
+
+[item-model ring-of-fighting-spirit]
+	class: jewel
+	label: ring of fighting spirit
+	slotType: ring
+	slotCount: 1
+	stats:
+		fighting: (+) 1
 
 [item-model sword]
 	class: melee-weapon
@@ -19,29 +31,42 @@
 	slotType: hand
 	slotCount: 1
 	stats:
-		fighting: (+) 4
-		strength: (+) 4
+	#	fighting: (+) 4
+	compound:
+		attack: (+) 4
+		defense: (+) 4
+		damages: (+) 4
 	
 	usages:
 		melee:
-			stats:
-				fighting: (+) 4
+			compound:
+				attack: (+) 4
+				defense: (+) 4
 				damages: (+) 4
 
+[item-model axe]
+	class: melee-weapon
+	label: axe
+	slotType: hand
+	slotCount: 1
+	stats:
+	#	fighting: (+) 4
+	compound:
+		attack: (+) 4
+		defense: (+) 2
+		damages: (+) 6
+	
 [item-model spear]
 	class: melee-weapon
 	label: spear
 	slotType: hand
 	slotCount: 1
 	stats:
-		fighting: (+) 2
-		strength: (+) 2
-	
-	#usages:
-	#	melee:
-	#		stats:
-	#			fighting: (+) 1
-	#			strength: (+) 4
+	#	fighting: (+) 2
+	compound:
+		attack: (+) 3
+		defense: (+) 5
+		damages: (+) 3
 
 [item-model giant-club]
 	class: melee-weapon
@@ -49,14 +74,11 @@
 	slotType: hand
 	slotCount: 2
 	stats:
-		fighting: (+) 2
-		strength: (+) 8
-	
-	#usages:
-	#	melee:
-	#		stats:
-	#			fighting: (+) 1
-	#			strength: (+) 4
+	#	fighting: (+) 2
+	compound:
+		attack: (+) 2
+		defense: (+) 2
+		damages: (+) 8
 
 [entity-model player]
 	class: character
@@ -64,8 +86,9 @@
 	slots:
 		hand: 2
 		armor: 1
+		ring: 2
 	stats:
-		fighting: 16
+		fighting: 15
 		strength: 12
 		hp: 20
 		mana: 20
@@ -76,6 +99,8 @@
 	equippedItems:
 		hand:
 			- sword
+		ring:
+			- ring-of-fighting-spirit
 
 [entity-model dog]
 	class: character
@@ -160,7 +185,7 @@
 	[starting-scene init]
 		#[debug info] $roles.hero.entity.equippedItems.hand
 		#[debug info] $roles.hero.entity.actual
-		[debug info] $roles.hero.entity
+		#[debug info] $roles.hero.entity
 		
 		[next goblin-camp]
 			[label] Multiple foes.
