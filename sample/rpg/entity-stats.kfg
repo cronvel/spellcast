@@ -1,0 +1,22 @@
+
+[[doctype adventurer]]
+
+[entity-usages character]
+	- melee
+	- missile
+
+#[compound-stats character]
+#	attack: $= $stats.fighting
+#	defense: $= $stats.fighting
+#	damages: $= $stats.strength / 2
+	
+[compound-stats character melee]
+	attack: $= $stats.fighting
+	defense: $= $stats.fighting
+	damages: $= round ( $stats.strength / 2 )
+
+[compound-stats character missile]
+	attack: $= round ( $stats.shooting / 4 )
+	aiming: $= $stats.shooting
+	defense: $= $stats.fighting
+	damages: $= round ( $stats.shooting / 4 )

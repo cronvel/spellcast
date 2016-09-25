@@ -1,0 +1,71 @@
+
+[[doctype adventurer]]
+
+[item-model sword]
+	class: melee-weapon
+	label: sword
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			compound:
+				attack: (+) 4
+				defense: (+) 4
+				damages: (+) 4
+
+[item-model axe]
+	class: melee-weapon
+	label: axe
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			compound:
+				attack: (+) 4
+				defense: (+) 2
+				damages: (+) 6
+	
+[item-model spear]
+	class: melee-weapon
+	label: spear
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			compound:
+				attack: (+) 3
+				defense: (+) 5
+				damages: (+) 3
+
+[item-model giant-club]
+	class: melee-weapon
+	label: giant club
+	slotType: hand
+	slotCount: 2
+	usages:
+		melee:
+			compound:
+				attack: (+) 2
+				defense: (+) 2
+				damages: (+) 8
+
+[item-model arc]
+	class: missile-weapon
+	label: arc
+	slotType: hand
+	slotCount: 2
+	usages:
+		missile:
+			compound:
+				attack: (+) 18
+				aiming: (+) 2
+				damages: (+) 10
+
+[item-model ring-of-fighting-spirit]
+	class: jewel
+	label: ring of fighting spirit
+	slotType: ring
+	slotCount: 1
+	compound:
+		attack: (+) 1
+
