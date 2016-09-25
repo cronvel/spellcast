@@ -7,10 +7,11 @@
 	[message]
 		$> You drink a cup of vine...
 
-#[stats character]
+[compound-stats character]
+	damages: $= $stats.strength / 2
 	
-[stats character melee]
-	damages: $= $strength / 2
+[compound-stats character melee]
+	damages: $= $stats.strength / 2
 
 [item-model sword]
 	class: melee-weapon
@@ -159,6 +160,7 @@
 	[starting-scene init]
 		#[debug info] $roles.hero.entity.equippedItems.hand
 		#[debug info] $roles.hero.entity.actual
+		[debug info] $roles.hero.entity
 		
 		[next goblin-camp]
 			[label] Multiple foes.
