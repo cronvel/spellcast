@@ -104,7 +104,7 @@
 		
 		[if $attacker.params.battleCry && ( ( random ) <= $attacker.params.battleCry )]
 			[if $attacker.params.battleCryFlavour]
-				[apply-to $local.flavour] $attacker.params.battleCryFlavour
+				[apply-to $local.flavour] $= random-element $attacker.params.battleCryFlavour
 				[message] $local.flavour
 			[else]
 				[message] $> ${attacker.label//uc1} shouts!
@@ -266,15 +266,32 @@
 		
 		[set $defender.status.hp] $= $defender.status.hp - $damages
 		
-		[if $damages > 100]
+		[if $damages >= 100]
 			[if $args.fatalHitFlavour is-set?]
 				[apply-to $local.flavour] $args.fatalHitFlavour
+			[elseif $args.criticalHitFlavour is-set?]
+				[apply-to $local.flavour] $args.criticalHitFlavour
 			[elseif $args.hitFlavour is-set?]
 				[apply-to $local.flavour] $args.hitFlavour
 			[elseif $attacker.actualUsages.melee.params.fatalHitFlavour is-set?]
 				[apply-to $local.flavour] $attacker.actualUsages.melee.params.fatalHitFlavour
+			[elseif $attacker.actualUsages.melee.params.criticalHitFlavour is-set?]
+				[apply-to $local.flavour] $attacker.actualUsages.melee.params.criticalHitFlavour
+			[elseif $attacker.actualUsages.melee.params.hitFlavour is-set?]
+				[apply-to $local.flavour] $attacker.actualUsages.melee.params.hitFlavour
 			[else]
-				[set $local.flavour] $> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
+				[set $local.flavour] $> ^r${attacker.label//uc1} deadly hits ${defender.label} for ${damages} hp.
+		[elseif $damages >= 25]
+			[if $args.criticalHitFlavour is-set?]
+				[apply-to $local.flavour] $args.criticalHitFlavour
+			[elseif $args.hitFlavour is-set?]
+				[apply-to $local.flavour] $args.hitFlavour
+			[elseif $attacker.actualUsages.melee.params.criticalHitFlavour is-set?]
+				[apply-to $local.flavour] $attacker.actualUsages.melee.params.criticalHitFlavour
+			[elseif $attacker.actualUsages.melee.params.hitFlavour is-set?]
+				[apply-to $local.flavour] $attacker.actualUsages.melee.params.hitFlavour
+			[else]
+				[set $local.flavour] $> ^r${attacker.label//uc1} critically hits ${defender.label} for ${damages} hp.
 		[else]
 			[if $args.hitFlavour is-set?]
 				[apply-to $local.flavour] $args.hitFlavour
@@ -286,7 +303,7 @@
 		[message] $local.flavour
 		
 		[if $defender.status.hp <= 0]
-			[message] $> ^R${defender.label//uc1} is dead.
+			[message] $> ^R^+${defender.label//uc1} is dead.
 	
 	
 	
@@ -310,6 +327,7 @@
 					[args]
 						defender: $target
 						hitFlavour: $args.hitFlavour
+						criticalHitFlavour: $args.criticalHitFlavour
 						fatalHitFlavour: $args.fatalHitFlavour
 						damages: $args.damages
 			
@@ -390,16 +408,21 @@
 					hitFlavour:
 						$$> ^rThe fireball hits ${defender.label} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
+					criticalHitFlavour:
+						$$> ^rThe fireball engulf ${defender.label} for ${damages} hp.^:
+						$$> The ^rfireball^ explodes!
 					fatalHitFlavour:
 						$$> ^rThe fireball burns ${defender.label} to death for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
-					damages: $= 16 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
+					damages: $= 20 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
 			
 			
 			[gosub splash-damages]
 				[args]
-					damages: $= 8 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
+					damages: $= 12 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
 					hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
+					criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blow ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blast ${target.label} for ${damages} hp.
 					targetChance: 0.5
 					targetCount: 3
 			

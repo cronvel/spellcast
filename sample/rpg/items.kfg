@@ -9,7 +9,7 @@
 	usages:
 		melee:
 			params:
-				hitFlavour: $$> ^r${attacker.label//uc1} slashes ${defender.label} for ${damages} hp.
+				criticalHitFlavour: $$> ^r${attacker.label//uc1} slashes ${defender.label} for ${damages} hp.
 				fatalHitFlavour: $$> ^r${attacker.label//uc1} cut ${defender.label} in half for ${damages} hp.
 			compound:
 				attack: (+) 5
@@ -24,7 +24,7 @@
 	usages:
 		melee:
 			params:
-				hitFlavour: $$> ^r${attacker.label//uc1} chops ${defender.label} for ${damages} hp.
+				criticalHitFlavour: $$> ^r${attacker.label//uc1} chops ${defender.label} for ${damages} hp.
 			compound:
 				attack: (+) 5
 				defense: (+) 3
@@ -38,7 +38,7 @@
 	usages:
 		melee:
 			params:
-				hitFlavour: $$> ^r${attacker.label//uc1} punctures ${defender.label} for ${damages} hp.
+				criticalHitFlavour: $$> ^r${attacker.label//uc1} punctures ${defender.label} for ${damages} hp.
 			compound:
 				attack: (+) 3
 				defense: (+) 6
@@ -52,7 +52,7 @@
 	usages:
 		melee:
 			params:
-				hitFlavour: $$> ^r${attacker.label//uc1} pounds ${defender.label} for ${damages} hp.
+				criticalHitFlavour: $$> ^r${attacker.label//uc1} pounds ${defender.label} for ${damages} hp.
 			compound:
 				attack: (+) 3
 				defense: (+) 3
