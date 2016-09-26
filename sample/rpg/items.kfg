@@ -8,10 +8,12 @@
 	slotCount: 1
 	usages:
 		melee:
+			params:
+				hitFlavour: $$> ^r${attacker.label//uc1} slashes ${defender.label} for ${damages} hp.
 			compound:
-				attack: (+) 4
-				defense: (+) 4
-				damages: (+) 4
+				attack: (+) 5
+				defense: (+) 5
+				damages: (+) 5
 
 [item-model axe]
 	class: melee-weapon
@@ -20,21 +22,25 @@
 	slotCount: 1
 	usages:
 		melee:
+			params:
+				hitFlavour: $$> ^r${attacker.label//uc1} chops ${defender.label} for ${damages} hp.
 			compound:
-				attack: (+) 4
-				defense: (+) 2
-				damages: (+) 6
+				attack: (+) 5
+				defense: (+) 3
+				damages: (+) 7
 	
 [item-model spear]
 	class: melee-weapon
 	label: spear
 	slotType: hand
-	slotCount: 1
+	slotCount: 2
 	usages:
 		melee:
+			params:
+				hitFlavour: $$> ^r${attacker.label//uc1} punctures ${defender.label} for ${damages} hp.
 			compound:
 				attack: (+) 3
-				defense: (+) 5
+				defense: (+) 6
 				damages: (+) 3
 
 [item-model giant-club]
@@ -44,10 +50,12 @@
 	slotCount: 2
 	usages:
 		melee:
+			params:
+				hitFlavour: $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
 			compound:
-				attack: (+) 2
-				defense: (+) 2
-				damages: (+) 8
+				attack: (+) 3
+				defense: (+) 3
+				damages: (+) 10
 
 [item-model arc]
 	class: missile-weapon

@@ -4,10 +4,6 @@
 [entity-model player]
 	class: character
 	label: the hero
-	slots:
-		hand: 2
-		armor: 1
-		ring: 2
 	stats:
 		fighting: 16
 		shooting: 8
@@ -40,6 +36,10 @@
 		defense: (+) -1
 	status:
 		hp: 14
+	usages:
+		melee:
+			params:
+				hitFlavour: $$> ^r${attacker.label//uc1} bites ${defender.label} for ${damages} hp.
 
 [entity-model guardian]
 	class: character
@@ -47,9 +47,6 @@
 	params:
 		xpReward: 10
 		charge: 0.5
-	slots:
-		hand: 2
-		armor: 1
 	stats:
 		fighting: 14
 		shooting: 6
@@ -66,9 +63,6 @@
 	label: the elf
 	params:
 		xpReward: 8
-	slots:
-		hand: 2
-		armor: 1
 	stats:
 		fighting: 12
 		shooting: 16
@@ -112,9 +106,6 @@
 		- the ugly goblin
 	params:
 		xpReward: 2
-	slots:
-		hand: 2
-		armor: 1
 	stats:
 		fighting: 8
 		shooting: 7

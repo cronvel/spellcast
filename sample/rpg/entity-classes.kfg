@@ -1,9 +1,26 @@
 
 [[doctype adventurer]]
 
-[entity-usages character]
-	- melee
-	- missile
+[entity-class character]
+	usageTypes:
+		- melee
+		- missile
+	params:
+		xpReward: 1
+	slots:
+		hand: 2
+		armor: 1
+		ring: 2
+	stats:
+		fighting: 0
+		shooting: 0
+		strength: 0
+		hp: 1
+		mana: 1
+	status:
+		hp: 1
+		mana: 1
+		xp: 0
 
 #[compound-stats character]
 #	attack: $= $stats.fighting

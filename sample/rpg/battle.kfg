@@ -290,9 +290,14 @@
 		#[message] $> ${local.attackScore} vs ${local.defenseScore}
 		
 		[if $local.attackScore > $local.defenseScore]
+			[if $attacker.actualUsages.melee.params.hitFlavour]
+				[set $local.flavour] $attacker.actualUsages.melee.params.hitFlavour
+			[else]
+				[set $local.flavour] $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
+			
 			[gosub deal-damages]
 				[args]
-					flavour: $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
+					flavour: $local.flavour
 			
 		[else]
 			[fortune]
