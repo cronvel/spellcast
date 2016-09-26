@@ -7,13 +7,9 @@
 	stats:
 		fighting: 16
 		shooting: 8
+		spellcasting: 14
 		strength: 12
-		hp: 20
-		mana: 20
-	status:
-		hp: 20
-		mana: 20
-		xp: 0
+		resilience: 11
 	equippedItems:
 		hand:
 			- sword
@@ -29,17 +25,18 @@
 	stats:
 		fighting: 14
 		shooting: 0
-		strength: 12
-		hp: 14
+		strength: 9
+		resilience: 10
 	compound:
 		attack: (+) 1
 		defense: (+) -1
-	status:
-		hp: 14
 	usages:
 		melee:
 			params:
 				hitFlavour: $$> ^r${attacker.label//uc1} bites ${defender.label} for ${damages} hp.
+			compound:
+				# The teeth are the dog weapon
+				damages: (+) 4
 
 [entity-model guardian]
 	class: character
@@ -51,9 +48,7 @@
 		fighting: 14
 		shooting: 6
 		strength: 16
-		hp: 20
-	status:
-		hp: 20
+		resilience: 16
 	equippedItems:
 		hand:
 			- giant-club
@@ -67,9 +62,7 @@
 		fighting: 12
 		shooting: 16
 		strength: 10
-		hp: 14
-	status:
-		hp: 14
+		resilience: 10
 	usages:
 		missile:
 			attack: (+) 4
@@ -106,13 +99,13 @@
 		- the ugly goblin
 	params:
 		xpReward: 2
+		battleCry: 0.05
+		battleCryFlavour: $$> ^+${attacker.label//uc1} shouts “pierce him to death!”
 	stats:
 		fighting: 8
 		shooting: 7
 		strength: 6
-		hp: 6
-	status:
-		hp: 6
+		resilience: 6
 	equippedItems:
 		hand:
 			- spear

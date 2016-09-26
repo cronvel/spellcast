@@ -100,16 +100,26 @@
 		
 		[gosub npc-targeting]
 		
-		[if $battle.entityTurn.params.charge && ( ( random ) <= $battle.entityTurn.params.charge )]
+		[set $attacker] $battle.entityTurn
+		
+		[if $attacker.params.battleCry && ( ( random ) <= $attacker.params.battleCry )]
+			[if $attacker.params.battleCryFlavour]
+				[apply-to $local.flavour] $attacker.params.battleCryFlavour
+				[message] $local.flavour
+			[else]
+				[message] $> ${attacker.label//uc1} shouts!
+		
+		
+		[if $attacker.params.charge && ( ( random ) <= $attacker.params.charge )]
 			[gosub charge]
 				[args]
-					attacker: $battle.entityTurn
+					attacker: $attacker
 					defender: $battle.target
 			[goto end-turn]
 		
 		[gosub melee]
 			[args]
-				attacker: $battle.entityTurn
+				attacker: $attacker
 				defender: $battle.target
 		
 		[goto end-turn]
@@ -233,24 +243,50 @@
 	
 	#melee damage
 	[scene deal-damages]
-		[if $args.base]
-			[set $damages] $args.base
+		[if $args.defender]
+			[set $defender] $args.defender
+		
+		# Damage level
+		[if $args.damages is-real?]
+			[set $local.attackScore] $= $args.damages + ( 2 D 6 )
 		[else]
-			[set $damages] $= random ( $attacker.actualUsages.melee.compound.damages / 2 ) ( $attacker.actualUsages.melee.compound.damages )
+			[set $local.attackScore] $= $attacker.actualUsages.melee.compound.damages + ( 2 D 6 )
 		
-		[if $args.mul]
-			[set $damages] $= $damages * $args.mul
-		[if $args.add]
-			[set $damages] $= $damages + $args.add
+		[set $local.defenseScore] $= $defender.actual.stats.resilience + ( 2 D 6 )
+		#[message] $> ${local.attackScore} vs ${local.defenseScore}
 		
-		[set $damages] $= round $damages
+		[set $damages] $= ( ( $local.attackScore - $local.defenseScore ) + ( random ) ) - 0.5
+		
+		[if $args.bonus is-real?]
+			[set $damages] $= $damages + $args.bonus
+		
+		#[message] $> damages: ${damages}
+		[set $damages] $= round ( 10 * ( 2 ^ ( $damages / 5 ) ) )
+		#[message] $> damages: ${damages}
+		
 		[set $defender.status.hp] $= $defender.status.hp - $damages
 		
-		[apply-to $local.flavour] $args.flavour
+		[if $damages > 100]
+			[if $args.fatalHitFlavour is-set?]
+				[apply-to $local.flavour] $args.fatalHitFlavour
+			[elseif $args.hitFlavour is-set?]
+				[apply-to $local.flavour] $args.hitFlavour
+			[elseif $attacker.actualUsages.melee.params.fatalHitFlavour is-set?]
+				[apply-to $local.flavour] $attacker.actualUsages.melee.params.fatalHitFlavour
+			[else]
+				[set $local.flavour] $> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
+		[else]
+			[if $args.hitFlavour is-set?]
+				[apply-to $local.flavour] $args.hitFlavour
+			[elseif $attacker.actualUsages.melee.params.hitFlavour is-set?]
+				[apply-to $local.flavour] $attacker.actualUsages.melee.params.hitFlavour
+			[else]
+				[set $local.flavour] $> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
+		
 		[message] $local.flavour
 		
 		[if $defender.status.hp <= 0]
-			[message] $> ^r${defender.label//uc1} is dead.
+			[message] $> ^R${defender.label//uc1} is dead.
 	
 	
 	
@@ -268,14 +304,14 @@
 				[continue]
 			
 			[if ( random ) <= $args.targetChance )]
-				[apply-to $damages] $args.damages
 				[set $args.targetCount] $= $args.targetCount - 1
-				[set $target.status.hp] $= $target.status.hp - $damages
-				[apply-to $local.flavour] $args.flavour
-				[message] $local.flavour
 				
-				[if ( $target.status.hp <= 0 )]
-					[message] $> ^r${target.label//uc1} is dead.
+				[gosub deal-damages]
+					[args]
+						defender: $target
+						hitFlavour: $args.hitFlavour
+						fatalHitFlavour: $args.fatalHitFlavour
+						damages: $args.damages
 			
 	
 	
@@ -290,14 +326,7 @@
 		#[message] $> ${local.attackScore} vs ${local.defenseScore}
 		
 		[if $local.attackScore > $local.defenseScore]
-			[if $attacker.actualUsages.melee.params.hitFlavour]
-				[set $local.flavour] $attacker.actualUsages.melee.params.hitFlavour
-			[else]
-				[set $local.flavour] $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
-			
 			[gosub deal-damages]
-				[args]
-					flavour: $local.flavour
 			
 		[else]
 			[fortune]
@@ -322,10 +351,6 @@
 		
 		[if $local.attackScore > $local.defenseScore]
 			[gosub deal-damages]
-				[args]
-					flavour: $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
-					mul: 1.2
-					add: 1
 			
 			[if $battle.deadlyPush]
 				[gosub deadly-push]
@@ -362,16 +387,19 @@
 		[if $local.attackScore > $local.defenseScore]
 			[gosub deal-damages]
 				[args]
-					flavour:
+					hitFlavour:
 						$$> ^rThe fireball hits ${defender.label} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
-					base: $= 8 + ( 2 D 8 )
+					fatalHitFlavour:
+						$$> ^rThe fireball burns ${defender.label} to death for ${damages} hp.^:
+						$$> The ^rfireball^ explodes!
+					damages: $= 16 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
 			
 			
 			[gosub splash-damages]
 				[args]
-					damages: $$= 4 + ( 2 D 4 )
-					flavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
+					damages: $= 8 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
+					hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
 					targetChance: 0.5
 					targetCount: 3
 			

@@ -48,9 +48,7 @@
 			stats:
 				fighting: 12
 				strength: 10
-				hp: 16
-			status:
-				hp: 16
+				resilience: 12
 		
 		[gosub battle/init]
 			[args]

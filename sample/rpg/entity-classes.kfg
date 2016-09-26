@@ -14,12 +14,12 @@
 	stats:
 		fighting: 0
 		shooting: 0
+		spellcasting: 0
 		strength: 0
-		hp: 1
-		mana: 1
+		resilience: 0
 	status:
-		hp: 1
-		mana: 1
+		hp: 100
+		mana: 100
 		xp: 0
 
 #[compound-stats character]
@@ -30,7 +30,7 @@
 [compound-stats character melee]
 	attack: $= $stats.fighting
 	defense: $= $stats.fighting
-	damages: $= round ( $stats.strength / 2 )
+	damages: $= $stats.strength
 
 [compound-stats character missile]
 	attack: $= round ( $stats.shooting / 4 )

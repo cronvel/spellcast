@@ -10,10 +10,11 @@
 		melee:
 			params:
 				hitFlavour: $$> ^r${attacker.label//uc1} slashes ${defender.label} for ${damages} hp.
+				fatalHitFlavour: $$> ^r${attacker.label//uc1} cut ${defender.label} in half for ${damages} hp.
 			compound:
 				attack: (+) 5
 				defense: (+) 5
-				damages: (+) 5
+				damages: (+) 10
 
 [item-model axe]
 	class: melee-weapon
@@ -27,7 +28,7 @@
 			compound:
 				attack: (+) 5
 				defense: (+) 3
-				damages: (+) 7
+				damages: (+) 12
 	
 [item-model spear]
 	class: melee-weapon
@@ -41,7 +42,7 @@
 			compound:
 				attack: (+) 3
 				defense: (+) 6
-				damages: (+) 3
+				damages: (+) 7
 
 [item-model giant-club]
 	class: melee-weapon
@@ -51,11 +52,11 @@
 	usages:
 		melee:
 			params:
-				hitFlavour: $$> ^r${attacker.label//uc1} hits ${defender.label} for ${damages} hp.
+				hitFlavour: $$> ^r${attacker.label//uc1} pounds ${defender.label} for ${damages} hp.
 			compound:
 				attack: (+) 3
 				defense: (+) 3
-				damages: (+) 10
+				damages: (+) 15
 
 [item-model arc]
 	class: missile-weapon
@@ -67,7 +68,7 @@
 			compound:
 				attack: (+) 18
 				aiming: (+) 2
-				damages: (+) 10
+				damages: (+) 15
 
 [item-model ring-of-fighting-spirit]
 	class: jewel
