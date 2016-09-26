@@ -8,13 +8,45 @@
 	slotCount: 1
 	usages:
 		melee:
-			params:
-				criticalHitFlavour: $$> ^r${attacker.label//uc1} slashes ${defender.label} for ${damages} hp.
-				fatalHitFlavour: $$> ^r${attacker.label//uc1} cut ${defender.label} in half for ${damages} hp.
-			compound:
-				attack: (+) 5
-				defense: (+) 5
-				damages: (+) 10
+			# When the weapon is used
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} slashes ${defender.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${attacker.label//uc1} cut ${defender.label} in half for ${damages} hp.
+				compound:
+					attack: (+) 4
+					defense: (+) 4
+					damages: (+) 7
+			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
+			extraSlot:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 3
+			# Bonuses when the weapon is used as a support for the primary weapon
+			support:
+				compound:
+					attack: (+) 3
+					defense: (+) 2
+
+[item-model shield]
+	class: shield
+	label: shield
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			# Bonuses when the weapon is used as a support for the primary weapon
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 4
+			# When used as a weapon
+			primary:
+				compound:
+					attack: (+) -2
+					defense: (+) 4
+					damages: (+) 3
 
 [item-model axe]
 	class: melee-weapon
