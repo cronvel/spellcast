@@ -13,6 +13,7 @@
 	equippedItems:
 		hand:
 			- sword
+		#	- sword
 		#	- arc
 		ring:
 			- ring-of-fighting-spirit
@@ -32,11 +33,13 @@
 		defense: (+) -1
 	usages:
 		melee:
-			params:
-				hitFlavour: $$> ^r${attacker.label//uc1} bites ${defender.label} for ${damages} hp.
-			compound:
-				# The teeth are the dog weapon
-				damages: (+) 4
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} bites ${defender.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${attacker.label//uc1} shreds ${defender.label} for ${damages} hp.
+				compound:
+					# The teeth are the dog weapon
+					damages: (+) 4
 
 [entity-model guardian]
 	class: character

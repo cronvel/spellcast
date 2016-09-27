@@ -29,6 +29,26 @@
 					attack: (+) 3
 					defense: (+) 2
 
+# a.k.a. parrying dagger
+[item-model main-gauche]
+	class: melee-weapon
+	label: main gauche
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} cut ${defender.label} for ${damages} hp.
+				compound:
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 4
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 2
+
 [item-model shield]
 	class: shield
 	label: shield
@@ -36,17 +56,15 @@
 	slotCount: 1
 	usages:
 		melee:
-			# Bonuses when the weapon is used as a support for the primary weapon
 			support:
 				compound:
-					attack: (+) 1
 					defense: (+) 4
-			# When used as a weapon
+			# When used as primary, the wielder is mostly hiding behind it
 			primary:
 				compound:
 					attack: (+) -2
-					defense: (+) 4
-					damages: (+) 3
+					defense: (+) 9
+					damages: (+) 2
 
 [item-model axe]
 	class: melee-weapon
@@ -55,40 +73,72 @@
 	slotCount: 1
 	usages:
 		melee:
-			params:
-				criticalHitFlavour: $$> ^r${attacker.label//uc1} chops ${defender.label} for ${damages} hp.
-			compound:
-				attack: (+) 5
-				defense: (+) 3
-				damages: (+) 12
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} chops ${defender.label} for ${damages} hp.
+				compound:
+					attack: (+) 4
+					defense: (+) 2
+					damages: (+) 9
+			extraSlot:
+				compound:
+					attack: (+) 1
+					damages: (+) 3
+			support:
+				compound:
+					attack: (+) 3
+					defense: (+) 1
 	
 [item-model spear]
 	class: melee-weapon
 	label: spear
 	slotType: hand
-	slotCount: 2
+	slotCount: 1
 	usages:
 		melee:
-			params:
-				criticalHitFlavour: $$> ^r${attacker.label//uc1} punctures ${defender.label} for ${damages} hp.
-			compound:
-				attack: (+) 3
-				defense: (+) 6
-				damages: (+) 7
+			# Mostly a two-handed weapon, but can still be used with a shield
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} punctures ${defender.label} for ${damages} hp.
+				compound:
+					attack: (+) 1
+					defense: (+) 3
+					damages: (+) 3
+			extraSlot:
+				compound:
+					attack: (+) 2
+					defense: (+) 4
+					damages: (+) 4
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
 
 [item-model giant-club]
 	class: melee-weapon
 	label: giant club
 	slotType: hand
-	slotCount: 2
+	slotCount: 1
 	usages:
 		melee:
-			params:
-				criticalHitFlavour: $$> ^r${attacker.label//uc1} pounds ${defender.label} for ${damages} hp.
-			compound:
-				attack: (+) 3
-				defense: (+) 3
-				damages: (+) 15
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} pounds ${defender.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${attacker.label//uc1} crushes ${defender.label} for ${damages} hp.
+				compound:
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 9
+			extraSlot:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 6
+			support:
+				compound:
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 2
 
 [item-model arc]
 	class: missile-weapon
@@ -96,11 +146,12 @@
 	slotType: hand
 	slotCount: 2
 	usages:
-		missile:
-			compound:
-				attack: (+) 18
-				aiming: (+) 2
-				damages: (+) 15
+		primary:
+			missile:
+				compound:
+					attack: (+) 18
+					aiming: (+) 2
+					damages: (+) 15
 
 [item-model ring-of-fighting-spirit]
 	class: jewel
