@@ -49,6 +49,8 @@
 				fighting: 12
 				strength: 10
 				resilience: 12
+			stances:
+				offensiveness: -1
 		
 		[gosub battle/init]
 			[args]

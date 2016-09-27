@@ -44,6 +44,11 @@
 		[foreach $battle.turns => $local.entity]
 			[set $local.entity.adhoc.battle.initiativeScore] $= $local.entity.actual.stats.fighting + ( 2 D 8 )
 		
+			[if $local.entity.adhoc.battle.offensiveness > 0]
+				[set $local.entity.adhoc.battle.initiativeScore] $= $local.entity.adhoc.battle.initiativeScore + 2
+			[elseif $local.entity.adhoc.battle.offensiveness < 0]
+				[set $local.entity.adhoc.battle.initiativeScore] $= $local.entity.adhoc.battle.initiativeScore - 3
+		
 		[sort $battle.turns]
 			key: $adhoc.battle.initiativeScore
 			order: desc
@@ -192,10 +197,18 @@
 		
 		[foreach $local.enemies => $local.index : $local.entity]
 			[if $local.entity.status.hp > 0]
+				
+				[if $local.entity.adhoc.battle.offensiveness > 0]
+					[set $local.position] $>  (front/offensive)
+				[elseif $local.entity.adhoc.battle.offensiveness < 0]
+					[set $local.position] $>  (rear/defensive)
+				[else]
+					[set $local.position] ""
+				
 				[next]
 					[args]
 						index: $local.index
-					[label] $> ${local.entity.label//uc1}
+					[label] $> ${local.entity.label//uc1}${local.position}
 					[on-trigger]
 						[set $battle.target] $local.enemies[$args.index]
 	
