@@ -472,6 +472,33 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[add] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/add.kfg' , { type: 'cast' , target: 'add' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Value: 3' ] ,
+					[ 'Value: 5' ] ,
+					[ 'Value: 4' ] ,
+					[ 'Value: 9' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[sub] tag" ) ;
+	it( "[mul] tag" ) ;
+	it( "[div] tag" ) ;
+	
 	it( "[apply-to] tag" , function( done ) {
 		
 		var messages = [] ;
