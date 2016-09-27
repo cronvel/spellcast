@@ -10,25 +10,25 @@
 		[set $battle.turnIndex] 0
 		[set $battle.turns] <Array>
 		
-		[foreach $args.foes => $local.index : $foe]
-			[if $foe is-entity?]
-				[set $battle.foes[$local.index]] $foe
-			[else]
-				[create-entity $battle.foes[$local.index]] $foe
-			[append $battle.turns] $battle.foes[$local.index]
-			[set $battle.foes[$local.index].adhoc.battle]
+		[foreach $args.foes => $local.index : $local.foe]
+			[if ! ( $local.foe is-entity? )]
+				[create-entity $local.foe] $local.foe
+			[set $battle.foes[$local.index]] $local.foe
+			[append $battle.turns] $local.foe
+			[set $local.foe.adhoc.battle]
 				side: foes
 				cooldown: 0
-		
-		[foreach $args.allies => $local.index : $ally]
-			[if $ally is-entity?]
-				[set $battle.allies[$local.index]] $ally
-			[else]
-				[create-entity $battle.allies[$local.index]] $ally
-			[append $battle.turns] $battle.allies[$local.index]
-			[set $battle.allies[$local.index].adhoc.battle]
+				offensiveness: $= ( $local.foe.stances.offensiveness is-set? ) ? $local.foe.stances.offensiveness 0
+			
+		[foreach $args.allies => $local.index : $local.ally]
+			[if ! ( $local.ally is-entity? )]
+				[create-entity $local.ally] $local.ally
+			[set $battle.allies[$local.index]] $local.ally
+			[append $battle.turns] $local.ally
+			[set $local.ally.adhoc.battle]
 				side: allies
 				cooldown: 0
+				offensiveness: $= ( $local.ally.stances.offensiveness is-set? ) ? $local.ally.stances.offensiveness 0
 			
 		#[debug info] $battle.allies
 		#[debug info] $battle.foes
@@ -129,6 +129,18 @@
 	[scene pc-turn]
 		[next pc-melee]
 			[label] Attack
+			[on-trigger]
+				[set $battle.entityTurn.adhoc.battle.offensiveness] 0
+		
+		[next pc-melee]
+			[label] Attack boldly
+			[on-trigger]
+				[set $battle.entityTurn.adhoc.battle.offensiveness] 1
+		
+		[next pc-melee]
+			[label] Attack caustiously
+			[on-trigger]
+				[set $battle.entityTurn.adhoc.battle.offensiveness] -1
 		
 		[next pc-charge]
 			[label] Charge!
@@ -251,11 +263,26 @@
 			[set $local.attackScore] $= $args.damages + ( 2 D 6 )
 		[else]
 			[set $local.attackScore] $= $attacker.actualUsages.melee.compound.damages + ( 2 D 6 )
+			
+			# Attacker offensiveness is used only when not using fixed damage base
+			[if $attacker.adhoc.battle.offensiveness > 0]
+				[set $local.attackScore] $= $local.attackScore + 2
+			[elseif $attacker.adhoc.battle.offensiveness < 0]
+				[set $local.attackScore] $= $local.attackScore - 3
+			
 		
 		[set $local.defenseScore] $= $defender.actual.stats.resilience + ( 2 D 6 )
+		
+		# Always used?
+		[if $defender.adhoc.battle.offensiveness > 0]
+			[set $local.defenseScore] $= $local.defenseScore - 3
+		[elseif $defender.adhoc.battle.offensiveness < 0]
+			[set $local.defenseScore] $= $local.defenseScore + 2
+		
 		#[message] $> ${local.attackScore} vs ${local.defenseScore}
 		
 		[set $damages] $= ( ( $local.attackScore - $local.defenseScore ) + ( random ) ) - 0.5
+		
 		
 		[if $args.bonus is-real?]
 			[set $damages] $= $damages + $args.bonus
@@ -340,6 +367,23 @@
 		[set $local.attackScore] $= $attacker.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.melee.compound.defense + ( 2 D 8 )
 		
+		#[message] $> Before: ${local.attackScore} vs ${local.defenseScore}
+		#[message] $> Attacker ${attacker.label} offensiveness: ${attacker.adhoc.battle.offensiveness}
+		[if $attacker.adhoc.battle.offensiveness > 0]
+			[set $local.attackScore] $= $local.attackScore + 2
+			#[message] Offensive: bonus!
+		[elseif $attacker.adhoc.battle.offensiveness < 0]
+			[set $local.attackScore] $= $local.attackScore - 3
+			#[message] Defensive: malus!
+		
+		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
+		[if $defender.adhoc.battle.offensiveness > 0]
+			[set $local.defenseScore] $= $local.defenseScore - 3
+			#[message] Offensive: malus!
+		[elseif $defender.adhoc.battle.offensiveness < 0]
+			[set $local.defenseScore] $= $local.defenseScore + 2
+			#[message] Defensive: bonus!
+		
 		#[message] $> (${attacker.actualUsages.melee.compound.attack} vs ${defender.actualUsages.melee.compound.defense})
 		#[message] $> ${local.attackScore} vs ${local.defenseScore}
 		
@@ -360,8 +404,26 @@
 		
 		#[set $attacker.adhoc.battle.cooldown] 1
 		
-		[set $local.attackScore] $= ( $attacker.actualUsages.melee.compound.attack + 2 ) + ( 2 D 8 )
+		[set $attacker.adhoc.battle.offensiveness] 1
+		
+		[set $local.attackScore] $= $attacker.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.melee.compound.defense + ( 2 D 8 )
+		
+		#[message] $> Attacker ${attacker.label} offensiveness: ${attacker.adhoc.battle.offensiveness}
+		[if $attacker.adhoc.battle.offensiveness > 0]
+			[set $local.attackScore] $= $local.attackScore + 2
+			#[message] Offensive: bonus!
+		[elseif $attacker.adhoc.battle.offensiveness < 0]
+			[set $local.attackScore] $= $local.attackScore - 3
+			#[message] Defensive: malus!
+		
+		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
+		[if $defender.adhoc.battle.offensiveness > 0]
+			[set $local.defenseScore] $= $local.defenseScore - 3
+			#[message] Offensive: malus!
+		[elseif $defender.adhoc.battle.offensiveness < 0]
+			[set $local.defenseScore] $= $local.defenseScore + 2
+			#[message] Defensive: bonus!
 		
 		#[message] $> ${local.attackScore} vs ${local.defenseScore}
 		
@@ -397,6 +459,14 @@
 		[set $attacker.adhoc.battle.cooldown] 1
 		[set $local.attackScore] $= ( 20 ) + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.missile.compound.defense + ( 2 D 8 )
+		
+		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
+		[if $defender.adhoc.battle.offensiveness > 0]
+			[set $local.defenseScore] $= $local.defenseScore - 3
+			#[message] Offensive: malus!
+		[elseif $defender.adhoc.battle.offensiveness < 0]
+			[set $local.defenseScore] $= $local.defenseScore + 2
+			#[message] Defensive: bonus!
 		
 		#[message] $> Scores: ${local.attackScore} vs ${local.defenseScore}
 		
@@ -437,6 +507,22 @@
 	[scene deadly-push]
 		[set $local.attackScore] $= ( ( max $attacker.actual.stats.strength ( $attacker.actual.stats.fighting - 3 ) ) + $battle.deadlyPush.bonus ) + ( 2 D 6 )
 		[set $local.defenseScore] $= $defender.actual.stats.strength + ( 2 D 6 )
+		
+		#[message] $> Attacker ${attacker.label} offensiveness: ${attacker.adhoc.battle.offensiveness}
+		[if $attacker.adhoc.battle.offensiveness > 0]
+			[set $local.attackScore] $= $local.attackScore + 2
+			#[message] Offensive: bonus!
+		[elseif $attacker.adhoc.battle.offensiveness < 0]
+			[set $local.attackScore] $= $local.attackScore - 3
+			#[message] Defensive: malus!
+		
+		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
+		[if $defender.adhoc.battle.offensiveness > 0]
+			[set $local.defenseScore] $= $local.defenseScore - 3
+			#[message] Offensive: malus!
+		[elseif $defender.adhoc.battle.offensiveness < 0]
+			[set $local.defenseScore] $= $local.defenseScore + 2
+			#[message] Defensive: bonus!
 		
 		[if $local.attackScore > $local.defenseScore]
 			[set $defender.status.hp] 0
