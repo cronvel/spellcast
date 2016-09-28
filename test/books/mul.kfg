@@ -1,0 +1,15 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	a: 3
+	b: 5
+
+[spell mul]
+	[message] $> Value: ${a}
+	[mul $a] 2
+	[message] $> Value: ${a}
+	[mul $a] -1
+	[message] $> Value: ${a}
+	[mul $a] $b
+	[message] $> Value: ${a}

@@ -1,0 +1,15 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	a: 42
+	b: 7
+
+[spell div]
+	[message] $> Value: ${a}
+	[div $a] 3
+	[message] $> Value: ${a}
+	[div $a] -1
+	[message] $> Value: ${a}
+	[div $a] $b
+	[message] $> Value: ${a}

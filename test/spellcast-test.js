@@ -495,9 +495,74 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
-	it( "[sub] tag" ) ;
-	it( "[mul] tag" ) ;
-	it( "[div] tag" ) ;
+	it( "[sub] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/sub.kfg' , { type: 'cast' , target: 'sub' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Value: 3' ] ,
+					[ 'Value: 1' ] ,
+					[ 'Value: 2' ] ,
+					[ 'Value: -3' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[mul] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/mul.kfg' , { type: 'cast' , target: 'mul' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Value: 3' ] ,
+					[ 'Value: 6' ] ,
+					[ 'Value: -6' ] ,
+					[ 'Value: -30' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[div] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/div.kfg' , { type: 'cast' , target: 'div' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Value: 42' ] ,
+					[ 'Value: 14' ] ,
+					[ 'Value: -14' ] ,
+					[ 'Value: -2' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
 	
 	it( "[apply-to] tag" , function( done ) {
 		
