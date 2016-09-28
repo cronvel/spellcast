@@ -103,19 +103,19 @@
 		[filter $battle.aliveFoes => $middle] $= $this.adhoc.battle.offensiveness = 0
 		[filter $battle.aliveFoes => $back] $= $this.adhoc.battle.offensiveness < 0
 		
-		[set $offset] $= floor ( ( 1 - $front.length ) / 2 )
+		[set $offset] $= ceil ( ( 1 - $front.length ) / 2 )
 		[foreach $front => $index : $entity]
 			[set $entity.adhoc.battle.position]
 				x: $battle.distance
 				y: $= $index + $offset
 		
-		[set $offset] $= floor ( ( 1 - $middle.length ) / 2 )
+		[set $offset] $= ceil ( ( 1 - $middle.length ) / 2 )
 		[foreach $middle => $index : $entity]
 			[set $entity.adhoc.battle.position]
 				x: $= $battle.distance + 1
 				y: $= $index + $offset
 		
-		[set $offset] $= floor ( ( 1 - $back.length ) / 2 )
+		[set $offset] $= ceil ( ( 1 - $back.length ) / 2 )
 		[foreach $back => $index : $entity]
 			[set $entity.adhoc.battle.position]
 				x: $= $battle.distance + 2
@@ -124,30 +124,30 @@
 		[sort $battle.aliveFoes] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
 		
 		#[map $battle.aliveFoes => $tmp] $this.adhoc.battle
-		#[map $back => $tmp] $this.adhoc.battle
 		#[debug info] $tmp
+		
 		# Same for allies
 		
 		[filter $battle.aliveAllies => $front] $= $this.adhoc.battle.offensiveness > 0
 		[filter $battle.aliveAllies => $middle] $= $this.adhoc.battle.offensiveness = 0
 		[filter $battle.aliveAllies => $back] $= $this.adhoc.battle.offensiveness < 0
 		
-		[set $offset] $= floor ( ( 1 - $front.length ) / 2 )
+		[set $offset] $= ceil ( ( 1 - $front.length ) / 2 )
 		[foreach $front => $index : $entity]
 			[set $entity.adhoc.battle.position]
-				x: $battle.distance
+				x: $= - $battle.distance
 				y: $= $index + $offset
 		
-		[set $offset] $= floor ( ( 1 - $middle.length ) / 2 )
+		[set $offset] $= ceil ( ( 1 - $middle.length ) / 2 )
 		[foreach $middle => $index : $entity]
 			[set $entity.adhoc.battle.position]
-				x: $= $battle.distance - 1
+				x: $= ( - $battle.distance ) - 1
 				y: $= $index + $offset
 		
-		[set $offset] $= floor ( ( 1 - $back.length ) / 2 )
+		[set $offset] $= ceil ( ( 1 - $back.length ) / 2 )
 		[foreach $back => $index : $entity]
 			[set $entity.adhoc.battle.position]
-				x: $= $battle.distance - 2
+				x: $= ( - $battle.distance ) - 2
 				y: $= $index + $offset
 			
 		[sort $battle.aliveAllies] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
@@ -389,27 +389,42 @@
 	
 	[scene splash-damages]
 		# /!\ Should randomize the array first...
-		[foreach $battle.turns => $target]
-			[if $args.targetCount <= 0]
-				[break]
+		[set $aliveEntities] <Array>
+		[concat $aliveEntities] $battle.aliveFoes
+		[concat $aliveEntities] $battle.aliveAllies
+		[set $pos] $defender.adhoc.battle.position
+		
+		[foreach $aliveEntities => $target]
 			
-			[if ( $target.status.hp <= 0 )]
-				[continue]
 			[if ( $target = $defender ) || ( $target = $attacker )]
 				[continue]
-			[if ( $target.adhoc.battle.side = $attacker.adhoc.battle.side )]
-				[continue]
 			
-			[if ( random ) <= $args.targetChance )]
-				[dec $args.targetCount]
+			[set $targetPos] $target.adhoc.battle.position
+			
+			[if ( hypot ( $targetPos.x - $pos.x ) ( $targetPos.y - $pos.y ) ) <= $args.radius]
 				
-				[gosub deal-damages]
-					[args]
-						defender: $target
-						hitFlavour: $args.hitFlavour
-						criticalHitFlavour: $args.criticalHitFlavour
-						fatalHitFlavour: $args.fatalHitFlavour
-						damages: $args.damages
+				[set $local.attackScore] $= $args.attack + ( 2 D 8 )
+# Or use $target.actualUsages.missile.compound.defense?
+				[set $local.defenseScore] $= $target.actualUsages.melee.compound.defense + ( 2 D 8 )
+				
+				[if $target.adhoc.battle.offensiveness > 0]
+					[sub $local.defenseScore] 3
+				[elseif $target.adhoc.battle.offensiveness < 0]
+					[add $local.defenseScore] 2
+				
+				[if $local.attackScore > $local.defenseScore]
+					[gosub deal-damages]
+						[args]
+							defender: $target
+							hitFlavour: $args.hitFlavour
+							criticalHitFlavour: $args.criticalHitFlavour
+							fatalHitFlavour: $args.fatalHitFlavour
+							damages: $args.damages
+				
+				[else]
+					[if $args.missFlavour]
+						[apply-to $flavour] $args.missFlavour
+						[message] $flavour
 			
 	
 	
@@ -420,24 +435,16 @@
 		[set $local.attackScore] $= $attacker.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.melee.compound.defense + ( 2 D 8 )
 		
-		#[message] $> Before: ${local.attackScore} vs ${local.defenseScore}
-		#[message] $> Attacker ${attacker.label} offensiveness: ${attacker.adhoc.battle.offensiveness}
 		[if $attacker.adhoc.battle.offensiveness > 0]
 			[add $local.attackScore] 2
-			#[message] Offensive: bonus!
 		[elseif $attacker.adhoc.battle.offensiveness < 0]
 			[sub $local.attackScore] 3
-			#[message] Defensive: malus!
 		
-		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
 		[if $defender.adhoc.battle.offensiveness > 0]
 			[sub $local.defenseScore] 3
-			#[message] Offensive: malus!
 		[elseif $defender.adhoc.battle.offensiveness < 0]
 			[add $local.defenseScore] 2
-			#[message] Defensive: bonus!
 		
-		#[message] $> (${attacker.actualUsages.melee.compound.attack} vs ${defender.actualUsages.melee.compound.defense})
 		#[message] $> ${local.attackScore} vs ${local.defenseScore}
 		
 		[if $local.attackScore > $local.defenseScore]
@@ -513,15 +520,12 @@
 		[set $local.attackScore] $= ( 20 ) + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.missile.compound.defense + ( 2 D 8 )
 		
-		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
 		[if $defender.adhoc.battle.offensiveness > 0]
 			[sub $local.defenseScore] 3
-			#[message] Offensive: malus!
 		[elseif $defender.adhoc.battle.offensiveness < 0]
 			[add $local.defenseScore] 2
-			#[message] Defensive: bonus!
 		
-		#[message] $> Scores: ${local.attackScore} vs ${local.defenseScore}
+		#[message] $> ${local.attackScore} vs ${local.defenseScore}
 		
 		[message] $> ${attacker.label//uc1} cast a ^rfireball^ at ${defender.label}!
 		
@@ -532,7 +536,7 @@
 						$$> ^rThe fireball hits ${defender.label} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
 					criticalHitFlavour:
-						$$> ^rThe fireball engulf ${defender.label} for ${damages} hp.^:
+						$$> ^rThe fireball engulfs ${defender.label} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
 					fatalHitFlavour:
 						$$> ^rThe fireball burns ${defender.label} to death for ${damages} hp.^:
@@ -542,12 +546,13 @@
 			
 			[gosub splash-damages]
 				[args]
+					attack: 25
 					damages: $= 16 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
+					radius: 1.8
+					missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
 					hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
-					criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blow ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blast ${target.label} for ${damages} hp.
-					targetChance: 0.5
-					targetCount: 3
+					criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
 			
 		[else]
 			[fortune]

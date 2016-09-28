@@ -102,6 +102,7 @@
 		- the ugly goblin
 	params:
 		xpReward: 2
+		charge: 0.2
 		battleCry: 0.05
 		battleCryFlavour:
 			- $$> ^+${attacker.label//uc1} shouts “Bleed him to death!”
