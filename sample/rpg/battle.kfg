@@ -388,7 +388,6 @@
 	
 	
 	[scene splash-damages]
-		# /!\ Should randomize the array first...
 		[set $aliveEntities] <Array>
 		[concat $aliveEntities] $battle.aliveFoes
 		[concat $aliveEntities] $battle.aliveAllies

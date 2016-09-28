@@ -1,0 +1,38 @@
+
+[[doctype adventurer]]
+
+[item-model fireball]
+	class: spell
+	label: fireball
+	slotType: spell
+	usages:
+		missile:
+			# When the weapon is used
+			primary:
+				params:
+					hitFlavour:
+						$$> ^rThe fireball hits ${defender.label} for ${damages} hp.^:
+						$$> The ^rfireball^ explodes!
+					criticalHitFlavour:
+						$$> ^rThe fireball engulfs ${defender.label} for ${damages} hp.^:
+						$$> The ^rfireball^ explodes!
+					fatalHitFlavour:
+						$$> ^rThe fireball burns ${defender.label} to death for ${damages} hp.^:
+						$$> The ^rfireball^ explodes!
+				
+				compound:
+					attack: (+) 4
+					defense: (+) 4
+					damages: $= 24 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
+			
+			splash:
+			#primary:
+				params:
+					missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
+					hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
+					criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
+				compound:
+					attack: 25
+					damages: $= 16 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
+					radius: 1.8
