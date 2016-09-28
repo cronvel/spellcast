@@ -5,6 +5,7 @@
 	usageTypes:
 		- melee
 		- missile
+		- spell
 	params:
 		xpReward: 1
 	slots:
@@ -37,3 +38,8 @@
 	aiming: $= $stats.shooting
 	defense: $= $stats.fighting
 	damages: $= round ( $stats.shooting / 4 )
+
+[compound-stats character spell]
+	attack: $= round ( $stats.spellcasting / 4 )
+	defense: $= $stats.fighting
+	damages: $= round ( $stats.spellcasting / 2 )

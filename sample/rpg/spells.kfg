@@ -6,10 +6,13 @@
 	label: fireball
 	slotType: spell
 	usages:
-		missile:
+		spell:
 			# When the weapon is used
 			primary:
 				params:
+					# How hard is it to cast
+					spellLevel: 14
+					manaLevel: 8
 					hitFlavour:
 						$$> ^rThe fireball hits ${defender.label} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
@@ -19,20 +22,17 @@
 					fatalHitFlavour:
 						$$> ^rThe fireball burns ${defender.label} to death for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
+					splash:
+						missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
+						hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
+						criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
+						fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
+						radius: 1.8
+						# Attack modifier applied over the regular attack value
+						attack: -2
+						# Damage modifier applied over the regular damage value
+						damages: -8
 				
 				compound:
-					attack: (+) 4
-					defense: (+) 4
-					damages: $= 24 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
-			
-			splash:
-			#primary:
-				params:
-					missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
-					hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
-					criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
-				compound:
-					attack: 25
-					damages: $= 16 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
-					radius: 1.8
+					attack: (+) 20
+					damages: (+) 24
