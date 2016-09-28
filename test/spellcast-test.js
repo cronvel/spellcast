@@ -564,6 +564,29 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[inc] and [dec] tags" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/inc-dec.kfg' , { type: 'cast' , target: 'inc-dec' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Value: 3' ] ,
+					[ 'Value: 4' ] ,
+					[ 'Value: 5' ] ,
+					[ 'Value: 4' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "[apply-to] tag" , function( done ) {
 		
 		var messages = [] ;

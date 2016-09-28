@@ -1,0 +1,14 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	a: 3
+
+[spell inc-dec]
+	[message] $> Value: ${a}
+	[inc $a]
+	[message] $> Value: ${a}
+	[inc $a]
+	[message] $> Value: ${a}
+	[dec $a]
+	[message] $> Value: ${a}

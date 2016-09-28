@@ -9,6 +9,7 @@
 		[set $battle.foes] <Array>
 		[set $battle.turnIndex] 0
 		[set $battle.turns] <Array>
+		[set $battle.distance] $= ( $args.distance is-set? ) ? $args.distance 0
 		
 		[foreach $args.foes => $local.index : $local.foe]
 			[if ! ( $local.foe is-entity? )]
@@ -45,9 +46,9 @@
 			[set $local.entity.adhoc.battle.initiativeScore] $= $local.entity.actual.stats.fighting + ( 2 D 8 )
 		
 			[if $local.entity.adhoc.battle.offensiveness > 0]
-				[set $local.entity.adhoc.battle.initiativeScore] $= $local.entity.adhoc.battle.initiativeScore + 2
+				[add $local.entity.adhoc.battle.initiativeScore] 2
 			[elseif $local.entity.adhoc.battle.offensiveness < 0]
-				[set $local.entity.adhoc.battle.initiativeScore] $= $local.entity.adhoc.battle.initiativeScore - 3
+				[sub $local.entity.adhoc.battle.initiativeScore] 3
 		
 		[sort $battle.turns]
 			key: $adhoc.battle.initiativeScore
@@ -66,8 +67,10 @@
 			[goto end-turn]
 		
 		[if $battle.entityTurn.adhoc.battle.cooldown > 0]
-			[set $battle.entityTurn.adhoc.battle.cooldown] $= $battle.entityTurn.adhoc.battle.cooldown - 1
+			[dec $battle.entityTurn.adhoc.battle.cooldown]
 			[goto end-turn]
+		
+		[gosub battle-lines]
 		
 		[if $battle.entityTurn.npc]
 			[goto npc-turn]
@@ -84,11 +87,11 @@
 		
 		[foreach $battle.allies => $local.entity]
 			[if $local.entity.status.hp > 0]
-				[set $local.alliesAlive] $= $local.alliesAlive + 1
+				[inc $local.alliesAlive]
 		
 		[foreach $battle.foes => $local.entity]
 			[if $local.entity.status.hp > 0]
-				[set $local.foesAlive] $= $local.foesAlive + 1
+				[inc $local.foesAlive]
 		
 		#[message] $> Alive: ${local.alliesAlive} ${local.foesAlive}
 		
@@ -100,6 +103,16 @@
 			[goto new-turn]
 	
 	
+	
+	[scene battle-lines]
+		
+		[set $front] <Array>
+		[set $middle] <Array>
+		[set $back] <Array>
+		
+		#[foreach $battle.foes => $index : $foe]
+			
+		
 	
 	[scene npc-turn]
 		
@@ -187,7 +200,7 @@
 		
 		[foreach $local.enemies => $local.entity]
 			[if $local.entity.status.hp > 0]
-				[set $local.count] $= $local.count + 1
+				[inc $local.count]
 				[set $battle.target] $local.entity
 		
 		[if $local.count <= 1]
@@ -249,12 +262,12 @@
 		[set $local.xpReward] 0
 		
 		[foreach $battle.foes => $local.entity]
-			[set $local.xpReward] $= $local.xpReward + $local.entity.params.xpReward
+			[add $local.xpReward] $local.entity.params.xpReward
 		
 		[set $local.xpReward] $= ceil ( $local.xpReward / $battle.allies.length )
 		
 		[foreach $battle.allies => $local.index : $local.entity]
-			[set $local.entity.status.xp] $= $local.entity.status.xp + $local.xpReward
+			[add $local.entity.status.xp] $local.xpReward
 		
 		[message] $> You gain ${local.xpReward} xp (=${battle.allies[0].status.xp}).
 	
@@ -279,18 +292,18 @@
 			
 			# Attacker offensiveness is used only when not using fixed damage base
 			[if $attacker.adhoc.battle.offensiveness > 0]
-				[set $local.attackScore] $= $local.attackScore + 2
+				[add $local.attackScore] 2
 			[elseif $attacker.adhoc.battle.offensiveness < 0]
-				[set $local.attackScore] $= $local.attackScore - 3
+				[sub $local.attackScore] 3
 			
 		
 		[set $local.defenseScore] $= $defender.actual.stats.resilience + ( 2 D 6 )
 		
 		# Always used?
 		[if $defender.adhoc.battle.offensiveness > 0]
-			[set $local.defenseScore] $= $local.defenseScore - 3
+			[sub $local.defenseScore] 3
 		[elseif $defender.adhoc.battle.offensiveness < 0]
-			[set $local.defenseScore] $= $local.defenseScore + 2
+			[add $local.defenseScore] 2
 		
 		#[message] $> ${local.attackScore} vs ${local.defenseScore}
 		
@@ -298,13 +311,17 @@
 		
 		
 		[if $args.bonus is-real?]
-			[set $damages] $= $damages + $args.bonus
+			[add $damages] $args.bonus
 		
 		#[message] $> damages: ${damages}
-		[set $damages] $= round ( 10 * ( 2 ^ ( $damages / 5 ) ) )
+		
+		# This is the magic formula that transform damage levels into real hit point loss, with the correct feeling
+		# damage-level = +20 is needed for an instant death
+		[set $damages] $= round ( 10 * ( 2 ^ ( $damages / 6 ) ) )
+		
 		#[message] $> damages: ${damages}
 		
-		[set $defender.status.hp] $= $defender.status.hp - $damages
+		[sub $defender.status.hp] $damages
 		
 		[if $damages >= 100]
 			[if $args.fatalHitFlavour is-set?]
@@ -361,7 +378,7 @@
 				[continue]
 			
 			[if ( random ) <= $args.targetChance )]
-				[set $args.targetCount] $= $args.targetCount - 1
+				[dec $args.targetCount]
 				
 				[gosub deal-damages]
 					[args]
@@ -383,18 +400,18 @@
 		#[message] $> Before: ${local.attackScore} vs ${local.defenseScore}
 		#[message] $> Attacker ${attacker.label} offensiveness: ${attacker.adhoc.battle.offensiveness}
 		[if $attacker.adhoc.battle.offensiveness > 0]
-			[set $local.attackScore] $= $local.attackScore + 2
+			[add $local.attackScore] 2
 			#[message] Offensive: bonus!
 		[elseif $attacker.adhoc.battle.offensiveness < 0]
-			[set $local.attackScore] $= $local.attackScore - 3
+			[sub $local.attackScore] 3
 			#[message] Defensive: malus!
 		
 		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
 		[if $defender.adhoc.battle.offensiveness > 0]
-			[set $local.defenseScore] $= $local.defenseScore - 3
+			[sub $local.defenseScore] 3
 			#[message] Offensive: malus!
 		[elseif $defender.adhoc.battle.offensiveness < 0]
-			[set $local.defenseScore] $= $local.defenseScore + 2
+			[add $local.defenseScore] 2
 			#[message] Defensive: bonus!
 		
 		#[message] $> (${attacker.actualUsages.melee.compound.attack} vs ${defender.actualUsages.melee.compound.defense})
@@ -424,18 +441,18 @@
 		
 		#[message] $> Attacker ${attacker.label} offensiveness: ${attacker.adhoc.battle.offensiveness}
 		[if $attacker.adhoc.battle.offensiveness > 0]
-			[set $local.attackScore] $= $local.attackScore + 2
+			[add $local.attackScore] 2
 			#[message] Offensive: bonus!
 		[elseif $attacker.adhoc.battle.offensiveness < 0]
-			[set $local.attackScore] $= $local.attackScore - 3
+			[sub $local.attackScore] 3
 			#[message] Defensive: malus!
 		
 		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
 		[if $defender.adhoc.battle.offensiveness > 0]
-			[set $local.defenseScore] $= $local.defenseScore - 3
+			[sub $local.defenseScore] 3
 			#[message] Offensive: malus!
 		[elseif $defender.adhoc.battle.offensiveness < 0]
-			[set $local.defenseScore] $= $local.defenseScore + 2
+			[add $local.defenseScore] 2
 			#[message] Defensive: bonus!
 		
 		#[message] $> ${local.attackScore} vs ${local.defenseScore}
@@ -462,7 +479,7 @@
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
 		
-		[set $attacker.status.mana] $= $attacker.status.mana - 6
+		[sub $attacker.status.mana] 6
 		[message] $> mana: ${attacker.status.mana}
 		[if $attacker.status.mana < 0]
 			[set $attacker.status.mana] 0
@@ -475,10 +492,10 @@
 		
 		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
 		[if $defender.adhoc.battle.offensiveness > 0]
-			[set $local.defenseScore] $= $local.defenseScore - 3
+			[sub $local.defenseScore] 3
 			#[message] Offensive: malus!
 		[elseif $defender.adhoc.battle.offensiveness < 0]
-			[set $local.defenseScore] $= $local.defenseScore + 2
+			[add $local.defenseScore] 2
 			#[message] Defensive: bonus!
 		
 		#[message] $> Scores: ${local.attackScore} vs ${local.defenseScore}
@@ -497,12 +514,12 @@
 					fatalHitFlavour:
 						$$> ^rThe fireball burns ${defender.label} to death for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
-					damages: $= 20 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
+					damages: $= 24 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
 			
 			
 			[gosub splash-damages]
 				[args]
-					damages: $= 12 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
+					damages: $= 16 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
 					hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
 					criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blow ${target.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blast ${target.label} for ${damages} hp.
@@ -523,18 +540,18 @@
 		
 		#[message] $> Attacker ${attacker.label} offensiveness: ${attacker.adhoc.battle.offensiveness}
 		[if $attacker.adhoc.battle.offensiveness > 0]
-			[set $local.attackScore] $= $local.attackScore + 2
+			[add $local.attackScore] 2
 			#[message] Offensive: bonus!
 		[elseif $attacker.adhoc.battle.offensiveness < 0]
-			[set $local.attackScore] $= $local.attackScore - 3
+			[sub $local.attackScore] 3
 			#[message] Defensive: malus!
 		
 		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
 		[if $defender.adhoc.battle.offensiveness > 0]
-			[set $local.defenseScore] $= $local.defenseScore - 3
+			[sub $local.defenseScore] 3
 			#[message] Offensive: malus!
 		[elseif $defender.adhoc.battle.offensiveness < 0]
-			[set $local.defenseScore] $= $local.defenseScore + 2
+			[add $local.defenseScore] 2
 			#[message] Defensive: bonus!
 		
 		[if $local.attackScore > $local.defenseScore]
