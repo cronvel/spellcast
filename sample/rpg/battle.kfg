@@ -31,9 +31,14 @@
 				cooldown: 0
 				offensiveness: $= ( $local.ally.stances.offensiveness is-set? ) ? $local.ally.stances.offensiveness 0
 			
+		[filter $battle.foes => $battle.aliveFoes] $= $this.status.hp > 0
+		[filter $battle.allies => $battle.aliveAllies] $= $this.status.hp > 0
+		
 		#[debug info] $battle.allies
 		#[debug info] $battle.foes
+		#[debug info] $battle.aliveFoes
 		#[debug info] $battle.turns
+		
 		
 		[set $battle.deadlyPush] $args.deadlyPush
 		
@@ -50,9 +55,7 @@
 			[elseif $local.entity.adhoc.battle.offensiveness < 0]
 				[sub $local.entity.adhoc.battle.initiativeScore] 3
 		
-		[sort $battle.turns]
-			key: $adhoc.battle.initiativeScore
-			order: desc
+		[sort $battle.turns] $= - $this.adhoc.battle.initiativeScore
 		
 		#[debug info] $battle.turns
 		[message] $> ${battle.turns[0].label//uc1} takes the initiative.
@@ -82,22 +85,12 @@
 	[scene end-turn]
 		[set $battle.turnIndex] $= ( $battle.turnIndex + 1 ) % $battle.turns.length
 		
-		[set $local.alliesAlive] 0
-		[set $local.foesAlive] 0
+		[filter $battle.foes => $battle.aliveFoes] $= $this.status.hp > 0
+		[filter $battle.allies => $battle.aliveAllies] $= $this.status.hp > 0
 		
-		[foreach $battle.allies => $local.entity]
-			[if $local.entity.status.hp > 0]
-				[inc $local.alliesAlive]
-		
-		[foreach $battle.foes => $local.entity]
-			[if $local.entity.status.hp > 0]
-				[inc $local.foesAlive]
-		
-		#[message] $> Alive: ${local.alliesAlive} ${local.foesAlive}
-		
-		[if ! $local.alliesAlive]
+		[if ! $battle.aliveAllies.length]
 			[goto lost]
-		[elseif ! $local.foesAlive]
+		[elseif ! $battle.aliveFoes.length]
 			[goto win]
 		[else]
 			[goto new-turn]
@@ -106,12 +99,58 @@
 	
 	[scene battle-lines]
 		
-		[set $front] <Array>
-		[set $middle] <Array>
-		[set $back] <Array>
+		[filter $battle.aliveFoes => $front] $= $this.adhoc.battle.offensiveness > 0
+		[filter $battle.aliveFoes => $middle] $= $this.adhoc.battle.offensiveness = 0
+		[filter $battle.aliveFoes => $back] $= $this.adhoc.battle.offensiveness < 0
 		
-		#[foreach $battle.foes => $index : $foe]
+		[set $offset] $= floor ( ( 1 - $front.length ) / 2 )
+		[foreach $front => $index : $entity]
+			[set $entity.adhoc.battle.position]
+				x: $battle.distance
+				y: $= $index + $offset
+		
+		[set $offset] $= floor ( ( 1 - $middle.length ) / 2 )
+		[foreach $middle => $index : $entity]
+			[set $entity.adhoc.battle.position]
+				x: $= $battle.distance + 1
+				y: $= $index + $offset
+		
+		[set $offset] $= floor ( ( 1 - $back.length ) / 2 )
+		[foreach $back => $index : $entity]
+			[set $entity.adhoc.battle.position]
+				x: $= $battle.distance + 2
+				y: $= $index + $offset
+		
+		[sort $battle.aliveFoes] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
+		
+		#[map $battle.aliveFoes => $tmp] $this.adhoc.battle
+		#[map $back => $tmp] $this.adhoc.battle
+		#[debug info] $tmp
+		# Same for allies
+		
+		[filter $battle.aliveAllies => $front] $= $this.adhoc.battle.offensiveness > 0
+		[filter $battle.aliveAllies => $middle] $= $this.adhoc.battle.offensiveness = 0
+		[filter $battle.aliveAllies => $back] $= $this.adhoc.battle.offensiveness < 0
+		
+		[set $offset] $= floor ( ( 1 - $front.length ) / 2 )
+		[foreach $front => $index : $entity]
+			[set $entity.adhoc.battle.position]
+				x: $battle.distance
+				y: $= $index + $offset
+		
+		[set $offset] $= floor ( ( 1 - $middle.length ) / 2 )
+		[foreach $middle => $index : $entity]
+			[set $entity.adhoc.battle.position]
+				x: $= $battle.distance - 1
+				y: $= $index + $offset
+		
+		[set $offset] $= floor ( ( 1 - $back.length ) / 2 )
+		[foreach $back => $index : $entity]
+			[set $entity.adhoc.battle.position]
+				x: $= $battle.distance - 2
+				y: $= $index + $offset
 			
+		[sort $battle.aliveAllies] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
 		
 	
 	[scene npc-turn]
@@ -171,22 +210,12 @@
 	[scene npc-targeting]
 		
 		[if $battle.entityTurn.adhoc.battle.side = "allies"]
-			[set $local.enemies] $battle.foes
+			[set $local.enemies] $battle.aliveFoes
 		[else]
-			[set $local.enemies] $battle.allies
+			[set $local.enemies] $battle.aliveAllies
 		
-		[set $local.enemiesAlive] <Array>
-		
-		[foreach $local.enemies => $local.entity]
-			[if $local.entity.status.hp > 0]
-				[append $local.enemiesAlive] $local.entity
-				[set $battle.target] $local.entity
-		
-		[if $local.enemiesAlive.length <= 1]
-			[return]
-		
-		[set $local.index] $= random ( $local.enemiesAlive.length - 1 )
-		[set $battle.target] $local.enemiesAlive[$local.index]
+		[set $local.index] $= random ( $local.enemies.length - 1 )
+		[set $battle.target] $local.enemies[$local.index]
 	
 	
 	
@@ -194,36 +223,30 @@
 		[set $local.count] 0
 		
 		[if $battle.entityTurn.adhoc.battle.side = "allies"]
-			[set $local.enemies] $battle.foes
+			[set $local.enemies] $battle.aliveFoes
 		[else]
-			[set $local.enemies] $battle.allies
+			[set $local.enemies] $battle.aliveAllies
 		
-		[foreach $local.enemies => $local.entity]
-			[if $local.entity.status.hp > 0]
-				[inc $local.count]
-				[set $battle.target] $local.entity
-		
-		[if $local.count <= 1]
+		[if $local.enemies.length <= 1]
+			[set $battle.target] $local.enemies[0]
 			[return]
 		
 		[message] Target?
 		
 		[foreach $local.enemies => $local.index : $local.entity]
-			[if $local.entity.status.hp > 0]
-				
-				[if $local.entity.adhoc.battle.offensiveness > 0]
-					[set $local.position] $>  (front/offensive)
-				[elseif $local.entity.adhoc.battle.offensiveness < 0]
-					[set $local.position] $>  (rear/defensive)
-				[else]
-					[set $local.position] ""
-				
-				[next]
-					[args]
-						index: $local.index
-					[label] $> ${local.entity.label//uc1}${local.position}
-					[on-trigger]
-						[set $battle.target] $local.enemies[$args.index]
+			[if $local.entity.adhoc.battle.offensiveness > 0]
+				[set $local.position] "←"
+			[elseif $local.entity.adhoc.battle.offensiveness < 0]
+				[set $local.position] "→    "
+			[else]
+				[set $local.position] "   "
+			
+			[next]
+				[args]
+					index: $local.index
+				[label] $> ${local.position} ${local.entity.label//uc1}
+				[on-trigger]
+					[set $battle.target] $local.enemies[$args.index]
 	
 	
 	

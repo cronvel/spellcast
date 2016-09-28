@@ -727,13 +727,55 @@ describe( "Operations tags" , function() {
 			} ,
 			function() {
 				doormen.equals( messages , [
-					[ 'Array: 8 13 15' ],
-					[ 'Array: 8 13 15' ],
-					[ 'Array: 15 13 8' ],
-					[ 'Array: 16 19 23' ],
-					[ 'Array: 16 19 23' ],
-					[ 'Array: 23 19 16' ],
-					[ 'Array: 16 23 19' ]
+					[ 'Original: 13 15 8' ],
+					[ 'Result: 8 13 15' ],
+					[ 'Original: 13 15 8' ],
+					[ 'Result: 15 13 8' ],
+					[ 'Original: 8 13 15' ],
+					[ 'Result: 16 19 23' ],
+					[ 'Result: 23 19 16' ],
+					[ 'Result: 16 23 19' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[filter] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/filter.kfg' , { type: 'cast' , target: 'filter' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Filtered length: 3' ],
+					[ 'Filtered: orange apple ananas' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[map] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/map.kfg' , { type: 'cast' , target: 'map' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Map: orange apple cabbage ananas' ]
 				] ) ;
 				
 				done() ;

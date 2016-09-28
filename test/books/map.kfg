@@ -1,0 +1,17 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	list:
+		-	type: fruit
+			name: orange
+		-	type: fruit
+			name: apple
+		-	type: vegetable
+			name: cabbage
+		-	type: fruit
+			name: ananas
+
+[spell map]
+	[map $list => $map] $this.name
+	[message] $> Map: ${map}[enum]

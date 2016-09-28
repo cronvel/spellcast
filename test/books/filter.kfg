@@ -1,0 +1,18 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	list:
+		-	type: fruit
+			name: orange
+		-	type: fruit
+			name: apple
+		-	type: vegetable
+			name: cabbage
+		-	type: fruit
+			name: ananas
+
+[spell filter]
+	[filter $list => $filtered] $= $this.type = "fruit"
+	[message] $> Filtered length: ${filtered.length}
+	[message] $> Filtered: ${filtered[0].name} ${filtered[1].name} ${filtered[2].name}

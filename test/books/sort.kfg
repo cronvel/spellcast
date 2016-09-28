@@ -19,32 +19,23 @@
 				c: 54
 
 [spell sort]
-	[sort $simpleArray]
-	[message] $> Array: ${simpleArray}[enum]
+	[sort $simpleArray => $r] $this
+	[message] $> Original: ${simpleArray}[enum]
+	[message] $> Result: ${r}[enum]
 	
-	[sort $simpleArray]
-		order: asc
-	[message] $> Array: ${simpleArray}[enum]
+	[sort $simpleArray => $r] $= - $this
+	[message] $> Original: ${simpleArray}[enum]
+	[message] $> Result: ${r}[enum]
 	
-	[sort $simpleArray]
-		order: desc
-	[message] $> Array: ${simpleArray}[enum]
+	[sort $simpleArray] $this
+	[message] $> Original: ${simpleArray}[enum]
 	
-	[sort $array]
-		key: $a
-	[message] $> Array: ${array[0].a} ${array[1].a} ${array[2].a}
+	[sort $array => $r] $this.a
+	[message] $> Result: ${r[0].a} ${r[1].a} ${r[2].a}
 	
-	[sort $array]
-		key: $a
-		order: asc
-	[message] $> Array: ${array[0].a} ${array[1].a} ${array[2].a}
-	
-	[sort $array]
-		key: $a
-		order: desc
-	[message] $> Array: ${array[0].a} ${array[1].a} ${array[2].a}
+	[sort $array => $r] $= - $this.a
+	[message] $> Result: ${r[0].a} ${r[1].a} ${r[2].a}
 
-	[sort $array]
-		key: $b.c
-		order: asc
-	[message] $> Array: ${array[0].a} ${array[1].a} ${array[2].a}
+	[sort $array => $r] $this.b.c
+	[message] $> Result: ${r[0].a} ${r[1].a} ${r[2].a}
+
