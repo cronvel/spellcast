@@ -417,6 +417,38 @@ describe( "Control flow tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[fn], [call] and [return] tags" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/fn.kfg' , { type: 'cast' , target: 'fn' } ,
+			function( ui ) {
+				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
+				
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Global myfn' ] ,
+					[ 'value arg1 arg2' ] ,
+					[ 'Global myfn' ] ,
+					[ 'value one two three' ] ,
+					[ 'Local fn' ] ,
+					[ 'Global myfn' ] ,
+					[ 'other value one 2 (undefined)' ] ,
+					[ 'Local fn' ] ,
+					[ 'Global myfn' ] ,
+					[ 'other value 1 2' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[call] tag on real function (not on [fn] tag)" ) ;
 	it( "[return] tag" ) ;
 } ) ;
 

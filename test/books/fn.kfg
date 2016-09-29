@@ -1,0 +1,47 @@
+
+[[doctype spellcaster]]
+
+[fn myfn]
+	[message] Global myfn
+	[return]
+		some: value
+		args: $args
+
+[spell fn]
+	
+	[call myfn => $return]
+		- arg1
+		- arg2
+	
+	[message] $> ${return.some} ${return.args[0]} ${return.args[1]}
+	
+	[call myfn => $return]
+		- one
+		- two
+		- three
+	
+	[message] $> ${return.some} ${return.args[0]} ${return.args[1]} ${return.args[2]}
+	
+	[fn $fn]
+		[message] Local fn
+		[call myfn => $local.return]
+			- $args[0]
+			- 2
+		[return]
+			some: other value
+			args: $local.return.args
+	
+	[call $fn => $return]
+		- one
+		- two
+		- three
+	
+	[message] $> ${return.some} ${return.args[0]} ${return.args[1]} ${return.args[2]}
+	
+	[call $fn => $return]
+		- 1
+		- two
+	
+	[message] $> ${return.some} ${return.args[0]} ${return.args[1]}
+	
+	
