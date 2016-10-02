@@ -1,0 +1,11 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	a: one
+	b: two
+
+[spell swap]
+	[message] $> ${a} ${b}
+	[swap $a $b]
+	[message] $> ${a} ${b}

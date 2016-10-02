@@ -504,6 +504,27 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[swap] tag should swap the values of two Ref" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/swap.kfg' , { type: 'cast' , target: 'swap' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'one two' ] ,
+					[ 'two one' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "[add] tag" , function( done ) {
 		
 		var messages = [] ;
