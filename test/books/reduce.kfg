@@ -1,0 +1,15 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	list:
+		-	a: 12
+			b: 7
+		-	a: 2
+			b: 3
+		-	a: 1
+			b: 9
+
+[spell map]
+	[reduce $list => $reduce] $= $this.previous + $this.current
+	[message] $> Reduce: ${reduce}

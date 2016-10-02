@@ -19,23 +19,23 @@
 				c: 54
 
 [spell sort]
-	[sort $simpleArray => $r] $this
+	[sort $simpleArray => $r] $= $this.left - $this.right
 	[message] $> Original: ${simpleArray}[enum]
 	[message] $> Result: ${r}[enum]
 	
-	[sort $simpleArray => $r] $= - $this
+	[sort $simpleArray => $r] $= $this.right - $this.left
 	[message] $> Original: ${simpleArray}[enum]
 	[message] $> Result: ${r}[enum]
 	
-	[sort $simpleArray] $this
+	[sort $simpleArray] $= $this.left - $this.right
 	[message] $> Original: ${simpleArray}[enum]
 	
-	[sort $array => $r] $this.a
+	[sort $array => $r] $= $this.left.a - $this.right.a
 	[message] $> Result: ${r[0].a} ${r[1].a} ${r[2].a}
 	
-	[sort $array => $r] $= - $this.a
+	[sort $array => $r] $= $this.right.a - $this.left.a
 	[message] $> Result: ${r[0].a} ${r[1].a} ${r[2].a}
 
-	[sort $array => $r] $this.b.c
+	[sort $array => $r] $= $this.left.b.c - $this.right.b.c
 	[message] $> Result: ${r[0].a} ${r[1].a} ${r[2].a}
 

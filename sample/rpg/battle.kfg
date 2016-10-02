@@ -55,7 +55,8 @@
 			[elseif $local.entity.adhoc.battle.offensiveness < 0]
 				[sub $local.entity.adhoc.battle.initiativeScore] 3
 		
-		[sort $battle.turns] $= - $this.adhoc.battle.initiativeScore
+		#[sort $battle.turns] $= - $this.adhoc.battle.initiativeScore
+		[sort $battle.turns] $= $this.right.adhoc.battle.initiativeScore - $this.left.adhoc.battle.initiativeScore
 		
 		#[debug info] $battle.turns
 		[message] $> ${battle.turns[0].label//uc1} takes the initiative.
@@ -121,7 +122,8 @@
 				x: $= $battle.distance + 2
 				y: $= $index + $offset
 		
-		[sort $battle.aliveFoes] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
+		#[sort $battle.aliveFoes] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
+		[sort $battle.aliveFoes] $= ( $this.left.adhoc.battle.position.y + ( $this.left.adhoc.battle.position.x / 1000 ) ) - ( $this.right.adhoc.battle.position.y + ( $this.right.adhoc.battle.position.x / 1000 ) )
 		
 		#[map $battle.aliveFoes => $tmp] $this.adhoc.battle
 		#[debug info] $tmp
@@ -150,7 +152,8 @@
 				x: $= ( - $battle.distance ) - 2
 				y: $= $index + $offset
 			
-		[sort $battle.aliveAllies] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
+		#[sort $battle.aliveAllies] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
+		[sort $battle.aliveAllies] $= ( $this.left.adhoc.battle.position.y + ( $this.left.adhoc.battle.position.x / 1000 ) ) - ( $this.right.adhoc.battle.position.y + ( $this.right.adhoc.battle.position.x / 1000 ) )
 		
 	
 	[scene npc-turn]
