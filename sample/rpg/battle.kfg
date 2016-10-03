@@ -20,7 +20,7 @@
 				side: foes
 				cooldown: 0
 				offensiveness: $= ( $local.foe.stances.offensiveness is-set? ) ? $local.foe.stances.offensiveness 0
-				pressureTarget: null
+				pressTarget: null
 				pressure: 0
 			
 		[foreach $args.allies => $local.index : $local.ally]
@@ -32,7 +32,7 @@
 				side: allies
 				cooldown: 0
 				offensiveness: $= ( $local.ally.stances.offensiveness is-set? ) ? $local.ally.stances.offensiveness 0
-				pressureTarget: null
+				pressTarget: null
 				pressure: 0
 			
 		[filter $battle.foes => $battle.aliveFoes] $= $this.status.hp > 0
@@ -79,12 +79,6 @@
 		
 		[gosub battle-lines]
 		
-		[foreach $battle.aliveEntities => $local.entity]
-			[reduce $battle.aliveEntities , 0 => $local.entity.adhoc.battle.pressure] $= $this.previous + ( ( $this.current.adhoc.battle.pressureTarget = $local.entity ) ? 1 0 )
-		
-		#[debug info] $battle.entityTurn.adhoc.battle
-		[message] $> Pressure: ${battle.entityTurn.adhoc.battle.pressure}
-		
 		[if $battle.entityTurn.npc]
 			[goto npc-turn]
 		[else]
@@ -92,6 +86,17 @@
 	
 	
 	
+	[fn battle/all-pressure]
+		[foreach $battle.aliveEntities => $local.entity]
+			[call battle/pressure] $local.entity
+		
+	[fn battle/pressure]
+		[reduce $battle.aliveEntities , 0 => $args.adhoc.battle.pressure] $= $this.previous + ( ( $this.current.adhoc.battle.pressTarget = $args ) ? $this.current.adhoc.battle.pressValue 0 )
+		#[set $args.adhoc.battle.pressurePenalty] $= max 0 ( ( ceil ( $args.adhoc.battle.pressure / 6 ) ) - 1 )
+		[set $args.adhoc.battle.pressure] $= max 0 ( $args.adhoc.battle.pressure - 6 )
+		
+		
+		
 	[scene end-turn]
 		[set $battle.turnIndex] $= ( $battle.turnIndex + 1 ) % $battle.turns.length
 		
@@ -423,12 +428,17 @@
 # Or use $target.actualUsages.missile.compound.defense?
 				[set $local.defenseScore] $= $target.actualUsages.melee.compound.defense + ( 2 D 8 )
 				
-				[sub $local.defenseScore] $target.adhoc.battle.pressure
+				[call battle/pressure] $target
 				
 				[if $target.adhoc.battle.offensiveness > 0]
 					[sub $local.defenseScore] 3
+					[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 4 )
 				[elseif $target.adhoc.battle.offensiveness < 0]
 					[add $local.defenseScore] 2
+					# Less sensible to the pressure when defending
+					[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 8 )
+				[else]
+					[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 4 )
 				
 				[if $local.attackScore > $local.defenseScore]
 					[gosub deal-damages]
@@ -449,25 +459,40 @@
 	[scene melee]
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
-		[set $attacker.adhoc.battle.pressureTarget] $defender
 		
 		[set $local.attackScore] $= $attacker.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.melee.compound.defense + ( 2 D 8 )
 		
-		[sub $local.attackScore] $attacker.adhoc.battle.pressure
-		[sub $local.defenseScore] $defender.adhoc.battle.pressure
+		[set $attacker.adhoc.battle.pressTarget] $defender
+		[set $attacker.adhoc.battle.pressValue] $= $attacker.adhoc.battle.offensiveness ??? 3 4 6
+		
+		[call battle/pressure] $attacker
+		[call battle/pressure] $defender
+		
+		#[message] $> Pressure -- ${attacker.adhoc.battle.pressure} / ${defender.adhoc.battle.pressure}
+		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 		
 		[if $attacker.adhoc.battle.offensiveness > 0]
 			[add $local.attackScore] 2
+			# Less sensible to the pressure when attacking
+			[sub $local.attackScore] $= ceil ( $attacker.adhoc.battle.pressure / 8 )
 		[elseif $attacker.adhoc.battle.offensiveness < 0]
 			[sub $local.attackScore] 3
+			[sub $local.attackScore] $= ceil ( $attacker.adhoc.battle.pressure / 4 )
+		[else]
+			[sub $local.attackScore] $= ceil ( $attacker.adhoc.battle.pressure / 4 )
 		
 		[if $defender.adhoc.battle.offensiveness > 0]
 			[sub $local.defenseScore] 3
+			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 4 )
 		[elseif $defender.adhoc.battle.offensiveness < 0]
 			[add $local.defenseScore] 2
+			# Less sensible to the pressure when defending
+			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 8 )
+		[else]
+			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 4 )
 		
-		#[message] $> ${local.attackScore} vs ${local.defenseScore}
+		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
 		
 		[if $local.attackScore > $local.defenseScore]
 			[gosub deal-damages]
@@ -483,35 +508,36 @@
 	[scene charge]
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
-		[set $attacker.adhoc.battle.pressureTarget] $defender
-		
-		#[set $attacker.adhoc.battle.cooldown] 1
-		
-		[set $attacker.adhoc.battle.offensiveness] 1
 		
 		[set $local.attackScore] $= $attacker.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.melee.compound.defense + ( 2 D 8 )
 		
-		[sub $local.attackScore] $attacker.adhoc.battle.pressure
-		[sub $local.defenseScore] $defender.adhoc.battle.pressure
+		[set $attacker.adhoc.battle.offensiveness] 1
+		[set $attacker.adhoc.battle.pressTarget] $defender
+		[set $attacker.adhoc.battle.pressValue] 6
 		
-		#[message] $> Attacker ${attacker.label} offensiveness: ${attacker.adhoc.battle.offensiveness}
-		[if $attacker.adhoc.battle.offensiveness > 0]
-			[add $local.attackScore] 2
-			#[message] Offensive: bonus!
-		[elseif $attacker.adhoc.battle.offensiveness < 0]
-			[sub $local.attackScore] 3
-			#[message] Defensive: malus!
+		[call battle/pressure] $attacker
+		[call battle/pressure] $defender
 		
-		#[message] $> Defender ${defender.label} offensiveness: ${defender.adhoc.battle.offensiveness}
+		#[message] $> Pressure -- ${attacker.adhoc.battle.pressure} / ${defender.adhoc.battle.pressure}
+		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
+		
+		# A charge is always offensive!
+		[add $local.attackScore] 2
+		# Charge is less sensible to the pressure
+		[sub $local.attackScore] $= ceil ( $attacker.adhoc.battle.pressure / 8 )
+		
 		[if $defender.adhoc.battle.offensiveness > 0]
 			[sub $local.defenseScore] 3
-			#[message] Offensive: malus!
+			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 4 )
 		[elseif $defender.adhoc.battle.offensiveness < 0]
 			[add $local.defenseScore] 2
-			#[message] Defensive: bonus!
+			# Less sensible to the pressure when defending
+			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 8 )
+		[else]
+			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 4 )
 		
-		#[message] $> ${local.attackScore} vs ${local.defenseScore}
+		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
 		
 		[message] $> ${attacker.label//uc1} charges ${defender.label}!
 		
@@ -534,7 +560,6 @@
 	[scene fireball]
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
-		[set $attacker.adhoc.battle.pressureTarget] $defender
 		
 		[sub $attacker.status.mana] 6
 		[message] $> mana: ${attacker.status.mana}
@@ -543,16 +568,27 @@
 			[message] Not enough mana!
 			[return]
 		
-		[set $attacker.adhoc.battle.cooldown] 1
 		[set $local.attackScore] $= ( 20 ) + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.missile.compound.defense + ( 2 D 8 )
 		
-		[sub $local.defenseScore] $defender.adhoc.battle.pressure
+		[set $attacker.adhoc.battle.cooldown] 1
+		
+		[set $attacker.adhoc.battle.offensiveness] -1
+		[set $attacker.adhoc.battle.pressTarget] $defender
+		[set $attacker.adhoc.battle.pressValue] 4
+		
+		[call battle/pressure] $attacker
+		[call battle/pressure] $defender
 		
 		[if $defender.adhoc.battle.offensiveness > 0]
 			[sub $local.defenseScore] 3
+			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 4 )
 		[elseif $defender.adhoc.battle.offensiveness < 0]
 			[add $local.defenseScore] 2
+			# Less sensible to the pressure when defending
+			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 8 )
+		[else]
+			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 4 )
 		
 		#[message] $> ${local.attackScore} vs ${local.defenseScore}
 		
