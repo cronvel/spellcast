@@ -835,6 +835,30 @@ describe( "Operations tags" , function() {
 			}
 		) ;
 	} ) ;
+	
+	it( "[reduce] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/reduce.kfg' , { type: 'cast' , target: 'reduce' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Reduce: 15' ],
+					[ 'Reduce: 15' ],
+					[ 'Reduce: 19' ],
+					[ 'Reduce: 22' ],
+					[ 'Reduce: 8' ],
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
 } ) ;
 
 

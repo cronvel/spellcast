@@ -9,7 +9,16 @@
 			b: 3
 		-	a: 1
 			b: 9
+	init: 7
 
-[spell map]
-	[reduce $list => $reduce] $= $this.previous + $this.current
+[spell reduce]
+	[reduce $list => $reduce] $= $this.previous + $this.current.a
+	[message] $> Reduce: ${reduce}
+	[reduce $list , 0 => $reduce] $= $this.previous + $this.current.a
+	[message] $> Reduce: ${reduce}
+	[reduce $list , 4 => $reduce] $= $this.previous + $this.current.a
+	[message] $> Reduce: ${reduce}
+	[reduce $list , $init => $reduce] $= $this.previous + $this.current.a
+	[message] $> Reduce: ${reduce}
+	[reduce $list , - $init => $reduce] $= $this.previous + $this.current.a
 	[message] $> Reduce: ${reduce}
