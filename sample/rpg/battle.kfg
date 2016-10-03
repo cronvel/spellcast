@@ -20,6 +20,8 @@
 				side: foes
 				cooldown: 0
 				offensiveness: $= ( $local.foe.stances.offensiveness is-set? ) ? $local.foe.stances.offensiveness 0
+				pressureTarget: null
+				pressure: 0
 			
 		[foreach $args.allies => $local.index : $local.ally]
 			[if ! ( $local.ally is-entity? )]
@@ -30,6 +32,8 @@
 				side: allies
 				cooldown: 0
 				offensiveness: $= ( $local.ally.stances.offensiveness is-set? ) ? $local.ally.stances.offensiveness 0
+				pressureTarget: null
+				pressure: 0
 			
 		[filter $battle.foes => $battle.aliveFoes] $= $this.status.hp > 0
 		[filter $battle.allies => $battle.aliveAllies] $= $this.status.hp > 0
@@ -38,7 +42,6 @@
 		#[debug info] $battle.foes
 		#[debug info] $battle.aliveFoes
 		#[debug info] $battle.turns
-		
 		
 		[set $battle.deadlyPush] $args.deadlyPush
 		
@@ -75,6 +78,12 @@
 			[goto end-turn]
 		
 		[gosub battle-lines]
+		
+		[foreach $battle.aliveEntities => $local.entity]
+			[reduce $battle.aliveEntities , 0 => $local.entity.adhoc.battle.pressure] $= $this.previous + ( ( $this.current.adhoc.battle.pressureTarget = $local.entity ) ? 1 0 )
+		
+		#[debug info] $battle.entityTurn.adhoc.battle
+		[message] $> Pressure: ${battle.entityTurn.adhoc.battle.pressure}
 		
 		[if $battle.entityTurn.npc]
 			[goto npc-turn]
@@ -154,6 +163,11 @@
 			
 		#[sort $battle.aliveAllies] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
 		[sort $battle.aliveAllies] $= ( $this.left.adhoc.battle.position.y + ( $this.left.adhoc.battle.position.x / 1000 ) ) - ( $this.right.adhoc.battle.position.y + ( $this.right.adhoc.battle.position.x / 1000 ) )
+		
+		[set $battle.aliveEntities] <Array>
+		[concat $battle.aliveEntities] $battle.aliveFoes
+		[concat $battle.aliveEntities] $battle.aliveAllies
+		
 		
 	
 	[scene npc-turn]
@@ -409,6 +423,8 @@
 # Or use $target.actualUsages.missile.compound.defense?
 				[set $local.defenseScore] $= $target.actualUsages.melee.compound.defense + ( 2 D 8 )
 				
+				[sub $local.defenseScore] $target.adhoc.battle.pressure
+				
 				[if $target.adhoc.battle.offensiveness > 0]
 					[sub $local.defenseScore] 3
 				[elseif $target.adhoc.battle.offensiveness < 0]
@@ -433,9 +449,13 @@
 	[scene melee]
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
+		[set $attacker.adhoc.battle.pressureTarget] $defender
 		
 		[set $local.attackScore] $= $attacker.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.melee.compound.defense + ( 2 D 8 )
+		
+		[sub $local.attackScore] $attacker.adhoc.battle.pressure
+		[sub $local.defenseScore] $defender.adhoc.battle.pressure
 		
 		[if $attacker.adhoc.battle.offensiveness > 0]
 			[add $local.attackScore] 2
@@ -463,6 +483,7 @@
 	[scene charge]
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
+		[set $attacker.adhoc.battle.pressureTarget] $defender
 		
 		#[set $attacker.adhoc.battle.cooldown] 1
 		
@@ -470,6 +491,9 @@
 		
 		[set $local.attackScore] $= $attacker.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.melee.compound.defense + ( 2 D 8 )
+		
+		[sub $local.attackScore] $attacker.adhoc.battle.pressure
+		[sub $local.defenseScore] $defender.adhoc.battle.pressure
 		
 		#[message] $> Attacker ${attacker.label} offensiveness: ${attacker.adhoc.battle.offensiveness}
 		[if $attacker.adhoc.battle.offensiveness > 0]
@@ -510,6 +534,7 @@
 	[scene fireball]
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
+		[set $attacker.adhoc.battle.pressureTarget] $defender
 		
 		[sub $attacker.status.mana] 6
 		[message] $> mana: ${attacker.status.mana}
@@ -521,6 +546,8 @@
 		[set $attacker.adhoc.battle.cooldown] 1
 		[set $local.attackScore] $= ( 20 ) + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.missile.compound.defense + ( 2 D 8 )
+		
+		[sub $local.defenseScore] $defender.adhoc.battle.pressure
 		
 		[if $defender.adhoc.battle.offensiveness > 0]
 			[sub $local.defenseScore] 3
@@ -567,6 +594,9 @@
 	[scene deadly-push]
 		[set $local.attackScore] $= ( ( max $attacker.actual.stats.strength ( $attacker.actual.stats.fighting - 3 ) ) + $battle.deadlyPush.bonus ) + ( 2 D 6 )
 		[set $local.defenseScore] $= $defender.actual.stats.strength + ( 2 D 6 )
+		
+		[sub $local.attackScore] $attacker.adhoc.battle.pressure
+		[sub $local.defenseScore] $defender.adhoc.battle.pressure
 		
 		#[message] $> Attacker ${attacker.label} offensiveness: ${attacker.adhoc.battle.offensiveness}
 		[if $attacker.adhoc.battle.offensiveness > 0]
