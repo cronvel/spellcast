@@ -13,6 +13,7 @@
 	equippedItems:
 		hand:
 			- sword
+			- crossbow
 		#	- sword
 		#	- arc
 		ring:

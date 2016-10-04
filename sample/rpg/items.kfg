@@ -59,12 +59,16 @@
 			support:
 				compound:
 					defense: (+) 4
-			# When used as primary, the wielder is mostly hiding behind it
+			# When used as primary, the wielder is basicaly hiding behind it
 			primary:
 				compound:
 					attack: (+) -2
 					defense: (+) 9
 					damages: (+) 2
+		missile:
+			support:
+				compound:
+					defense: (+) 12
 
 [item-model axe]
 	class: melee-weapon
@@ -146,11 +150,58 @@
 	slotType: hand
 	slotCount: 2
 	usages:
-		primary:
-			missile:
+		missile:
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
 				compound:
 					attack: (+) 18
 					aiming: (+) 2
+					damages: (+) 15
+		
+		# This is the stats of the weapon when it is used at melee distance,
+		# the opponent can parry before the weapon is triggered, therefore
+		# the attack is greatly reduced.
+		melee:
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
+				reload: true
+				compound:
+					attack: (+) -4
+					damages: (+) 15
+
+
+[item-model crossbow]
+	class: missile-weapon
+	label: crossbow
+	slotType: hand
+	slotCount: 1
+	usages:
+		missile:
+			primary:
+				params:
+					reload: true
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
+				compound:
+					attack: (+) 18
+					aiming: (+) 8
+					damages: (+) 15
+		
+		# This is the stats of the weapon when it is used at melee distance,
+		# the opponent can parry before the weapon is triggered, therefore
+		# the attack is greatly reduced.
+		melee:
+			primary:
+				params:
+					reload: true
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
+				compound:
+					attack: (+) 6
 					damages: (+) 15
 
 [item-model ring-of-fighting-spirit]

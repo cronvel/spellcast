@@ -34,12 +34,12 @@
 	damages: $= $stats.strength
 
 [compound-stats character missile]
-	attack: $= round ( $stats.shooting / 4 )
+	attack: $= floor ( $stats.shooting / 4 )
 	aiming: $= $stats.shooting
 	defense: $= $stats.fighting
-	damages: $= round ( $stats.shooting / 4 )
+	damages: $= floor ( $stats.shooting / 4 )
 
 [compound-stats character spell]
-	attack: $= round ( $stats.spellcasting / 4 )
+	attack: $= floor ( $stats.spellcasting / 4 )
 	defense: $= $stats.fighting
-	damages: $= round ( $stats.spellcasting / 2 )
+	damages: $= floor ( $stats.spellcasting / 2 )
