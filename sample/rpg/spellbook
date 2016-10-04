@@ -54,7 +54,7 @@
 		
 		[gosub battle/init]
 			[args]
-				distance: 8
+				distance: 16
 				allies:
 					- $roles.hero.entity
 					- $dog
@@ -83,7 +83,7 @@
 		
 		[gosub battle/init]
 			[args]
-				distance: 5
+				distance: 10
 				allies:
 					- $roles.hero.entity
 				foes:
@@ -104,7 +104,7 @@
 		
 		[gosub battle/init]
 			[args]
-				distance: 5
+				distance: 10
 				allies:
 					- $roles.hero.entity
 				foes:
