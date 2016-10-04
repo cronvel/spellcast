@@ -156,9 +156,9 @@
 					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
 				compound:
-					attack: (+) 18
+					attack: (+) 25
 					aiming: (+) 2
-					damages: (+) 15
+					damages: (+) 18
 		
 		# This is the stats of the weapon when it is used at melee distance,
 		# the opponent can parry before the weapon is triggered, therefore
@@ -171,7 +171,7 @@
 				reload: true
 				compound:
 					attack: (+) -4
-					damages: (+) 15
+					damages: (+) 18
 
 
 [item-model crossbow]
@@ -187,9 +187,9 @@
 					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
 				compound:
-					attack: (+) 18
+					attack: (+) 25
 					aiming: (+) 8
-					damages: (+) 15
+					damages: (+) 18
 		
 		# This is the stats of the weapon when it is used at melee distance,
 		# the opponent can parry before the weapon is triggered, therefore
@@ -202,7 +202,7 @@
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
 				compound:
 					attack: (+) 6
-					damages: (+) 15
+					damages: (+) 18
 
 [item-model ring-of-fighting-spirit]
 	class: jewel

@@ -23,6 +23,7 @@
 				offensiveness: $= ( $local.foe.stances.offensiveness is-set? ) ? $local.foe.stances.offensiveness 0
 				pressTarget: null
 				pressure: 0
+				speed: 0
 			
 		[foreach $args.allies => $local.index : $local.ally]
 			[if ! ( $local.ally is-entity? )]
@@ -35,6 +36,7 @@
 				offensiveness: $= ( $local.ally.stances.offensiveness is-set? ) ? $local.ally.stances.offensiveness 0
 				pressTarget: null
 				pressure: 0
+				speed: 0
 			
 		[filter $battle.foes => $battle.aliveFoes] $= $this.status.hp > 0
 		[filter $battle.allies => $battle.aliveAllies] $= $this.status.hp > 0
@@ -131,7 +133,7 @@
 		# Pressure has a max level, because when the target is saturated,
 		# extra opponents are not able to reach the target properly:
 		# both the target and its opponents get some malus, therefore the pressure is capped to 18 (4 charging opponents)
-		[set $args.adhoc.battle.pressure] $= min ( max 0 ( $args.adhoc.battle.pressure - 6 ) 18 )
+		[set $args.adhoc.battle.pressure] $= min ( max 0 ( $args.adhoc.battle.pressure - 6 ) ) 18
 		
 		
 		
@@ -249,13 +251,13 @@
 			[on-trigger]
 				[set $battle.entityTurn.adhoc.battle.offensiveness] -1
 		
+		[next pc-charge]
+			[label] Charge!
+	
 		[if $battle.distance > 0]
 			[next pc-missile]
 				[label] $> Shoot
 		
-		[next pc-charge]
-			[label] Charge!
-	
 		[next pc-fireball]
 			[label] Fireball
 	
@@ -583,19 +585,34 @@
 			[return]
 			
 		
-		[set $local.attackScore] $= $attacker.actualUsages.missile.compound.attack + ( 2 D 12 )
-		[set $local.defenseScore] $= $defender.actualUsages.missile.compound.defense + ( 2 D 12 )
-		
 		[set $attacker.adhoc.battle.pressTarget] $defender
 		[set $attacker.adhoc.battle.pressValue] 4
 		
 		[call battle/pressure] $attacker
 		[call battle/pressure] $defender
 		
+		[set $local.aimingScore] $= $attacker.actualUsages.missile.compound.aiming + ( 2 D 12 )
+		[set $local.vsScore] $= $battle.distance + ( abs $defender.adhoc.battle.speed ) + ( 2 D 12 )
+		
+		[message] $> Aiming A: ${local.aimingScore} vs ${local.vsScore}
+		[message] $> Pressure: ${attacker.adhoc.battle.pressure}
+		
+		[sub $local.aimingScore] $= ceil ( $attacker.adhoc.battle.pressure / 2 )
+		
+		[message] $> Aiming B: ${local.aimingScore} vs ${local.vsScore}
+		
+		[if $local.aimingScore < $local.vsScore]
+			[message] $> ${attacker.label//uc1} misses ${defender.label} (bad aiming).
+			[return]
+		
+		[set $local.attackScore] $= $attacker.actualUsages.missile.compound.attack + ( 2 D 12 )
+		[set $local.defenseScore] $= $defender.actualUsages.missile.compound.defense + ( 2 D 12 )
+		
 		#[message] $> Pressure -- ${attacker.adhoc.battle.pressure} / ${defender.adhoc.battle.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 		
-		[sub $local.attackScore] $= ceil ( $attacker.adhoc.battle.pressure / 2 )
+		# Attack score of missile do not depend much on the character but on the weapon
+		#[sub $local.attackScore] $= ceil ( $attacker.adhoc.battle.pressure / 2 )
 		
 		[if $defender.adhoc.battle.offensiveness > 0]
 			[sub $local.defenseScore] 3
@@ -617,9 +634,8 @@
 			
 		[else]
 			[fortune]
-				- $> ${attacker.label//uc1} misses ${defender.label}.
-				- $> ${defender.label//uc1} blocks ${attacker.label}.
-				- $> ${defender.label//uc1} avoids ${attacker.label}.
+				- $> ${defender.label//uc1} blocks ${attacker.label}'s missile.
+				- $> ${defender.label//uc1} avoids ${attacker.label}'s missile.
 	
 	
 	
