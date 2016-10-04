@@ -8,6 +8,7 @@
 		
 		[set $battle.foes] <Array>
 		[set $battle.turnIndex] 0
+		[set $battle.round] 0
 		[set $battle.turns] <Array>
 		[set $battle.distance] $= ( $args.distance is-set? ) ? $args.distance 0
 		
@@ -86,6 +87,43 @@
 	
 	
 	
+	[scene end-turn]
+		[set $battle.turnIndex] $= ( $battle.turnIndex + 1 ) % $battle.turns.length
+		
+		[if $battle.turnIndex = 0]
+			[call battle/new-round]
+		
+		[filter $battle.foes => $battle.aliveFoes] $= $this.status.hp > 0
+		[filter $battle.allies => $battle.aliveAllies] $= $this.status.hp > 0
+		
+		[if ! $battle.aliveAllies.length]
+			[goto lost]
+		[elseif ! $battle.aliveFoes.length]
+			[goto win]
+		
+		[goto new-turn]
+	
+	
+	
+	[fn battle/new-round]
+		[inc $battle.round]
+		
+		# Manage distance
+		[if $battle.distance > 0]
+			[map $battle.aliveAllies => $local.alliesSpeed] $this.adhoc.battle.speed
+			[set $local.alliesSpeed] $= round ( avg $local.alliesSpeed )
+			
+			[map $battle.aliveFoes => $local.foesSpeed] $this.adhoc.battle.speed
+			[set $local.foesSpeed] $= round ( avg $local.foesSpeed )
+			
+			[set $battle.distance] $= max 0 ( $battle.distance - $local.alliesSpeed - $local.foesSpeed )
+			
+			[message] $> ^Gallies: ${local.alliesSpeed} foes: ${local.foesSpeed} distance: ${battle.distance}
+			[if $battle.distance = 0]
+				[message] $> ^yThe two opposing crews join together and clash.
+		
+	
+	
 	[fn battle/all-pressure]
 		[foreach $battle.aliveEntities => $local.entity]
 			[call battle/pressure] $local.entity
@@ -97,21 +135,6 @@
 		
 		
 		
-	[scene end-turn]
-		[set $battle.turnIndex] $= ( $battle.turnIndex + 1 ) % $battle.turns.length
-		
-		[filter $battle.foes => $battle.aliveFoes] $= $this.status.hp > 0
-		[filter $battle.allies => $battle.aliveAllies] $= $this.status.hp > 0
-		
-		[if ! $battle.aliveAllies.length]
-			[goto lost]
-		[elseif ! $battle.aliveFoes.length]
-			[goto win]
-		[else]
-			[goto new-turn]
-	
-	
-	
 	[scene battle-lines]
 		
 		[filter $battle.aliveFoes => $front] $= $this.adhoc.battle.offensiveness > 0
@@ -273,7 +296,8 @@
 	
 	
 	[scene pc-melee]
-		[gosub pc-targeting]
+		[if $battle.distance = 0]
+			[gosub pc-targeting]
 		[gosub melee]
 			[args]
 				attacker: $battle.entityTurn
@@ -283,7 +307,8 @@
 	
 	
 	[scene pc-charge]
-		[gosub pc-targeting]
+		[if $battle.distance = 0]
+			[gosub pc-targeting]
 		[gosub charge]
 			[args]
 				attacker: $battle.entityTurn
@@ -460,6 +485,22 @@
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
 		
+		[set $attacker.adhoc.battle.speed] $= $attacker.adhoc.battle.offensiveness ??? 1 2 3
+		
+		[if $battle.distance > 0]
+			[set $attacker.adhoc.battle.pressTarget] null
+			[set $attacker.adhoc.battle.pressValue] 0
+			
+			[if $attacker.adhoc.battle.offensiveness > 0]
+				[message] $> ${attacker.label//uc1} runs toward the opposing crew.
+			[elseif $attacker.adhoc.battle.offensiveness < 0]
+				[message] $> ${attacker.label//uc1} walk cautiously toward the opposing crew.
+			[else]
+				[message] $> ${attacker.label//uc1} marches toward the opposing crew.
+			
+			[return]
+			
+		
 		[set $local.attackScore] $= $attacker.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.melee.compound.defense + ( 2 D 8 )
 		
@@ -509,10 +550,19 @@
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
 		
+		[set $attacker.adhoc.battle.speed] 5
+		[set $attacker.adhoc.battle.offensiveness] 1
+		
+		[if $battle.distance > 0]
+			[set $attacker.adhoc.battle.pressTarget] null
+			[set $attacker.adhoc.battle.pressValue] 0
+			[message] $> ${attacker.label//uc1} charges toward the opposing crew.
+			[return]
+		
+		
 		[set $local.attackScore] $= $attacker.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.melee.compound.defense + ( 2 D 8 )
 		
-		[set $attacker.adhoc.battle.offensiveness] 1
 		[set $attacker.adhoc.battle.pressTarget] $defender
 		[set $attacker.adhoc.battle.pressValue] 6
 		
@@ -561,6 +611,9 @@
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
 		
+		[set $attacker.adhoc.battle.speed] 0
+		[set $attacker.adhoc.battle.offensiveness] -1
+		
 		[sub $attacker.status.mana] 6
 		[message] $> mana: ${attacker.status.mana}
 		[if $attacker.status.mana < 0]
@@ -568,12 +621,11 @@
 			[message] Not enough mana!
 			[return]
 		
-		[set $local.attackScore] $= ( 20 ) + ( 2 D 8 )
+		[set $local.attackScore] $= ( 20 - ( floor ( $battle.distance / 4 ) ) ) + ( 2 D 8 )
 		[set $local.defenseScore] $= $defender.actualUsages.missile.compound.defense + ( 2 D 8 )
 		
 		[set $attacker.adhoc.battle.cooldown] 1
 		
-		[set $attacker.adhoc.battle.offensiveness] -1
 		[set $attacker.adhoc.battle.pressTarget] $defender
 		[set $attacker.adhoc.battle.pressValue] 4
 		
