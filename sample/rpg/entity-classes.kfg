@@ -9,7 +9,8 @@
 	params:
 		xpReward: 1
 	slots:
-		innate: 3
+		innate: Infinity
+		ability: Infinity
 		hand: 2
 		armor: 1
 		ring: 2
@@ -30,32 +31,5 @@
 #[entity-compound-stats character]
 #	attack: $= $stats.fighting
 #	defense: $= $stats.fighting
-#	damages: $= $stats.strength / 2
+#	damages: $= $stats.strength
 
-[usage-compound-stats melee]
-	attack: $= $stats.fighting
-	defense: $= $stats.fighting
-	damages: $= $stats.strength
-
-# Basic missile throwing, without a launcher: javelins, spears, etc.
-[usage-compound-stats missile]
-	aiming: $= $stats.shooting
-	# Cover is the defensive anti-aiming stat, but it's mostly provided by shields
-	cover: $= floor ( $stats.fighting / 4 )
-	attack: $= $stats.shooting
-	defense: $= $stats.fighting
-	damages: $= $stats.strength
-
-# Missile launcher variation: bow, crossbow, guns, etc.
-# Those weapons rely less on the character stats than on the item stats.
-[usage-compound-stats missile firearm]
-	attack: $= floor ( $stats.shooting / 4 )
-	damages: $= floor ( $stats.shooting / 4 )
-
-[usage-compound-stats melee firearm]
-	damages: $= floor ( $stats.shooting / 4 )
-
-[usage-compound-stats spell]
-	attack: $= floor ( $stats.spellcasting / 4 )
-	defense: $= $stats.fighting
-	damages: $= floor ( $stats.spellcasting / 2 )

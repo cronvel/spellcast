@@ -10,10 +10,14 @@
 		spellcasting: 14
 		strength: 12
 		resilience: 11
+	items:
+		- firebolt
 	equippedItems:
+		ability:
+			- firebolt
 		hand:
-		#	- sword
-			- javelin
+			- sword
+		#	- javelin
 		#	- crossbow
 		#	- bow
 		ring:

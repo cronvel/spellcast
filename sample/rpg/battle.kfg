@@ -232,34 +232,72 @@
 	
 	[scene pc-turn]
 		[if $battle.distance = 0]
-			[set $local.meleeLabel] attack
+			[set $local.item] $battle.entityTurn.primary.missile
+			
+			[if $local.item.usages.melee.primary.params.label]
+				[set $local.label] $local.item.usages.melee.primary.params.label
+			[else]
+				[set $local.label] $> Attack
+			
+			[next pc-melee]
+				[label] $local.label
+				[on-trigger]
+					[set $battle.entityTurn.adhoc.battle.offensiveness] 0
+			
+			[if $local.item.usages.melee.primary.params.offensiveLabel]
+				[set $local.label] $local.item.usages.melee.primary.params.offensiveLabel
+			[else]
+				[set $local.label] $> Attack boldly
+			
+			[next pc-melee]
+				[label] $local.label
+				[on-trigger]
+					[set $battle.entityTurn.adhoc.battle.offensiveness] 1
+			
+			[if $local.item.usages.melee.primary.params.defensiveLabel]
+				[set $local.label] $local.item.usages.melee.primary.params.defensiveLabel
+			[else]
+				[set $local.label] $> Attack cautiously
+			
+			[next pc-melee]
+				[label] $local.label
+				[on-trigger]
+					[set $battle.entityTurn.adhoc.battle.offensiveness] -1
 		[else]
-			[set $local.meleeLabel] march
-		
-		[next pc-melee]
-			[label] $> ${local.meleeLabel//uc1}
-			[on-trigger]
-				[set $battle.entityTurn.adhoc.battle.offensiveness] 0
-		
-		[next pc-melee]
-			[label] $> ${local.meleeLabel//uc1} boldly
-			[on-trigger]
-				[set $battle.entityTurn.adhoc.battle.offensiveness] 1
-		
-		[next pc-melee]
-			[label] $> ${local.meleeLabel//uc1} cautiously
-			[on-trigger]
-				[set $battle.entityTurn.adhoc.battle.offensiveness] -1
+			[next pc-melee]
+				[label] $> March
+				[on-trigger]
+					[set $battle.entityTurn.adhoc.battle.offensiveness] 0
+			
+			[next pc-melee]
+				[label] $> March boldly
+				[on-trigger]
+					[set $battle.entityTurn.adhoc.battle.offensiveness] 1
+			
+			[next pc-melee]
+				[label] $> March cautiously
+				[on-trigger]
+					[set $battle.entityTurn.adhoc.battle.offensiveness] -1
 		
 		[next pc-charge]
 			[label] Charge!
 	
 		[if ( $battle.distance > 0 ) && ( $battle.entityTurn.primary.missile )]
+			[set $local.item] $battle.entityTurn.primary.missile
+			
+			[if $local.item.usages.missile.primary.params.label]
+				[set $local.label] $local.item.usages.missile.primary.params.label
+			[else]
+				[set $local.label] $> Shoot
+			
 			[next pc-missile]
-				[label] $> Shoot
+				[label] $local.label
 		
 		[next pc-fireball]
 			[label] Fireball
+		
+		[next pc-ability]
+			[label] Choose an ability
 	
 	
 	
@@ -337,6 +375,28 @@
 				defender: $battle.target
 		[goto end-turn]
 	
+	
+	
+	[scene pc-ability]
+		[message] Ability?
+		
+		[filter $battle.entityTurn.items => $local.abilities] $= $this.class = "ability"
+		
+		[debug info] $battle.entityTurn.items
+		[debug info] $local.abilities
+		
+		[foreach $local.abilities => $local.index : $local.ability]
+			[next pc-turn]
+				[args]
+					index: $local.index
+				[label] $> ${local.ability.label//uc1}
+				[on-trigger]
+# WIP ----------------------------------------------------------------------------------------					
+					[set $local.blank] 0
+					#[set $battle.target] $local.enemies[$args.index]
+		
+		[next pc-turn]
+			[label] $> (Abort)
 	
 	
 	[scene pc-fireball]
