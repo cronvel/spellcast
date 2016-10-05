@@ -254,7 +254,7 @@
 		[next pc-charge]
 			[label] Charge!
 	
-		[if $battle.distance > 0]
+		[if ( $battle.distance > 0 ) && ( $battle.entityTurn.primary.missile )]
 			[next pc-missile]
 				[label] $> Shoot
 		
@@ -580,6 +580,14 @@
 		
 		[set $attacker.adhoc.battle.speed] 0
 		[set $attacker.adhoc.battle.offensiveness] -1
+		
+		[if ! $attacker.primary.missile]
+			# Should never happen
+			[set $attacker.adhoc.battle.pressTarget] null
+			[set $attacker.adhoc.battle.pressValue] 0
+			[message] $> ${attacker.label//uc1} can't fire anything.
+			[return]
+		
 		[if $battle.distance = 0]
 			# Should never happen
 			[set $attacker.adhoc.battle.pressTarget] null
@@ -587,7 +595,6 @@
 			[message] $> ${attacker.label//uc1} is too close to use that weapon.
 			[return]
 			
-		
 		[set $attacker.adhoc.battle.pressTarget] $defender
 		[set $attacker.adhoc.battle.pressValue] 4
 		

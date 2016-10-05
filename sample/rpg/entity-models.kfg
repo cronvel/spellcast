@@ -12,10 +12,10 @@
 		resilience: 11
 	equippedItems:
 		hand:
-			- sword
-			- crossbow
 		#	- sword
-		#	- arc
+			- javelin
+		#	- crossbow
+		#	- bow
 		ring:
 			- ring-of-fighting-spirit
 
@@ -32,15 +32,10 @@
 	compound:
 		attack: (+) 1
 		defense: (+) -1
-	usages:
-		melee:
-			primary:
-				params:
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} bites ${defender.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${attacker.label//uc1} shreds ${defender.label} for ${damages} hp.
-				compound:
-					# The teeth are the dog weapon
-					damages: (+) 4
+	innateItems:
+		innate:
+			- fangs
+		hand: null
 
 [entity-model guardian]
 	class: character

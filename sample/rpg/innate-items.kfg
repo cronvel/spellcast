@@ -1,0 +1,30 @@
+
+[[doctype adventurer]]
+
+[item-model fists]
+	class: innate
+	label: fists
+	slotType: hand
+	slotCount: 2
+	usages:
+		melee:
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} punches ${defender.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${attacker.label//uc1} thumps ${defender.label} for ${damages} hp.
+				# No bonus, this is the default/standard/normal attack
+
+[item-model fangs]
+	class: innate
+	label: fangs
+	slotType: innate
+	slotCount: 1
+	usages:
+		melee:
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} bites ${defender.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${attacker.label//uc1} shreds ${defender.label} for ${damages} hp.
+				compound:
+					damages: (+) 4
+

@@ -4,6 +4,7 @@
 [module] @@battle.kfg
 [module] @@entity-classes.kfg
 [module] @@entity-models.kfg
+[module] @@innate-items.kfg
 [module] @@items.kfg
 
 
