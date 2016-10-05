@@ -33,9 +33,13 @@
 	defense: $= $stats.fighting
 	damages: $= $stats.strength
 
+# This works for bows, crossbows, guns, ..., but not for javelins and spears:
+# those should rely more on the character abilities...
 [compound-stats character missile]
-	attack: $= floor ( $stats.shooting / 4 )
 	aiming: $= $stats.shooting
+	# Cover is the defensive anti-aiming stat, but it's mostly provided by shields
+	cover: $= floor ( $stats.fighting / 4 )
+	attack: $= floor ( $stats.shooting / 4 )
 	defense: $= $stats.fighting
 	damages: $= floor ( $stats.shooting / 4 )
 

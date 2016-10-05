@@ -51,6 +51,10 @@
 				resilience: 12
 			stances:
 				offensiveness: -1
+			equippedItems:
+				hand:
+					- spear
+					- shield
 		
 		[gosub battle/init]
 			[args]

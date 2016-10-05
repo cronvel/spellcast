@@ -67,8 +67,11 @@
 					damages: (+) 2
 		missile:
 			support:
+				params:
+					coverFlavour: $$> ${defender.label//uc1}'s shield prevents ${attacker.label}'s ${missile}.
 				compound:
 					defense: (+) 12
+					cover: (+) 12
 
 [item-model axe]
 	class: melee-weapon
@@ -144,9 +147,9 @@
 					defense: (+) 2
 					damages: (+) 2
 
-[item-model arc]
+[item-model bow]
 	class: missile-weapon
-	label: arc
+	label: bow
 	slotType: hand
 	slotCount: 2
 	usages:

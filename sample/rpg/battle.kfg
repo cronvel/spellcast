@@ -575,6 +575,9 @@
 		[set $attacker] $args.attacker
 		[set $defender] $args.defender
 		
+		# Temp:
+		[set $missile] arrow
+		
 		[set $attacker.adhoc.battle.speed] 0
 		[set $attacker.adhoc.battle.offensiveness] -1
 		[if $battle.distance = 0]
@@ -592,17 +595,31 @@
 		[call battle/pressure] $defender
 		
 		[set $local.aimingScore] $= $attacker.actualUsages.missile.compound.aiming + ( 2 D 12 )
-		[set $local.vsScore] $= $battle.distance + ( abs $defender.adhoc.battle.speed ) + ( 2 D 12 )
+		[set $local.coverScore] $= ( $battle.distance / 2 ) + ( abs $defender.adhoc.battle.speed ) + ( 2 D 12 )
 		
-		[message] $> Aiming A: ${local.aimingScore} vs ${local.vsScore}
-		[message] $> Pressure: ${attacker.adhoc.battle.pressure}
+		#[message] $> Aiming A: ${local.aimingScore} vs ${local.coverScore}
+		#[message] $> Pressure: ${attacker.adhoc.battle.pressure}
 		
 		[sub $local.aimingScore] $= ceil ( $attacker.adhoc.battle.pressure / 2 )
 		
-		[message] $> Aiming B: ${local.aimingScore} vs ${local.vsScore}
+		#[message] $> Aiming B: ${local.aimingScore} vs ${local.coverScore}
 		
-		[if $local.aimingScore < $local.vsScore]
-			[message] $> ${attacker.label//uc1} misses ${defender.label} (bad aiming).
+		[if $local.aimingScore < $local.coverScore]
+			[message] $> ${attacker.label//uc1} misses ${defender.label}.
+			[return]
+		
+		#[message] $> Cover: ${defender.actualUsages.missile.compound.cover}
+		#[debug info] $defender.equippedItems.hand[0]
+		#[debug info] $defender.actualUsages.missile
+		
+		[add $local.coverScore] $defender.actualUsages.missile.compound.cover
+		
+		[if $local.aimingScore < $local.coverScore]
+			[if $defender.actualUsages.missile.params.coverFlavour is-set?]
+				[apply-to $local.flavour] $defender.actualUsages.missile.params.coverFlavour
+				[message] $local.flavour
+			[else]
+				[message] $> ${attacker.label//uc1} misses ${defender.label}.
 			[return]
 		
 		[set $local.attackScore] $= $attacker.actualUsages.missile.compound.attack + ( 2 D 12 )

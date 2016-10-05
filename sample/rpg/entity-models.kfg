@@ -6,7 +6,7 @@
 	label: the hero
 	stats:
 		fighting: 16
-		shooting: 8
+		shooting: 12
 		spellcasting: 14
 		strength: 12
 		resilience: 11
