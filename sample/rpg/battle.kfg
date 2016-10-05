@@ -392,8 +392,18 @@
 				[label] $> ${local.ability.label//uc1}
 				[on-trigger]
 # WIP ----------------------------------------------------------------------------------------					
-					[set $local.blank] 0
-					#[set $battle.target] $local.enemies[$args.index]
+					[set $local.ability] $local.abilities[$args.index]
+					
+					[equip] $local.abilities
+					
+					[equip primary] $local.abilities
+					
+					[unequip $battle.entityTurn]
+						slot: abilities
+					
+					[equip $battle.entityTurn]
+						item: $local.abilities
+						primary: true
 		
 		[next pc-turn]
 			[label] $> (Abort)

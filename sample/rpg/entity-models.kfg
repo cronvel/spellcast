@@ -11,7 +11,7 @@
 		strength: 12
 		resilience: 11
 	items:
-		- firebolt
+		- ice-shard
 	equippedItems:
 		ability:
 			- firebolt
