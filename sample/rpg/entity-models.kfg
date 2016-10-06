@@ -13,14 +13,14 @@
 	items:
 		- ice-shard
 		- excalibur
+		- javelin
+		- crossbow
+		- bow
 	equippedItems:
 		ability:
 			- firebolt
 		hand:
 			- sword
-		#	- javelin
-		#	- crossbow
-		#	- bow
 		ring:
 			- ring-of-fighting-spirit
 

@@ -6,22 +6,6 @@
 	label: firebolt
 	slotType: ability
 	usages:
-		melee:
-			primary:
-				params:
-					# How hard it is to cast
-					spellLevel: 10
-					manaLevel: 6
-					label: $> Cast firebolt
-					offensiveLabel: $> Cast firebolt from the front-line
-					defensiveLabel: $> Cast firebolt from the rear
-					hitFlavour: $$> ^rThe firebolt hits ${defender.label} for ${damages} hp.^:
-					criticalHitFlavour: $$> ^rThe firebolt burns ${defender.label} for ${damages} hp.^:
-					fatalHitFlavour: $$> ^rThe firebolt burns ${defender.label} to death for ${damages} hp.^:
-				compoundVariation: spell
-				compound:
-					attack: (+) 20
-					damages: (+) 16
 		missile:
 			primary:
 				params:
@@ -34,6 +18,7 @@
 					fatalHitFlavour: $$> ^rThe firebolt burns ${defender.label} to death for ${damages} hp.^:
 				compoundVariation: spell
 				compound:
+					closeRange: (+) 10
 					aiming: (+) 20
 					attack: (+) 20
 					damages: (+) 16
@@ -44,22 +29,6 @@
 	label: ice shard
 	slotType: ability
 	usages:
-		melee:
-			primary:
-				params:
-					# How hard it is to cast
-					spellLevel: 10
-					manaLevel: 6
-					label: $> Cast ice shard
-					offensiveLabel: $> Cast ice shard from the front-line
-					defensiveLabel: $> Cast ice shard from the rear
-					hitFlavour: $$> ^rThe ice shard hits ${defender.label} for ${damages} hp.^:
-					criticalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} for ${damages} hp.^:
-					fatalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} to death for ${damages} hp.^:
-				compoundVariation: spell
-				compound:
-					attack: (+) 20
-					damages: (+) 16
 		missile:
 			primary:
 				params:
@@ -72,6 +41,7 @@
 					fatalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} to death for ${damages} hp.^:
 				compoundVariation: spell
 				compound:
+					closeRange: (+) 10
 					aiming: (+) 20
 					attack: (+) 20
 					damages: (+) 16

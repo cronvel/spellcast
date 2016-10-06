@@ -96,7 +96,7 @@
 		missile:
 			support:
 				params:
-					coverFlavour: $$> ${defender.label//uc1}'s shield prevents ${attacker.label}'s ${missile}.
+					coverFlavour: $$> ${defender.label//uc1}'s shield prevents from ${attacker.label}'s ${missile}.
 				compound:
 					defense: (+) 12
 					cover: (+) 12
@@ -196,6 +196,7 @@
 					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
 				compound:
+					closeRange: (+) 2
 					attack: (+) 5
 					aiming: (+) 0
 					damages: (+) 4
@@ -213,22 +214,11 @@
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
 				compoundVariation: firearm
 				compound:
+					closeRange: (+) -4
 					attack: (+) 25
 					aiming: (+) 2
 					damages: (+) 18
-		
-		# This is the stats of the weapon when it is used at melee distance,
-		# the opponent can parry before the weapon is triggered, therefore
-		# the attack is greatly reduced.
-		melee:
-			primary:
-				params:
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
-				compoundVariation: firearm
-				compound:
-					attack: (+) -4
-					damages: (+) 18
+
 
 
 [item-model crossbow]
@@ -245,24 +235,11 @@
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
 				compoundVariation: firearm
 				compound:
+					closeRange: (+) 6
 					attack: (+) 25
 					aiming: (+) 8
 					damages: (+) 18
 		
-		# This is the stats of the weapon when it is used at melee distance,
-		# the opponent can parry before the weapon is triggered, therefore
-		# the attack is greatly reduced.
-		melee:
-			primary:
-				params:
-					reload: true
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
-				compoundVariation: firearm
-				compound:
-					attack: (+) 6
-					damages: (+) 18
-
 [item-model ring-of-fighting-spirit]
 	class: object
 	label: ring of fighting spirit

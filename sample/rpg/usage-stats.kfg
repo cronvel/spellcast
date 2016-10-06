@@ -11,15 +11,13 @@
 	aiming: $= $stats.shooting
 	# Cover is the defensive anti-aiming stat, but it's mostly provided by shields
 	cover: $= floor ( $stats.fighting / 4 )
+	closeRange: $= $stats.shooting
 	attack: $= $stats.shooting
 	defense: $= $stats.fighting
 	damages: $= $stats.strength
 
 # Missile launcher variation: bow, crossbow, guns, etc.
 # Those weapons rely less on the character stats than on the item stats.
-[usage-compound-stats melee firearm]
-	damages: $= floor ( $stats.shooting / 4 )
-
 [usage-compound-stats missile firearm]
 	attack: $= floor ( $stats.shooting / 4 )
 	damages: $= floor ( $stats.shooting / 4 )
@@ -30,6 +28,7 @@
 	damages: $= floor ( $stats.spellcasting / 2 )
 
 [usage-compound-stats missile spell]
+	closeRange: $= floor ( $stats.spellcasting / 2 )
 	aiming: $= floor ( $stats.spellcasting / 2 )
 	attack: $= floor ( $stats.spellcasting / 4 )
 	damages: $= floor ( $stats.spellcasting / 2 )
