@@ -232,7 +232,7 @@
 	
 	[scene pc-turn]
 		[if $battle.distance = 0]
-			[set $local.item] $battle.entityTurn.primary.missile
+			[set $local.item] $battle.entityTurn.primary.melee
 			
 			[if $local.item.usages.melee.primary.params.label]
 				[set $local.label] $local.item.usages.melee.primary.params.label
@@ -296,8 +296,15 @@
 		[next pc-fireball]
 			[label] Fireball
 		
-		[next pc-ability]
+		#[next inventory/equip-ability]
+		#	[label] Choose an ability
+	
+		[next pc-turn]
 			[label] Choose an ability
+			[on-trigger]
+				[gosub inventory/equip-ability-choose-primary]
+					[args]
+						entity: $battle.entityTurn
 	
 	
 	
@@ -375,38 +382,6 @@
 				defender: $battle.target
 		[goto end-turn]
 	
-	
-	
-	[scene pc-ability]
-		[message] Ability?
-		
-		[filter $battle.entityTurn.items => $local.abilities] $= $this.class = "ability"
-		
-		[debug info] $battle.entityTurn.items
-		[debug info] $local.abilities
-		
-		[foreach $local.abilities => $local.index : $local.ability]
-			[next pc-turn]
-				[args]
-					index: $local.index
-				[label] $> ${local.ability.label//uc1}
-				[on-trigger]
-# WIP ----------------------------------------------------------------------------------------					
-					[set $local.ability] $local.abilities[$args.index]
-					
-					[equip] $local.abilities
-					
-					[equip primary] $local.abilities
-					
-					[unequip $battle.entityTurn]
-						slot: abilities
-					
-					[equip $battle.entityTurn]
-						item: $local.abilities
-						primary: true
-		
-		[next pc-turn]
-			[label] $> (Abort)
 	
 	
 	[scene pc-fireball]

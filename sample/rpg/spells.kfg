@@ -41,7 +41,7 @@
 
 [item-model ice-shard]
 	class: ability
-	label: ice-shard
+	label: ice shard
 	slotType: ability
 	usages:
 		melee:

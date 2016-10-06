@@ -1,0 +1,55 @@
+
+[[doctype adventurer]]
+
+[chapter inventory]
+	
+	[scene equip-ability-primary]
+		[set $entity] $args.entity
+		[set $usage] $= ( $args.usage is-set? ) ? $args.usage true
+		
+		[message] Ability?
+		
+		[filter $entity.items => $local.abilities] $= ( $this.class = "ability" ) && ( $this.usages[$usage] is-set? )
+		
+		[debug info] $entity.items
+		[debug info] $local.abilities
+		
+		[next]
+			[label] $> (Abort)
+		
+		[foreach $local.abilities => $local.index : $local.ability]
+			[next]
+				[args]
+					index: $local.index
+				[label] $> ${local.ability.label//uc1}
+				[on-trigger]
+					
+					[set $local.ability] $local.abilities[$args.index]
+					
+					[unequip $entity]
+						slot: ability
+					
+					[equip $entity]
+						item: $local.ability
+						primary: $usage
+	
+	
+	
+	[scene equip-ability-choose-primary]
+		[set $entity] $args.entity
+		
+		[message] For which usage?
+		
+		[next]
+			[label] $> (Abort)
+		
+		[foreach $entity.usageTypes => $local.usage]
+			[next]
+				[args]
+					usage: $local.usage
+				[label] $> ${local.usage//uc1}
+				[on-trigger]
+					[gosub inventory/equip-ability-primary]
+						[args]
+							entity: $entity
+							usage: $args.usage
