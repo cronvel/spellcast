@@ -118,9 +118,10 @@
 			
 			[set $battle.distance] $= max 0 ( trunc ( $battle.distance - ( avg $local.alliesSpeed ) - ( avg $local.foesSpeed ) ) 2 )
 			
-			[message] $> ^yThe remaining distance between opponents is ${battle.distance} ${battle.distance}[n?step|steps].
 			[if $battle.distance = 0]
 				[message] $> ^yThe two opposing crews join together and clash.
+			[else]
+				[message] $> ^yThe remaining distance between opponents is ${battle.distance} ${battle.distance}[n?step|steps].
 		
 	
 	
