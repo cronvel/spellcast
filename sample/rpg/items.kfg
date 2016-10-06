@@ -29,6 +29,34 @@
 					attack: (+) 3
 					defense: (+) 2
 
+[item-model excalibur]
+	class: object
+	label: Excalibur
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			# When the weapon is used
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${attacker.label//uc1} slashes ${defender.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${attacker.label//uc1} cut ${defender.label} in half for ${damages} hp.
+				compound:
+					attack: (+) 8
+					defense: (+) 8
+					damages: (+) 14
+			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
+			extraSlot:
+				compound:
+					attack: (+) 3
+					defense: (+) 3
+					damages: (+) 6
+			# Bonuses when the weapon is used as a support for the primary weapon
+			support:
+				compound:
+					attack: (+) 5
+					defense: (+) 4
+
 # a.k.a. parrying dagger
 [item-model main-gauche]
 	class: object

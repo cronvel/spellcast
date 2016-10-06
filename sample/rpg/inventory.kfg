@@ -3,42 +3,51 @@
 
 [chapter inventory]
 	
-	[scene equip-ability-primary]
+	# Equip an ability as primary, or make any equipped item (ability or not) a primary
+	[scene select-ability-primary]
 		[set $entity] $args.entity
 		[set $usage] $= ( $args.usage is-set? ) ? $args.usage true
 		
-		[message] Ability?
+		[message] Use what?
 		
-		[filter $entity.items => $local.abilities] $= ( $this.class = "ability" ) && ( $this.usages[$usage] is-set? )
+		[if $entity.primary[$usage]]
+			[set $local.currentPrimary] $entity.primary[$usage]
+			[set $local.abortLabel] $> Keep using: ${local.currentPrimary.label} (${local.currentPrimary.class})
+		[else]
+			[set $local.abortLabel] $> (Abort)
 		
-		[debug info] $entity.items
-		[debug info] $local.abilities
+		[filter $entity.equippedItemList => $local.items] $= ( $this.usages[$usage] is-set? ) && ( $this != $entity.primary[$usage] )
+		[filter $entity.items => $local.moreItems] $= ( $this.class = "ability" ) && ( $this.usages[$usage] is-set? )
+		
+		[concat $local.items] $local.moreItems
+		
+		#[debug info] $entity.equippedItemList
+		#[debug info] $entity.items
+		#[debug info] $local.items
 		
 		[next]
-			[label] $> (Abort)
+			[label] $local.abortLabel
 		
-		[foreach $local.abilities => $local.index : $local.ability]
+		[foreach $local.items => $local.index : $local.item]
 			[next]
 				[args]
 					index: $local.index
-				[label] $> ${local.ability.label//uc1}
+				[label] $> ${local.item.label//uc1} (${local.item.class})
 				[on-trigger]
-					
-					[set $local.ability] $local.abilities[$args.index]
-					
-					[unequip $entity]
-						slot: ability
-					
+					[set $local.item] $local.items[$args.index]
+					[if $local.item.class = "ability"]
+						[unequip $entity]
+							slot: ability
 					[equip $entity]
-						item: $local.ability
+						item: $local.item
 						primary: $usage
 	
 	
 	
-	[scene equip-ability-choose-primary]
+	[scene select-ability-choose-primary]
 		[set $entity] $args.entity
 		
-		[message] For which usage?
+		[message] Which usage?
 		
 		[next]
 			[label] $> (Abort)
@@ -49,7 +58,71 @@
 					usage: $local.usage
 				[label] $> ${local.usage//uc1}
 				[on-trigger]
-					[gosub inventory/equip-ability-primary]
+					[gosub inventory/select-ability-primary]
 						[args]
 							entity: $entity
 							usage: $args.usage
+
+	
+	
+	# Equip an object
+	[scene equip-object]
+		[set $entity] $args.entity
+		[set $slot] $= ( $args.slot is-set? ) ? $args.slot "hand"
+		
+		[message] Equip / unequip what?
+		
+		[set $local.unequippedItems] $entity.equippedItems[$slot]
+		[filter $entity.items => $local.equippedItems] $= ( $this.class = "object" ) && ( $this.slotType = $slot )
+		
+		#[debug info] $entity.equippedItemList
+		#[debug info] $entity.items
+		#[debug info] $local.equippedItems
+		
+		[next]
+			[label] $> (Abort)
+		
+		[foreach $local.unequippedItems => $local.index : $local.item]
+			[next]
+				[args]
+					index: $local.index
+				[label] $> Unequip ${local.item.label} (${local.item.class})
+				[on-trigger]
+					[set $local.item] $local.unequippedItems[$args.index]
+					[unequip $entity]
+						item: $local.item
+					[return] true
+		
+		[foreach $local.equippedItems => $local.index : $local.item]
+			[next]
+				[args]
+					index: $local.index
+				[label] $> Equip ${local.item.label} (${local.item.class})
+				[on-trigger]
+					[set $local.item] $local.equippedItems[$args.index]
+					[equip $entity]
+						item: $local.item
+					[return] true
+	
+	
+	
+	[scene equip-object-choose-slot]
+		[set $entity] $args.entity
+		
+		[message] Which slot?
+		
+		[next]
+			[label] $> (Abort)
+		
+		[foreach $entity.slots => $local.slot : $local.count]
+			[next]
+				[args]
+					slot: $local.slot
+				[label] $> ${local.slot//uc1}
+				[on-trigger]
+					[gosub inventory/equip-object]
+						[args]
+							entity: $entity
+							slot: $args.slot
+
+

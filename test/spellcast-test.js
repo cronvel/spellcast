@@ -1631,6 +1631,7 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "[end]/[win]/[lost]/[draw] tags" ) ;
 	it( "[goto] tag" ) ;
 	it( "[gosub] tag" ) ;
+	it( "[gosub] tag with return Ref" ) ;
 	it( "[include] tag" ) ;
 	it( "[action] tag" ) ;
 	
@@ -1660,7 +1661,6 @@ describe( "Basic adventurer tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "Special var $return (TODO, it should contains data from the children subscene)" ) ;
 	it( "Special var $this" ) ;
 } ) ;
 

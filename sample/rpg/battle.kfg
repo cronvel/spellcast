@@ -300,11 +300,25 @@
 		#	[label] Choose an ability
 	
 		[next pc-turn]
-			[label] Choose an ability
+			[label] Select primary ability or object
 			[on-trigger]
-				[gosub inventory/equip-ability-choose-primary]
+				[gosub inventory/select-ability-choose-primary]
 					[args]
 						entity: $battle.entityTurn
+	
+		[next pc-turn]
+			[label] Equip object in hand
+			[on-trigger]
+				[gosub inventory/equip-object => $local.changed]
+					[args]
+						entity: $battle.entityTurn
+						slot: hand
+				[if $local.changed]
+					[set $battle.entityTurn.adhoc.battle.speed] 0
+					[set $battle.entityTurn.adhoc.battle.offensiveness] -1
+					[set $battle.entityTurn.adhoc.battle.pressTarget] null
+					[set $battle.entityTurn.adhoc.battle.pressValue] 0
+					[goto end-turn]
 	
 	
 	

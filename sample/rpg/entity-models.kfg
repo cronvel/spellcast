@@ -12,6 +12,7 @@
 		resilience: 11
 	items:
 		- ice-shard
+		- excalibur
 	equippedItems:
 		ability:
 			- firebolt
