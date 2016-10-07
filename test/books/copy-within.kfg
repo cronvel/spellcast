@@ -1,0 +1,38 @@
+
+[[doctype spellcaster]]
+
+[spell copy-within]
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[copy-within $array] -2
+	[message] $> Array: ${array}[enum]
+	
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[copy-within $array] $= 4 , 1 , 4
+	[message] $> Array: ${array}[enum]
+	
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[copy-within $array => $target] $= 4 , 1 , 4
+	[message] $> Array: ${array}[enum]
+	[message] $> Target: ${target}[enum]
+	

@@ -1,0 +1,27 @@
+
+[[doctype spellcaster]]
+
+[spell reverse]
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[reverse $array]
+	[message] $> Array: ${array}[enum]
+	
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[reverse $array => $target]
+	[message] $> Array: ${array}[enum]
+	[message] $> Target: ${target}[enum]
+	

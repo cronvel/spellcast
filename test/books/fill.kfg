@@ -1,0 +1,38 @@
+
+[[doctype spellcaster]]
+
+[spell fill]
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[fill $array] three
+	[message] $> Array: ${array}[enum]
+	
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[fill $array] $= "three" , 1 , 4
+	[message] $> Array: ${array}[enum]
+	
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[fill $array => $target] $= "three" , 1 , 4
+	[message] $> Array: ${array}[enum]
+	[message] $> Target: ${target}[enum]
+	

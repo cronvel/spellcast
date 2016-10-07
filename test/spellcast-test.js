@@ -793,11 +793,11 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
-	it( "[sort] tag" , function( done ) {
+	it( "[copy-within] tag" , function( done ) {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/sort.kfg' , { type: 'cast' , target: 'sort' } ,
+		runBook( __dirname + '/books/copy-within.kfg' , { type: 'cast' , target: 'copy-within' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -805,14 +805,33 @@ describe( "Operations tags" , function() {
 			} ,
 			function() {
 				doormen.equals( messages , [
-					[ 'Original: 13 15 8' ],
-					[ 'Result: 8 13 15' ],
-					[ 'Original: 13 15 8' ],
-					[ 'Result: 15 13 8' ],
-					[ 'Original: 8 13 15' ],
-					[ 'Result: 16 19 23' ],
-					[ 'Result: 23 19 16' ],
-					[ 'Result: 16 23 19' ]
+					[ 'Array: zero one two three four zero one' ] ,
+					[ 'Array: zero one two three one two three' ] ,
+					[ 'Array: zero one two three four five six' ] ,
+					[ 'Target: zero one two three one two three' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[fill] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/fill.kfg' , { type: 'cast' , target: 'fill' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Array: three three three three three three three' ] ,
+					[ 'Array: zero three three three four five six' ] ,
+					[ 'Array: zero one two three four five six' ] ,
+					[ 'Target: zero three three three four five six' ] ,
 				] ) ;
 				
 				done() ;
@@ -878,6 +897,55 @@ describe( "Operations tags" , function() {
 					[ 'Reduce: 19' ],
 					[ 'Reduce: 22' ],
 					[ 'Reduce: 8' ],
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[reverse] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/reverse.kfg' , { type: 'cast' , target: 'reverse' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Array: six five four three two one zero' ] ,
+					[ 'Array: zero one two three four five six' ] ,
+					[ 'Target: six five four three two one zero' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[sort] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/sort.kfg' , { type: 'cast' , target: 'sort' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Original: 13 15 8' ],
+					[ 'Result: 8 13 15' ],
+					[ 'Original: 13 15 8' ],
+					[ 'Result: 15 13 8' ],
+					[ 'Original: 8 13 15' ],
+					[ 'Result: 16 19 23' ],
+					[ 'Result: 23 19 16' ],
+					[ 'Result: 16 23 19' ]
 				] ) ;
 				
 				done() ;
