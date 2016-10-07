@@ -746,6 +746,29 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[slice] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/slice.kfg' , { type: 'cast' , target: 'slice' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Array: three four five six' ] ,
+					[ 'Array: three four' ] ,
+					[ 'Array: zero one two three four five six' ] ,
+					[ 'Target: three four' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "[splice] tag" , function( done ) {
 		
 		var messages = [] ;
