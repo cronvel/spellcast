@@ -10,6 +10,7 @@
 		melee:
 			primary:
 				params:
+					label: punch
 					criticalHitFlavour: $$> ^r${attacker.label//uc1} punches ${defender.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} thumps ${defender.label} for ${damages} hp.
 				# No bonus, this is the default/standard/normal attack

@@ -11,7 +11,8 @@
 	aiming: $= $stats.shooting
 	# Cover is the defensive anti-aiming stat, but it's mostly provided by shields
 	cover: $= floor ( $stats.fighting / 4 )
-	closeRange: $= $stats.shooting
+	# When used in close range, a missile attack should win the close-range pass, using this stat
+	closeRange: $= floor ( avg $stats.shooting $stats.fighting )
 	attack: $= $stats.shooting
 	defense: $= $stats.fighting
 	damages: $= $stats.strength

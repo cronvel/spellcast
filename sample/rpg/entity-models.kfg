@@ -16,6 +16,7 @@
 		- javelin
 		- crossbow
 		- bow
+		- giant-club
 	equippedItems:
 		ability:
 			- firebolt

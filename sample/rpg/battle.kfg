@@ -194,10 +194,7 @@
 			
 		#[sort $battle.aliveAllies] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
 		[sort $battle.aliveAllies] $= ( $this.left.adhoc.battle.position.y + ( $this.left.adhoc.battle.position.x / 1000 ) ) - ( $this.right.adhoc.battle.position.y + ( $this.right.adhoc.battle.position.x / 1000 ) )
-		
-		[set $battle.aliveEntities] <Array>
-		[concat $battle.aliveEntities] $battle.aliveFoes
-		[concat $battle.aliveEntities] $battle.aliveAllies
+		[set $battle.aliveEntities] $= concat $battle.aliveFoes $battle.aliveAllies
 		
 		
 	
@@ -238,30 +235,20 @@
 			[if $local.item.usages.melee.primary.params.label]
 				[set $local.label] $local.item.usages.melee.primary.params.label
 			[else]
-				[set $local.label] $> Attack
+				[set $local.label] $> Fight
 			
 			[next pc-melee]
-				[label] $local.label
+				[label] $> ${local.label//uc1}
 				[on-trigger]
 					[set $battle.entityTurn.adhoc.battle.offensiveness] 0
 			
-			[if $local.item.usages.melee.primary.params.offensiveLabel]
-				[set $local.label] $local.item.usages.melee.primary.params.offensiveLabel
-			[else]
-				[set $local.label] $> Attack boldly
-			
 			[next pc-melee]
-				[label] $local.label
+				[label] $> ${local.label//uc1} boldly
 				[on-trigger]
 					[set $battle.entityTurn.adhoc.battle.offensiveness] 1
 			
-			[if $local.item.usages.melee.primary.params.defensiveLabel]
-				[set $local.label] $local.item.usages.melee.primary.params.defensiveLabel
-			[else]
-				[set $local.label] $> Attack cautiously
-			
 			[next pc-melee]
-				[label] $local.label
+				[label] $> ${local.label//uc1} cautiously
 				[on-trigger]
 					[set $battle.entityTurn.adhoc.battle.offensiveness] -1
 		[else]
@@ -520,12 +507,9 @@
 	
 	
 	[scene splash-damages]
-		[set $aliveEntities] <Array>
-		[concat $aliveEntities] $battle.aliveFoes
-		[concat $aliveEntities] $battle.aliveAllies
 		[set $pos] $defender.adhoc.battle.position
 		
-		[foreach $aliveEntities => $target]
+		[foreach $battle.aliveEntities => $target]
 			
 			[if ( $target = $defender ) || ( $target = $attacker )]
 				[continue]
@@ -648,17 +632,38 @@
 			[message] $> ${attacker.label//uc1} can't fire anything.
 			[return]
 		
-		#[if $battle.distance = 0]
-		#	[set $attacker.adhoc.battle.pressTarget] null
-		#	[set $attacker.adhoc.battle.pressValue] 0
-		#	[message] $> ${attacker.label//uc1} is too close to use that weapon.
-		#	[return]
-			
 		[set $attacker.adhoc.battle.pressTarget] $defender
 		[set $attacker.adhoc.battle.pressValue] 4
 		
 		[call battle/pressure] $attacker
 		[call battle/pressure] $defender
+		
+		# We are in close range, we have to test first with the closeRange stat,
+		# against the best of the opponent melee attack or defense stat.
+		[if $battle.distance = 0]
+			[set $local.attackScore] $= $attacker.actualUsages.missile.compound.closeRange + ( 2 D 8 )
+			[set $local.defenseScore] $= ( max $defender.actualUsages.melee.compound.defense $defender.actualUsages.melee.compound.attack ) + ( 2 D 8 )
+			
+			#[message] $> Close range A: ${local.attackScore} vs ${local.defenseScore}
+			#[message] $> Pressure: ${attacker.adhoc.battle.pressure}
+			
+			[sub $local.attackScore] $= ceil ( $attacker.adhoc.battle.pressure / 2 )
+			
+			[if $defender.adhoc.battle.offensiveness > 0]
+				[sub $local.defenseScore] 3
+				[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 2 )
+			[elseif $defender.adhoc.battle.offensiveness < 0]
+				[add $local.defenseScore] 2
+				# Less sensible to the pressure when defending
+				[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 4 )
+			[else]
+				[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 2 )
+			
+			#[message] $> Close range B: ${local.attackScore} vs ${local.defenseScore}
+			
+			[if $local.attackScore <= $local.defenseScore]
+				[message] $> ${defender.label//uc1} prevents ${attacker.label} from attacking from afar.
+				[return]
 		
 		[set $local.aimingScore] $= $attacker.actualUsages.missile.compound.aiming + ( 2 D 12 )
 		[set $local.coverScore] $= ( $battle.distance / 2 ) + ( abs $defender.adhoc.battle.speed ) + ( 2 D 12 )
