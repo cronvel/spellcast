@@ -41,3 +41,17 @@
 		- 4
 	[message] $> Array: ${array}[enum]
 
+	[set $array]
+		- zero
+		- one
+		- two
+		- three
+		- four
+		- five
+		- six
+	[splice $array => $target]
+		- 3
+		- 2
+	[message] $> Array: ${array}[enum]
+	[message] $> Target: ${target}[enum]
+	

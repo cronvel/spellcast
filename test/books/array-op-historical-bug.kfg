@@ -1,0 +1,21 @@
+
+[[doctype spellcaster]]
+
+[formula]
+	array:
+		- one
+		- two
+		- three
+	array2:
+		- four
+		- five
+		- six
+
+[spell bug]
+	[set $ref] $array
+	[concat $array] $array2
+	[message]
+		- $> Array: ${array}[enum]
+	[message]
+		- $> Ref: ${ref}[enum]
+

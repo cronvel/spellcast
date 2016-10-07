@@ -760,7 +760,9 @@ describe( "Operations tags" , function() {
 				doormen.equals( messages , [
 					[ 'Array: zero one two' ] ,
 					[ 'Array: zero one two five six' ] ,
-					[ 'Array: zero one two 3 4 five six' ]
+					[ 'Array: zero one two 3 4 five six' ] ,
+					[ 'Array: zero one two three four five six' ] ,
+					[ 'Target: zero one two five six' ] ,
 				] ) ;
 				
 				done() ;
@@ -1837,6 +1839,27 @@ describe( "Historical bugs" , function() {
 			} ,
 		] )
 		.exec( done ) ;
+	} ) ;
+	
+	it( "array ops in-place operations using non in-place JS method should modify the original hosted array" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/array-op-historical-bug.kfg' , { type: 'cast' , target: 'bug' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Array: one two three four five six' ],
+					[ 'Ref: one two three four five six' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
 	} ) ;
 } ) ;
 
