@@ -12,7 +12,7 @@
 					# How hard it is to cast
 					spellLevel: 10
 					manaLevel: 6
-					label: $> Cast firebolt
+					menuLabel: $> cast firebolt
 					hitFlavour: $$> ^rThe firebolt hits ${defender.label} for ${damages} hp.^:
 					criticalHitFlavour: $$> ^rThe firebolt burns ${defender.label} for ${damages} hp.^:
 					fatalHitFlavour: $$> ^rThe firebolt burns ${defender.label} to death for ${damages} hp.^:
@@ -35,7 +35,7 @@
 					# How hard it is to cast
 					spellLevel: 10
 					manaLevel: 6
-					label: $> Cast ice shard
+					menuLabel: $> cast ice shard
 					hitFlavour: $$> ^rThe ice shard hits ${defender.label} for ${damages} hp.^:
 					criticalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} for ${damages} hp.^:
 					fatalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} to death for ${damages} hp.^:
@@ -47,19 +47,19 @@
 					damages: (+) 16
 
 
-# Draft (probably not good):
+
 [item-model fireball]
 	class: ability
 	label: fireball
 	slotType: ability
 	usages:
 		missile:
-			# When the weapon is used
 			primary:
 				params:
 					# How hard it is to cast
-					spellLevel: 14
-					manaLevel: 8
+					spellLevel: 12
+					manaLevel: 14
+					menuLabel: $> cast fireball
 					hitFlavour:
 						$$> ^rThe fireball hits ${defender.label} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
@@ -79,7 +79,9 @@
 						attack: -2
 						# Damage modifier applied over the regular damage value
 						damages: -8
-				
+				compoundVariation: spell
 				compound:
+					closeRange: (+) 12
+					aiming: (+) 20
 					attack: (+) 20
 					damages: (+) 24

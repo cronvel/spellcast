@@ -232,10 +232,10 @@
 		[if $battle.distance = 0]
 			[set $local.item] $battle.entityTurn.primary.melee
 			
-			[if $local.item.usages.melee.primary.params.label]
-				[set $local.label] $local.item.usages.melee.primary.params.label
+			[if $local.item.usages.melee.primary.params.menuLabel]
+				[set $local.label] $local.item.usages.melee.primary.params.menuLabel
 			[else]
-				[set $local.label] $> Fight
+				[set $local.label] $> fight
 			
 			[next pc-melee]
 				[label] $> ${local.label//uc1}
@@ -274,16 +274,13 @@
 		[if $battle.entityTurn.primary.missile]
 			[set $local.item] $battle.entityTurn.primary.missile
 			
-			[if $local.item.usages.missile.primary.params.label]
-				[set $local.label] $local.item.usages.missile.primary.params.label
+			[if $local.item.usages.missile.primary.params.menuLabel]
+				[set $local.label] $local.item.usages.missile.primary.params.menuLabel
 			[else]
 				[set $local.label] $> Shoot
 			
 			[next pc-missile]
-				[label] $local.label
-		
-		[next pc-fireball]
-			[label] Fireball
+				[label] $> ${local.label//uc1}
 		
 		#[next inventory/equip-ability]
 		#	[label] Choose an ability
@@ -379,16 +376,6 @@
 		[if $battle.distance = 0]
 			[gosub pc-targeting]
 		[gosub charge]
-			[args]
-				attacker: $battle.entityTurn
-				defender: $battle.target
-		[goto end-turn]
-	
-	
-	
-	[scene pc-fireball]
-		[gosub pc-targeting]
-		[gosub fireball]
 			[args]
 				attacker: $battle.entityTurn
 				defender: $battle.target
@@ -508,6 +495,8 @@
 	
 	[scene splash-damages]
 		[set $pos] $defender.adhoc.battle.position
+		
+		#[debug info] $args
 		
 		[foreach $battle.aliveEntities => $target]
 			
@@ -638,6 +627,15 @@
 		[call battle/pressure] $attacker
 		[call battle/pressure] $defender
 		
+		[if $attacker.actualUsages.missile.params.spellLevel is-set?]
+			[call spellcasting/cast => $local.casted]
+				entity: $attacker
+				item: $attacker.primary.missile
+				usage: $attacker.actualUsages.missile
+				bonus: $= - ( ceil ( $attacker.adhoc.battle.pressure / 4 ) )
+			[if ! $local.casted]
+				[return]
+		
 		# We are in close range, we have to test first with the closeRange stat,
 		# against the best of the opponent melee attack or defense stat.
 		[if $battle.distance = 0]
@@ -696,6 +694,9 @@
 		[set $local.attackScore] $= $attacker.actualUsages.missile.compound.attack + ( 2 D 12 )
 		[set $local.defenseScore] $= $defender.actualUsages.missile.compound.defense + ( 2 D 12 )
 		
+		# The longer the distance, the better the chance to evade the missile
+		[sub $local.attackScore] $= floor ( $battle.distance / 8 )
+		
 		#[message] $> Pressure -- ${attacker.adhoc.battle.pressure} / ${defender.adhoc.battle.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 		
@@ -717,8 +718,19 @@
 		[if $local.attackScore > $local.defenseScore]
 			[gosub deal-damages]
 				[args]
-					faces: 10
+					faces: $= ( $attacker.primary.missile.class = "ability" ) ? 6 10
 					usage: missile
+			
+			[if $attacker.actualUsages.missile.params.splash]
+				[gosub splash-damages]
+					[args]
+						attack: $= $attacker.actualUsages.missile.compound.attack + $attacker.actualUsages.missile.params.splash.attack
+						damages: $= $attacker.actualUsages.missile.compound.damages + $attacker.actualUsages.missile.params.splash.damages
+						radius: $attacker.actualUsages.missile.params.splash.radius
+						missFlavour: $attacker.actualUsages.missile.params.splash.missFlavour
+						hitFlavour: $attacker.actualUsages.missile.params.splash.hitFlavour
+						criticalHitFlavour: $attacker.actualUsages.missile.params.splash.criticalHitFlavour
+						fatalHitFlavour: $attacker.actualUsages.missile.params.splash.fatalHitFlavour
 			
 		[else]
 			[fortune]
@@ -785,78 +797,6 @@
 				- $> ${attacker.label//uc1} misses ${defender.label}.
 				- $> ${defender.label//uc1} blocks ${attacker.label}.
 				- $> ${defender.label//uc1} avoids ${attacker.label}.
-	
-	
-	
-	[scene fireball]
-		[set $attacker] $args.attacker
-		[set $defender] $args.defender
-		
-		[set $attacker.adhoc.battle.speed] 0
-		[set $attacker.adhoc.battle.offensiveness] -1
-		
-		[sub $attacker.status.mana] 6
-		[message] $> mana: ${attacker.status.mana}
-		[if $attacker.status.mana < 0]
-			[set $attacker.status.mana] 0
-			[message] Not enough mana!
-			[return]
-		
-		[set $local.attackScore] $= ( 20 - ( floor ( $battle.distance / 8 ) ) ) + ( 2 D 8 )
-		[set $local.defenseScore] $= $defender.actualUsages.missile.compound.defense + ( 2 D 8 )
-		
-		[set $attacker.adhoc.battle.cooldown] 1
-		
-		[set $attacker.adhoc.battle.pressTarget] $defender
-		[set $attacker.adhoc.battle.pressValue] 4
-		
-		[call battle/pressure] $attacker
-		[call battle/pressure] $defender
-		
-		[if $defender.adhoc.battle.offensiveness > 0]
-			[sub $local.defenseScore] 3
-			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 2 )
-		[elseif $defender.adhoc.battle.offensiveness < 0]
-			[add $local.defenseScore] 2
-			# Less sensible to the pressure when defending
-			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 4 )
-		[else]
-			[sub $local.defenseScore] $= ceil ( $defender.adhoc.battle.pressure / 2 )
-		
-		#[message] $> ${local.attackScore} vs ${local.defenseScore}
-		
-		[message] $> ${attacker.label//uc1} cast a ^rfireball^ at ${defender.label}!
-		
-		[if $local.attackScore > $local.defenseScore]
-			[gosub deal-damages]
-				[args]
-					hitFlavour:
-						$$> ^rThe fireball hits ${defender.label} for ${damages} hp.^:
-						$$> The ^rfireball^ explodes!
-					criticalHitFlavour:
-						$$> ^rThe fireball engulfs ${defender.label} for ${damages} hp.^:
-						$$> The ^rfireball^ explodes!
-					fatalHitFlavour:
-						$$> ^rThe fireball burns ${defender.label} to death for ${damages} hp.^:
-						$$> The ^rfireball^ explodes!
-					damages: $= 24 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
-			
-			
-			[gosub splash-damages]
-				[args]
-					attack: 25
-					damages: $= 16 + ( round ( $attacker.actual.stats.spellcasting / 4 ) )
-					radius: 1.8
-					missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
-					hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
-					criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
-			
-		[else]
-			[fortune]
-				- $> The ^rfireball^ misses ${defender.label}.
-				- $> ${defender.label//uc1} evades the ^rfireball^:.
-				- $> ${defender.label//uc1} avoids the ^rfireball^:.
 	
 	
 	

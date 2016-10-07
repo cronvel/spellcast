@@ -2,6 +2,7 @@
 [[doctype adventurer]]
 
 [module] @@battle.kfg
+[module] @@spellcasting.kfg
 [module] @@inventory.kfg
 [module] @@entity-classes.kfg
 [module] @@usage-stats.kfg

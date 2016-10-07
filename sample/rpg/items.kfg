@@ -41,7 +41,7 @@
 			# When the weapon is used
 			primary:
 				params:
-					label: use the Sacred Sword Excalibur
+					menuLabel: $> use the Sacred Sword Excalibur
 					criticalHitFlavour: $$> ^r${attacker.label//uc1} slashes ${defender.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} cut ${defender.label} in half for ${damages} hp.
 				compound:
@@ -171,7 +171,7 @@
 		melee:
 			primary:
 				params:
-					label: crush
+					menuLabel: $> crush
 					criticalHitFlavour: $$> ^r${attacker.label//uc1} pounds ${defender.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} crushes ${defender.label} for ${damages} hp.
 				compound:
@@ -209,7 +209,7 @@
 		missile:
 			primary:
 				params:
-					label: throw a javelin
+					menuLabel: $> throw a javelin
 					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
 				compound:
@@ -229,7 +229,7 @@
 		missile:
 			primary:
 				params:
-					label: shoot an arrow
+					menuLabel: $> shoot an arrow
 					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
 				compoundVariation: firearm
@@ -251,7 +251,7 @@
 			primary:
 				params:
 					reload: true
-					label: shoot a bolt
+					menuLabel: $> shoot a bolt
 					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
 				compoundVariation: firearm

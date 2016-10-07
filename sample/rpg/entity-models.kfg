@@ -7,11 +7,12 @@
 	stats:
 		fighting: 16
 		shooting: 12
-		spellcasting: 14
+		spellcasting: 16
 		strength: 12
 		resilience: 11
 	items:
 		- ice-shard
+		- firebolt
 		- excalibur
 		- javelin
 		- crossbow
@@ -19,7 +20,7 @@
 		- giant-club
 	equippedItems:
 		ability:
-			- firebolt
+			- fireball
 		hand:
 			- sword
 		ring:
