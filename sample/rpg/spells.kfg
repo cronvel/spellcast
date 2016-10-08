@@ -24,29 +24,6 @@
 					damages: (+) 16
 
 
-[item-model ice-shard]
-	class: ability
-	label: ice shard
-	slotType: ability
-	usages:
-		missile:
-			primary:
-				params:
-					# How hard it is to cast
-					spellLevel: 10
-					manaLevel: 6
-					menuLabel: $> cast ice shard
-					hitFlavour: $$> ^rThe ice shard hits ${defender.label} for ${damages} hp.^:
-					criticalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} for ${damages} hp.^:
-					fatalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} to death for ${damages} hp.^:
-				compoundVariation: spell
-				compound:
-					closeRange: (+) 10
-					aiming: (+) 20
-					attack: (+) 20
-					damages: (+) 16
-
-
 
 [item-model fireball]
 	class: ability
@@ -85,3 +62,28 @@
 					aiming: (+) 20
 					attack: (+) 20
 					damages: (+) 24
+
+
+
+[item-model ice-shard]
+	class: ability
+	label: ice shard
+	slotType: ability
+	usages:
+		missile:
+			primary:
+				params:
+					# How hard it is to cast
+					spellLevel: 10
+					manaLevel: 6
+					menuLabel: $> cast ice shard
+					hitFlavour: $$> ^rThe ice shard hits ${defender.label} for ${damages} hp.^:
+					criticalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} for ${damages} hp.^:
+					fatalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} to death for ${damages} hp.^:
+				compoundVariation: spell
+				compound:
+					closeRange: (+) 10
+					aiming: (+) 20
+					attack: (+) 20
+					damages: (+) 16
+

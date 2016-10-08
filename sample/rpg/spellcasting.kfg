@@ -3,13 +3,17 @@
 
 [fn spellcasting/cast]
 	
-	# First, mana consomption
+	[if $args.entity.status.mana <= 0]
+		[message] $> ${args.entity.label//uc1} has no mana left.
+		[return] false
+	
+	# First, mana consumption
 	[set $local.castScore] $= $args.entity.actual.stats.spellcasting + ( 2 D 4 )
 	[set $local.vsScore] $= $args.usage.params.manaLevel + ( 2 D 4 )
 	
 	[set $local.mana] $= ( ( $local.vsScore - $local.castScore ) + ( random ) ) - 0.5
 	
-	# This is the magic formula that transform consomption levels into real mana point loss, with the correct feeling
+	# This is the magic formula that transform consumption levels into real mana point loss, with the correct feeling
 	# mana-level = +20 is needed for an instant mana lost
 	[set $local.mana] $= round ( 10 * ( 2 ^ ( $local.mana / 6 ) ) )
 	
