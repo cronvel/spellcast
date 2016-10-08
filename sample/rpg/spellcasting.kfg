@@ -3,12 +3,12 @@
 
 [fn spellcasting/cast]
 	
-	[if $args.entity.status.mana <= 0]
-		[message] $> ${args.entity.label//uc1} has no mana left.
+	[if $args.performer.status.mana <= 0]
+		[message] $> ${args.performer.label//uc1} has no mana left.
 		[return] false
 	
 	# First, mana consumption
-	[set $local.castScore] $= $args.entity.actual.stats.spellcasting + ( 2 D 4 )
+	[set $local.castScore] $= $args.performer.actual.stats.spellcasting + ( 2 D 4 )
 	[set $local.vsScore] $= $args.usage.params.manaLevel + ( 2 D 4 )
 	
 	[set $local.mana] $= ( ( $local.vsScore - $local.castScore ) + ( random ) ) - 0.5
@@ -17,33 +17,33 @@
 	# mana-level = +20 is needed for an instant mana lost
 	[set $local.mana] $= round ( 10 * ( 2 ^ ( $local.mana / 6 ) ) )
 	
-	[sub $args.entity.status.mana] $local.mana
+	[sub $args.performer.status.mana] $local.mana
 	
 	[message] $> Mana loss: ${local.mana}
 	
-	[if $args.entity.status.mana < 0]
-		[set $args.entity.status.mana] 0
-		[message] $> ${args.entity.label//uc1} used all its mana and miscasts ^/${args.item.label}^:!
+	[if $args.performer.status.mana < 0]
+		[set $args.performer.status.mana] 0
+		[message] $> ${args.performer.label//uc1} used all its mana and miscasts ^/${args.item.label}^:!
 		[return] false
 	
-	[message] $> Remaining mana: ${args.entity.status.mana}
+	[message] $> Remaining mana: ${args.performer.status.mana}
 	
 	
 	# Then spellcasting
-	[set $local.castScore] $= $args.entity.actual.stats.spellcasting + ( 2 D 8 )
+	[set $local.castScore] $= $args.performer.actual.stats.spellcasting + ( 2 D 8 )
 	[set $local.vsScore] $= $args.usage.params.spellLevel + ( 2 D 8 )
 	
 	[if $args.bonus is-set?]
 		[add $local.castScore] $args.bonus
 	
 	#[message] $> ${local.castScore} vs ${local.vsScore} ${args.bonus}
-	#[debug info] $> ${args.entity.actual.stats.spellcasting}
+	#[debug info] $> ${args.performer.actual.stats.spellcasting}
 	
 	[if $local.castScore < $local.vsScore]
-		[message] $> ${args.entity.label//uc1} miscasts ^/${args.item.label}^:!
+		[message] $> ${args.performer.label//uc1} miscasts ^/${args.item.label}^:!
 		[return] false
 	
-	[message] $> ${args.entity.label//uc1} casts ^/${args.item.label}^:!
+	[message] $> ${args.performer.label//uc1} casts ^/${args.item.label}^:!
 	[return] true
 
 	

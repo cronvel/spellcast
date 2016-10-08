@@ -100,7 +100,7 @@
 				deadlyPush:
 					bonus: 0
 					flavour:
-						$$> ^R${attacker.label//uc1} pushes ${defender.label} and ${defender.label} falls off the cliff!
+						$$> ^R${performer.label//uc1} pushes ${target.label} and ${target.label} falls off the cliff!
 		
 		[next second-encounter]
 
@@ -121,7 +121,7 @@
 				deadlyPush:
 					bonus: 6
 					flavour:
-						$$> ^RAs ${attacker.label} charges, ${defender.label} slips from the wooden beam!
-						$$> ${defender.label//uc1} falls into the chasm!
+						$$> ^RAs ${performer.label} charges, ${target.label} slips from the wooden beam!
+						$$> ${target.label//uc1} falls into the chasm!
 
 

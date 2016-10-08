@@ -11,8 +11,8 @@
 			# When the weapon is used
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} slashes ${defender.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${attacker.label//uc1} cut ${defender.label} in half for ${damages} hp.
+					criticalHitFlavour: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} cut ${target.label} in half for ${damages} hp.
 				compound:
 					attack: (+) 4
 					defense: (+) 4
@@ -42,8 +42,8 @@
 			primary:
 				params:
 					menuLabel: $> use the Sacred Sword Excalibur
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} slashes ${defender.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${attacker.label//uc1} cut ${defender.label} in half for ${damages} hp.
+					criticalHitFlavour: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} cut ${target.label} in half for ${damages} hp.
 				compound:
 					attack: (+) 8
 					defense: (+) 8
@@ -72,7 +72,7 @@
 		melee:
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} cut ${defender.label} for ${damages} hp.
+					criticalHitFlavour: $$> ^r${performer.label//uc1} cut ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 2
 					defense: (+) 2
@@ -103,7 +103,7 @@
 		missile:
 			support:
 				params:
-					coverFlavour: $$> ${defender.label//uc1}'s shield prevents from ${attacker.label}'s ${missile}.
+					coverFlavour: $$> ${target.label//uc1}'s shield prevents from ${performer.label}'s ${missile}.
 				compound:
 					defense: (+) 12
 					cover: (+) 12
@@ -119,7 +119,7 @@
 		melee:
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} chops ${defender.label} for ${damages} hp.
+					criticalHitFlavour: $$> ^r${performer.label//uc1} chops ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 4
 					defense: (+) 2
@@ -145,7 +145,7 @@
 			# Mostly a two-handed weapon, but can still be used with a shield
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} punctures ${defender.label} for ${damages} hp.
+					criticalHitFlavour: $$> ^r${performer.label//uc1} punctures ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 1
 					defense: (+) 3
@@ -172,8 +172,8 @@
 			primary:
 				params:
 					menuLabel: $> crush
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} pounds ${defender.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${attacker.label//uc1} crushes ${defender.label} for ${damages} hp.
+					criticalHitFlavour: $$> ^r${performer.label//uc1} pounds ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} crushes ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 2
 					defense: (+) 2
@@ -200,8 +200,8 @@
 		melee:
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
+					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 2
 					defense: (+) 2
@@ -210,8 +210,8 @@
 			primary:
 				params:
 					menuLabel: $> throw a javelin
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
+					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
 					closeRange: (+) 2
 					attack: (+) 5
@@ -230,8 +230,8 @@
 			primary:
 				params:
 					menuLabel: $> shoot an arrow
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
+					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compoundVariation: firearm
 				compound:
 					closeRange: (+) -4
@@ -252,8 +252,8 @@
 				params:
 					reload: true
 					menuLabel: $> shoot a bolt
-					criticalHitFlavour: $$> ^r${attacker.label//uc1} pierces ${defender.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${attacker.label//uc1} impales ${defender.label} for ${damages} hp.
+					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compoundVariation: firearm
 				compound:
 					closeRange: (+) 6

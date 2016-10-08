@@ -5,24 +5,24 @@
 	
 	# Equip an ability as primary, or make any equipped item (ability or not) a primary
 	[scene select-ability-primary]
-		[set $entity] $args.entity
+		[set $performer] $args.performer
 		[set $usage] $= ( $args.usage is-set? ) ? $args.usage true
 		
 		[message] Use what?
 		
-		[if $entity.primary[$usage]]
-			[set $local.currentPrimary] $entity.primary[$usage]
+		[if $performer.primary[$usage]]
+			[set $local.currentPrimary] $performer.primary[$usage]
 			[set $local.abortLabel] $> Keep using: ${local.currentPrimary.label} (${local.currentPrimary.class})
 		[else]
 			[set $local.abortLabel] $> (Abort)
 		
-		[filter $entity.equippedItemList => $local.items] $= ( $this.usages[$usage] is-set? ) && ( $this != $entity.primary[$usage] )
-		[filter $entity.items => $local.moreItems] $= ( $this.class = "ability" ) && ( $this.usages[$usage] is-set? )
+		[filter $performer.equippedItemList => $local.items] $= ( $this.usages[$usage] is-set? ) && ( $this != $performer.primary[$usage] )
+		[filter $performer.items => $local.moreItems] $= ( $this.class = "ability" ) && ( $this.usages[$usage] is-set? )
 		
 		[concat $local.items] $local.moreItems
 		
-		#[debug info] $entity.equippedItemList
-		#[debug info] $entity.items
+		#[debug info] $performer.equippedItemList
+		#[debug info] $performer.items
 		#[debug info] $local.items
 		
 		[next]
@@ -36,23 +36,23 @@
 				[on-trigger]
 					[set $local.item] $local.items[$args.index]
 					[if $local.item.class = "ability"]
-						[unequip $entity]
+						[unequip $performer]
 							slot: ability
-					[equip $entity]
+					[equip $performer]
 						item: $local.item
 						primary: $usage
 	
 	
 	
 	[scene select-ability-choose-primary]
-		[set $entity] $args.entity
+		[set $performer] $args.performer
 		
 		[message] Which usage?
 		
 		[next]
 			[label] $> (Abort)
 		
-		[foreach $entity.usageTypes => $local.usage]
+		[foreach $performer.usageTypes => $local.usage]
 			[next]
 				[args]
 					usage: $local.usage
@@ -60,23 +60,23 @@
 				[on-trigger]
 					[gosub inventory/select-ability-primary]
 						[args]
-							entity: $entity
+							performer: $performer
 							usage: $args.usage
 
 	
 	
 	# Equip an object
 	[scene equip-object]
-		[set $entity] $args.entity
+		[set $performer] $args.performer
 		[set $slot] $= ( $args.slot is-set? ) ? $args.slot "hand"
 		
 		[message] Equip / unequip what?
 		
-		[set $local.unequippedItems] $entity.equippedItems[$slot]
-		[filter $entity.items => $local.equippedItems] $= ( $this.class = "object" ) && ( $this.slotType = $slot )
+		[set $local.unequippedItems] $performer.equippedItems[$slot]
+		[filter $performer.items => $local.equippedItems] $= ( $this.class = "object" ) && ( $this.slotType = $slot )
 		
-		#[debug info] $entity.equippedItemList
-		#[debug info] $entity.items
+		#[debug info] $performer.equippedItemList
+		#[debug info] $performer.items
 		#[debug info] $local.equippedItems
 		
 		[next]
@@ -89,7 +89,7 @@
 				[label] $> Unequip ${local.item.label} (${local.item.class})
 				[on-trigger]
 					[set $local.item] $local.unequippedItems[$args.index]
-					[unequip $entity]
+					[unequip $performer]
 						item: $local.item
 					[return] true
 		
@@ -100,21 +100,21 @@
 				[label] $> Equip ${local.item.label} (${local.item.class})
 				[on-trigger]
 					[set $local.item] $local.equippedItems[$args.index]
-					[equip $entity]
+					[equip $performer]
 						item: $local.item
 					[return] true
 	
 	
 	
 	[scene equip-object-choose-slot]
-		[set $entity] $args.entity
+		[set $performer] $args.performer
 		
 		[message] Which slot?
 		
 		[next]
 			[label] $> (Abort)
 		
-		[foreach $entity.slots => $local.slot : $local.count]
+		[foreach $performer.slots => $local.slot : $local.count]
 			[next]
 				[args]
 					slot: $local.slot
@@ -122,7 +122,7 @@
 				[on-trigger]
 					[gosub inventory/equip-object]
 						[args]
-							entity: $entity
+							performer: $performer
 							slot: $args.slot
 
 

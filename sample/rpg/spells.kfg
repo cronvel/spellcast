@@ -13,9 +13,9 @@
 					spellLevel: 10
 					manaLevel: 6
 					menuLabel: $> cast firebolt
-					hitFlavour: $$> ^rThe firebolt hits ${defender.label} for ${damages} hp.^:
-					criticalHitFlavour: $$> ^rThe firebolt burns ${defender.label} for ${damages} hp.^:
-					fatalHitFlavour: $$> ^rThe firebolt burns ${defender.label} to death for ${damages} hp.^:
+					hitFlavour: $$> ^rThe firebolt hits ${target.label} for ${damages} hp.^:
+					criticalHitFlavour: $$> ^rThe firebolt burns ${target.label} for ${damages} hp.^:
+					fatalHitFlavour: $$> ^rThe firebolt burns ${target.label} to death for ${damages} hp.^:
 				compoundVariation: spell
 				compound:
 					closeRange: (+) 10
@@ -38,13 +38,13 @@
 					manaLevel: 14
 					menuLabel: $> cast fireball
 					hitFlavour:
-						$$> ^rThe fireball hits ${defender.label} for ${damages} hp.^:
+						$$> ^rThe fireball hits ${target.label} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
 					criticalHitFlavour:
-						$$> ^rThe fireball engulfs ${defender.label} for ${damages} hp.^:
+						$$> ^rThe fireball engulfs ${target.label} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
 					fatalHitFlavour:
-						$$> ^rThe fireball burns ${defender.label} to death for ${damages} hp.^:
+						$$> ^rThe fireball burns ${target.label} to death for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
 					splash:
 						missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
@@ -77,9 +77,9 @@
 					spellLevel: 10
 					manaLevel: 6
 					menuLabel: $> cast ice shard
-					hitFlavour: $$> ^rThe ice shard hits ${defender.label} for ${damages} hp.^:
-					criticalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} for ${damages} hp.^:
-					fatalHitFlavour: $$> ^rThe ice shard freezes ${defender.label} to death for ${damages} hp.^:
+					hitFlavour: $$> ^rThe ice shard hits ${target.label} for ${damages} hp.^:
+					criticalHitFlavour: $$> ^rThe ice shard freezes ${target.label} for ${damages} hp.^:
+					fatalHitFlavour: $$> ^rThe ice shard freezes ${target.label} to death for ${damages} hp.^:
 				compoundVariation: spell
 				compound:
 					closeRange: (+) 10
