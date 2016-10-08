@@ -1,0 +1,136 @@
+
+[[doctype adventurer]]
+
+[item-model sword]
+	class: object
+	label: sword
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			# When the weapon is used
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} cut ${target.label} in half for ${damages} hp.
+				compound:
+					attack: (+) 4
+					defense: (+) 4
+					damages: (+) 7
+			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
+			extraSlot:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 3
+			# Bonuses when the weapon is used as a support for the primary weapon
+			support:
+				compound:
+					attack: (+) 3
+					defense: (+) 2
+
+
+
+[item-model axe]
+	class: object
+	label: axe
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${performer.label//uc1} chops ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 4
+					defense: (+) 2
+					damages: (+) 9
+			extraSlot:
+				compound:
+					attack: (+) 1
+					damages: (+) 3
+			support:
+				compound:
+					attack: (+) 3
+					defense: (+) 1
+	
+
+
+[item-model spear]
+	class: object
+	label: spear
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			# Mostly a two-handed weapon, but can still be used with a shield
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${performer.label//uc1} punctures ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 1
+					defense: (+) 3
+					damages: (+) 3
+			extraSlot:
+				compound:
+					attack: (+) 2
+					defense: (+) 4
+					damages: (+) 4
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+
+
+
+[item-model giant-club]
+	class: object
+	label: giant club
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			primary:
+				params:
+					menuLabel: $> crush
+					criticalHitFlavour: $$> ^r${performer.label//uc1} pounds ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} crushes ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 9
+			extraSlot:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 6
+			support:
+				compound:
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 2
+
+
+
+# a.k.a. parrying dagger
+[item-model main-gauche]
+	class: object
+	label: main gauche
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${performer.label//uc1} cut ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 4
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 2
+
+
+

@@ -1,0 +1,11 @@
+
+[[doctype adventurer]]
+
+[item-model ring-of-fighting-spirit]
+	class: object
+	label: ring of fighting spirit
+	slotType: ring
+	slotCount: 1
+	compound:
+		attack: (+) 1
+

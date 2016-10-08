@@ -1,0 +1,89 @@
+
+[[doctype adventurer]]
+
+[item-model firebolt]
+	class: ability
+	label: firebolt
+	slotType: ability
+	usages:
+		missile:
+			primary:
+				params:
+					# How hard it is to cast
+					spellLevel: 10
+					manaLevel: 6
+					menuLabel: $> cast firebolt
+					hitFlavour: $$> ^rThe firebolt hits ${target.label} for ${damages} hp.^:
+					criticalHitFlavour: $$> ^rThe firebolt burns ${target.label} for ${damages} hp.^:
+					fatalHitFlavour: $$> ^rThe firebolt burns ${target.label} to death for ${damages} hp.^:
+				compoundVariation: spell
+				compound:
+					closeRange: (+) 10
+					aiming: (+) 20
+					attack: (+) 20
+					damages: (+) 16
+
+
+
+[item-model fireball]
+	class: ability
+	label: fireball
+	slotType: ability
+	usages:
+		missile:
+			primary:
+				params:
+					# How hard it is to cast
+					spellLevel: 12
+					manaLevel: 14
+					menuLabel: $> cast fireball
+					hitFlavour:
+						$$> ^rThe fireball hits ${target.label} for ${damages} hp.^:
+						$$> The ^rfireball^ explodes!
+					criticalHitFlavour:
+						$$> ^rThe fireball engulfs ${target.label} for ${damages} hp.^:
+						$$> The ^rfireball^ explodes!
+					fatalHitFlavour:
+						$$> ^rThe fireball burns ${target.label} to death for ${damages} hp.^:
+						$$> The ^rfireball^ explodes!
+					splash:
+						missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
+						hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
+						criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
+						fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
+						radius: 1.8
+						# Attack modifier applied over the regular attack value
+						attack: -2
+						# Damage modifier applied over the regular damage value
+						damages: -8
+				compoundVariation: spell
+				compound:
+					closeRange: (+) 12
+					aiming: (+) 20
+					attack: (+) 20
+					damages: (+) 24
+
+
+
+[item-model ice-shard]
+	class: ability
+	label: ice shard
+	slotType: ability
+	usages:
+		missile:
+			primary:
+				params:
+					# How hard it is to cast
+					spellLevel: 10
+					manaLevel: 6
+					menuLabel: $> cast ice shard
+					hitFlavour: $$> ^rThe ice shard hits ${target.label} for ${damages} hp.^:
+					criticalHitFlavour: $$> ^rThe ice shard freezes ${target.label} for ${damages} hp.^:
+					fatalHitFlavour: $$> ^rThe ice shard freezes ${target.label} to death for ${damages} hp.^:
+				compoundVariation: spell
+				compound:
+					closeRange: (+) 10
+					aiming: (+) 20
+					attack: (+) 20
+					damages: (+) 16
+
