@@ -1,0 +1,8 @@
+
+[[doctype adventurer]]
+
+[module] @@system/*.kfg
+[module] @@characters/*.kfg
+[module] @@objects/*.kfg
+[module] @@abilities/*.kfg
+

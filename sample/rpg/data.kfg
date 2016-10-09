@@ -1,0 +1,72 @@
+
+[[doctype adventurer]]
+
+[entity-model player]
+	class: character
+	label: the hero
+	stats:
+		fighting: 16
+		shooting: 12
+		spellcasting: 16
+		strength: 12
+		resilience: 11
+	items:
+		- ice-shard
+		- firebolt
+		- excalibur
+		- javelin
+		- crossbow
+		- bow
+		- giant-club
+	equippedItems:
+		ability:
+			- fireball
+		hand:
+			- sword
+		ring:
+			- ring-of-fighting-spirit
+
+[entity-model guardian]
+	class: character
+	label: the guardian
+	params:
+		xpReward: 10
+		charge: 0.5
+	stats:
+		fighting: 14
+		shooting: 6
+		strength: 16
+		resilience: 16
+	equippedItems:
+		hand:
+			- giant-club
+
+[item-model excalibur]
+	class: object
+	label: Excalibur
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee:
+			# When the weapon is used
+			primary:
+				params:
+					menuLabel: $> use the Sacred Sword Excalibur
+					criticalHitFlavour: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} cut ${target.label} in half for ${damages} hp.
+				compound:
+					attack: (+) 8
+					defense: (+) 8
+					damages: (+) 14
+			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
+			extraSlot:
+				compound:
+					attack: (+) 3
+					defense: (+) 3
+					damages: (+) 6
+			# Bonuses when the weapon is used as a support for the primary weapon
+			support:
+				compound:
+					attack: (+) 5
+					defense: (+) 4
+
