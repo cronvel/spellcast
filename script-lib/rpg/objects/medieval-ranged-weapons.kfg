@@ -24,7 +24,7 @@
 					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
-					closeRange: (+) 2
+					#close-ranged: (+) 1
 					attack: (+) 5
 					aiming: (+) 0
 					damages: (+) 4
@@ -46,7 +46,7 @@
 					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compoundVariation: firearm
 				compound:
-					closeRange: (+) -4
+					close-ranged: (+) -6
 					attack: (+) 25
 					aiming: (+) 2
 					damages: (+) 18
@@ -69,7 +69,7 @@
 					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compoundVariation: firearm
 				compound:
-					closeRange: (+) 6
+					close-ranged: (+) 6
 					attack: (+) 25
 					aiming: (+) 8
 					damages: (+) 18

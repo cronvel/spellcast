@@ -17,6 +17,7 @@
 					attack: (+) 4
 					defense: (+) 4
 					damages: (+) 7
+					anti-ranged: (+) 3
 			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
 			extraSlot:
 				compound:
@@ -45,6 +46,7 @@
 					attack: (+) 4
 					defense: (+) 2
 					damages: (+) 9
+					anti-ranged: (+) 2
 			extraSlot:
 				compound:
 					attack: (+) 1
@@ -71,11 +73,13 @@
 					attack: (+) 1
 					defense: (+) 3
 					damages: (+) 3
+					anti-ranged: (+) 2
 			extraSlot:
 				compound:
 					attack: (+) 2
 					defense: (+) 4
 					damages: (+) 4
+					anti-ranged: (+) 3
 			support:
 				compound:
 					attack: (+) 1
@@ -99,11 +103,14 @@
 					attack: (+) 2
 					defense: (+) 2
 					damages: (+) 9
+					# To slow to prevent ranged attack efficiently
+					anti-ranged: (+) -3
 			extraSlot:
 				compound:
 					attack: (+) 1
 					defense: (+) 1
 					damages: (+) 6
+					anti-ranged: (+) 1
 			support:
 				compound:
 					attack: (+) 2
@@ -127,6 +134,7 @@
 					attack: (+) 2
 					defense: (+) 2
 					damages: (+) 4
+					anti-ranged: (+) 1
 			support:
 				compound:
 					attack: (+) 1

@@ -20,11 +20,11 @@
 		- giant-club
 	equippedItems:
 		ability:
-			- fireball
+#			- fireball
 #			- ice-shard
 		hand:
-			- sword
-#			- crossbow
+#			- sword
+			- crossbow
 		ring:
 			- ring-of-fighting-spirit
 

@@ -5,14 +5,16 @@
 	attack: $= $stats.fighting
 	defense: $= $stats.fighting
 	damages: $= $stats.strength
+	# Compared with an opponent closeRange when he try to use a ranged weapon at close range
+	anti-ranged: $= $stats.fighting
 
 # Basic ranged-fighting throwing, without a launcher: javelins, spears, etc.
 [usage-compound-stats ranged-fighting]
 	aiming: $= $stats.shooting
-	# Cover is the defensive anti-aiming stat, but it's mostly provided by shields
-	cover: $= floor ( $stats.fighting / 4 )
-	# When used in close range, a ranged-fighting attack should win the close-range pass, using this stat
-	closeRange: $= floor ( avg $stats.shooting $stats.fighting )
+	# Guard is the defensive anti-aiming stat, mostly provided by shields
+	guard: $= floor ( $stats.fighting / 4 )
+	# When used in close range, a ranged attack should win the close-range pass, using this stat
+	close-ranged: $= floor ( avg $stats.shooting $stats.fighting )
 	attack: $= $stats.shooting
 	defense: $= $stats.fighting
 	damages: $= $stats.strength

@@ -492,39 +492,37 @@
 	
 	
 	
-	[scene splash-damages]
-		[set $pos] $target.adhoc.fight.position
-		
+	[scene splash-effect]
 		#[debug info] $args
 		
-		[foreach $fight.aliveEntities => $currentTarget]
+		[foreach $fight.aliveEntities => $target]
 			
-			[if ( $currentTarget = $target ) || ( $currentTarget = $performer )]
+			[if $args.exclude has $target]
 				[continue]
 			
-			[set $currentTargetPos] $currentTarget.adhoc.fight.position
+			[set $targetPos] $target.adhoc.fight.position
 			
-			[if ( hypot ( $currentTargetPos.x - $pos.x ) ( $currentTargetPos.y - $pos.y ) ) <= $args.radius]
+			[if ( hypot ( $targetPos.x - $args.position.x ) ( $targetPos.y - $args.position.y ) ) <= $args.radius]
 				
 				[set $local.attackScore] $= $args.attack + ( 2 D 8 )
-				[set $local.defenseScore] $= $currentTarget.actualUsages.ranged-fighting.compound.defense + ( 2 D 8 )
+				[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense + ( 2 D 8 )
 				
-				[call fighting/pressure] $currentTarget
+				[call fighting/pressure] $target
 				
-				[if $currentTarget.adhoc.fight.offensiveness > 0]
+				[if $target.adhoc.fight.offensiveness > 0]
 					[sub $local.defenseScore] 3
-					[sub $local.defenseScore] $= ceil ( $currentTarget.adhoc.fight.pressure / 2 )
-				[elseif $currentTarget.adhoc.fight.offensiveness < 0]
+					[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+				[elseif $target.adhoc.fight.offensiveness < 0]
 					[add $local.defenseScore] 2
 					# Less sensible to the pressure when defending
-					[sub $local.defenseScore] $= ceil ( $currentTarget.adhoc.fight.pressure / 4 )
+					[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
 				[else]
-					[sub $local.defenseScore] $= ceil ( $currentTarget.adhoc.fight.pressure / 2 )
+					[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 				
 				[if $local.attackScore > $local.defenseScore]
 					[gosub deal-damages]
 						[args]
-							target: $currentTarget
+							target: $target
 							hitFlavour: $args.hitFlavour
 							criticalHitFlavour: $args.criticalHitFlavour
 							fatalHitFlavour: $args.fatalHitFlavour
@@ -644,8 +642,8 @@
 		# We are in close range, we have to test first with the closeRange stat,
 		# against the best of the opponent melee-fighting attack or defense stat.
 		[if $fight.distance = 0]
-			[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.closeRange + ( 2 D 8 )
-			[set $local.defenseScore] $= ( max $target.actualUsages.melee-fighting.compound.defense $target.actualUsages.melee-fighting.compound.attack ) + ( 2 D 8 )
+			[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.close-ranged + ( 2 D 8 )
+			[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.anti-ranged + ( 2 D 8 )
 			
 			#[message] $> Close range A: ${local.attackScore} vs ${local.defenseScore}
 			#[message] $> Pressure: ${performer.adhoc.fight.pressure}
@@ -669,28 +667,28 @@
 				[return]
 		
 		[set $local.aimingScore] $= $performer.actualUsages.ranged-fighting.compound.aiming + ( 2 D 12 )
-		[set $local.coverScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed ) + ( 2 D 12 )
+		[set $local.guardScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed ) + ( 2 D 12 )
 		
-		#[message] $> Aiming A: ${local.aimingScore} vs ${local.coverScore}
+		#[message] $> Aiming A: ${local.aimingScore} vs ${local.guardScore}
 		#[message] $> Pressure: ${performer.adhoc.fight.pressure}
 		
 		[sub $local.aimingScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 		
-		#[message] $> Aiming B: ${local.aimingScore} vs ${local.coverScore}
+		#[message] $> Aiming B: ${local.aimingScore} vs ${local.guardScore}
 		
-		[if $local.aimingScore < $local.coverScore]
+		[if $local.aimingScore < $local.guardScore]
 			[message] $> ${performer.label//uc1} misses ${target.label}.
 			[return]
 		
-		#[message] $> Cover: ${target.actualUsages.ranged-fighting.compound.cover}
+		#[message] $> Guard: ${target.actualUsages.ranged-fighting.compound.guard}
 		#[debug info] $target.equippedItems.hand[0]
 		#[debug info] $target.actualUsages.ranged-fighting
 		
-		[add $local.coverScore] $target.actualUsages.ranged-fighting.compound.cover
+		[add $local.guardScore] $target.actualUsages.ranged-fighting.compound.guard
 		
-		[if $local.aimingScore < $local.coverScore]
-			[if $target.actualUsages.ranged-fighting.params.coverFlavour is-set?]
-				[apply-to $local.flavour] $target.actualUsages.ranged-fighting.params.coverFlavour
+		[if $local.aimingScore < $local.guardScore]
+			[if $target.actualUsages.ranged-fighting.params.guardFlavour is-set?]
+				[apply-to $local.flavour] $target.actualUsages.ranged-fighting.params.guardFlavour
 				[message] $local.flavour
 			[else]
 				[message] $> ${performer.label//uc1} misses ${target.label}.
@@ -727,8 +725,12 @@
 					usage: ranged-fighting
 			
 			[if $performer.actualUsages.ranged-fighting.params.splash]
-				[gosub splash-damages]
+				[gosub splash-effect]
 					[args]
+						exclude:
+							- $performer
+							- $target
+						position: $target.adhoc.fight.position
 						attack: $= $performer.actualUsages.ranged-fighting.compound.attack + $performer.actualUsages.ranged-fighting.params.splash.attack
 						damages: $= $performer.actualUsages.ranged-fighting.compound.damages + $performer.actualUsages.ranged-fighting.params.splash.damages
 						radius: $performer.actualUsages.ranged-fighting.params.splash.radius
