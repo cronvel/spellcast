@@ -3,8 +3,8 @@
 
 [entity-class character]
 	usageTypes:
-		- melee
-		- missile
+		- melee-fighting
+		- ranged-fighting
 		- spell
 	params:
 		xpReward: 1

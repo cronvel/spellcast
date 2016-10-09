@@ -21,8 +21,10 @@
 	equippedItems:
 		ability:
 			- fireball
+#			- ice-shard
 		hand:
 			- sword
+#			- crossbow
 		ring:
 			- ring-of-fighting-spirit
 
@@ -47,7 +49,7 @@
 	slotType: hand
 	slotCount: 1
 	usages:
-		melee:
+		melee-fighting:
 			# When the weapon is used
 			primary:
 				params:

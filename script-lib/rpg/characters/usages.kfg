@@ -1,17 +1,17 @@
 
 [[doctype adventurer]]
 
-[usage-compound-stats melee]
+[usage-compound-stats melee-fighting]
 	attack: $= $stats.fighting
 	defense: $= $stats.fighting
 	damages: $= $stats.strength
 
-# Basic missile throwing, without a launcher: javelins, spears, etc.
-[usage-compound-stats missile]
+# Basic ranged-fighting throwing, without a launcher: javelins, spears, etc.
+[usage-compound-stats ranged-fighting]
 	aiming: $= $stats.shooting
 	# Cover is the defensive anti-aiming stat, but it's mostly provided by shields
 	cover: $= floor ( $stats.fighting / 4 )
-	# When used in close range, a missile attack should win the close-range pass, using this stat
+	# When used in close range, a ranged-fighting attack should win the close-range pass, using this stat
 	closeRange: $= floor ( avg $stats.shooting $stats.fighting )
 	attack: $= $stats.shooting
 	defense: $= $stats.fighting
@@ -19,16 +19,16 @@
 
 # Missile launcher variation: bow, crossbow, guns, etc.
 # Those weapons rely less on the character stats than on the item stats.
-[usage-compound-stats missile firearm]
+[usage-compound-stats ranged-fighting firearm]
 	attack: $= floor ( $stats.shooting / 4 )
 	damages: $= floor ( $stats.shooting / 4 )
 
 # Spell variation
-[usage-compound-stats melee spell]
+[usage-compound-stats melee-fighting spell]
 	attack: $= floor ( $stats.spellcasting / 4 )
 	damages: $= floor ( $stats.spellcasting / 2 )
 
-[usage-compound-stats missile spell]
+[usage-compound-stats ranged-fighting spell]
 	closeRange: $= floor ( $stats.spellcasting / 2 )
 	aiming: $= floor ( $stats.spellcasting / 2 )
 	attack: $= floor ( $stats.spellcasting / 4 )

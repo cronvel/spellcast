@@ -7,7 +7,7 @@
 	slotType: hand
 	slotCount: 1
 	usages:
-		melee:
+		melee-fighting:
 			# When the weapon is used
 			primary:
 				params:
@@ -37,7 +37,7 @@
 	slotType: hand
 	slotCount: 1
 	usages:
-		melee:
+		melee-fighting:
 			primary:
 				params:
 					criticalHitFlavour: $$> ^r${performer.label//uc1} chops ${target.label} for ${damages} hp.
@@ -62,7 +62,7 @@
 	slotType: hand
 	slotCount: 1
 	usages:
-		melee:
+		melee-fighting:
 			# Mostly a two-handed weapon, but can still be used with a shield
 			primary:
 				params:
@@ -89,7 +89,7 @@
 	slotType: hand
 	slotCount: 1
 	usages:
-		melee:
+		melee-fighting:
 			primary:
 				params:
 					menuLabel: $> crush
@@ -119,7 +119,7 @@
 	slotType: hand
 	slotCount: 1
 	usages:
-		melee:
+		melee-fighting:
 			primary:
 				params:
 					criticalHitFlavour: $$> ^r${performer.label//uc1} cut ${target.label} for ${damages} hp.

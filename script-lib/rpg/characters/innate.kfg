@@ -7,7 +7,7 @@
 	slotType: hand
 	slotCount: 2
 	usages:
-		melee:
+		melee-fighting:
 			primary:
 				params:
 					label: punch
@@ -21,7 +21,7 @@
 	slotType: innate
 	slotCount: 1
 	usages:
-		melee:
+		melee-fighting:
 			primary:
 				params:
 					criticalHitFlavour: $$> ^r${performer.label//uc1} bites ${target.label} for ${damages} hp.

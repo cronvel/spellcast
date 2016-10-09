@@ -7,7 +7,7 @@
 	slotType: hand
 	slotCount: 1
 	usages:
-		melee:
+		melee-fighting:
 			primary:
 				params:
 					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
@@ -16,10 +16,11 @@
 					attack: (+) 2
 					defense: (+) 2
 					damages: (+) 4
-		missile:
+		ranged-fighting:
 			primary:
 				params:
 					menuLabel: $> throw a javelin
+					projectileLabel: $> javelin
 					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
@@ -36,9 +37,10 @@
 	slotType: hand
 	slotCount: 2
 	usages:
-		missile:
+		ranged-fighting:
 			primary:
 				params:
+					projectileLabel: $> arrow
 					menuLabel: $> shoot an arrow
 					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
@@ -57,10 +59,11 @@
 	slotType: hand
 	slotCount: 1
 	usages:
-		missile:
+		ranged-fighting:
 			primary:
 				params:
 					reload: true
+					projectileLabel: $> bolt
 					menuLabel: $> shoot a bolt
 					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
 					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.

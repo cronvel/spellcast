@@ -7,7 +7,7 @@
 	slotType: hand
 	slotCount: 1
 	usages:
-		melee:
+		melee-fighting:
 			support:
 				compound:
 					defense: (+) 4
@@ -17,10 +17,10 @@
 					attack: (+) -2
 					defense: (+) 9
 					damages: (+) 2
-		missile:
+		ranged-fighting:
 			support:
 				params:
-					coverFlavour: $$> ${target.label//uc1}'s shield prevents from ${performer.label}'s ${missile}.
+					coverFlavour: $$> ${target.label//uc1}'s shield prevents from ${performer.label}'s ${projectile.label}.
 				compound:
 					defense: (+) 12
 					cover: (+) 12

@@ -219,7 +219,7 @@
 					target: $fight.target
 			[goto end-turn]
 		
-		[gosub melee]
+		[gosub melee-fighting]
 			[args]
 				performer: $performer
 				target: $fight.target
@@ -230,39 +230,39 @@
 	
 	[scene pc-turn]
 		[if $fight.distance = 0]
-			[set $local.item] $fight.entityTurn.primary.melee
+			[set $local.item] $fight.entityTurn.primary.melee-fighting
 			
-			[if $local.item.usages.melee.primary.params.menuLabel]
-				[set $local.label] $local.item.usages.melee.primary.params.menuLabel
+			[if $local.item.usages.melee-fighting.primary.params.menuLabel]
+				[set $local.label] $local.item.usages.melee-fighting.primary.params.menuLabel
 			[else]
 				[set $local.label] $> fight
 			
-			[next pc-melee]
+			[next pc-melee-fighting]
 				[label] $> ${local.label//uc1}
 				[on-trigger]
 					[set $fight.entityTurn.adhoc.fight.offensiveness] 0
 			
-			[next pc-melee]
+			[next pc-melee-fighting]
 				[label] $> ${local.label//uc1} boldly
 				[on-trigger]
 					[set $fight.entityTurn.adhoc.fight.offensiveness] 1
 			
-			[next pc-melee]
+			[next pc-melee-fighting]
 				[label] $> ${local.label//uc1} cautiously
 				[on-trigger]
 					[set $fight.entityTurn.adhoc.fight.offensiveness] -1
 		[else]
-			[next pc-melee]
+			[next pc-melee-fighting]
 				[label] $> March
 				[on-trigger]
 					[set $fight.entityTurn.adhoc.fight.offensiveness] 0
 			
-			[next pc-melee]
+			[next pc-melee-fighting]
 				[label] $> March boldly
 				[on-trigger]
 					[set $fight.entityTurn.adhoc.fight.offensiveness] 1
 			
-			[next pc-melee]
+			[next pc-melee-fighting]
 				[label] $> March cautiously
 				[on-trigger]
 					[set $fight.entityTurn.adhoc.fight.offensiveness] -1
@@ -270,16 +270,16 @@
 		[next pc-charge]
 			[label] Charge!
 	
-		#[if ( $fight.distance > 0 ) && ( $fight.entityTurn.primary.missile )]
-		[if $fight.entityTurn.primary.missile]
-			[set $local.item] $fight.entityTurn.primary.missile
+		#[if ( $fight.distance > 0 ) && ( $fight.entityTurn.primary.ranged-fighting )]
+		[if $fight.entityTurn.primary.ranged-fighting]
+			[set $local.item] $fight.entityTurn.primary.ranged-fighting
 			
-			[if $local.item.usages.missile.primary.params.menuLabel]
-				[set $local.label] $local.item.usages.missile.primary.params.menuLabel
+			[if $local.item.usages.ranged-fighting.primary.params.menuLabel]
+				[set $local.label] $local.item.usages.ranged-fighting.primary.params.menuLabel
 			[else]
 				[set $local.label] $> Shoot
 			
-			[next pc-missile]
+			[next pc-ranged-fighting]
 				[label] $> ${local.label//uc1}
 		
 		#[next inventory/equip-ability]
@@ -351,10 +351,10 @@
 	
 	
 	
-	[scene pc-melee]
+	[scene pc-melee-fighting]
 		[if $fight.distance = 0]
 			[gosub pc-targeting]
-		[gosub melee]
+		[gosub melee-fighting]
 			[args]
 				performer: $fight.entityTurn
 				target: $fight.target
@@ -362,9 +362,9 @@
 	
 	
 	
-	[scene pc-missile]
+	[scene pc-ranged-fighting]
 		[gosub pc-targeting]
-		[gosub missile]
+		[gosub ranged-fighting]
 			[args]
 				performer: $fight.entityTurn
 				target: $fight.target
@@ -405,12 +405,11 @@
 
 	
 	
-	#melee damage
 	[scene deal-damages]
 		[if $args.target]
 			[set $target] $args.target
 		
-		[set $local.usage] $= $args.usage ? $args.usage "melee"
+		[set $local.usage] $= $args.usage ? $args.usage "melee-fighting"
 		[set $local.faces] $= $args.faces ? $args.faces 6
 		
 		# Damage level
@@ -508,7 +507,7 @@
 			[if ( hypot ( $currentTargetPos.x - $pos.x ) ( $currentTargetPos.y - $pos.y ) ) <= $args.radius]
 				
 				[set $local.attackScore] $= $args.attack + ( 2 D 8 )
-				[set $local.defenseScore] $= $currentTarget.actualUsages.missile.compound.defense + ( 2 D 8 )
+				[set $local.defenseScore] $= $currentTarget.actualUsages.ranged-fighting.compound.defense + ( 2 D 8 )
 				
 				[call fighting/pressure] $currentTarget
 				
@@ -538,7 +537,7 @@
 			
 	
 	
-	[scene melee]
+	[scene melee-fighting]
 		[set $performer] $args.performer
 		[set $target] $args.target
 		
@@ -558,8 +557,8 @@
 			[return]
 			
 		
-		[set $local.attackScore] $= $performer.actualUsages.melee.compound.attack + ( 2 D 8 )
-		[set $local.defenseScore] $= $target.actualUsages.melee.compound.defense + ( 2 D 8 )
+		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
+		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
 		
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] $= $performer.adhoc.fight.offensiveness ??? 3 4 6
@@ -603,17 +602,24 @@
 	
 	
 	
-	[scene missile]
+	[scene ranged-fighting]
 		[set $performer] $args.performer
 		[set $target] $args.target
 		
-		# Temp:
-		[set $missile] arrow
+		[set $item] $performer.primary.ranged-fighting
+		
+		[if $item.usages.ranged-fighting.primary.params.projectileLabel]
+			[set $projectile.label] $item.usages.ranged-fighting.primary.params.projectileLabel
+		[else]
+			[set $projectile] $item
+		
+		#[debug info] $projectile
+		#[debug info] $item.usages.ranged-fighting.primary.params.projectileLabel
 		
 		[set $performer.adhoc.fight.speed] 0
 		[set $performer.adhoc.fight.offensiveness] -1
 		
-		[if ! $performer.primary.missile]
+		[if ! $performer.primary.ranged-fighting]
 			# Should never happen
 			[set $performer.adhoc.fight.pressTarget] null
 			[set $performer.adhoc.fight.pressValue] 0
@@ -626,20 +632,20 @@
 		[call fighting/pressure] $performer
 		[call fighting/pressure] $target
 		
-		[if $performer.actualUsages.missile.params.spellLevel is-set?]
+		[if $performer.actualUsages.ranged-fighting.params.spellLevel is-set?]
 			[call spellcasting/cast => $local.casted]
 				performer: $performer
-				item: $performer.primary.missile
-				usage: $performer.actualUsages.missile
+				item: $item
+				usage: $performer.actualUsages.ranged-fighting
 				bonus: $= - ( ceil ( $performer.adhoc.fight.pressure / 4 ) )
 			[if ! $local.casted]
 				[return]
 		
 		# We are in close range, we have to test first with the closeRange stat,
-		# against the best of the opponent melee attack or defense stat.
+		# against the best of the opponent melee-fighting attack or defense stat.
 		[if $fight.distance = 0]
-			[set $local.attackScore] $= $performer.actualUsages.missile.compound.closeRange + ( 2 D 8 )
-			[set $local.defenseScore] $= ( max $target.actualUsages.melee.compound.defense $target.actualUsages.melee.compound.attack ) + ( 2 D 8 )
+			[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.closeRange + ( 2 D 8 )
+			[set $local.defenseScore] $= ( max $target.actualUsages.melee-fighting.compound.defense $target.actualUsages.melee-fighting.compound.attack ) + ( 2 D 8 )
 			
 			#[message] $> Close range A: ${local.attackScore} vs ${local.defenseScore}
 			#[message] $> Pressure: ${performer.adhoc.fight.pressure}
@@ -662,7 +668,7 @@
 				[message] $> ${target.label//uc1} prevents ${performer.label} from attacking from afar.
 				[return]
 		
-		[set $local.aimingScore] $= $performer.actualUsages.missile.compound.aiming + ( 2 D 12 )
+		[set $local.aimingScore] $= $performer.actualUsages.ranged-fighting.compound.aiming + ( 2 D 12 )
 		[set $local.coverScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed ) + ( 2 D 12 )
 		
 		#[message] $> Aiming A: ${local.aimingScore} vs ${local.coverScore}
@@ -676,30 +682,30 @@
 			[message] $> ${performer.label//uc1} misses ${target.label}.
 			[return]
 		
-		#[message] $> Cover: ${target.actualUsages.missile.compound.cover}
+		#[message] $> Cover: ${target.actualUsages.ranged-fighting.compound.cover}
 		#[debug info] $target.equippedItems.hand[0]
-		#[debug info] $target.actualUsages.missile
+		#[debug info] $target.actualUsages.ranged-fighting
 		
-		[add $local.coverScore] $target.actualUsages.missile.compound.cover
+		[add $local.coverScore] $target.actualUsages.ranged-fighting.compound.cover
 		
 		[if $local.aimingScore < $local.coverScore]
-			[if $target.actualUsages.missile.params.coverFlavour is-set?]
-				[apply-to $local.flavour] $target.actualUsages.missile.params.coverFlavour
+			[if $target.actualUsages.ranged-fighting.params.coverFlavour is-set?]
+				[apply-to $local.flavour] $target.actualUsages.ranged-fighting.params.coverFlavour
 				[message] $local.flavour
 			[else]
 				[message] $> ${performer.label//uc1} misses ${target.label}.
 			[return]
 		
-		[set $local.attackScore] $= $performer.actualUsages.missile.compound.attack + ( 2 D 12 )
-		[set $local.defenseScore] $= $target.actualUsages.missile.compound.defense + ( 2 D 12 )
+		[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.attack + ( 2 D 12 )
+		[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense + ( 2 D 12 )
 		
-		# The longer the distance, the better the chance to evade the missile
+		# The longer the distance, the better the chance to evade the ranged-fighting
 		[sub $local.attackScore] $= floor ( $fight.distance / 8 )
 		
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 		
-		# Attack score of missile do not depend much on the character but on the weapon
+		# Attack score of ranged-fighting do not depend much on the character but on the weapon
 		#[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 		
 		[if $target.adhoc.fight.offensiveness > 0]
@@ -717,24 +723,24 @@
 		[if $local.attackScore > $local.defenseScore]
 			[gosub deal-damages]
 				[args]
-					faces: $= ( $performer.primary.missile.class = "ability" ) ? 6 10
-					usage: missile
+					faces: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 6 10
+					usage: ranged-fighting
 			
-			[if $performer.actualUsages.missile.params.splash]
+			[if $performer.actualUsages.ranged-fighting.params.splash]
 				[gosub splash-damages]
 					[args]
-						attack: $= $performer.actualUsages.missile.compound.attack + $performer.actualUsages.missile.params.splash.attack
-						damages: $= $performer.actualUsages.missile.compound.damages + $performer.actualUsages.missile.params.splash.damages
-						radius: $performer.actualUsages.missile.params.splash.radius
-						missFlavour: $performer.actualUsages.missile.params.splash.missFlavour
-						hitFlavour: $performer.actualUsages.missile.params.splash.hitFlavour
-						criticalHitFlavour: $performer.actualUsages.missile.params.splash.criticalHitFlavour
-						fatalHitFlavour: $performer.actualUsages.missile.params.splash.fatalHitFlavour
+						attack: $= $performer.actualUsages.ranged-fighting.compound.attack + $performer.actualUsages.ranged-fighting.params.splash.attack
+						damages: $= $performer.actualUsages.ranged-fighting.compound.damages + $performer.actualUsages.ranged-fighting.params.splash.damages
+						radius: $performer.actualUsages.ranged-fighting.params.splash.radius
+						missFlavour: $performer.actualUsages.ranged-fighting.params.splash.missFlavour
+						hitFlavour: $performer.actualUsages.ranged-fighting.params.splash.hitFlavour
+						criticalHitFlavour: $performer.actualUsages.ranged-fighting.params.splash.criticalHitFlavour
+						fatalHitFlavour: $performer.actualUsages.ranged-fighting.params.splash.fatalHitFlavour
 			
 		[else]
 			[fortune]
-				- $> ${target.label//uc1} blocks ${performer.label}'s missile.
-				- $> ${target.label//uc1} avoids ${performer.label}'s missile.
+				- $> ${target.label//uc1} blocks ${performer.label}'s ${projectile.label}.
+				- $> ${target.label//uc1} avoids ${performer.label}'s ${projectile.label}.
 	
 	
 	
@@ -752,8 +758,8 @@
 			[return]
 		
 		
-		[set $local.attackScore] $= $performer.actualUsages.melee.compound.attack + ( 2 D 8 )
-		[set $local.defenseScore] $= $target.actualUsages.melee.compound.defense + ( 2 D 8 )
+		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
+		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
 		
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] 6

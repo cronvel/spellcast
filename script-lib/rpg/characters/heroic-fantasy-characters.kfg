@@ -60,7 +60,7 @@
 		strength: 10
 		resilience: 10
 	usages:
-		missile:
+		ranged-fighting:
 			attack: (+) 4
 	equippedItems:
 		hand:

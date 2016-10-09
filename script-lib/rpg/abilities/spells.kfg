@@ -6,7 +6,7 @@
 	label: firebolt
 	slotType: ability
 	usages:
-		missile:
+		ranged-fighting:
 			primary:
 				params:
 					# How hard it is to cast
@@ -30,7 +30,7 @@
 	label: fireball
 	slotType: ability
 	usages:
-		missile:
+		ranged-fighting:
 			primary:
 				params:
 					# How hard it is to cast
@@ -70,7 +70,7 @@
 	label: ice shard
 	slotType: ability
 	usages:
-		missile:
+		ranged-fighting:
 			primary:
 				params:
 					# How hard it is to cast
@@ -84,6 +84,6 @@
 				compound:
 					closeRange: (+) 10
 					aiming: (+) 20
-					attack: (+) 20
+					attack: (+) 10
 					damages: (+) 16
 
