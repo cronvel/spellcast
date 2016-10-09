@@ -5,7 +5,7 @@
 	usageTypes:
 		- melee-fighting
 		- ranged-fighting
-		- spell
+#		- spell
 	params:
 		xpReward: 1
 	slots:

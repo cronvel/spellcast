@@ -56,7 +56,7 @@
 			[next]
 				[args]
 					usage: $local.usage
-				[label] $> ${local.usage//uc1}
+				[label] $> ${local.usage//uc1/dash2space}
 				[on-trigger]
 					[gosub inventory/select-ability-primary]
 						[args]
@@ -118,7 +118,7 @@
 			[next]
 				[args]
 					slot: $local.slot
-				[label] $> ${local.slot//uc1}
+				[label] $> ${local.slot//uc1/dash2space}
 				[on-trigger]
 					[gosub inventory/equip-object]
 						[args]

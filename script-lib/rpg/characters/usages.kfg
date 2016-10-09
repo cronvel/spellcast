@@ -31,7 +31,7 @@
 	damages: $= floor ( $stats.spellcasting / 2 )
 
 [usage-compound-stats ranged-fighting spell]
-	closeRange: $= floor ( $stats.spellcasting / 2 )
+	close-ranged: $= floor ( $stats.spellcasting / 2 )
 	aiming: $= floor ( $stats.spellcasting / 2 )
 	attack: $= floor ( $stats.spellcasting / 4 )
 	damages: $= floor ( $stats.spellcasting / 2 )

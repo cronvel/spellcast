@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.22.6",
+  "version": "0.22.7",
   "description": "It's like 'make', but with a touch of Wizardry.",
   "main": "lib/Book.js",
   "directories": {
@@ -12,12 +12,12 @@
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
     "async-kit": "^2.2.0",
-    "babel-tower": "^0.9.3",
+    "babel-tower": "^0.9.4",
     "chokidar": "^1.6.0",
     "dom-kit": "^0.1.0",
     "doormen": "^0.6.5",
     "glob": "^7.1.1",
-    "kung-fig": "^0.29.2",
+    "kung-fig": "^0.29.3",
     "logfella": "^0.3.44",
     "math-kit": "^0.3.5",
     "minimist": "^1.2.0",

@@ -18,7 +18,7 @@
 					fatalHitFlavour: $$> ^rThe firebolt burns ${target.label} to death for ${damages} hp.^:
 				compoundVariation: spell
 				compound:
-					closeRange: (+) 10
+					close-ranged: (+) 10
 					aiming: (+) 20
 					attack: (+) 20
 					damages: (+) 16
@@ -58,7 +58,7 @@
 						damages: -8
 				compoundVariation: spell
 				compound:
-					closeRange: (+) 12
+					close-ranged: (+) 12
 					aiming: (+) 20
 					attack: (+) 20
 					damages: (+) 24
@@ -82,7 +82,7 @@
 					fatalHitFlavour: $$> ^rThe ice shard freezes ${target.label} to death for ${damages} hp.^:
 				compoundVariation: spell
 				compound:
-					closeRange: (+) 10
+					close-ranged: (+) 10
 					aiming: (+) 20
 					attack: (+) 10
 					damages: (+) 16
