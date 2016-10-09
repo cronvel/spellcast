@@ -1,23 +1,23 @@
 
 [[doctype adventurer]]
 
-[chapter battle]
+[chapter fighting]
 	
 	[scene init]
-		[set $battle] <Object>
+		[set $fight] <Object>
 		
-		[set $battle.foes] <Array>
-		[set $battle.turnIndex] 0
-		[set $battle.round] 0
-		[set $battle.turns] <Array>
-		[set $battle.distance] $= ( $args.distance is-set? ) ? ( floor ( abs $args.distance ) 2 ) 0
+		[set $fight.foes] <Array>
+		[set $fight.turnIndex] 0
+		[set $fight.round] 0
+		[set $fight.turns] <Array>
+		[set $fight.distance] $= ( $args.distance is-set? ) ? ( floor ( abs $args.distance ) 2 ) 0
 		
 		[foreach $args.foes => $local.index : $local.foe]
 			[if ! ( $local.foe is-entity? )]
 				[create-entity $local.foe] $local.foe
-			[set $battle.foes[$local.index]] $local.foe
-			[append $battle.turns] $local.foe
-			[set $local.foe.adhoc.battle]
+			[set $fight.foes[$local.index]] $local.foe
+			[append $fight.turns] $local.foe
+			[set $local.foe.adhoc.fight]
 				side: foes
 				cooldown: 0
 				offensiveness: $= ( $local.foe.stances.offensiveness is-set? ) ? $local.foe.stances.offensiveness 0
@@ -28,9 +28,9 @@
 		[foreach $args.allies => $local.index : $local.ally]
 			[if ! ( $local.ally is-entity? )]
 				[create-entity $local.ally] $local.ally
-			[set $battle.allies[$local.index]] $local.ally
-			[append $battle.turns] $local.ally
-			[set $local.ally.adhoc.battle]
+			[set $fight.allies[$local.index]] $local.ally
+			[append $fight.turns] $local.ally
+			[set $local.ally.adhoc.fight]
 				side: allies
 				cooldown: 0
 				offensiveness: $= ( $local.ally.stances.offensiveness is-set? ) ? $local.ally.stances.offensiveness 0
@@ -38,52 +38,52 @@
 				pressure: 0
 				speed: 0
 			
-		[filter $battle.foes => $battle.aliveFoes] $= $this.status.hp > 0
-		[filter $battle.allies => $battle.aliveAllies] $= $this.status.hp > 0
+		[filter $fight.foes => $fight.aliveFoes] $= $this.status.hp > 0
+		[filter $fight.allies => $fight.aliveAllies] $= $this.status.hp > 0
 		
-		#[debug info] $battle.allies
-		#[debug info] $battle.foes
-		#[debug info] $battle.aliveFoes
-		#[debug info] $battle.turns
+		#[debug info] $fight.allies
+		#[debug info] $fight.foes
+		#[debug info] $fight.aliveFoes
+		#[debug info] $fight.turns
 		
-		[set $battle.deadlyPush] $args.deadlyPush
+		[set $fight.deadlyPush] $args.deadlyPush
 		
 		[next initiative]
 	
 	
 	
 	[scene initiative]
-		[foreach $battle.turns => $local.entity]
-			[set $local.entity.adhoc.battle.initiativeScore] $= $local.entity.actual.stats.fighting + ( 2 D 8 )
+		[foreach $fight.turns => $local.entity]
+			[set $local.entity.adhoc.fight.initiativeScore] $= $local.entity.actual.stats.fighting + ( 2 D 8 )
 		
-			[if $local.entity.adhoc.battle.offensiveness > 0]
-				[add $local.entity.adhoc.battle.initiativeScore] 2
-			[elseif $local.entity.adhoc.battle.offensiveness < 0]
-				[sub $local.entity.adhoc.battle.initiativeScore] 3
+			[if $local.entity.adhoc.fight.offensiveness > 0]
+				[add $local.entity.adhoc.fight.initiativeScore] 2
+			[elseif $local.entity.adhoc.fight.offensiveness < 0]
+				[sub $local.entity.adhoc.fight.initiativeScore] 3
 		
-		#[sort $battle.turns] $= - $this.adhoc.battle.initiativeScore
-		[sort $battle.turns] $= $this.right.adhoc.battle.initiativeScore - $this.left.adhoc.battle.initiativeScore
+		#[sort $fight.turns] $= - $this.adhoc.fight.initiativeScore
+		[sort $fight.turns] $= $this.right.adhoc.fight.initiativeScore - $this.left.adhoc.fight.initiativeScore
 		
-		#[debug info] $battle.turns
-		[message] $> ^yThe distance between opponents is ${battle.distance} ${battle.distance}[n?step|steps].
-		[message] $> ${battle.turns[0].label//uc1} takes the initiative.
+		#[debug info] $fight.turns
+		[message] $> ^yThe distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
+		[message] $> ${fight.turns[0].label//uc1} takes the initiative.
 		[goto new-turn]
 		
 	
 	
 	[scene new-turn]
-		[set $battle.entityTurn] $= $battle.turns[$battle.turnIndex]
+		[set $fight.entityTurn] $= $fight.turns[$fight.turnIndex]
 		
-		[if $battle.entityTurn.status.hp <= 0]
+		[if $fight.entityTurn.status.hp <= 0]
 			[goto end-turn]
 		
-		[if $battle.entityTurn.adhoc.battle.cooldown > 0]
-			[dec $battle.entityTurn.adhoc.battle.cooldown]
+		[if $fight.entityTurn.adhoc.fight.cooldown > 0]
+			[dec $fight.entityTurn.adhoc.fight.cooldown]
 			[goto end-turn]
 		
 		[gosub battle-lines]
 		
-		[if $battle.entityTurn.npc]
+		[if $fight.entityTurn.npc]
 			[goto npc-turn]
 		[else]
 			[goto pc-turn]
@@ -91,110 +91,110 @@
 	
 	
 	[scene end-turn]
-		[set $battle.turnIndex] $= ( $battle.turnIndex + 1 ) % $battle.turns.length
+		[set $fight.turnIndex] $= ( $fight.turnIndex + 1 ) % $fight.turns.length
 		
-		[if $battle.turnIndex = 0]
-			[call battle/new-round]
+		[if $fight.turnIndex = 0]
+			[call fighting/new-round]
 		
-		[filter $battle.foes => $battle.aliveFoes] $= $this.status.hp > 0
-		[filter $battle.allies => $battle.aliveAllies] $= $this.status.hp > 0
+		[filter $fight.foes => $fight.aliveFoes] $= $this.status.hp > 0
+		[filter $fight.allies => $fight.aliveAllies] $= $this.status.hp > 0
 		
-		[if ! $battle.aliveAllies.length]
+		[if ! $fight.aliveAllies.length]
 			[goto lost]
-		[elseif ! $battle.aliveFoes.length]
+		[elseif ! $fight.aliveFoes.length]
 			[goto win]
 		
 		[goto new-turn]
 	
 	
 	
-	[fn battle/new-round]
-		[inc $battle.round]
+	[fn fighting/new-round]
+		[inc $fight.round]
 		
 		# Manage distance
-		[if $battle.distance > 0]
-			[map $battle.aliveAllies => $local.alliesSpeed] $this.adhoc.battle.speed
-			[map $battle.aliveFoes => $local.foesSpeed] $this.adhoc.battle.speed
+		[if $fight.distance > 0]
+			[map $fight.aliveAllies => $local.alliesSpeed] $this.adhoc.fight.speed
+			[map $fight.aliveFoes => $local.foesSpeed] $this.adhoc.fight.speed
 			
-			[set $battle.distance] $= max 0 ( trunc ( $battle.distance - ( avg $local.alliesSpeed ) - ( avg $local.foesSpeed ) ) 2 )
+			[set $fight.distance] $= max 0 ( trunc ( $fight.distance - ( avg $local.alliesSpeed ) - ( avg $local.foesSpeed ) ) 2 )
 			
-			[if $battle.distance = 0]
+			[if $fight.distance = 0]
 				[message] $> ^yThe two opposing crews join together and clash.
 			[else]
-				[message] $> ^yThe remaining distance between opponents is ${battle.distance} ${battle.distance}[n?step|steps].
+				[message] $> ^yThe remaining distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
 		
 	
 	
-	[fn battle/all-pressure]
-		[foreach $battle.aliveEntities => $local.entity]
-			[call battle/pressure] $local.entity
+	[fn fighting/all-pressure]
+		[foreach $fight.aliveEntities => $local.entity]
+			[call fighting/pressure] $local.entity
 		
-	[fn battle/pressure]
-		[reduce $battle.aliveEntities , 0 => $args.adhoc.battle.pressure] $= $this.previous + ( ( $this.current.adhoc.battle.pressTarget = $args ) ? $this.current.adhoc.battle.pressValue 0 )
+	[fn fighting/pressure]
+		[reduce $fight.aliveEntities , 0 => $args.adhoc.fight.pressure] $= $this.previous + ( ( $this.current.adhoc.fight.pressTarget = $args ) ? $this.current.adhoc.fight.pressValue 0 )
 		# Pressure has a max level, because when the target is saturated,
 		# extra opponents are not able to reach the target properly:
 		# both the target and its opponents get some malus, therefore the pressure is capped to 18 (4 charging opponents)
-		[set $args.adhoc.battle.pressure] $= min ( max 0 ( $args.adhoc.battle.pressure - 6 ) ) 18
+		[set $args.adhoc.fight.pressure] $= min ( max 0 ( $args.adhoc.fight.pressure - 6 ) ) 18
 		
 		
 		
 	[scene battle-lines]
 		
-		[filter $battle.aliveFoes => $front] $= $this.adhoc.battle.offensiveness > 0
-		[filter $battle.aliveFoes => $middle] $= $this.adhoc.battle.offensiveness = 0
-		[filter $battle.aliveFoes => $back] $= $this.adhoc.battle.offensiveness < 0
+		[filter $fight.aliveFoes => $front] $= $this.adhoc.fight.offensiveness > 0
+		[filter $fight.aliveFoes => $middle] $= $this.adhoc.fight.offensiveness = 0
+		[filter $fight.aliveFoes => $back] $= $this.adhoc.fight.offensiveness < 0
 		
 		[set $offset] $= ceil ( ( 1 - $front.length ) / 2 )
 		[foreach $front => $index : $entity]
-			[set $entity.adhoc.battle.position]
-				x: $= $battle.distance / 2
+			[set $entity.adhoc.fight.position]
+				x: $= $fight.distance / 2
 				y: $= $index + $offset
 		
 		[set $offset] $= ceil ( ( 1 - $middle.length ) / 2 )
 		[foreach $middle => $index : $entity]
-			[set $entity.adhoc.battle.position]
-				x: $= ( $battle.distance / 2 ) + 1
+			[set $entity.adhoc.fight.position]
+				x: $= ( $fight.distance / 2 ) + 1
 				y: $= $index + $offset
 		
 		[set $offset] $= ceil ( ( 1 - $back.length ) / 2 )
 		[foreach $back => $index : $entity]
-			[set $entity.adhoc.battle.position]
-				x: $= ( $battle.distance / 2 ) + 2
+			[set $entity.adhoc.fight.position]
+				x: $= ( $fight.distance / 2 ) + 2
 				y: $= $index + $offset
 		
-		#[sort $battle.aliveFoes] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
-		[sort $battle.aliveFoes] $= ( $this.left.adhoc.battle.position.y + ( $this.left.adhoc.battle.position.x / 1000 ) ) - ( $this.right.adhoc.battle.position.y + ( $this.right.adhoc.battle.position.x / 1000 ) )
+		#[sort $fight.aliveFoes] $= $this.adhoc.fight.position.y + ( $this.adhoc.fight.position.x / 1000 )
+		[sort $fight.aliveFoes] $= ( $this.left.adhoc.fight.position.y + ( $this.left.adhoc.fight.position.x / 1000 ) ) - ( $this.right.adhoc.fight.position.y + ( $this.right.adhoc.fight.position.x / 1000 ) )
 		
-		#[map $battle.aliveFoes => $tmp] $this.adhoc.battle
+		#[map $fight.aliveFoes => $tmp] $this.adhoc.fight
 		#[debug info] $tmp
 		
 		# Same for allies
 		
-		[filter $battle.aliveAllies => $front] $= $this.adhoc.battle.offensiveness > 0
-		[filter $battle.aliveAllies => $middle] $= $this.adhoc.battle.offensiveness = 0
-		[filter $battle.aliveAllies => $back] $= $this.adhoc.battle.offensiveness < 0
+		[filter $fight.aliveAllies => $front] $= $this.adhoc.fight.offensiveness > 0
+		[filter $fight.aliveAllies => $middle] $= $this.adhoc.fight.offensiveness = 0
+		[filter $fight.aliveAllies => $back] $= $this.adhoc.fight.offensiveness < 0
 		
 		[set $offset] $= ceil ( ( 1 - $front.length ) / 2 )
 		[foreach $front => $index : $entity]
-			[set $entity.adhoc.battle.position]
-				x: $= - ( $battle.distance / 2 )
+			[set $entity.adhoc.fight.position]
+				x: $= - ( $fight.distance / 2 )
 				y: $= $index + $offset
 		
 		[set $offset] $= ceil ( ( 1 - $middle.length ) / 2 )
 		[foreach $middle => $index : $entity]
-			[set $entity.adhoc.battle.position]
-				x: $= ( - ( $battle.distance / 2 ) ) - 1
+			[set $entity.adhoc.fight.position]
+				x: $= ( - ( $fight.distance / 2 ) ) - 1
 				y: $= $index + $offset
 		
 		[set $offset] $= ceil ( ( 1 - $back.length ) / 2 )
 		[foreach $back => $index : $entity]
-			[set $entity.adhoc.battle.position]
-				x: $= ( - ( $battle.distance / 2 ) ) - 2
+			[set $entity.adhoc.fight.position]
+				x: $= ( - ( $fight.distance / 2 ) ) - 2
 				y: $= $index + $offset
 			
-		#[sort $battle.aliveAllies] $= $this.adhoc.battle.position.y + ( $this.adhoc.battle.position.x / 1000 )
-		[sort $battle.aliveAllies] $= ( $this.left.adhoc.battle.position.y + ( $this.left.adhoc.battle.position.x / 1000 ) ) - ( $this.right.adhoc.battle.position.y + ( $this.right.adhoc.battle.position.x / 1000 ) )
-		[set $battle.aliveEntities] $= concat $battle.aliveFoes $battle.aliveAllies
+		#[sort $fight.aliveAllies] $= $this.adhoc.fight.position.y + ( $this.adhoc.fight.position.x / 1000 )
+		[sort $fight.aliveAllies] $= ( $this.left.adhoc.fight.position.y + ( $this.left.adhoc.fight.position.x / 1000 ) ) - ( $this.right.adhoc.fight.position.y + ( $this.right.adhoc.fight.position.x / 1000 ) )
+		[set $fight.aliveEntities] $= concat $fight.aliveFoes $fight.aliveAllies
 		
 		
 	
@@ -202,7 +202,7 @@
 		
 		[gosub npc-targeting]
 		
-		[set $performer] $battle.entityTurn
+		[set $performer] $fight.entityTurn
 		
 		[if $performer.params.battleCry && ( ( random ) <= $performer.params.battleCry )]
 			[if $performer.params.battleCryFlavour]
@@ -216,21 +216,21 @@
 			[gosub charge]
 				[args]
 					performer: $performer
-					target: $battle.target
+					target: $fight.target
 			[goto end-turn]
 		
 		[gosub melee]
 			[args]
 				performer: $performer
-				target: $battle.target
+				target: $fight.target
 		
 		[goto end-turn]
 		
 	
 	
 	[scene pc-turn]
-		[if $battle.distance = 0]
-			[set $local.item] $battle.entityTurn.primary.melee
+		[if $fight.distance = 0]
+			[set $local.item] $fight.entityTurn.primary.melee
 			
 			[if $local.item.usages.melee.primary.params.menuLabel]
 				[set $local.label] $local.item.usages.melee.primary.params.menuLabel
@@ -240,39 +240,39 @@
 			[next pc-melee]
 				[label] $> ${local.label//uc1}
 				[on-trigger]
-					[set $battle.entityTurn.adhoc.battle.offensiveness] 0
+					[set $fight.entityTurn.adhoc.fight.offensiveness] 0
 			
 			[next pc-melee]
 				[label] $> ${local.label//uc1} boldly
 				[on-trigger]
-					[set $battle.entityTurn.adhoc.battle.offensiveness] 1
+					[set $fight.entityTurn.adhoc.fight.offensiveness] 1
 			
 			[next pc-melee]
 				[label] $> ${local.label//uc1} cautiously
 				[on-trigger]
-					[set $battle.entityTurn.adhoc.battle.offensiveness] -1
+					[set $fight.entityTurn.adhoc.fight.offensiveness] -1
 		[else]
 			[next pc-melee]
 				[label] $> March
 				[on-trigger]
-					[set $battle.entityTurn.adhoc.battle.offensiveness] 0
+					[set $fight.entityTurn.adhoc.fight.offensiveness] 0
 			
 			[next pc-melee]
 				[label] $> March boldly
 				[on-trigger]
-					[set $battle.entityTurn.adhoc.battle.offensiveness] 1
+					[set $fight.entityTurn.adhoc.fight.offensiveness] 1
 			
 			[next pc-melee]
 				[label] $> March cautiously
 				[on-trigger]
-					[set $battle.entityTurn.adhoc.battle.offensiveness] -1
+					[set $fight.entityTurn.adhoc.fight.offensiveness] -1
 		
 		[next pc-charge]
 			[label] Charge!
 	
-		#[if ( $battle.distance > 0 ) && ( $battle.entityTurn.primary.missile )]
-		[if $battle.entityTurn.primary.missile]
-			[set $local.item] $battle.entityTurn.primary.missile
+		#[if ( $fight.distance > 0 ) && ( $fight.entityTurn.primary.missile )]
+		[if $fight.entityTurn.primary.missile]
+			[set $local.item] $fight.entityTurn.primary.missile
 			
 			[if $local.item.usages.missile.primary.params.menuLabel]
 				[set $local.label] $local.item.usages.missile.primary.params.menuLabel
@@ -290,54 +290,54 @@
 			[on-trigger]
 				[gosub inventory/select-ability-choose-primary]
 					[args]
-						performer: $battle.entityTurn
+						performer: $fight.entityTurn
 	
 		[next pc-turn]
 			[label] Equip object in hand
 			[on-trigger]
 				[gosub inventory/equip-object => $local.changed]
 					[args]
-						performer: $battle.entityTurn
+						performer: $fight.entityTurn
 						slot: hand
 				[if $local.changed]
-					[set $battle.entityTurn.adhoc.battle.speed] 0
-					[set $battle.entityTurn.adhoc.battle.offensiveness] -1
-					[set $battle.entityTurn.adhoc.battle.pressTarget] null
-					[set $battle.entityTurn.adhoc.battle.pressValue] 0
+					[set $fight.entityTurn.adhoc.fight.speed] 0
+					[set $fight.entityTurn.adhoc.fight.offensiveness] -1
+					[set $fight.entityTurn.adhoc.fight.pressTarget] null
+					[set $fight.entityTurn.adhoc.fight.pressValue] 0
 					[goto end-turn]
 	
 	
 	
 	[scene npc-targeting]
 		
-		[if $battle.entityTurn.adhoc.battle.side = "allies"]
-			[set $local.enemies] $battle.aliveFoes
+		[if $fight.entityTurn.adhoc.fight.side = "allies"]
+			[set $local.enemies] $fight.aliveFoes
 		[else]
-			[set $local.enemies] $battle.aliveAllies
+			[set $local.enemies] $fight.aliveAllies
 		
 		[set $local.index] $= random ( $local.enemies.length - 1 )
-		[set $battle.target] $local.enemies[$local.index]
+		[set $fight.target] $local.enemies[$local.index]
 	
 	
 	
 	[scene pc-targeting]
 		[set $local.count] 0
 		
-		[if $battle.entityTurn.adhoc.battle.side = "allies"]
-			[set $local.enemies] $battle.aliveFoes
+		[if $fight.entityTurn.adhoc.fight.side = "allies"]
+			[set $local.enemies] $fight.aliveFoes
 		[else]
-			[set $local.enemies] $battle.aliveAllies
+			[set $local.enemies] $fight.aliveAllies
 		
 		[if $local.enemies.length <= 1]
-			[set $battle.target] $local.enemies[0]
+			[set $fight.target] $local.enemies[0]
 			[return]
 		
 		[message] Target?
 		
 		[foreach $local.enemies => $local.index : $local.entity]
-			[if $local.entity.adhoc.battle.offensiveness > 0]
+			[if $local.entity.adhoc.fight.offensiveness > 0]
 				[set $local.position] "←"
-			[elseif $local.entity.adhoc.battle.offensiveness < 0]
+			[elseif $local.entity.adhoc.fight.offensiveness < 0]
 				[set $local.position] "→    "
 			[else]
 				[set $local.position] "   "
@@ -347,17 +347,17 @@
 					index: $local.index
 				[label] $> ${local.position} ${local.entity.label//uc1}
 				[on-trigger]
-					[set $battle.target] $local.enemies[$args.index]
+					[set $fight.target] $local.enemies[$args.index]
 	
 	
 	
 	[scene pc-melee]
-		[if $battle.distance = 0]
+		[if $fight.distance = 0]
 			[gosub pc-targeting]
 		[gosub melee]
 			[args]
-				performer: $battle.entityTurn
-				target: $battle.target
+				performer: $fight.entityTurn
+				target: $fight.target
 		[goto end-turn]
 	
 	
@@ -366,41 +366,41 @@
 		[gosub pc-targeting]
 		[gosub missile]
 			[args]
-				performer: $battle.entityTurn
-				target: $battle.target
+				performer: $fight.entityTurn
+				target: $fight.target
 		[goto end-turn]
 	
 	
 	
 	[scene pc-charge]
-		[if $battle.distance = 0]
+		[if $fight.distance = 0]
 			[gosub pc-targeting]
 		[gosub charge]
 			[args]
-				performer: $battle.entityTurn
-				target: $battle.target
+				performer: $fight.entityTurn
+				target: $fight.target
 		[goto end-turn]
 	
 	
 	
 	[scene win]
-		[message] $> ${battle.allies[0].label//uc1} win the battle.
+		[message] $> ${fight.allies[0].label//uc1} win the fight.
 		[set $local.xpReward] 0
 		
-		[foreach $battle.foes => $local.entity]
+		[foreach $fight.foes => $local.entity]
 			[add $local.xpReward] $local.entity.params.xpReward
 		
-		[set $local.xpReward] $= ceil ( $local.xpReward / $battle.allies.length )
+		[set $local.xpReward] $= ceil ( $local.xpReward / $fight.allies.length )
 		
-		[foreach $battle.allies => $local.index : $local.entity]
+		[foreach $fight.allies => $local.index : $local.entity]
 			[add $local.entity.status.xp] $local.xpReward
 		
-		[message] $> You gain ${local.xpReward} xp (=${battle.allies[0].status.xp}).
+		[message] $> You gain ${local.xpReward} xp (=${fight.allies[0].status.xp}).
 	
 	
 	
 	[scene lost]
-		[message] $> ${battle.allies[0].label//uc1} died on the battlefield.
+		[message] $> ${fight.allies[0].label//uc1} died on the battlefield.
 		[lost]
 
 	
@@ -420,18 +420,18 @@
 			[set $local.attackScore] $= $performer.actualUsages[$local.usage].compound.damages + ( 2 D $local.faces )
 			
 			# Attacker offensiveness is used only when not using fixed damage base
-			[if $performer.adhoc.battle.offensiveness > 0]
+			[if $performer.adhoc.fight.offensiveness > 0]
 				[add $local.attackScore] 2
-			[elseif $performer.adhoc.battle.offensiveness < 0]
+			[elseif $performer.adhoc.fight.offensiveness < 0]
 				[sub $local.attackScore] 3
 			
 		
 		[set $local.defenseScore] $= $target.actual.stats.resilience + ( 2 D 6 )
 		
 		# Always used?
-		[if $target.adhoc.battle.offensiveness > 0]
+		[if $target.adhoc.fight.offensiveness > 0]
 			[sub $local.defenseScore] 3
-		[elseif $target.adhoc.battle.offensiveness < 0]
+		[elseif $target.adhoc.fight.offensiveness < 0]
 			[add $local.defenseScore] 2
 		
 		#[message] $> ${local.attackScore} vs ${local.defenseScore}
@@ -494,33 +494,33 @@
 	
 	
 	[scene splash-damages]
-		[set $pos] $target.adhoc.battle.position
+		[set $pos] $target.adhoc.fight.position
 		
 		#[debug info] $args
 		
-		[foreach $battle.aliveEntities => $currentTarget]
+		[foreach $fight.aliveEntities => $currentTarget]
 			
 			[if ( $currentTarget = $target ) || ( $currentTarget = $performer )]
 				[continue]
 			
-			[set $currentTargetPos] $currentTarget.adhoc.battle.position
+			[set $currentTargetPos] $currentTarget.adhoc.fight.position
 			
 			[if ( hypot ( $currentTargetPos.x - $pos.x ) ( $currentTargetPos.y - $pos.y ) ) <= $args.radius]
 				
 				[set $local.attackScore] $= $args.attack + ( 2 D 8 )
 				[set $local.defenseScore] $= $currentTarget.actualUsages.missile.compound.defense + ( 2 D 8 )
 				
-				[call battle/pressure] $currentTarget
+				[call fighting/pressure] $currentTarget
 				
-				[if $currentTarget.adhoc.battle.offensiveness > 0]
+				[if $currentTarget.adhoc.fight.offensiveness > 0]
 					[sub $local.defenseScore] 3
-					[sub $local.defenseScore] $= ceil ( $currentTarget.adhoc.battle.pressure / 2 )
-				[elseif $currentTarget.adhoc.battle.offensiveness < 0]
+					[sub $local.defenseScore] $= ceil ( $currentTarget.adhoc.fight.pressure / 2 )
+				[elseif $currentTarget.adhoc.fight.offensiveness < 0]
 					[add $local.defenseScore] 2
 					# Less sensible to the pressure when defending
-					[sub $local.defenseScore] $= ceil ( $currentTarget.adhoc.battle.pressure / 4 )
+					[sub $local.defenseScore] $= ceil ( $currentTarget.adhoc.fight.pressure / 4 )
 				[else]
-					[sub $local.defenseScore] $= ceil ( $currentTarget.adhoc.battle.pressure / 2 )
+					[sub $local.defenseScore] $= ceil ( $currentTarget.adhoc.fight.pressure / 2 )
 				
 				[if $local.attackScore > $local.defenseScore]
 					[gosub deal-damages]
@@ -542,15 +542,15 @@
 		[set $performer] $args.performer
 		[set $target] $args.target
 		
-		[set $performer.adhoc.battle.speed] $= $performer.adhoc.battle.offensiveness ??? 2 4 6
+		[set $performer.adhoc.fight.speed] $= $performer.adhoc.fight.offensiveness ??? 2 4 6
 		
-		[if $battle.distance > 0]
-			[set $performer.adhoc.battle.pressTarget] null
-			[set $performer.adhoc.battle.pressValue] 0
+		[if $fight.distance > 0]
+			[set $performer.adhoc.fight.pressTarget] null
+			[set $performer.adhoc.fight.pressValue] 0
 			
-			[if $performer.adhoc.battle.offensiveness > 0]
+			[if $performer.adhoc.fight.offensiveness > 0]
 				[message] $> ${performer.label//uc1} runs toward the opposing crew.
-			[elseif $performer.adhoc.battle.offensiveness < 0]
+			[elseif $performer.adhoc.fight.offensiveness < 0]
 				[message] $> ${performer.label//uc1} walk cautiously toward the opposing crew.
 			[else]
 				[message] $> ${performer.label//uc1} marches toward the opposing crew.
@@ -561,34 +561,34 @@
 		[set $local.attackScore] $= $performer.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $target.actualUsages.melee.compound.defense + ( 2 D 8 )
 		
-		[set $performer.adhoc.battle.pressTarget] $target
-		[set $performer.adhoc.battle.pressValue] $= $performer.adhoc.battle.offensiveness ??? 3 4 6
+		[set $performer.adhoc.fight.pressTarget] $target
+		[set $performer.adhoc.fight.pressValue] $= $performer.adhoc.fight.offensiveness ??? 3 4 6
 		
-		[call battle/pressure] $performer
-		[call battle/pressure] $target
+		[call fighting/pressure] $performer
+		[call fighting/pressure] $target
 		
-		#[message] $> Pressure -- ${performer.adhoc.battle.pressure} / ${target.adhoc.battle.pressure}
+		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 		
-		[if $performer.adhoc.battle.offensiveness > 0]
+		[if $performer.adhoc.fight.offensiveness > 0]
 			[add $local.attackScore] 2
 			# Less sensible to the pressure when attacking
-			[sub $local.attackScore] $= ceil ( $performer.adhoc.battle.pressure / 4 )
-		[elseif $performer.adhoc.battle.offensiveness < 0]
+			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 4 )
+		[elseif $performer.adhoc.fight.offensiveness < 0]
 			[sub $local.attackScore] 3
-			[sub $local.attackScore] $= ceil ( $performer.adhoc.battle.pressure / 2 )
+			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 		[else]
-			[sub $local.attackScore] $= ceil ( $performer.adhoc.battle.pressure / 2 )
+			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 		
-		[if $target.adhoc.battle.offensiveness > 0]
+		[if $target.adhoc.fight.offensiveness > 0]
 			[sub $local.defenseScore] 3
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 2 )
-		[elseif $target.adhoc.battle.offensiveness < 0]
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+		[elseif $target.adhoc.fight.offensiveness < 0]
 			[add $local.defenseScore] 2
 			# Less sensible to the pressure when defending
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 4 )
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
 		[else]
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 2 )
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 		
 		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
 		
@@ -610,51 +610,51 @@
 		# Temp:
 		[set $missile] arrow
 		
-		[set $performer.adhoc.battle.speed] 0
-		[set $performer.adhoc.battle.offensiveness] -1
+		[set $performer.adhoc.fight.speed] 0
+		[set $performer.adhoc.fight.offensiveness] -1
 		
 		[if ! $performer.primary.missile]
 			# Should never happen
-			[set $performer.adhoc.battle.pressTarget] null
-			[set $performer.adhoc.battle.pressValue] 0
+			[set $performer.adhoc.fight.pressTarget] null
+			[set $performer.adhoc.fight.pressValue] 0
 			[message] $> ${performer.label//uc1} can't fire anything.
 			[return]
 		
-		[set $performer.adhoc.battle.pressTarget] $target
-		[set $performer.adhoc.battle.pressValue] 4
+		[set $performer.adhoc.fight.pressTarget] $target
+		[set $performer.adhoc.fight.pressValue] 4
 		
-		[call battle/pressure] $performer
-		[call battle/pressure] $target
+		[call fighting/pressure] $performer
+		[call fighting/pressure] $target
 		
 		[if $performer.actualUsages.missile.params.spellLevel is-set?]
 			[call spellcasting/cast => $local.casted]
 				performer: $performer
 				item: $performer.primary.missile
 				usage: $performer.actualUsages.missile
-				bonus: $= - ( ceil ( $performer.adhoc.battle.pressure / 4 ) )
+				bonus: $= - ( ceil ( $performer.adhoc.fight.pressure / 4 ) )
 			[if ! $local.casted]
 				[return]
 		
 		# We are in close range, we have to test first with the closeRange stat,
 		# against the best of the opponent melee attack or defense stat.
-		[if $battle.distance = 0]
+		[if $fight.distance = 0]
 			[set $local.attackScore] $= $performer.actualUsages.missile.compound.closeRange + ( 2 D 8 )
 			[set $local.defenseScore] $= ( max $target.actualUsages.melee.compound.defense $target.actualUsages.melee.compound.attack ) + ( 2 D 8 )
 			
 			#[message] $> Close range A: ${local.attackScore} vs ${local.defenseScore}
-			#[message] $> Pressure: ${performer.adhoc.battle.pressure}
+			#[message] $> Pressure: ${performer.adhoc.fight.pressure}
 			
-			[sub $local.attackScore] $= ceil ( $performer.adhoc.battle.pressure / 2 )
+			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 			
-			[if $target.adhoc.battle.offensiveness > 0]
+			[if $target.adhoc.fight.offensiveness > 0]
 				[sub $local.defenseScore] 3
-				[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 2 )
-			[elseif $target.adhoc.battle.offensiveness < 0]
+				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+			[elseif $target.adhoc.fight.offensiveness < 0]
 				[add $local.defenseScore] 2
 				# Less sensible to the pressure when defending
-				[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 4 )
+				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
 			[else]
-				[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 2 )
+				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 			
 			#[message] $> Close range B: ${local.attackScore} vs ${local.defenseScore}
 			
@@ -663,12 +663,12 @@
 				[return]
 		
 		[set $local.aimingScore] $= $performer.actualUsages.missile.compound.aiming + ( 2 D 12 )
-		[set $local.coverScore] $= ( $battle.distance / 2 ) + ( abs $target.adhoc.battle.speed ) + ( 2 D 12 )
+		[set $local.coverScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed ) + ( 2 D 12 )
 		
 		#[message] $> Aiming A: ${local.aimingScore} vs ${local.coverScore}
-		#[message] $> Pressure: ${performer.adhoc.battle.pressure}
+		#[message] $> Pressure: ${performer.adhoc.fight.pressure}
 		
-		[sub $local.aimingScore] $= ceil ( $performer.adhoc.battle.pressure / 2 )
+		[sub $local.aimingScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 		
 		#[message] $> Aiming B: ${local.aimingScore} vs ${local.coverScore}
 		
@@ -694,23 +694,23 @@
 		[set $local.defenseScore] $= $target.actualUsages.missile.compound.defense + ( 2 D 12 )
 		
 		# The longer the distance, the better the chance to evade the missile
-		[sub $local.attackScore] $= floor ( $battle.distance / 8 )
+		[sub $local.attackScore] $= floor ( $fight.distance / 8 )
 		
-		#[message] $> Pressure -- ${performer.adhoc.battle.pressure} / ${target.adhoc.battle.pressure}
+		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 		
 		# Attack score of missile do not depend much on the character but on the weapon
-		#[sub $local.attackScore] $= ceil ( $performer.adhoc.battle.pressure / 2 )
+		#[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 		
-		[if $target.adhoc.battle.offensiveness > 0]
+		[if $target.adhoc.fight.offensiveness > 0]
 			[sub $local.defenseScore] 3
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 2 )
-		[elseif $target.adhoc.battle.offensiveness < 0]
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+		[elseif $target.adhoc.fight.offensiveness < 0]
 			[add $local.defenseScore] 2
 			# Less sensible to the pressure when defending
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 4 )
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
 		[else]
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 2 )
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 		
 		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
 		
@@ -742,12 +742,12 @@
 		[set $performer] $args.performer
 		[set $target] $args.target
 		
-		[set $performer.adhoc.battle.speed] 10
-		[set $performer.adhoc.battle.offensiveness] 1
+		[set $performer.adhoc.fight.speed] 10
+		[set $performer.adhoc.fight.offensiveness] 1
 		
-		[if $battle.distance > 0]
-			[set $performer.adhoc.battle.pressTarget] null
-			[set $performer.adhoc.battle.pressValue] 0
+		[if $fight.distance > 0]
+			[set $performer.adhoc.fight.pressTarget] null
+			[set $performer.adhoc.fight.pressValue] 0
 			[message] $> ${performer.label//uc1} charges toward the opposing crew.
 			[return]
 		
@@ -755,29 +755,29 @@
 		[set $local.attackScore] $= $performer.actualUsages.melee.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $target.actualUsages.melee.compound.defense + ( 2 D 8 )
 		
-		[set $performer.adhoc.battle.pressTarget] $target
-		[set $performer.adhoc.battle.pressValue] 6
+		[set $performer.adhoc.fight.pressTarget] $target
+		[set $performer.adhoc.fight.pressValue] 6
 		
-		[call battle/pressure] $performer
-		[call battle/pressure] $target
+		[call fighting/pressure] $performer
+		[call fighting/pressure] $target
 		
-		#[message] $> Pressure -- ${performer.adhoc.battle.pressure} / ${target.adhoc.battle.pressure}
+		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 		
 		# A charge is always offensive!
 		[add $local.attackScore] 2
 		# Charge is less sensible to the pressure
-		[sub $local.attackScore] $= ceil ( $performer.adhoc.battle.pressure / 4 )
+		[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 4 )
 		
-		[if $target.adhoc.battle.offensiveness > 0]
+		[if $target.adhoc.fight.offensiveness > 0]
 			[sub $local.defenseScore] 3
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 2 )
-		[elseif $target.adhoc.battle.offensiveness < 0]
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+		[elseif $target.adhoc.fight.offensiveness < 0]
 			[add $local.defenseScore] 2
 			# Less sensible to the pressure when defending
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 4 )
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
 		[else]
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.battle.pressure / 2 )
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 		
 		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
 		
@@ -786,9 +786,9 @@
 		[if $local.attackScore > $local.defenseScore]
 			[gosub deal-damages]
 			
-			[if $battle.deadlyPush]
+			[if $fight.deadlyPush]
 				[gosub deadly-push]
-		[elseif ( $local.attackScore = $local.defenseScore ) && $battle.deadlyPush]
+		[elseif ( $local.attackScore = $local.defenseScore ) && $fight.deadlyPush]
 			[message] $> ${target.label//uc1} blocks ${performer.label}.
 			[gosub deadly-push]
 		[else]
@@ -800,31 +800,31 @@
 	
 	
 	[scene deadly-push]
-		[set $local.attackScore] $= ( ( max $performer.actual.stats.strength ( $performer.actual.stats.fighting - 3 ) ) + $battle.deadlyPush.bonus ) + ( 2 D 6 )
+		[set $local.attackScore] $= ( ( max $performer.actual.stats.strength ( $performer.actual.stats.fighting - 3 ) ) + $fight.deadlyPush.bonus ) + ( 2 D 6 )
 		[set $local.defenseScore] $= $target.actual.stats.strength + ( 2 D 6 )
 		
-		[sub $local.attackScore] $= $performer.adhoc.battle.pressure / 4
-		[sub $local.defenseScore] $= $target.adhoc.battle.pressure / 4
+		[sub $local.attackScore] $= $performer.adhoc.fight.pressure / 4
+		[sub $local.defenseScore] $= $target.adhoc.fight.pressure / 4
 		
-		#[message] $> Attacker ${performer.label} offensiveness: ${performer.adhoc.battle.offensiveness}
-		[if $performer.adhoc.battle.offensiveness > 0]
+		#[message] $> Attacker ${performer.label} offensiveness: ${performer.adhoc.fight.offensiveness}
+		[if $performer.adhoc.fight.offensiveness > 0]
 			[add $local.attackScore] 2
 			#[message] Offensive: bonus!
-		[elseif $performer.adhoc.battle.offensiveness < 0]
+		[elseif $performer.adhoc.fight.offensiveness < 0]
 			[sub $local.attackScore] 3
 			#[message] Defensive: malus!
 		
-		#[message] $> Defender ${target.label} offensiveness: ${target.adhoc.battle.offensiveness}
-		[if $target.adhoc.battle.offensiveness > 0]
+		#[message] $> Defender ${target.label} offensiveness: ${target.adhoc.fight.offensiveness}
+		[if $target.adhoc.fight.offensiveness > 0]
 			[sub $local.defenseScore] 3
 			#[message] Offensive: malus!
-		[elseif $target.adhoc.battle.offensiveness < 0]
+		[elseif $target.adhoc.fight.offensiveness < 0]
 			[add $local.defenseScore] 2
 			#[message] Defensive: bonus!
 		
 		[if $local.attackScore > $local.defenseScore]
 			[set $target.status.hp] 0
-			[apply-to $local.flavour] $battle.deadlyPush.flavour
+			[apply-to $local.flavour] $fight.deadlyPush.flavour
 			[message] $local.flavour
 		
 		
