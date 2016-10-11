@@ -1,0 +1,6 @@
+
+[[doctype spellcaster]]
+
+[spell template-element]
+	[set $a] $%> horse
+	[message] $> I like ${a}!
