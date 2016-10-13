@@ -1,0 +1,10 @@
+
+[[doctype locale]]
+[[locale fr]]
+
+sentences:
+	"You drink a cup of vine...": Vous buvez une coupe de vin...
+	"^/Once ^Bupon a time...": Il était une fois...
+	"${this.data} was blasted!": "${this.data} was blasted!"
+	"Select your background.": "Sélectionnez l'histoire de votre personnage."
+	"You are a blacksmith": "Vous êtes un forgeron"

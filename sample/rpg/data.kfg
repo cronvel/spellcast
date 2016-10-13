@@ -20,7 +20,7 @@
 		- giant-club
 	equippedItems:
 		ability:
-#			- fireball
+			- fireball
 #			- ice-shard
 		hand:
 #			- sword

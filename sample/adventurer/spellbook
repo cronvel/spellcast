@@ -1,5 +1,6 @@
 
 [[doctype adventurer]]
+[[locales locales/*]]
 
 [action drink]
 	[message]
@@ -50,56 +51,55 @@
 	[scene start]
 		[emit blast] Jack
 		[message]
-			> Select your background.
+			$> Select your background.
 		
 		[next blacksmith]
-			[label] > You are a blacksmith
+			[label] $> You are a blacksmith
 			[on-trigger]
-				[message]
-					$> Yay!
+				[message] $> Yay!
 		[next rogue]
-			[label] > You are a rogue living in the wood
+			[label] $> You are a rogue living in the wood
 		[next mage-apprentice]
-			[label] > You are a Mage apprentice
+			[label] $> You are a Mage apprentice
 
 	[scene blacksmith]
 		[message]
-			> You lived in a small village of few hundred peoples.
-			> You started learning how to forge horseshoe since the age of 12 with your father, the local smith.
-			> At the age of 15, you got tired of horseshoes and wanted to forge more exciting things like axes and swords,
-			> but your father was not competent for this kind of stuff.
+			$> You lived in a small village of few hundred peoples.
+			$> You started learning how to forge horseshoe since the age of 12 with your father, the local smith.
+			$> At the age of 15, you got tired of horseshoes and wanted to forge more exciting things like axes and swords,
+			$> but your father was not competent for this kind of stuff.
 		
 		[next end/master]
-			[label] > You seek for a master at forgery.
+			[label] $> You seek for a master at forgery.
 		
 		[include common-background]
 	
 	[scene rogue]
 		[message]
-			> You lived in the forest and becomes an highwayman.
-			> That's really bad!
+			$> You lived in the forest and becomes an highwayman.
+			$> That's really bad!
 		
 		[lost]
 	
 	[scene common-background]
 		[message]
-			> One day, a black knight entered in your house and kill your father.
-			> One month later, you leave the family house.
+			$> One day, a black knight entered in your house and kill your father.
+			$> One month later, you leave the family house.
 			
 		[next end/vengeance]
-			[label] > You seek the black knight for vengeance.
+			[label] $> You seek the black knight for vengeance.
 
 
 [chapter end]
 	
 	[scene master]
 		[message]
-			> You found the master and learn everything he taught to you.
-			> You became famous in the entire country.
+			$> You found the master and learn everything he taught to you.
+			$> You became famous in the entire country.
 		
 		[win]
 	
 	[scene vengeance]
 		[message]
-			> You dedicated your entire life to vengeance. One day you eventually found him and kill him.
+			$> You dedicated your entire life to vengeance. One day you eventually found him and kill him.
 		

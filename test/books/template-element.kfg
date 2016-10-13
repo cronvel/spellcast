@@ -4,3 +4,7 @@
 [spell template-element]
 	[set $a] $%> horse
 	[message] $> I like ${a}!
+	
+	[set $a] $%> horse
+	[message] $> I like ${a}!
+
