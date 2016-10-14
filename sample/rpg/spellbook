@@ -1,5 +1,6 @@
 
 [[doctype adventurer]]
+[[locales locales/*]]
 
 [module] @@../../script-lib/rpg/rpg.kfg
 [module] @@data.kfg
