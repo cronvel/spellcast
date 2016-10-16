@@ -44,7 +44,8 @@ This is an example of a very short script with 3 scenes, featuring the most basi
 	[scene village]
 		[message]
 			$> You lived in a small village of few hundred peoples.
-			$> You started learning how to forge horseshoe since the age of 12 with your father, the local smith.
+			$> You started learning how to forge horseshoe since the age of 12
+			$> with your father, the local smith.
 			$> At the age of 15, you leave your village.
 			$> What do you do?
 
