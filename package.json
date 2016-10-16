@@ -1,23 +1,24 @@
 {
   "name": "spellcast",
   "version": "0.22.10",
-  "description": "It's like 'make', but with a touch of Wizardry.",
+  "description": "Make: your own adventure!",
   "main": "lib/Book.js",
   "directories": {
     "test": "test"
   },
   "bin": {
-    "spellcast": "./bin/spellcast"
+    "spellcast": "./bin/spellcast",
+    "adventure": "./bin/adventure"
   },
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
     "async-kit": "^2.2.0",
     "babel-tower": "^0.11.1",
-    "chokidar": "^1.6.0",
+    "chokidar": "^1.6.1",
     "dom-kit": "^0.1.0",
     "doormen": "^0.6.7",
     "glob": "^7.1.1",
-    "kung-fig": "^0.31.3",
+    "kung-fig": "^0.31.5",
     "logfella": "^0.3.44",
     "math-kit": "^0.3.5",
     "minimist": "^1.2.0",
@@ -45,6 +46,10 @@
     "url": "https://github.com/cronvel/spellcast.git"
   },
   "keywords": [
+    "gamebook",
+    "roleplay",
+    "scenario",
+    "script",
     "make",
     "makefile",
     "spell",

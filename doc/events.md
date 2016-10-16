@@ -142,5 +142,5 @@
 
 * selectNext (index): in response of a `nextList` event, it contains the index of the item selected by the user
 
-* authenticate (data): authenticate a user. WIP API.
+* authenticate (data): authenticate a user. (WIP API).
 

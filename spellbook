@@ -6,10 +6,9 @@
 
 [summoning README.md]
 	[summon]
-		- documentation.md
-		#- bdd-spec.md
+		- doc/adventurer.md
 	[scroll]
-		- > cat documentation.md > README.md
+		- > cat doc/adventurer.md > README.md
 
 [spell test]
 	[summon]
