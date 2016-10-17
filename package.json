@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.22.11",
+  "version": "0.23.0",
   "description": "Make: your own adventure!",
   "main": "lib/Book.js",
   "directories": {
@@ -18,7 +18,7 @@
     "dom-kit": "^0.1.0",
     "doormen": "^0.6.7",
     "glob": "^7.1.1",
-    "kung-fig": "^0.31.5",
+    "kung-fig": "^0.32.0",
     "logfella": "^0.3.44",
     "math-kit": "^0.3.5",
     "minimist": "^1.2.0",
