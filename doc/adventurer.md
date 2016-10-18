@@ -1,20 +1,26 @@
 
 
-# Spellcast!
+# Spellcast! Adventurer mode
 
 Make: your own adventure!
 
 **Spellcast** is a scripting language, an interpreter/server, plus a terminal and a web clients with powerful capabilities.
 
-It's main purpose is to create scenario with branches, so you can build game in the spirit of old roleplay gamebooks
-out of the box.
+The *adventurer mode* allows one to create scenario with branches, so building game in the spirit of old roleplay gamebooks
+is possible out of the box.
 
-But Spellcast can also be embedded into your app, to allow users to create content, item, campaign and so on.
-
-This page focus on the *adventure* capabilities of spellcast, but Spellcast is also a task-runner.
+But Spellcast can also be embedded into app, to allowing users to create content, item, campaign and so on.
 
 
 
+## Table of Content
+
+* [Command line usage](#usage)
+* [Getting started](#getting-started)
+
+
+
+<a name="usage"></a>
 ## Usage
 
 Usage: `adventure <book> [<options 1>] [<options 2>] [...]`
@@ -34,9 +40,11 @@ Options:
 
 
 
+<a name="getting-started"></a>
 ## Getting started: basic script example
 
 This is an example of a very short script with 3 scenes, featuring the most basic tags.
+Copy-paste this script into a file named `test.kfg`, then run `adventure test.kfg`.
 
 ```
 [[doctype adventurer]]
@@ -84,14 +92,15 @@ A tag start with an opening bracket and finish with a closing bracket.
 The content of a tag is indented using tabs.
 
 So here we have:
-* a top-level container: the `chapter` tag with an identifier (*intro*)
-* this chapter contains 3 `scene` tags named *village*, *master* and *rogue*
-* the first scene contains 2 `next` tags: those tags tell which scene can follow the current one
-* when there are more than one `next` tag in a scene, the player can choose between multiple choice
-* the next tag has a scene identifier, e.g. `[next master]` means that if the player choose that, the
-  next scene will be the one named `master`
-* the `label` tag is simply the text displayed to the user for this choice
-* the `message` tag contains text to be displayed to user
-* the `win` and `lost` tags causes the game to exit, either with a game win or a game lost
-* all text **supports internationalization and localization**
+* The `[[doctype adventurer]]` is a meta-tag, it tell spellcast that the current file is a *spellcast adventurer* file.
+  Meta-tags have two opening and two closing brackets, they **MUST** be placed before any other tags, because they are headers.
+* A top-level container tag: the `[chapter]` tag with an identifier (*intro*).
+* This chapter contains 3 `[scene]` tags named *village*, *master* and *rogue*.
+* The first scene contains 2 `[next]` tags: those tags tell which scene will follow the current one.
+* When there are more than one `[next]` tag in a scene, the player can choose between multiple choice.
+* The `[next]` tag has a scene identifier, e.g. `[next master]` means that if the player choose that option, the
+  next scene will be the one named `master`.
+* The `[label]` tag is simply the text displayed to the user for this choice.
+* The `[message]` tag contains text to be displayed to user.
+* The `[win]` and `[lost]` tags causes the game to exit, either with a game win or a game lost.
 

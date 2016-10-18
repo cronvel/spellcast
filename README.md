@@ -37,6 +37,7 @@ Options:
 ## Getting started: basic script example
 
 This is an example of a very short script with 3 scenes, featuring the most basic tags.
+Copy-paste this script into a file named `test.kfg`, then run `adventure test.kfg`.
 
 ```
 [[doctype adventurer]]
@@ -84,14 +85,16 @@ A tag start with an opening bracket and finish with a closing bracket.
 The content of a tag is indented using tabs.
 
 So here we have:
-* a top-level container: the `chapter` tag with an identifier (*intro*)
-* this chapter contains 3 `scene` tags named *village*, *master* and *rogue*
-* the first scene contains 2 `next` tags: those tags tell which scene can follow the current one
-* when there are more than one `next` tag in a scene, the player can choose between multiple choice
-* the next tag has a scene identifier, e.g. `[next master]` means that if the player choose that, the
-  next scene will be the one named `master`
-* the `label` tag is simply the text displayed to the user for this choice
-* the `message` tag contains text to be displayed to user
-* the `win` and `lost` tags causes the game to exit, either with a game win or a game lost
+* The `[[doctype adventurer]]` is a meta-tag, it tell spellcast that the current file is a *spellcast adventurer* file.
+  Meta-tags have two opening and two closing brackets, they **MUST** be placed before any other tags, because they are headers.
+* A top-level container tag: the `[chapter]` tag with an identifier (*intro*).
+* This chapter contains 3 `[scene]` tags named *village*, *master* and *rogue*.
+* The first scene contains 2 `[next]` tags: those tags tell which scene will follow the current one.
+* When there are more than one `[next]` tag in a scene, the player can choose between multiple choice.
+* The `[next]` tag has a scene identifier, e.g. `[next master]` means that if the player choose that option, the
+  next scene will be the one named `master`.
+* The `[label]` tag is simply the text displayed to the user for this choice.
+* The `[message]` tag contains text to be displayed to user.
+* The `[win]` and `[lost]` tags causes the game to exit, either with a game win or a game lost.
 * all text **supports internationalization and localization**
 

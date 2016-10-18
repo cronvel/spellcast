@@ -4,12 +4,6 @@
 	browserify: ./node_modules/.bin/browserify
 	uglify: ./node_modules/.bin/uglifyjs
 
-[summoning README.md]
-	[summon]
-		- doc/adventurer.md
-	[scroll]
-		- > cat doc/adventurer.md > README.md
-
 [spell test]
 	[summon]
 		- lib/*

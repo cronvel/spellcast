@@ -5,9 +5,6 @@
 test:
 	spellcast test
 
-README.md:
-	spellcast README.md
-
 # Make every rules 'PHONY' rules, let Spellcast handle dependencies and everything else.
-.PHONY: test README.md
+.PHONY: test
 
