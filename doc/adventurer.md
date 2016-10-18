@@ -1,6 +1,6 @@
 
 
-# Spellcast! Adventurer mode
+# Spellcast! Adventurer Mode
 
 Make: your own adventure!
 
@@ -17,6 +17,7 @@ But Spellcast can also be embedded into app, to allowing users to create content
 
 * [Command line usage](#usage)
 * [Getting started](#getting-started)
+* [The KFG format](#kfg)
 
 
 
@@ -103,4 +104,19 @@ So here we have:
 * The `[label]` tag is simply the text displayed to the user for this choice.
 * The `[message]` tag contains text to be displayed to user.
 * The `[win]` and `[lost]` tags causes the game to exit, either with a game win or a game lost.
+
+
+
+<a name="kfg"></a>
+## The KFG Format
+
+The Spellcast scripting language is built on top of the KFG format (i.e. the Kung-FiG format).
+
+You should definitively [follow that link](https://github.com/cronvel/kung-fig/blob/master/doc/KFG.md)
+and read carefully. All the syntax is explained in details.
+
+The Spellcast scripting language just defines tags on top of KFG.
+
+This doc will details all those tags.
+
 

@@ -13,6 +13,10 @@ But Spellcast can also be embedded into your app, to allow users to create conte
 
 This page focus on the *adventure* capabilities of spellcast, but Spellcast is also a task-runner.
 
+See also:
+
+* [The full *adventurer* mode reference](https://github.com/cronvel/spellcast/blob/master/doc/adventurer.md)
+
 
 
 ## Usage
