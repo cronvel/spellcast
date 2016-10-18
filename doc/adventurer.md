@@ -9,11 +9,11 @@ Make: your own adventure!
 The *adventurer mode* allows one to create scenario with branches, so building game in the spirit of old roleplay gamebooks
 is possible out of the box.
 
-But Spellcast can also be embedded into app, to allowing users to create content, item, campaign and so on.
+But Spellcast can also be embedded into app, allowing users to create contents, items, campaigns and more...
 
 
 
-## Table of Content
+## Table of Contents
 
 * [Command line usage](#usage)
 * [Getting started](#getting-started)
@@ -117,6 +117,6 @@ and read carefully. All the syntax is explained in details.
 
 The Spellcast scripting language just defines tags on top of KFG.
 
-This doc will details all those tags.
+This doc will details all of those tags.
 
 
