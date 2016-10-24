@@ -18,6 +18,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 * [Command line usage](#usage)
 * [Getting started](#getting-started)
 * [The KFG format](#kfg)
+* [Tag Reference](#ref)
+	* [Control Flow Tags](#ref.flow)
 
 
 
@@ -118,5 +120,104 @@ and read carefully. All the syntax is explained in details.
 The Spellcast scripting language just defines tags on top of KFG.
 
 This doc will details all of those tags.
+
+
+
+<a name="ref"></a>
+# Tag Reference
+
+In the following tag description, the *types* refer to one of those:
+* init: the tag performs some configuration at init-time only
+* run: the tag performs action at run-time, i.e. when its parent tag container is run
+* exec: the tag can be executed, if it hasn't the *run* flag, it doesn't do anything when its parent tag container is run
+* param: the tag is passive: it contains some parameters for its parent
+
+The attribute style refers to one of those:
+* none: the tag has no attribute
+* label: the tag has an identifier as attribute
+* var: the tag has a *ref* (i.e.: a variable) as attribute
+* expression: the tag as an *expression* as attribute
+* specific: the tag has its own specific syntax
+
+
+
+<a name="ref.flow"></a>
+## Flow Control Tags
+
+
+
+<a name="ref.flow.conditional"></a>
+## Conditional Tags: [if], [elsif]/[elseif] and [else]
+
+Those tags works like every other if/elseif/else construct in any programming language.
+[See the MDN doc](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else).
+
+Example:
+
+```
+[set $value] 3
+
+[if $value > 4]
+	[message] Greater than 4
+[elsif $value > 2]
+	[message] Greater than 2, lesser than or equal to 4
+[else]
+	[message] Lesser than or equal to 2
+```
+
+... this would ouput: *"Greater than 2, lesser than or equal to 4"*, because `$value` is not `> 4` but is `> 2`.
+
+
+
+<a name="ref.flow.if"></a>
+## [if <expression>]
+
+* types: run
+* attribute style: expression
+
+The *if* tag run its content if the expression in its attribute is true (or *truthy*).
+Otherwise, it passes controle to an eventual following *elseif* or *else* sibling tag.
+
+
+
+<a name="ref.flow.elseif"></a>
+## [elseif <expression>] / [elsif <expression>]
+
+* types: run
+* attribute style: expression
+
+The *elseif* **MUST HAVE** an *if* tag or another *elseif* as its immediate previous sibling.
+If that previous tag hasn't pass controle to it, nothing happens.
+If it has, then *elseif* tag run its content if the expression in its attribute is true (or *truthy*).
+Otherwise, it passes controle to an eventual following *elseif* or *else* sibling tag.
+
+
+
+<a name="ref.flow.else"></a>
+## [else]
+
+* types: run
+* attribute style: none
+
+The *elseif* **MUST HAVE** an *if* tag or an *elseif* as its immediate previous sibling.
+If that previous tag hasn't pass controle to it, nothing happens.
+If it has, the *else* tag content is run.
+
+
+
+<a name="ref.flow.loop"></a>
+## Loop Tags: [while], [foreach]
+
+<a name="ref.flow.while"></a>
+## [while <expression>]
+
+* types: run
+* attribute style: expression
+
+The *while* tag run its content multiple times as long as the expression in its attribute is true (or *truthy*).
+I.e. it tests its expression, if true it runs its content and check again the expression, if still true 
+it runs its content and check again the expression, and so on.
+Once the expression is false (or *falsy*), it stops.
+If the expression is already false at the first time, the tag content is never run.
 
 
