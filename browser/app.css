@@ -39,7 +39,7 @@ div.sprite {
 	background-repeat: no-repeat;
 	background-size: contain;
 	opacity: 1;
-	transition: 1s ;
+	transition: all 1s ;
 }
 
 img.sprite {
@@ -47,7 +47,7 @@ img.sprite {
 	height: 50%;
 	z-index: 1;
 	opacity: 1;
-	transition: 1s ;
+	transition: all 1s ;
 }
 
 #content {
