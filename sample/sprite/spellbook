@@ -1,0 +1,51 @@
+
+[[doctype adventurer]]
+
+[chapter intro]
+	
+	[scene intro1]
+		[message] $> ^/Once upon a time...
+		
+		[show-sprite druidess]
+			url: ../sample/shaman.png
+			style:
+				height: 70%
+				right: 0
+				bottom: 0
+				transition: 1s
+			
+		[pause] 1.5
+		
+		[sound] ../sample/open.wav
+
+		[message] $> ^/There was a druidess...
+		
+		#[show-sprite druidess]
+		#	url: ../sample/shaman.png
+		#	style:
+		#		right: 20%
+		
+		[update-sprite druidess]
+			style:
+				right: 20%
+		
+		[pause] 1.5
+		
+		[show-sprite druidess2]
+			url: ../sample/shaman.png
+			style:
+				height: 70%
+				left: 0
+				bottom: 0
+				transition: 1s
+			
+		[pause] 1.5
+		
+		[clear-sprite druidess]
+		
+		[update-sprite druidess2]
+			style:
+				left: 20%
+		
+		[next]
+

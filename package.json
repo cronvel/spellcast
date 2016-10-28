@@ -18,7 +18,7 @@
     "dom-kit": "^0.1.0",
     "doormen": "^0.6.7",
     "glob": "^7.1.1",
-    "kung-fig": "^0.33.12",
+    "kung-fig": "^0.33.16",
     "logfella": "^0.3.44",
     "math-kit": "^0.3.5",
     "minimist": "^1.2.0",

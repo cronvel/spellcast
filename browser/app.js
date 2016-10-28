@@ -323,10 +323,11 @@ function UI( bus , client , self )
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
 			nextSoundChannel: { value: 0 , writable: true , enumerable: true } ,
+			sprites: { value: {} , enumerable: true } ,
 		} ) ;
 	}
 	
-	self.$sceneImage = document.querySelector( '#scene-image' ) ;
+	self.$gfx = document.querySelector( '#gfx' ) ;
 	self.$content = document.querySelector( '#content' ) ;
 	self.$text = document.querySelector( '#text' ) ;
 	self.$chat = document.querySelector( '#chat' ) ;
@@ -384,7 +385,7 @@ UI.prototype.initInteractions = function initInteractions()
 	} ;
 	
 	this.$content.addEventListener( 'click' , fromFullScreenImage , false ) ;
-	this.$sceneImage.addEventListener( 'click' , toFullScreenImage , false ) ;
+	this.$gfx.addEventListener( 'click' , toFullScreenImage , false ) ;
 } ;
 
 
@@ -407,6 +408,10 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'image' , UI.image.bind( this ) ) ;
 	this.bus.on( 'sound' , UI.sound.bind( this ) ) ;
 	this.bus.on( 'music' , UI.music.bind( this ) ) ;
+	
+	this.bus.on( 'showSprite' , UI.sprite.bind( this , false ) ) ;
+	this.bus.on( 'updateSprite' , UI.sprite.bind( this , true ) ) ;
+	this.bus.on( 'clearSprite' , UI.clearSprite.bind( this ) ) ;
 	
 	this.bus.on( 'enterScene' , UI.enterScene.bind( this ) ) ;
 	this.bus.on( 'leaveScene' , UI.leaveScene.bind( this ) , { async: true } ) ;
@@ -971,7 +976,7 @@ UI.image = function image( data )
 		div.style.backgroundPosition = data.origin ;
 	}
 	
-	var oldImage = this.$sceneImage.firstElementChild || null ;
+	var oldImage = this.$gfx.firstElementChild || null ;
 	
 	var cleanUp = function cleanUp() {
 		if ( cleaned ) { return ; }
@@ -982,7 +987,7 @@ UI.image = function image( data )
 	if ( oldImage )
 	{
 		oldImage.addEventListener( 'transitionend' , cleanUp , false ) ;
-		this.$sceneImage.insertBefore( div , oldImage ) ;
+		this.$gfx.insertBefore( div , oldImage ) ;
 		oldImage.classList.add( 'hidden' ) ;
 		
 		// For some very obscure reason, sometime we don't get the 'transitionend' event,
@@ -991,7 +996,7 @@ UI.image = function image( data )
 	}
 	else
 	{
-		this.$sceneImage.append( div ) ;
+		this.$gfx.append( div ) ;
 	}
 	
 	switch ( data.position )
@@ -1004,6 +1009,91 @@ UI.image = function image( data )
 			this.$content.setAttribute( 'data-position' , 'left' ) ;
 			break ;
 	}
+} ;
+
+
+
+// Using an <div> tag
+/*
+UI.sprite = function sprite( isUpdate , id , data )
+{
+	var self = this , style ;
+	
+	style = data.style && typeof data.style === 'object' ? data.style : {} ;
+	
+	delete style.position ;
+	
+	if ( ! isUpdate )
+	{
+		if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+		
+		this.sprites[ id ] = document.createElement( 'div' ) ;
+		this.sprites[ id ].classList.add( 'sprite' ) ;
+	}
+	
+	if ( data.url ) { style.backgroundImage = 'url("' + data.url + '")' ; }
+	
+	dom.css( this.sprites[ id ] , style ) ;
+	
+	if ( ! isUpdate ) { this.$gfx.append( this.sprites[ id ] ) ; }
+} ;
+*/
+
+
+
+// Using an <img> tag
+UI.sprite = function sprite( isUpdate , id , data )
+{
+	var self = this , style , oldSprite ;
+	
+	style = data.style && typeof data.style === 'object' ? data.style : {} ;
+	
+	delete style.position ;
+	
+	if ( isUpdate )
+	{
+		if ( ! this.sprites[ id ] )
+		{
+			console.warn( 'Unknown sprite id: ' , id ) ;
+			return ;
+		}
+	}
+	else
+	{
+		if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+		
+		oldSprite = this.sprites[ id ] ;
+		
+		this.sprites[ id ] = document.createElement( 'img' ) ;
+		this.sprites[ id ].classList.add( 'sprite' ) ;
+	}
+	
+	if ( data.url )
+	{
+		this.sprites[ id ].setAttribute( "src" ,  data.url ) ;
+	}
+	
+	dom.css( this.sprites[ id ] , style ) ;
+	
+	if ( ! isUpdate )
+	{
+		if ( oldSprite ) { oldSprite.remove() ; }
+		this.$gfx.append( this.sprites[ id ] ) ;
+	}
+} ;
+
+
+
+UI.clearSprite = function clearSprite( id , data )
+{
+	if ( ! this.sprites[ id ] )
+	{
+		console.warn( 'Unknown sprite id: ' , id ) ;
+		return ;
+	}
+	
+	this.sprites[ id ].remove() ;
+	delete this.sprites[ id ] ;
 } ;
 
 
@@ -1145,27 +1235,30 @@ UI.exit = function exit()
 },{"../toolkit.js":2,"dom-kit":13}],4:[function(require,module,exports){
 
 },{}],5:[function(require,module,exports){
-/**
- * Determine if an object is Buffer
+/*!
+ * Determine if an object is a Buffer
  *
- * Author:   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * License:  MIT
- *
- * `npm install is-buffer`
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
  */
 
+// The _isBuffer check is for Safari 5-7 support, because it's missing
+// Object.prototype.constructor. Remove this eventually
 module.exports = function (obj) {
-  return !!(obj != null &&
-    (obj._isBuffer || // For Safari 5-7 (missing Object.prototype.constructor)
-      (obj.constructor &&
-      typeof obj.constructor.isBuffer === 'function' &&
-      obj.constructor.isBuffer(obj))
-    ))
+  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+}
+
+function isBuffer (obj) {
+  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+}
+
+// For Node v0.10 support. Remove this eventually.
+function isSlowBuffer (obj) {
+  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
 },{}],6:[function(require,module,exports){
 // shim for using process in browser
-
 var process = module.exports = {};
 
 // cached from whatever global is present so that test runners that stub it
@@ -1176,22 +1269,84 @@ var process = module.exports = {};
 var cachedSetTimeout;
 var cachedClearTimeout;
 
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
 (function () {
-  try {
-    cachedSetTimeout = setTimeout;
-  } catch (e) {
-    cachedSetTimeout = function () {
-      throw new Error('setTimeout is not defined');
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
     }
-  }
-  try {
-    cachedClearTimeout = clearTimeout;
-  } catch (e) {
-    cachedClearTimeout = function () {
-      throw new Error('clearTimeout is not defined');
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
     }
-  }
 } ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
 var queue = [];
 var draining = false;
 var currentQueue;
@@ -1216,7 +1371,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = cachedSetTimeout.call(null, cleanUpNextTick);
+    var timeout = runTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -1233,7 +1388,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    cachedClearTimeout.call(null, timeout);
+    runClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -1245,7 +1400,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        cachedSetTimeout.call(null, drainQueue, 0);
+        runTimeout(drainQueue);
     }
 };
 
@@ -4907,7 +5062,7 @@ module.exports={
   "homepage": "https://github.com/cronvel/nextgen-events#readme",
   "_id": "nextgen-events@0.9.8",
   "_shasum": "ed1712c2b37dad55407b3e941672d1568c3a4630",
-  "_from": "nextgen-events@0.9.8"
+  "_from": "nextgen-events@>=0.9.8 <0.10.0"
 }
 
 },{}],18:[function(require,module,exports){
@@ -5126,6 +5281,7 @@ var ansi = require( './ansi.js' ) ;
 	%o		octal
 	%b		binary
 	%I		call string-kit's inspect()
+	%Y		call string-kit's inspect(), but do not inspect non-enumerable
 	%E		call string-kit's inspectError()
 	%J		JSON.stringify()
 	%D		drop
@@ -5266,6 +5422,14 @@ exports.formatMethod = function format( str )
 					return '0' ;
 				case 'I' :
 					return inspect( { style: ( self && self.color ? 'color' : 'none' ) } , arg ) ;
+				case 'Y' :
+					return inspect( {
+							style: ( self && self.color ? 'color' : 'none' ) ,
+							noFunc: true ,
+							enumOnly: true ,
+							noDescriptor: true
+						} ,
+						arg ) ;
 				case 'E' :
 					return inspectError( { style: ( self && self.color ? 'color' : 'none' ) } , arg ) ;
 				case 'J' :

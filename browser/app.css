@@ -30,6 +30,26 @@ body {
 	transition: opacity 2s ;
 }
 
+div.sprite {
+	position: absolute;
+	width: 50%;
+	height: 50%;
+	z-index: 1;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	opacity: 1;
+	transition: 1s ;
+}
+
+img.sprite {
+	position: absolute;
+	height: 50%;
+	z-index: 1;
+	opacity: 1;
+	transition: 1s ;
+}
+
 #content {
 	position: relative;
 	z-index: 1;

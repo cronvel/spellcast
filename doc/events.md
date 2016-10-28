@@ -120,6 +120,23 @@
 * actionConfig (configObject): [state]   .................. (todo)
 	* disabled `boolean` true if all role actions are disabled
 
+* showSprite (id, data): instruct the client (if it is capable) to show a sprite or replace an existing sprite, where:
+	* id `string` the sprite ID
+	* data `object` data related to the sprite, where:
+		* url `string` this is the URL of the image of the sprite
+		* style `object` (optional) this is a CSS object to style the sprite element
+
+* updateSprite (id, updatedData): instruct the client (if it is capable) to update a currently displayed sprite,
+  i.e. all current sprite *data* properties will be deeply extended, where:
+	* id `string` the sprite ID
+	* updatedData `object` the data extension related to the sprite, where:
+		* url `string` (optional) this is the URL of the image of the sprite
+		* style `object` (optional) this is a CSS object to style the sprite element
+
+* clearSprite (id): instruct the client (if it is capable) clear a currently displayed sprite, the sprite will be
+  totally deleted, where:
+	* id `string` the sprite ID to delete
+
 
 
 ### output
