@@ -50,6 +50,10 @@ img.sprite {
 	transition: all 1s ;
 }
 
+img.sprite.clickable:hover {
+	filter: drop-shadow(0px 0px 0.2em red)
+}
+
 #content {
 	position: relative;
 	z-index: 1;

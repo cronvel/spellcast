@@ -1049,6 +1049,18 @@ UI.sprite = function sprite( isUpdate , id , data )
 		
 		this.sprites[ id ] = document.createElement( 'img' ) ;
 		this.sprites[ id ].classList.add( 'sprite' ) ;
+		
+		if ( data.action )
+		{
+			//console.warn( "Record action: " , data.action ) ;
+			this.sprites[ id ].classList.add( 'clickable' ) ;
+			
+			this.sprites[ id ].addEventListener( 'click' , function( event ) {
+				//console.warn( "action triggered: " , data.action ) ;
+				self.bus.emit( 'action' , data.action ) ;
+				event.stopPropagation() ;
+			} ) ;
+		}
 	}
 	
 	if ( data.url )
@@ -1057,17 +1069,6 @@ UI.sprite = function sprite( isUpdate , id , data )
 	}
 	
 	dom.css( this.sprites[ id ] , style ) ;
-	
-	if ( data.action )
-	{
-		//console.warn( "Record action: " , data.action ) ;
-		
-		this.sprites[ id ].addEventListener( 'click' , function( event ) {
-			//console.warn( "action triggered: " , data.action ) ;
-			self.bus.emit( 'action' , data.action ) ;
-			event.stopPropagation() ;
-		} ) ;
-	}
 	
 	if ( ! isUpdate )
 	{
