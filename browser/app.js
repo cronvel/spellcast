@@ -1024,34 +1024,6 @@ UI.defineAnimation = function defineAnimation( id , data )
 
 
 
-// Using an <div> tag
-/*
-UI.sprite = function sprite( isUpdate , id , data )
-{
-	var self = this , style ;
-	
-	style = data.style && typeof data.style === 'object' ? data.style : {} ;
-	
-	delete style.position ;
-	
-	if ( ! isUpdate )
-	{
-		if ( ! data.url || typeof data.url !== 'string' ) { return ; }
-		
-		this.sprites[ id ] = document.createElement( 'div' ) ;
-		this.sprites[ id ].classList.add( 'sprite' ) ;
-	}
-	
-	if ( data.url ) { style.backgroundImage = 'url("' + data.url + '")' ; }
-	
-	dom.css( this.sprites[ id ] , style ) ;
-	
-	if ( ! isUpdate ) { this.$gfx.append( this.sprites[ id ] ) ; }
-} ;
-*/
-
-
-
 // Using an <img> tag
 UI.sprite = function sprite( isUpdate , id , data )
 {
@@ -1090,6 +1062,17 @@ UI.sprite = function sprite( isUpdate , id , data )
 	{
 		if ( oldSprite ) { oldSprite.remove() ; }
 		this.$gfx.append( this.sprites[ id ] ) ;
+		
+		if ( data.action )
+		{
+			console.warn( "Record action: " , data.action ) ;
+			
+			this.sprites[ id ].addEventListener( 'click' , function() {
+				console.warn( "action triggered: " , data.action ) ;
+				self.bus.emit( 'action' , data.action ) ;
+				return false ;
+			} ) ;
+		}
 	}
 } ;
 

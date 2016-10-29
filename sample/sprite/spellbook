@@ -55,6 +55,7 @@
 		
 		[show-sprite druidess]
 			url: ../sample/shaman.png
+			action: /drink
 			style:
 				height: 70%
 				right: 0
