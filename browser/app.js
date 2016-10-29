@@ -1058,21 +1058,21 @@ UI.sprite = function sprite( isUpdate , id , data )
 	
 	dom.css( this.sprites[ id ] , style ) ;
 	
+	if ( data.action )
+	{
+		//console.warn( "Record action: " , data.action ) ;
+		
+		this.sprites[ id ].addEventListener( 'click' , function( event ) {
+			//console.warn( "action triggered: " , data.action ) ;
+			self.bus.emit( 'action' , data.action ) ;
+			event.stopPropagation() ;
+		} ) ;
+	}
+	
 	if ( ! isUpdate )
 	{
 		if ( oldSprite ) { oldSprite.remove() ; }
 		this.$gfx.append( this.sprites[ id ] ) ;
-		
-		if ( data.action )
-		{
-			console.warn( "Record action: " , data.action ) ;
-			
-			this.sprites[ id ].addEventListener( 'click' , function() {
-				console.warn( "action triggered: " , data.action ) ;
-				self.bus.emit( 'action' , data.action ) ;
-				return false ;
-			} ) ;
-		}
 	}
 } ;
 

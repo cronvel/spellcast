@@ -1,6 +1,10 @@
 
 [[doctype adventurer]]
 
+[action drink]
+    [message]
+        $> You drink a cup of vine...
+
 [chapter intro]
 	
 	[scene intro1]
@@ -68,11 +72,6 @@
 
 		[message] $> ^/There was a druidess...
 		
-		#[show-sprite druidess]
-		#	url: ../sample/shaman.png
-		#	style:
-		#		right: 20%
-		
 		[update-sprite druidess]
 			style:
 				right: 10%
@@ -107,7 +106,7 @@
 		
 		[pause] 1
 		
-		[clear-sprite druidess]
+		#[clear-sprite druidess]
 		
 		[update-sprite druidess2]
 			style:
