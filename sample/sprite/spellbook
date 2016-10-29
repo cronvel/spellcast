@@ -76,6 +76,14 @@
 			style:
 				right: 10%
 		
+		[pause] 1.5
+		
+		[animate-sprite druidess] shake
+		[pause] 1.5
+		
+		[animate-sprite druidess] shake
+		[pause] 2
+		
 		[show-sprite druidess2]
 			url: ../sample/shaman.png
 			style:
@@ -88,8 +96,6 @@
 			
 		[pause] 1
 		
-		[animate-sprite druidess] shake
-		
 		[update-sprite druidess2]
 			style:
 				left: null
@@ -100,14 +106,14 @@
 		
 		[pause] 1
 		
+		[clear-sprite druidess]
+		
 		[update-sprite druidess2]
 			style:
 				transform: perspective(300px) rotateX(45deg)
 		
 		[pause] 1
 				
-		#[clear-sprite druidess]
-		
 		[update-sprite druidess2]
 			style:
 				transform: perspective(300px) rotateX(45deg)
