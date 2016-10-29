@@ -52,7 +52,7 @@
 	* image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
 	  of what is described
 	* sound `url` if set, a sound that should be played along with the message
-* textInput (label, grantedRoleIds): the book require that the user enter a text, `label` is the text describing what is required,
+* textInput (label, grantedRoleIds): the book requires that the user enter a text, `label` is the text describing what is required,
   the client response should emit a `textSubmit` event, `grantedRoleIds` is an array of role's ID, roles that can respond.
 
 * user (userObject): this contains the user related to the client. Argument `userObject` is an object containing
@@ -100,40 +100,52 @@
 	* otherBranches: roles were split into multiple branches, and the client must wait for other branches to finish,
 	  roles are done waiting once the 'join' event is received.
 
-* image (data): instruct the client (if it is capable) to set an image as the scene image. Argument `data` is an object, where:
+* image (data): instructs the client (if it is capable) to set an image as the scene image. Argument `data` is an object, where:
 	* url `string` (optional) if set this is the URL of the image, else the client *MAY* display a default image if any
 	* position `string` (optional) is one of 'left' or 'right', indicating if the image should be on the left or on the right
 	* origin `string` (optional) indicating how the image should be centered. One of 'center', 'top', 'bottom', 'left', right', ...
 
-* music (data): instruct the client (if it is capable) play a music as the scene music. Argument `data` is an object, where:
+* music (data): instructs the client (if it is capable) play a music as the scene music. Argument `data` is an object, where:
 	* url `string` (optional) if set this is the URL of the music to play, else the client should stop playing music
   There is only one music that must be played at any time, so a music replace another.
 
-* sound (data): instruct the client (if it is capable) play a sound right now. Argument `data` is an object, where:
+* sound (data): instructs the client (if it is capable) play a sound right now. Argument `data` is an object, where:
 	* url `string` this is the URL of the sound to play
   Multiple sounds may be played at any time. If the client supports sounds, it is recommended to support at least 2 channels.
 
-* chatConfig (configObject): [state] this pass the chat status for each roles. Argument `configObject` is an object, where keys
+* chatConfig (configObject): [state] this passes the chat status for each roles. Argument `configObject` is an object, where keys
   are existing role IDs, and value is an object, where:
 	* active: `boolean` true if the role can chat
 
 * actionConfig (configObject): [state]   .................. (todo)
 	* disabled `boolean` true if all role actions are disabled
 
-* showSprite (id, data): instruct the client (if it is capable) to show a sprite or replace an existing sprite, where:
+* defineAnimation (id, data): defines an animation (if the client is capable) to be used later (e.g. on a sprite), where:
+	* id `string` the animation ID to use
+	* data `object` data related to the animation, where:
+		* frames `array` of `object` the list of animation frame, where:
+			* duration `number` the duration time of the frame in seconds
+			* style `object` (optional) this is a CSS object to style the element
+
+* showSprite (id, data): instructs the client (if it is capable) to show a sprite or replace an existing sprite, where:
 	* id `string` the sprite ID
 	* data `object` data related to the sprite, where:
 		* url `string` this is the URL of the image of the sprite
 		* style `object` (optional) this is a CSS object to style the sprite element
 
-* updateSprite (id, updatedData): instruct the client (if it is capable) to update a currently displayed sprite,
+* updateSprite (id, updatedData): instructs the client (if it is capable) to update a currently displayed sprite,
   i.e. all current sprite *data* properties will be deeply extended, where:
 	* id `string` the sprite ID
 	* updatedData `object` the data extension related to the sprite, where:
 		* url `string` (optional) this is the URL of the image of the sprite
 		* style `object` (optional) this is a CSS object to style the sprite element
 
-* clearSprite (id): instruct the client (if it is capable) clear a currently displayed sprite, the sprite will be
+* animateSprite (spriteId, animationId): instructs the client (if it is capable) to animate a currently displayed sprite, 
+  using a previously recorded animation, where:
+	* spriteId `string` the sprite ID to animate
+	* animationId `string` the animation ID to use
+
+* clearSprite (id): instructs the client (if it is capable) clear a currently displayed sprite, the sprite will be
   totally deleted, where:
 	* id `string` the sprite ID to delete
 

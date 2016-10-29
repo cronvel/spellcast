@@ -6,6 +6,53 @@
 	[scene intro1]
 		[message] $> ^/Once upon a time...
 		
+		[animation shake]
+			frames:
+				-	duration: 0.05
+					style:
+						transform: translateX(0)
+						transition: all 0.05s
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(0)
+				
+		
 		[show-sprite druidess]
 			url: ../sample/shaman.png
 			style:
@@ -27,7 +74,7 @@
 		
 		[update-sprite druidess]
 			style:
-				right: 20%
+				right: 10%
 		
 		[show-sprite druidess2]
 			url: ../sample/shaman.png
@@ -41,7 +88,7 @@
 			
 		[pause] 1
 		
-		[clear-sprite druidess]
+		[animate-sprite druidess] shake
 		
 		[update-sprite druidess2]
 			style:
@@ -59,6 +106,8 @@
 		
 		[pause] 1
 				
+		#[clear-sprite druidess]
+		
 		[update-sprite druidess2]
 			style:
 				transform: perspective(300px) rotateX(45deg)
