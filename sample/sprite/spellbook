@@ -66,14 +66,14 @@
 				bottom: 0
 				transition: 1s
 			
-		[show-sprite tiny]
-			url: ../sample/shaman.png
-			label: A Druidess!
-			style:
-				height: 30%
-				right: 10%
-				top: 10%
-				transition: 1s
+		#[show-sprite tiny]
+		#	url: ../sample/shaman.png
+		#	label: A Druidess!
+		#	style:
+		#		height: 30%
+		#		right: 10%
+		#		top: 10%
+		#		transition: 1s
 			
 		[pause] 1
 		

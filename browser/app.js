@@ -413,8 +413,8 @@ UI.prototype.initBus = function initBus()
 	
 	this.bus.on( 'defineAnimation' , UI.defineAnimation.bind( this ) ) ;
 	
-	this.bus.on( 'showSprite' , UI.sprite.bind( this , false ) ) ;
-	this.bus.on( 'updateSprite' , UI.sprite.bind( this , true ) ) ;
+	this.bus.on( 'showSprite' , UI.showSprite.bind( this ) ) ;
+	this.bus.on( 'updateSprite' , UI.prototype.updateSprite.bind( this ) ) ;
 	this.bus.on( 'animateSprite' , UI.animateSprite.bind( this ) ) ;
 	this.bus.on( 'clearSprite' , UI.clearSprite.bind( this ) ) ;
 	
@@ -1026,15 +1026,41 @@ UI.defineAnimation = function defineAnimation( id , data )
 
 
 // Using an <img> tag
-UI.sprite = function sprite( isUpdate , id , data )
+UI.showSprite = function showSprite( id , data )
 {
 	var self = this , sprite , oldSprite ;
 	
+	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+	
+	oldSprite = this.sprites[ id ] ;
+	
+	sprite = this.sprites[ id ] = {
+		style: {}
+	} ;
+	
+	sprite.$img = document.createElement( 'img' ) ;
+	sprite.$img.classList.add( 'sprite' ) ;
+	
+	this.updateSprite( null , data , sprite ) ;
+	
+	if ( oldSprite ) { oldSprite.$img.remove() ; }
+	this.$gfx.append( sprite.$img ) ;
+} ;
+
+
+
+// internalSprite is used for internal update call
+UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
+{
+	var self = this , sprite ;
+	
 	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
 	
-	delete data.style.position ;
-	
-	if ( isUpdate )
+	if ( internalSprite )
+	{
+		sprite = internalSprite ;
+	}
+	else
 	{
 		if ( ! this.sprites[ id ] )
 		{
@@ -1043,47 +1069,43 @@ UI.sprite = function sprite( isUpdate , id , data )
 		}
 		
 		sprite = this.sprites[ id ] ;
-		
-		//treeExtend( { deep: true } , sprite , data ) ;
-		treeExtend( null , sprite.style , data.style ) ;
 	}
-	else
-	{
-		if ( ! data.url || typeof data.url !== 'string' ) { return ; }
-		
-		oldSprite = this.sprites[ id ] ;
-		
-		this.sprites[ id ] = sprite = data ;
-		sprite.$img = document.createElement( 'img' ) ;
-		sprite.$img.classList.add( 'sprite' ) ;
-		
-		// /!\ action is not updatable ATM, but it should!
-		if ( data.action )
-		{
-			//console.warn( "Record action: " , data.action ) ;
-			sprite.$img.classList.add( 'clickable' ) ;
-			
-			sprite.$img.addEventListener( 'click' , function( event ) {
-				//console.warn( "action triggered: " , data.action ) ;
-				self.bus.emit( 'action' , data.action ) ;
-				event.stopPropagation() ;
-			} ) ;
-		}
-	}
+	
+	delete data.style.position ;
 	
 	if ( data.url )
 	{
 		sprite.$img.setAttribute( "src" ,  data.url ) ;
 	}
 	
+	if ( data.action !== undefined )
+	{
+		if ( data.action && ! sprite.action )
+		{
+			sprite.$img.classList.add( 'clickable' ) ;
+			
+			sprite.onClick = function( event ) {
+				console.warn( "action triggered: " , sprite.action ) ;
+				self.bus.emit( 'action' , sprite.action ) ;
+				event.stopPropagation() ;
+			} ;
+			
+			sprite.$img.addEventListener( 'click' , sprite.onClick ) ;
+		}
+		else if ( ! data.action && sprite.action )
+		{
+			sprite.$img.classList.remove( 'clickable' ) ;
+			sprite.$img.removeEventListener( 'click' , sprite.onClick ) ;
+		}
+		
+		sprite.action = data.action || undefined ;
+	}
+	
+	//treeExtend( { deep: true } , sprite , data ) ;
+	treeExtend( null , sprite.style , data.style ) ;
+	
 	// Use data.style, NOT sprite.style: we have to set only new/updated styles
 	dom.css( sprite.$img , data.style ) ;
-	
-	if ( ! isUpdate )
-	{
-		if ( oldSprite ) { oldSprite.$img.remove() ; }
-		this.$gfx.append( sprite.$img ) ;
-	}
 } ;
 
 
