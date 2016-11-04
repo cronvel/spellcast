@@ -5,6 +5,10 @@
     [message]
         $> You drink a cup of vine...
 
+[action shout]
+    [message]
+        $> You shout!
+
 [chapter intro]
 	
 	[scene intro1]
@@ -66,14 +70,16 @@
 				bottom: 0
 				transition: 1s
 			
-		#[show-sprite tiny]
-		#	url: ../sample/shaman.png
-		#	label: A Druidess!
-		#	style:
-		#		height: 30%
-		#		right: 10%
-		#		top: 10%
-		#		transition: 1s
+		[fake-show-sprite another-one]
+			url: ../sample/shaman.png
+			label: A Druidess!
+			position:
+				# coord system: inside means that 0 is left but wholy included in the image, 1 is right but wholy included...
+				coord: inside
+				x: 0.5
+				y: 0.5
+				width: 0.3
+				height: 0.3
 			
 		[pause] 1
 		
@@ -92,6 +98,9 @@
 		
 		[animate-sprite druidess] shake
 		[pause] 2
+		
+		[update-sprite druidess]
+			action: /shout
 		
 		[show-sprite druidess2]
 			url: ../sample/shaman.png
@@ -170,6 +179,9 @@
 				filter: blur(100px) saturate(100%) drop-shadow(16px 16px 100px black)
 		
 		[pause] 1
+		
+		[update-sprite druidess]
+			action: null
 		
 		[update-sprite druidess2]
 			style:
