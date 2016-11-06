@@ -170,26 +170,28 @@ Example:
 
 
 <a name="ref.flow.if"></a>
-## [if <expression>]
+## [if *expression*]
 
 * types: run
 * attribute style: expression
 
-The *if* tag run its content if the expression in its attribute is true (or *truthy*).
-Otherwise, it passes controle to an eventual following *elseif* or *else* sibling tag.
+The *if* tag runs its content if the expression (as its attribute) is true (or *truthy*).
+Otherwise, it passes controle to the eventual following *elseif* or *else* sibling tag.
 
 
 
 <a name="ref.flow.elseif"></a>
-## [elseif <expression>] / [elsif <expression>]
+## [elseif *expression*] / [elsif *expression*]
 
 * types: run
 * attribute style: expression
 
-The *elseif* **MUST HAVE** an *if* tag or another *elseif* as its immediate previous sibling.
-If that previous tag hasn't pass controle to it, nothing happens.
-If it has, then *elseif* tag run its content if the expression in its attribute is true (or *truthy*).
+The *elseif* tag **MUST HAVE** an *if* tag or another *elseif* as its immediate previous sibling.
+If that previous tag hasn't passed controle to it, nothing happens.
+If it has, then *elseif* tag runs its content if the expression in its attribute is true (or *truthy*).
 Otherwise, it passes controle to an eventual following *elseif* or *else* sibling tag.
+
+The *elsif* tag is simply an alias of the *elseif* tag.
 
 
 
@@ -199,25 +201,151 @@ Otherwise, it passes controle to an eventual following *elseif* or *else* siblin
 * types: run
 * attribute style: none
 
-The *elseif* **MUST HAVE** an *if* tag or an *elseif* as its immediate previous sibling.
+The *else* tag **MUST HAVE** an *if* tag or an *elseif* as its immediate previous sibling.
 If that previous tag hasn't pass controle to it, nothing happens.
-If it has, the *else* tag content is run.
+If it has, the *else* tag runs its content.
 
 
 
 <a name="ref.flow.loop"></a>
-## Loop Tags: [while], [foreach]
+## Loop Tags: [while], [foreach], [continue], [break]
+
+
 
 <a name="ref.flow.while"></a>
-## [while <expression>]
+## [while *expression*]
 
 * types: run
 * attribute style: expression
 
-The *while* tag run its content multiple times as long as the expression in its attribute is true (or *truthy*).
+The *while* tag run its content multiple times as long as the expression (as its attribute) is true (or *truthy*).
 I.e. it tests its expression, if true it runs its content and check again the expression, if still true 
-it runs its content and check again the expression, and so on.
+it runs its content and check again the expression, and so on...
 Once the expression is false (or *falsy*), it stops.
 If the expression is already false at the first time, the tag content is never run.
+
+This code:
+
+```
+[set $count] 5
+[while $count > 0]
+	[message] $> Count: ${count}
+	[set $count] $= $count - 1
+```
+
+... will output:
+
+```
+Count: 5
+Count: 4
+Count: 3
+Count: 2
+Count: 1
+```
+
+
+
+<a name="ref.flow.foreach"></a>
+## [foreach *$var* => *$value*] / [foreach *$var* => *$key* : *$value*]
+
+* types: run
+* attribute style: foreach syntax
+
+Like most Spellcast Scripting syntax, the spaces are mandatory:
+at least one space should be placed before and after `=>`, as well as before and after `:`.
+
+The *foreach* construct provides an easy way to iterate over arrays or objects.
+It doesn't work on other variable type.
+
+This is a loop, so the content can be run 0, 1 or multiple times.
+The content is run as many time as the *$var* array/object has elements/properties.
+
+On each iteration, the *$value* variable is set to the current element/property value,
+and the *$key* variable is set to the the current index/property key (when the second foreach syntax is used).
+
+Example with an array:
+
+```
+[set $array]
+	- one
+	- two
+	- three
+
+[foreach $array => $element]
+    [message] $> Value: ${element}
+```
+
+... this will output:
+
+```
+Value: one
+Value: two
+Value: three
+```
+
+Example with an array, using the second foreach syntax:
+
+```
+[set $array]
+	- one
+	- two
+	- three
+
+[foreach $array => $index : $element]
+    [message] $> ${index}: ${element}
+```
+
+... this will output:
+
+```
+0: one
+1: two
+2: three
+```
+
+Example with an object, using the second foreach syntax:
+
+```
+[set $object]
+	first-name: Joe
+	last-name: Doe
+	job: designer
+
+[foreach $object => $key : $value]
+    [message] $> ${key}: ${value}
+```
+
+... this will output:
+
+```
+first-name: Joe
+last-name: Doe
+job: designer
+```
+
+<a name="ref.flow.continue"></a>
+## [continue]
+
+The *continue* tag terminates the current iteration of the current loop, and continues with the next iteration of the current loop.
+
+
+
+<a name="ref.flow.break"></a>
+## [break]
+
+The *break* tag exit from the current loop immediately.
+
+
+
+<a name="ref.flow.functions"></a>
+## Functions Tags: [fn], [call], [return]
+
+
+
+<a name="ref.flow.fn"></a>
+## [fn *id*] / [fn *$fn*]
+
+The *break* tag exit from the current loop immediately.
+
 
 
