@@ -6,6 +6,10 @@
 		- one
 		- two
 		- three
+	object:
+		one: 1
+		two: 2
+		three: 3
 
 [spell foreach]
 	[foreach $list => $value]
@@ -13,6 +17,14 @@
 			$> The value is: ${value}
 	
 	[foreach $list => $key : $value]
+		[message]
+			$> The key/value is: ${key}/${value}
+
+	[foreach $object => $value]
+		[message]
+			$> The value is: ${value}
+	
+	[foreach $object => $key : $value]
 		[message]
 			$> The key/value is: ${key}/${value}
 

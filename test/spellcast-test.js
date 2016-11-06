@@ -283,6 +283,12 @@ describe( "Control flow tags" , function() {
 					[ 'The key/value is: 0/one' ] ,
 					[ 'The key/value is: 1/two' ] ,
 					[ 'The key/value is: 2/three' ] ,
+					[ 'The value is: 1' ] ,
+					[ 'The value is: 2' ] ,
+					[ 'The value is: 3' ] ,
+					[ 'The key/value is: one/1' ] ,
+					[ 'The key/value is: two/2' ] ,
+					[ 'The key/value is: three/3' ] ,
 				] ) ;
 				
 				done() ;
