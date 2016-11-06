@@ -61,7 +61,11 @@ function deb( something )
 
 function runBook( bookPath , action , uiCallback , doneCallback )
 {
-	var ui , uiId = 0 , triggered = false , book = Book.load( bookPath ) ;
+	var ui , uiId = 0 , triggered = false , book , options = {} ;
+	
+	if ( action.maxTicks ) { options.maxTicks = action.maxTicks ; }
+	
+	book = Book.load( bookPath , options ) ;
 	
 	var triggerCallback = function() {
 		if ( triggered ) { return ; }
@@ -1880,6 +1884,29 @@ describe( "Spellcast exe features" , function() {
 	it( "summon a makefile (--summon-makefile option)" ) ;
 	it( "watch mode (--undead option)" ) ;
 	it( "force building even if up to date (--again option)" ) ;
+} ) ;
+
+
+
+describe( "Prevent from infinite loop in user-script, using the 'maxTicks' option" , function() {
+	
+	it( "[while] infinity" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/infinite-loop-protection.kfg' , { type: 'cast' , target: 'test1' , maxTicks: 1000 } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function( error ) {
+				// It should produce a RangeError
+				doormen.equals( error instanceof RangeError , true ) ;
+				done() ;
+			}
+		) ;
+	} ) ;
 } ) ;
 
 

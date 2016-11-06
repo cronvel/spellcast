@@ -1,0 +1,12 @@
+
+[[doctype spellcaster]]
+
+[spell test1]
+	[set $count] 0
+	[while true]
+		[inc $count]
+		[inc $count]
+		[inc $count]
+		[inc $count]
+		[inc $count]
+

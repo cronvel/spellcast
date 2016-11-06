@@ -35,7 +35,7 @@ Options:
 * `--client-name <name>`: Set the name of the local client user
 * `--script-debug`: Activate debug-level logs for scripts ([debug] tag)
 * `--script-verbose`: Activate verbose-level logs for scripts ([debug verbose] tag)
-
+* `--max-ticks`: Max ticks between two user interactions (prevent from infinite loop, default: Infinity)
 
 
 ## Getting started: basic script example
