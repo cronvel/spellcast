@@ -7,6 +7,10 @@
 [spell if-elseif-else]
 	[if $value > 4]
 		[message]
+			- > Condition #0 if
+	
+	[if $value > 4]
+		[message]
 			- > Condition #1 if
 	[else]
 		[message]

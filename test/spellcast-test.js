@@ -251,6 +251,7 @@ describe( "Control flow tags" , function() {
 				
 				book.cast( 'if-elseif-else' , function() {
 					doormen.equals( messages , [
+						[ 'Condition #0 if' ] ,
 						[ 'Condition #1 if' ] ,
 						[ 'Condition #2 if' ] ,
 					] ) ;
