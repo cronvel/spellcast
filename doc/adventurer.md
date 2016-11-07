@@ -20,6 +20,21 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 * [The KFG format](#kfg)
 * [Tag Reference](#ref)
 	* [Control Flow Tags](#ref.flow)
+		* [Conditional Tags](#ref.flow.conditional)
+			* [If Tag](#ref.flow.if)
+			* [Elseif/elsif Tag](#ref.flow.elseif)
+			* [Else Tag](#ref.flow.else)
+		* [Loop Tags](#ref.flow.loop)
+			* [While Tag](#ref.flow.while)
+			* [Foreach Tag](#ref.flow.foreach)
+			* [Continue Tag](#ref.flow.continue)
+			* [Break Tag](#ref.flow.break)
+		* [Function Tags](#ref.flow.function)
+			* [Fn Tag](#ref.flow.fn)
+			* [Call Tag](#ref.flow.call)
+			* [Return Tag](#ref.flow.return)
+	* [Operation Tags](#ref.ops)
+		* [Set Tag](#ref.flow.set)
 
 
 
@@ -147,7 +162,7 @@ The attribute style refers to one of those:
 
 
 <a name="ref.flow.conditional"></a>
-## Conditional Tags: [if], [elsif]/[elseif] and [else]
+### Conditional Tags: [if], [elsif]/[elseif] and [else]
 
 Those tags works like every other if/elseif/else construct in any programming language.
 [See the MDN doc](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else).
@@ -170,7 +185,7 @@ Example:
 
 
 <a name="ref.flow.if"></a>
-## [if *expression*]
+### [if *expression*]
 
 * types: run
 * attribute style: expression
@@ -182,7 +197,7 @@ Otherwise, it passes controle to the eventual following *elseif* or *else* sibli
 
 
 <a name="ref.flow.elseif"></a>
-## [elseif *expression*] / [elsif *expression*]
+### [elseif *expression*] / [elsif *expression*]
 
 * types: run
 * attribute style: expression
@@ -198,7 +213,7 @@ The *elsif* tag is simply an alias of the *elseif* tag.
 
 
 <a name="ref.flow.else"></a>
-## [else]
+### [else]
 
 * types: run
 * attribute style: none
@@ -211,12 +226,12 @@ If it has, the *else* tag runs its content.
 
 
 <a name="ref.flow.loop"></a>
-## Loop Tags: [while], [foreach], [continue], [break]
+### Loop Tags: [while], [foreach], [continue], [break]
 
 
 
 <a name="ref.flow.while"></a>
-## [while *expression*]
+### [while *expression*]
 
 * types: run
 * attribute style: expression
@@ -250,7 +265,7 @@ Count: 1
 
 
 <a name="ref.flow.foreach"></a>
-## [foreach *$var* => *$value*] / [foreach *$var* => *$key* : *$value*]
+### [foreach *$var* => *$value*] / [foreach *$var* => *$key* : *$value*]
 
 * types: run
 * attribute style: foreach syntax
@@ -329,7 +344,7 @@ job: designer
 ```
 
 <a name="ref.flow.continue"></a>
-## [continue]
+### [continue]
 
 * types: run
 * attribute style: none
@@ -340,7 +355,7 @@ The *continue* tag terminates the current iteration of the current loop, and con
 
 
 <a name="ref.flow.break"></a>
-## [break]
+### [break]
 
 * types: run
 * attribute style: none
@@ -350,13 +365,13 @@ The *break* tag exit from the current loop immediately.
 
 
 
-<a name="ref.flow.functions"></a>
-## Functions Tags: [fn], [call], [return]
+<a name="ref.flow.function"></a>
+### Function Tags: [fn], [call], [return]
 
 
 
 <a name="ref.flow.fn"></a>
-## [fn *$var*] / [fn *label*]
+### [fn *$var*] / [fn *label*]
 
 * types: run or init, exec
 * attribute style: var or label
@@ -375,8 +390,8 @@ This syntax has **no run time**.
 
 
 
-<a name="ref.flow.label"></a>
-## [call *$var*] / [call *label*] / [call *$var* => *$into*] / [call *label* => *$into*]
+<a name="ref.flow.call"></a>
+### [call *$var*] / [call *label*] / [call *$var* => *$into*] / [call *label* => *$into*]
 
 * types: run or init, exec
 * attribute style: var or label or call syntax
@@ -400,17 +415,36 @@ It is also possible to call a native JS function or object method, if it is stor
 
 
 <a name="ref.flow.return"></a>
-## [return]
+### [return]
 
 * types: run
 * attribute style: none
 * content type: anything
 
-The *return* tag exit from the current *fn* tag (i.e. *fn* executed by a [*call* tag](#ref.flow.call)) or
-the current sub *scene* tag (i.e. *scene* executed by a [*gosub* tag](#ref.adventurer.gosub)) immediately.
+The *return* tag exit from the current *fn* tag (i.e. *fn* tag executed by a [*call* tag](#ref.flow.call)) immediately.
 
 If inside the *fn* tag and the `[call $var => $into]` or the `[call label => $into]` syntax was used,
 the content of the *return* tag is solved **at run time** and stored into the *$into* variable.
+
+The *return* tag can also exit from the current sub *scene* tag (i.e. *scene* tag executed by a [*gosub* tag](#ref.adventurer.gosub))
+immediately.
+
+
+
+<a name="ref.ops"></a>
+## Operation Tags
+
+
+
+<a name="ref.ops.set"></a>
+### [set *$var*]
+
+* types: run
+* attribute style: var
+* content type: anything
+
+It stores the content of the *set* tag, solved **at run time**, into the *$var* variable.
+
 
 
 
