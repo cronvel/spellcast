@@ -34,7 +34,19 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Call Tag](#ref.flow.call)
 			* [Return Tag](#ref.flow.return)
 	* [Operation Tags](#ref.ops)
-		* [Set Tag](#ref.flow.set)
+		* [Set Tag](#ref.ops.set)
+		* [Swap Tag](#ref.ops.swap)
+		* [Clone Tag](#ref.ops.clone)
+		* [Apply-to Tag](#ref.ops.apply-to)
+		* [Array Operators Tags](#ref.ops.array-ops)
+			* [Append Tag](#ref.ops.append)
+			* [Prepend Tag](#ref.ops.prepend)
+			* [Concat Tag](#ref.ops.concat)
+			* [Slice Tag](#ref.ops.slice)
+			* [Splice Tag](#ref.ops.splice)
+			* [Filter Tag](#ref.ops.filter)
+			* [Map Tag](#ref.ops.map)
+			* [Reduce Tag](#ref.ops.reduce)
 
 
 
@@ -447,7 +459,7 @@ It stores the content of the *set* tag, solved **at run time**, into the *$var* 
 
 
 
-<a name="ref.ops.set"></a>
+<a name="ref.ops.swap"></a>
 ### [swap *$var1* *$var2*]
 
 * types: run
@@ -483,6 +495,251 @@ Without the *swap* tag, we would have to use a temporary variable:
 ```
 
 So thanks to the *swap* tag, three lines become one, and there is no trash variable creation.
+
+
+
+<a name="ref.ops.clone"></a>
+### [clone *$var*]
+
+* types: run
+* attribute style: var
+* content type: anything
+
+The *clone* tag clones its content into the *$var* variable, i.e. it performs a deep copy of objects.
+
+Read [this article](http://blog.soulserv.net/tag/cloning/) if you don't know what object cloning or deep copy is.
+
+
+
+<a name="ref.ops.apply-to"></a>
+### [apply-to *$var*]
+
+* types: run
+* attribute style: var
+* content type: an applicable object
+
+The *apply-to* tag apply its content, that should be an
+[applicable object](https://github.com/cronvel/kung-fig/blob/master/doc/lib.md#ref.Dynamic.apply),
+and put the result into the *$var* variable.
+
+
+
+<a name="ref.ops.array-ops"></a>
+### Array Operators Tag
+
+
+
+<a name="ref.ops.append"></a>
+### [append *$var*]
+
+* types: run
+* attribute style: var
+* content type: anything
+
+The *append* tag appends its content to the *$var* array.
+
+
+
+<a name="ref.ops.prepend"></a>
+### [prepend *$var*]
+
+* types: run
+* attribute style: var
+* content type: anything
+
+The *prepend* tag prepends its content to the *$var* array.
+
+
+
+<a name="ref.ops.concat"></a>
+### [concat *$var*] / [concat *$var* => *$into*]
+
+* types: run
+* attribute style: array operators
+* content type: array (any other value is replaced as an array of the value as its single element)
+
+The *concat* tag is used to merge the tag's content array and the *$var* variable.
+
+If the first syntax `[concat *$var*]` is used, it merges in-place into the *$var* variable.
+
+If the second syntax `[concat *$var* => *$into*]` is used, the *$var* variable is preserved,
+instead the merge result is stored into the *$into* variable.
+
+See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat).
+
+
+
+<a name="ref.ops.slice"></a>
+### [slice *$var*] / [slice *$var* => *$into*]
+
+* types: run
+* attribute style: array operators
+* content type: integer (start index) or array of one or two integers (start index and end index)
+
+The *slice* tag extracts a portion of the *$var* array.
+The content should be an array of one or two integers (or just one integer out of any array),
+the first integer is the *start* index, the last (if any) is the *end* index (end not included).
+
+If the first syntax `[slice *$var*]` is used, the extraction replaces the original *$var* variable.
+
+If the second syntax `[slice *$var* => *$into*]` is used, the *$var* variable is preserved,
+instead the extraction is stored into the *$into* variable.
+
+See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice).
+
+
+
+<a name="ref.ops.splice"></a>
+### [splice *$var*] / [splice *$var* => *$into*]
+
+* types: run
+* attribute style: array operators
+* content type: array (or integer)
+
+The *splice* tag changes the *$var* array by removing existing elements and/or adding new elements.
+The content should be an array of integers (or just one integer out of any array),
+the first integer is the *start* index, the second integer (if any) is the number of element to remove,
+other elements (if any) are new elements to add at the *start* index after the delete.
+
+If the first syntax `[splice *$var*]` is used, it is performed in-place, changing the *$var* variable.
+
+If the second syntax `[splice *$var* => *$into*]` is used, the *$var* variable is preserved,
+instead the result is stored into the *$into* variable.
+
+See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice).
+
+
+
+<a name="ref.ops.filter"></a>
+### [filter *$var*] / [filter *$var* => *$into*]
+
+* types: run
+* attribute style: array operators
+* content type: expression
+
+The *filter* tag creates a new array from the *$var* array with all elements that pass the test of the content's expression.
+The expression is solved for each element, the special variable **$this** containing the current element.
+
+If the first syntax `[filter *$var*]` is used, the filtering is performed in-place, changing the *$var* variable.
+
+If the second syntax `[filter *$var* => *$into*]` is used, the *$var* variable is preserved,
+instead the result is stored into the *$into* variable.
+
+See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter).
+
+Example:
+
+```
+[set $array]
+	-	type: fruit
+		name: orange
+	-	type: fruit
+		name: apple
+	-	type: vegetable
+		name: cabbage
+	-	type: fruit
+		name: ananas
+
+[filter $array => $filtered] $= $this.type = "fruit"
+
+[message] $> Filtered length: ${filtered.length}
+[message] $> Filtered: ${filtered[0].name} ${filtered[1].name} ${filtered[2].name}
+```
+
+... will produce the output:
+
+```
+Filtered length: 3
+Filtered: orange apple ananas
+```
+
+
+
+<a name="ref.ops.map"></a>
+### [map *$var*] / [map *$var* => *$into*]
+
+* types: run
+* attribute style: array operators
+* content type: expression
+
+The *map* tag creates a new array from the *$var* array whose elements are the content's expression solved
+for every element in this array, the special variable **$this** containing the current element.
+
+If the first syntax `[map *$var*]` is used, the mapping is performed in-place, changing the *$var* variable.
+
+If the second syntax `[map *$var* => *$into*]` is used, the *$var* variable is preserved,
+instead the result is stored into the *$into* variable.
+
+See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map).
+
+Example:
+
+```
+[set $array]
+	-	type: fruit
+		name: orange
+	-	type: fruit
+		name: apple
+	-	type: vegetable
+		name: cabbage
+	-	type: fruit
+		name: ananas
+
+[map $array => $map] $this.name
+
+[message] $> Map: ${map}[enum]
+```
+
+... will produce the output: `Map: orange apple cabbage ananas`.
+
+
+
+<a name="ref.ops.reduce"></a>
+### [reduce *$var*] / [reduce *$var* => *$into*] / [reduce *$var* , *init expression*] / [reduce *$var* , *init expression* => *$into*]
+
+* types: run
+* attribute style: array operators
+* content type: expression
+
+The *reduce* tag solves the content's expression for each element of the *$var* array, reducing it to a single value:
+the accumulator.
+The special variable **$this.current** containing the current element, and **$this.previous** containing the result
+of the previous solved expression, i.e. the current value of the accumulator.
+At the end of all iteration, the accumulator is returned.
+
+Note that **$this.left** is an alias of **$this.previous** and **$this.right** an alias of **$this.current**.
+
+If the syntax `[reduce *$var*]` or `[reduce *$var* , *init expression*]` is used, the reduce operation is performed in-place,
+setting the *$var* variable to the accumulator value.
+
+If the syntax `[reduce *$var* => *$into*]` or `[reduce *$var* , *init expression* => *$into*]` is used,
+the *$var* variable is preserved, instead the resulting accumulator is stored into the *$into* variable.
+
+If the syntax `[reduce *$var* , *init expression*]` or `[reduce *$var* , *init expression* => *$into*]` is used,
+then the *init expression* is an expression that is used to set the initial value of the accumulator.
+
+If there is no *init expression* the accumulator's initial value is set to `null`.
+
+See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce).
+
+Example:
+
+```
+[set $array]
+	-	a: 12
+		b: 7
+	-	a: 2
+		b: 3
+	-	a: 1
+		b: 9
+
+[reduce $array , 0 => $reduced] $= $this.previous + $this.current.a
+
+[message] $> Reduce: ${reduced}
+```
+
+... will produce the output: `Reduce: 15`.
+
 
 
 

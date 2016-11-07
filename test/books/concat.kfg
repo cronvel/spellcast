@@ -2,20 +2,27 @@
 [[doctype spellcaster]]
 
 [formula]
-	array:
-		- one
-		- two
-		- three
-	array2:
+	toConcat:
 		- four
 		- five
 		- six
 	a: 1
 
 [spell concat]
-	[concat $array] $array2
-	[message]
-		- $> Array: ${array}[enum]
+	[set $array]
+		- one
+		- two
+		- three
+	[concat $array] $toConcat
+	[message] $> Array: ${array}[enum]
+	
+	[set $array]
+		- one
+		- two
+		- three
+	[concat $array => $target] $toConcat
+	[message] $> Array: ${array}[enum]
+	[message] $> Target: ${target}[enum]
 
 [spell bad-concat]
 	[concat $a] $array2

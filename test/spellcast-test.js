@@ -749,7 +749,9 @@ describe( "Operations tags" , function() {
 			} ,
 			function() {
 				doormen.equals( messages , [
-					[ 'Array: one two three four five six' ]
+					[ 'Array: one two three four five six' ] ,
+					[ 'Array: one two three' ] ,
+					[ 'Target: one two three four five six' ]
 				] ) ;
 				
 				done() ;
