@@ -35,6 +35,12 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Return Tag](#ref.flow.return)
 	* [Operation Tags](#ref.ops)
 		* [Set Tag](#ref.ops.set)
+		* [Inc Tag](#ref.ops.inc)
+		* [Dec Tag](#ref.ops.dec)
+		* [Add Tag](#ref.ops.add)
+		* [Sub Tag](#ref.ops.sub)
+		* [Mul Tag](#ref.ops.mul)
+		* [Div Tag](#ref.ops.div)
 		* [Swap Tag](#ref.ops.swap)
 		* [Clone Tag](#ref.ops.clone)
 		* [Apply-to Tag](#ref.ops.apply-to)
@@ -463,6 +469,72 @@ It stores the content of the *set* tag, solved **at run time**, into the *$var* 
 
 
 
+<a name="ref.ops.inc"></a>
+### [inc *$var*]
+
+* types: run
+* attribute style: var
+* content type: none
+
+The *inc* tag increments the *$var* number by one.
+
+
+
+<a name="ref.ops.dec"></a>
+### [dec *$var*]
+
+* types: run
+* attribute style: var
+* content type: none
+
+The *dec* tag decrements the *$var* number by one.
+
+
+
+<a name="ref.ops.add"></a>
+### [add *$var*]
+
+* types: run
+* attribute style: var
+* content type: number
+
+The *add* tag adds its content's number to the *$var* number.
+
+
+
+<a name="ref.ops.sub"></a>
+### [sub *$var*]
+
+* types: run
+* attribute style: var
+* content type: number
+
+The *sub* tag subtracts its content's number from the *$var* number.
+
+
+
+<a name="ref.ops.mul"></a>
+### [mul *$var*]
+
+* types: run
+* attribute style: var
+* content type: number
+
+The *mul* tag multiplies *$var* number by its content's number.
+
+
+
+<a name="ref.ops.div"></a>
+### [div *$var*]
+
+* types: run
+* attribute style: var
+* content type: number
+
+The *div* tag divides the *$var* number by its content's number.
+
+
+
 <a name="ref.ops.swap"></a>
 ### [swap *$var1* *$var2*]
 
@@ -564,7 +636,7 @@ The *prepend* tag prepends its content to the *$var* array.
 
 The *concat* tag is used to merge the tag's content array and the *$var* variable.
 
-If the first syntax `[concat *$var*]` is used, it merges in-place into the *$var* variable.
+If the first syntax `[concat *$var*]` is used, it merges in-place into the *$var* array.
 
 If the second syntax `[concat *$var* => *$into*]` is used, the *$var* array is preserved,
 instead the merge result is stored into the *$into* variable.
@@ -584,7 +656,7 @@ The *slice* tag extracts a portion of the *$var* array.
 The content should be an array of one or two integers (or just one integer out of any array),
 the first integer is the *start* index, the last (if any) is the *end* index (end not included).
 
-If the first syntax `[slice *$var*]` is used, the extraction replaces the original *$var* variable.
+If the first syntax `[slice *$var*]` is used, the extraction replaces the original *$var* array.
 
 If the second syntax `[slice *$var* => *$into*]` is used, the *$var* array is preserved,
 instead the extraction is stored into the *$into* variable.
@@ -605,7 +677,7 @@ The content should be an array of integers (or just one integer out of any array
 the first integer is the *start* index, the second integer (if any) is the number of element to remove,
 other elements (if any) are new elements to add at the *start* index after the delete.
 
-If the first syntax `[splice *$var*]` is used, it is performed in-place, changing the *$var* variable.
+If the first syntax `[splice *$var*]` is used, it is performed in-place, changing the *$var* array.
 
 If the second syntax `[splice *$var* => *$into*]` is used, the *$var* array is preserved,
 instead the result is stored into the *$into* variable.
@@ -624,7 +696,7 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 The *filter* tag creates a new array from the *$var* array with all elements that pass the test of the content's expression.
 The expression is solved for each element, the special variable **$this** containing the current element.
 
-If the first syntax `[filter *$var*]` is used, the filtering is performed in-place, changing the *$var* variable.
+If the first syntax `[filter *$var*]` is used, the filtering is performed in-place, changing the *$var* array.
 
 If the second syntax `[filter *$var* => *$into*]` is used, the *$var* array is preserved,
 instead the result is stored into the *$into* variable.
@@ -669,7 +741,7 @@ Filtered: orange apple ananas
 The *map* tag creates a new array from the *$var* array whose elements are the content's expression solved
 for every element in this array, the special variable **$this** containing the current element.
 
-If the first syntax `[map *$var*]` is used, the mapping is performed in-place, changing the *$var* variable.
+If the first syntax `[map *$var*]` is used, the mapping is performed in-place, changing the *$var* array.
 
 If the second syntax `[map *$var* => *$into*]` is used, the *$var* array is preserved,
 instead the result is stored into the *$into* variable.
@@ -796,8 +868,58 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 <a name="ref.ops.fill"></a>
 ### [fill *$var*] / [fill *$var* => *$into*]
 
+* types: run
+* attribute style: array operators
+* content type: array (or single value) of the *fill value*, eventually a *start index*, and eventually a *end index*
+
+The *fill* tag fills all the elements of the *$var* array with a *fill value* (the content or the content array's first element),
+eventually from a *start index* (the content array's second element if any) to an excluded *end index*
+(the content array's second element if any).
+
+If the first syntax `[fill *$var*]` is used, it is performed in-place, changing the *$var* array.
+
+If the second syntax `[fill *$var* => *$into*]` is used, the *$var* array is preserved,
+instead the new array is stored into the *$into* variable.
+
+See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill).
+
+Example:
+
+```
+[set $array]
+	- zero
+	- one
+	- two
+	- three
+	- four
+	- five
+	- six
+
+[fill $array] three
+
+[message] $> Array: ${array}[enum]
+```
+... will produce the output: `Array: three three three three three three three`.
+
 
 
 <a name="ref.ops.copy-within"></a>
 ### [copy-within *$var*] / [copy-within *$var* => *$into*]
+
+* types: run
+* attribute style: array operators
+* content type: integer or array of integers (*target index*, *start index*, *end index*)
+
+The *copy-within* tag copies part of the *$var* array to another location in the same *$var* array, without modifying its size.
+The content array's first element is the *target index* at which to copy the sequence to.
+The content array's second element is the *start index* at which to start copying elements from.
+The content array's third element is the *end index* at which to end copying elements from.
+
+If the first syntax `[copy-within *$var*]` is used, the copy is performed in-place, changing the *$var* array.
+
+If the second syntax `[copy-within *$var* => *$into*]` is used, the *$var* array is preserved,
+instead the result is stored into the *$into* variable.
+
+See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin).
+
 
