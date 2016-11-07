@@ -447,5 +447,42 @@ It stores the content of the *set* tag, solved **at run time**, into the *$var* 
 
 
 
+<a name="ref.ops.set"></a>
+### [swap *$var1* *$var2*]
+
+* types: run
+* attribute style: swap syntax
+* content type: none
+
+It swaps the content of two variables, i.e. *$var1* will contain *$var2* and *$var2* will contain *$var1*.
+
+Example:
+
+```
+[set $a] One
+[set $b] Two
+
+[swap $a $b]
+
+[message] $> a: ${a} --- b: ${b}
+```
+
+... it outputs `a: Two --- b: One`.
+
+Without the *swap* tag, we would have to use a temporary variable:
+
+```
+[set $a] One
+[set $b] Two
+
+[set $tmp $a]
+[set $a $b]
+[set $b $tmp]
+
+[message] $> a: ${a} --- b: ${b}
+```
+
+So thanks to the *swap* tag, three lines become one, and there is no trash variable creation.
+
 
 
