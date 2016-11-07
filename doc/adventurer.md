@@ -19,6 +19,11 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 * [Getting started](#getting-started)
 * [The KFG format](#kfg)
 * [Tag Reference](#ref)
+	* [Input/Output Tags](#ref.io)
+		* [Message Tag](#ref.io.message)
+		* [Fortune Tag](#ref.io.fortune)
+		* [Input Tag](#ref.io.input)
+		* [Sound Tag](#ref.io.sound)
 	* [Control Flow Tags](#ref.flow)
 		* [Conditional Tags](#ref.flow.conditional)
 			* [If Tag](#ref.flow.if)
@@ -175,6 +180,125 @@ The attribute style refers to one of those:
 * var: the tag has a *ref* (i.e.: a variable) as attribute
 * expression: the tag as an *expression* as attribute
 * specific: the tag has its own specific syntax
+
+
+
+<a name="ref.io"></a>
+## Input/Output Tags
+
+
+
+<a name="ref.io.message"></a>
+### [message]
+
+* types: run
+* attribute style: none
+* content type: string, template, object or array of: string, template or object.
+
+The *message* tag is used to display a message in the client user interface.
+
+For simple message, the content can be either a simple string, or a template.
+
+If some particular options are needed, the content should be formated as an object, where:
+* text `string` or `Template` the message to display
+* next `boolean` if true, the message wait for the user acknowledgement
+* slowTyping `boolean` if true, the message is diplayed letter by letter (not all the clients supports it)
+* image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
+  of what is described (not all the clients supports it)
+* sound `url` if set, a sound that should be played along with the message (not all the clients supports it)
+
+The *hello world* example:
+
+```
+[message] Hello world!
+```
+
+... will display `Hello world!` in the client UI.
+
+Example using a template:
+
+```
+[set $name] Joe
+[message] $> Hello ${name}!
+```
+
+... will display `Hello Joe!` in the client UI.
+
+Example with an object:
+
+```
+[set $name] Joe
+[message]
+	text: $> Hello ${name}!
+	next: true
+```
+
+... will display `Hello Joe!` in the client UI, the execution of the script is paused until the user confirms.
+
+Finally, the content can be an array, in that case each element is a message to send.
+
+
+
+<a name="ref.io.fortune"></a>
+### [fortune]
+
+* types: run
+* attribute style: none
+* content type: array of: string, template or object
+
+The *fortune* tag is used to display a random message in the client user interface.
+
+It works almost like the *message* tag, but the content should be an array of string, template or object,
+and rather than creating one message per element, it picks only one random element from the array.
+
+See [the *message* tag](#ref.io.message) for details.
+
+Example:
+
+```
+[set $name] Joe
+[fortune]
+	- $> Hello ${name}!
+	- $> Hi ${name}!
+	- Howdy!
+```
+
+... will display `Hello Joe!` or `Hi Joe!` or `Howdy!` in the client UI.
+
+
+
+<a name="ref.io.input"></a>
+### [input *$var*]
+
+* types: run
+* attribute style: var
+* content type: none, string, template or object
+
+The *input* tag is used to display an input field in the client UI, to get a text from the user and put it
+into the *$var* variable.
+
+If there is a content, and this is a string or a template, this will be used as a label to display alongside the input field.
+
+If some particular options are needed, the content should be formated as an object, where:
+* label `string` or `Template` the label to display alongside the input field
+* roles `array` of `Role`, if set, the input field is only active for thoses roles, other cannot respond (this is useful
+  for multiplayer scripts)
+
+
+
+<a name="ref.io.sound"></a>
+### [sound]
+
+* types: run
+* attribute style: none
+* content type: string, template or object
+
+The *sound* tag is used to play a sound on the client-side.
+
+If the content is a string or a template, this will be the URL of the sound to play.
+
+If some particular options are needed, the content should be formated as an object, where:
+* url `string` or `Template` the URL of the sound to play
 
 
 
