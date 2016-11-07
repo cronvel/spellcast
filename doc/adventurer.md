@@ -793,5 +793,11 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 
 
+<a name="ref.ops.fill"></a>
+### [fill *$var*] / [fill *$var* => *$into*]
 
+
+
+<a name="ref.ops.copy-within"></a>
+### [copy-within *$var*] / [copy-within *$var* => *$into*]
 
