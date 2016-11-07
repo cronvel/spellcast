@@ -47,6 +47,10 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Filter Tag](#ref.ops.filter)
 			* [Map Tag](#ref.ops.map)
 			* [Reduce Tag](#ref.ops.reduce)
+			* [Reverse Tag](#ref.ops.reverse)
+			* [Sort Tag](#ref.ops.sort)
+			* [Fill Tag](#ref.ops.fill)
+			* [Copy-within Tag](#ref.ops.copy-within)
 
 
 
@@ -562,7 +566,7 @@ The *concat* tag is used to merge the tag's content array and the *$var* variabl
 
 If the first syntax `[concat *$var*]` is used, it merges in-place into the *$var* variable.
 
-If the second syntax `[concat *$var* => *$into*]` is used, the *$var* variable is preserved,
+If the second syntax `[concat *$var* => *$into*]` is used, the *$var* array is preserved,
 instead the merge result is stored into the *$into* variable.
 
 See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat).
@@ -582,7 +586,7 @@ the first integer is the *start* index, the last (if any) is the *end* index (en
 
 If the first syntax `[slice *$var*]` is used, the extraction replaces the original *$var* variable.
 
-If the second syntax `[slice *$var* => *$into*]` is used, the *$var* variable is preserved,
+If the second syntax `[slice *$var* => *$into*]` is used, the *$var* array is preserved,
 instead the extraction is stored into the *$into* variable.
 
 See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice).
@@ -603,7 +607,7 @@ other elements (if any) are new elements to add at the *start* index after the d
 
 If the first syntax `[splice *$var*]` is used, it is performed in-place, changing the *$var* variable.
 
-If the second syntax `[splice *$var* => *$into*]` is used, the *$var* variable is preserved,
+If the second syntax `[splice *$var* => *$into*]` is used, the *$var* array is preserved,
 instead the result is stored into the *$into* variable.
 
 See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice).
@@ -622,7 +626,7 @@ The expression is solved for each element, the special variable **$this** contai
 
 If the first syntax `[filter *$var*]` is used, the filtering is performed in-place, changing the *$var* variable.
 
-If the second syntax `[filter *$var* => *$into*]` is used, the *$var* variable is preserved,
+If the second syntax `[filter *$var* => *$into*]` is used, the *$var* array is preserved,
 instead the result is stored into the *$into* variable.
 
 See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter).
@@ -667,7 +671,7 @@ for every element in this array, the special variable **$this** containing the c
 
 If the first syntax `[map *$var*]` is used, the mapping is performed in-place, changing the *$var* variable.
 
-If the second syntax `[map *$var* => *$into*]` is used, the *$var* variable is preserved,
+If the second syntax `[map *$var* => *$into*]` is used, the *$var* array is preserved,
 instead the result is stored into the *$into* variable.
 
 See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map).
@@ -713,7 +717,7 @@ If the syntax `[reduce *$var*]` or `[reduce *$var* , *init expression*]` is used
 setting the *$var* variable to the accumulator value.
 
 If the syntax `[reduce *$var* => *$into*]` or `[reduce *$var* , *init expression* => *$into*]` is used,
-the *$var* variable is preserved, instead the resulting accumulator is stored into the *$into* variable.
+the *$var* array is preserved, instead the resulting accumulator is stored into the *$into* variable.
 
 If the syntax `[reduce *$var* , *init expression*]` or `[reduce *$var* , *init expression* => *$into*]` is used,
 then the *init expression* is an expression that is used to set the initial value of the accumulator.
@@ -739,6 +743,54 @@ Example:
 ```
 
 ... will produce the output: `Reduce: 15`.
+
+
+
+<a name="ref.ops.reverse"></a>
+### [reverse *$var*] / [reverse *$var* => *$into*]
+
+* types: run
+* attribute style: array operators
+* content type: none
+
+The *reverse* tag reverses the elements order of the *$var* array.
+
+If the first syntax `[reverse *$var*]` is used, it reverses the *$var* array in-place.
+
+If the second syntax `[reverse *$var* => *$into*]` is used, the *$var* array is preserved,
+instead a new reversed array is stored into the *$into* variable.
+
+See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse).
+
+
+
+<a name="ref.ops.sort"></a>
+### [sort *$var*] / [sort *$var* => *$into*]
+
+* types: run
+* attribute style: array operators
+* content type: expression
+
+The *sort* tag sorts the elements of the *$var* array according to the content's expression.
+
+The algorithm used to sort compare different elements to produce the sort, hence the special variables **$this.left**
+and **$this.right** contain the two element to compare, the former being the element that has a lower index,
+the later the element that has the higher index.
+
+Once the expression is solved, if the result is:
+* lesser than 0: the **$this.left** element will be sorted to a lower index than **$this.right**
+* greater than 0: the **$this.right** element will be sorted to a lower index than **$this.left**
+* equal to 0: the order of those elements with respect to each other doesn't matter
+
+Note that **$this.previous** is an alias of **$this.left** and **$this.current** an alias of **$this.right**.
+
+If the first syntax `[sort *$var*]` is used, it sorts the *$var* array in-place.
+
+If the second syntax `[sort *$var* => *$into*]` is used, the *$var* array is preserved,
+instead the new sorted array is stored into the *$into* variable.
+
+See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort).
+
 
 
 
