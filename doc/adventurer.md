@@ -174,6 +174,7 @@ Example:
 
 * types: run
 * attribute style: expression
+* content type: tags
 
 The *if* tag runs its content if the expression (as its attribute) is true (or *truthy*).
 Otherwise, it passes controle to the eventual following *elseif* or *else* sibling tag.
@@ -185,6 +186,7 @@ Otherwise, it passes controle to the eventual following *elseif* or *else* sibli
 
 * types: run
 * attribute style: expression
+* content type: tags
 
 The *elseif* tag **MUST HAVE** an *if* tag or another *elseif* as its immediate previous sibling.
 If that previous tag hasn't passed controle to it, nothing happens.
@@ -200,6 +202,7 @@ The *elsif* tag is simply an alias of the *elseif* tag.
 
 * types: run
 * attribute style: none
+* content type: tags
 
 The *else* tag **MUST HAVE** an *if* tag or an *elseif* as its immediate previous sibling.
 If that previous tag hasn't pass controle to it, nothing happens.
@@ -217,6 +220,7 @@ If it has, the *else* tag runs its content.
 
 * types: run
 * attribute style: expression
+* content type: tags
 
 The *while* tag run its content multiple times as long as the expression (as its attribute) is true (or *truthy*).
 I.e. it tests its expression, if true it runs its content and check again the expression, if still true 
@@ -250,6 +254,7 @@ Count: 1
 
 * types: run
 * attribute style: foreach syntax
+* content type: tags
 
 Like most Spellcast Scripting syntax, the spaces are mandatory:
 at least one space should be placed before and after `=>`, as well as before and after `:`.
@@ -326,12 +331,20 @@ job: designer
 <a name="ref.flow.continue"></a>
 ## [continue]
 
+* types: run
+* attribute style: none
+* content type: none
+
 The *continue* tag terminates the current iteration of the current loop, and continues with the next iteration of the current loop.
 
 
 
 <a name="ref.flow.break"></a>
 ## [break]
+
+* types: run
+* attribute style: none
+* content type: none
 
 The *break* tag exit from the current loop immediately.
 
@@ -343,9 +356,62 @@ The *break* tag exit from the current loop immediately.
 
 
 <a name="ref.flow.fn"></a>
-## [fn *id*] / [fn *$fn*]
+## [fn *$var*] / [fn *label*]
 
-The *break* tag exit from the current loop immediately.
+* types: run or init, exec
+* attribute style: var or label
+* content type: tags
+
+The *fn* tag is used to create a Spellcast Scripting function.
+The content of the tag **MUST** contain tags, they will be run at exec time (i.e. when the function is *called*).
+
+If the `[fn $var]` syntax is used, the function is created **at run time** and stored inside the variable.
+This syntax has **no init time**.
+
+If the `[fn label]` syntax is used, the function is created globally **at init time**.
+This means that even if the function is declared inside some dead code (code that is never reached),
+the function will be present globally anyway at the starting of the script.
+This syntax has **no run time**.
+
+
+
+<a name="ref.flow.label"></a>
+## [call *$var*] / [call *label*] / [call *$var* => *$into*] / [call *label* => *$into*]
+
+* types: run or init, exec
+* attribute style: var or label or call syntax
+* content type: anything
+
+The *call* tag is used to *call* (i.e. *execute*) a Spellcast Scripting function previously declared using the *fn* tag.
+
+The content of the tag will be solved **at run time** and will be stored into the **$args** variable during the *fn* tag execution.
+The **$args** variable is restored after the *fn* tag execution.
+
+If the `[call $var]` or the `[call $var => $into]` syntax is used, it will call the function stored inside the *$var* variable.
+
+If the `[call label]` or the `[call label => $into]` syntax is used, it will call the global function with that *label*,
+see the [*fn* tag](#ref.flow.fn) for details.
+
+If the `[call $var => $into]` or the `[call label => $into]` syntax is used, the return value of the *fn* tag will be stored
+into the *$into* variable, see the [*return* tag](#ref.flow.return) for details.
+
+It is also possible to call a native JS function or object method, if it is stored inside a Spellcast Scripting variable.
+
+
+
+<a name="ref.flow.return"></a>
+## [return]
+
+* types: run
+* attribute style: none
+* content type: anything
+
+The *return* tag exit from the current *fn* tag (i.e. *fn* executed by a [*call* tag](#ref.flow.call)) or
+the current sub *scene* tag (i.e. *scene* executed by a [*gosub* tag](#ref.adventurer.gosub)) immediately.
+
+If inside the *fn* tag and the `[call $var => $into]` or the `[call label => $into]` syntax was used,
+the content of the *return* tag is solved **at run time** and stored into the *$into* variable.
+
 
 
 
