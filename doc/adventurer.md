@@ -19,6 +19,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 * [Getting started](#getting-started)
 * [The KFG format](#kfg)
 * [Tag Reference](#ref)
+	* [Scenario Tags](#ref.scenario)
+		* [Chapter Tag](#ref.scenario.chapter)
 	* [Input/Output Tags](#ref.io)
 		* [Message Tag](#ref.io.message)
 		* [Fortune Tag](#ref.io.fortune)
@@ -68,6 +70,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Fill Tag](#ref.ops.fill)
 			* [Copy-within Tag](#ref.ops.copy-within)
 	* [Misc Tags](#ref.misc)
+		* [Module Tag](#ref.misc.module)
 		* [Pause Tag](#ref.misc.pause)
 		* [Js Tag](#ref.misc.js)
 		* [Debug Tag](#ref.misc.debug)
@@ -184,7 +187,7 @@ In the following tag description, the *types* refer to one of those:
 * init: the tag performs some configuration at init-time only
 * run: the tag performs action at run-time, i.e. when its parent tag container is run
 * exec: the tag can be executed, if it hasn't the *run* flag, it doesn't do anything when its parent tag container is run
-* param: the tag is passive: it contains some parameters for its parent
+* parameter: the tag is passive: it contains some parameters for its parent
 
 The attribute style refers to one of those:
 * none: the tag has no attribute
@@ -192,6 +195,78 @@ The attribute style refers to one of those:
 * var: the tag has a *ref* (i.e.: a variable) as attribute
 * expression: the tag as an *expression* as attribute
 * specific: the tag has its own specific syntax
+
+
+
+<a name="ref.scenario"></a>
+## Scenario Tags
+
+
+
+<a name="ref.scenario.chapter"></a>
+### [chapter *label*]
+
+* types: init
+* attribute style: label
+* content type: tags
+
+The *chapter* tag is used to organize *scene* tags in groups.
+It also acts as a namespace, to ease management of big Spellcast projects.
+
+It also supports some parameter tags of the *scene* tag, if present they will act as default for all *scene* children.
+
+
+
+<a name="ref.scenario.scene"></a>
+### [scene *label*]
+
+* types: init, exec
+* attribute style: label
+* content type: tags
+
+The *scene* tag is the most important tag of Spellcast Scripting in *Adventurer mode*.
+
+TODO: documentation
+
+
+
+#### [image]
+
+* types: parameter
+* attribute style: none
+* content type: string (URL) or object
+
+TODO: documentation
+
+
+
+#### [music]
+
+* types: parameter
+* attribute style: none
+* content type: string (URL) or object
+
+TODO: documentation
+
+
+
+#### [chat]
+
+* types: parameter
+* attribute style: none
+* content type: object
+
+TODO: documentation
+
+
+
+#### [action-config]
+
+* types: parameter
+* attribute style: none
+* content type: object
+
+TODO: documentation
 
 
 
@@ -1138,6 +1213,26 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 <a name="ref.misc"></a>
 ## Misc Tags
+
+
+
+<a name="ref.misc.module"></a>
+### [module]
+
+* types: init
+* attribute style: none
+* content type: tags
+
+The *module* tag replaces itself by its content (tags).
+
+Its purposes is to be used in conjunction with
+[KFG includes](https://github.com/cronvel/kung-fig/blob/master/doc/KFG.md#ref.includes).
+
+Example:
+
+```
+[module] @@path/to/my-spellcast-module.kfg
+```
 
 
 
