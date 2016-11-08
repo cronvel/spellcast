@@ -28,6 +28,7 @@ Options:
 * `--ui <name>`: Set the UI to use
 * `--locale <locale>`: Set the locale for the script
 * `--locale-list`: List the available locales
+* `--assets <URL>`: Set the asset base URL (default: main book directory)
 * `--ws-server [<port>]`: Create a web socket server (default to port 57311)
 * `--token <token>`: Add a token to server accepted token list (can be used multiple times)
 * `--browser , - B <exe>`: Open the browser <exe>, force --ws-server

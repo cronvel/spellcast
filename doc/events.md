@@ -100,6 +100,10 @@
 	* otherBranches: roles were split into multiple branches, and the client must wait for other branches to finish,
 	  roles are done waiting once the 'join' event is received.
 
+* assetConfig (config): instructs the client how to manage assets. This event is sent only once at the begining of the execution.
+  Argument `data` is an object, where:
+	* url `string` (optional) the root URL for all assets
+
 * image (data): instructs the client (if it is capable) to set an image as the scene image. Argument `data` is an object, where:
 	* url `string` (optional) if set this is the URL of the image, else the client *MAY* display a default image if any
 	* position `string` (optional) is one of 'left' or 'right', indicating if the image should be on the left or on the right
