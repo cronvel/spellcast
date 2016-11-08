@@ -24,6 +24,11 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Fortune Tag](#ref.io.fortune)
 		* [Input Tag](#ref.io.input)
 		* [Sound Tag](#ref.io.sound)
+		* [Show-sprite Tag](#ref.io.show-sprite)
+		* [Update-sprite Tag](#ref.io.update-sprite)
+		* [Clear-sprite Tag](#ref.io.clear-sprite)
+		* [Animation Tag](#ref.io.animation)
+		* [Animate-sprite Tag](#ref.io.animate-sprite)
 	* [Control Flow Tags](#ref.flow)
 		* [Conditional Tags](#ref.flow.conditional)
 			* [If Tag](#ref.flow.if)
@@ -306,6 +311,61 @@ If the content is a string or a template, this will be the URL of the sound to p
 
 If some particular options are needed, the content should be formated as an object, where:
 * url `string` or `Template` the URL of the sound to play
+
+
+
+<a name="ref.io.show-sprite"></a>
+### [show-sprite *id*] / [show-sprite *$var*]
+
+* types: run
+* attribute style: label or var
+* content type: object
+
+TODO: documentation
+
+
+
+<a name="ref.io.update-sprite"></a>
+### [update-sprite *id*] / [update-sprite *$var*]
+
+* types: run
+* attribute style: label or var
+* content type: object
+
+TODO: documentation
+
+
+
+<a name="ref.io.clear-sprite"></a>
+### [clear-sprite *id*] / [clear-sprite *$var*]
+
+* types: run
+* attribute style: label or var
+* content type: none
+
+TODO: documentation
+
+
+
+<a name="ref.io.animation"></a>
+### [animation *id*] / [animation *$var*]
+
+* types: run
+* attribute style: label or var
+* content type: object
+
+TODO: documentation
+
+
+
+<a name="ref.io.animate-sprite"></a>
+### [animate-sprite *id*] / [animate-sprite *$var*]
+
+* types: run
+* attribute style: label or var
+* content type: string (the id of the animation)
+
+TODO: documentation
 
 
 
