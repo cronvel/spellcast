@@ -35,11 +35,19 @@ var fsKit = require( 'fs-kit' ) ;
 var string = require( 'string-kit' ) ;
 var doormen = require( 'doormen' ) ;
 
-var log = require( 'logfella' ).global.use( 'unit-tests' ) ;
-
 var Book = require( '../lib/Book.js' ) ;
 var Client = require( '../lib/Client.js' ) ;
 var UnitUI = require( '../lib/ui/unit.js' ) ;
+
+var Logfella = require( 'logfella' ) ;
+var log = Logfella.global.use( 'unit-tests' ) ;
+
+Logfella.userland.setGlobalConfig( {
+    minLevel: 'fatal' ,
+    transports: [
+        { "type": "console" , "timeFormatter": "time" , "color": true } ,
+    ]
+} ) ;
 
 
 
@@ -64,6 +72,7 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 	var ui , uiId = 0 , triggered = false , book , options = {} ;
 	
 	if ( action.maxTicks ) { options.maxTicks = action.maxTicks ; }
+	if ( action.jsTag !== undefined ) { options.jsTag = action.jsTag ; }
 	
 	book = Book.load( bookPath , options ) ;
 	
@@ -1848,7 +1857,31 @@ describe( "Wands/extensions" , function() {
 
 
 describe( "Misc tags" , function() {
-	it( "[pause] tag" ) ;
+	it( "[pause] tag should pause the execution" , function( done ) {
+		
+		var messages = [] , time ;
+		
+		runBook( __dirname + '/books/pause.kfg' , { type: 'cast' , target: 'pause' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+				time = Date.now() ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'Before pause' ] ,
+					[ 'After pause' ]
+				] ) ;
+				
+				//log.error( "Time: %s" , Date.now() - time ) ;
+				doormen.equals( Date.now() - time > 500 , true ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "[debug] tag" ) ;
 } ) ;
 	
@@ -1870,6 +1903,26 @@ describe( "Embedded Javascript code" , function() {
 				doormen.equals( messages , [
 					[ "Hello Zang'dar!" ] ,
 					[ "Hello Oz!" ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "when [js] tags are disabled but present in the user script, it should be interrupted by an error" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' , jsTag: false } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ "Hello Zang'dar!" ]
 				] ) ;
 				
 				done() ;

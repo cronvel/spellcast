@@ -36,6 +36,8 @@ Options:
 * `--script-debug`: Activate debug-level logs for scripts ([debug] tag)
 * `--script-verbose`: Activate verbose-level logs for scripts ([debug verbose] tag)
 * `--max-ticks`: Max ticks between two user interactions (prevent from infinite loop, default: Infinity)
+* `--js`/`--no-js`: Turn on/off the [js] tags
+
 
 
 ## Getting started: basic script example

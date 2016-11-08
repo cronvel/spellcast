@@ -1,0 +1,14 @@
+
+[[doctype spellcaster]]
+
+
+[spell debugf]
+	[set $var]
+		a: one
+		b: two
+	
+	[debugf]
+		- "This is $var.a: '%s', $var.b: '%s', and $var: \n%Y"
+		- $var.a
+		- $var.b
+		- $var

@@ -1,0 +1,7 @@
+
+[[doctype spellcaster]]
+
+[spell pause]
+	[message] Before pause
+	[pause] 0.5
+	[message] After pause

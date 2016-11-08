@@ -62,6 +62,11 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Sort Tag](#ref.ops.sort)
 			* [Fill Tag](#ref.ops.fill)
 			* [Copy-within Tag](#ref.ops.copy-within)
+	* [Misc Tags](#ref.misc)
+		* [Pause Tag](#ref.misc.pause)
+		* [Js Tag](#ref.misc.js)
+		* [Debug Tag](#ref.misc.debug)
+		* [Debugf Tag](#ref.misc.debugf)
 
 
 
@@ -82,6 +87,8 @@ Options:
 * `--client-name <name>`: Set the name of the local client user
 * `--script-debug`: Activate debug-level logs for scripts ([debug] tag)
 * `--script-verbose`: Activate verbose-level logs for scripts ([debug verbose] tag)
+* `--max-ticks`: Max ticks between two user interactions (prevent from infinite loop, default: Infinity)
+* `--js`/`--no-js`: Turn on/off the [js] tags
 
 
 
@@ -591,6 +598,28 @@ immediately.
 
 It stores the content of the *set* tag, solved **at run time**, into the *$var* variable.
 
+Example:
+
+```
+[set $a] something
+[set $b] $a
+[set $person]
+	first-name: Joe
+	last-name: Doe
+
+[message] $> a: ${a}
+[message] $> b: ${b}
+[message] $> Hello ${person.first-name} ${person.last-name}!
+```
+
+... this would output:
+
+```
+a: something
+b: something
+Hello Joe Doe!
+```
+
 
 
 <a name="ref.ops.inc"></a>
@@ -1045,5 +1074,145 @@ If the second syntax `[copy-within *$var* => *$into*]` is used, the *$var* array
 instead the result is stored into the *$into* variable.
 
 See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin).
+
+
+<a name="ref.misc"></a>
+## Misc Tags
+
+
+
+<a name="ref.misc.pause"></a>
+### [pause]
+
+* types: run
+* attribute style: none
+* content type: number (float, pause time in seconds)
+
+The *pause* tag suspends the script execution for its content's number in seconds.
+
+Example:
+
+```
+[message] Before pause
+[pause] 2.5
+[message] After pause
+```
+
+... this will display `Before pause`, then wait for 2.5 seconds, then display `After pause`.
+
+
+
+<a name="ref.misc.js"></a>
+### [js]
+
+* types: run
+* attribute style: none
+* content type: string (Javascript code)
+
+The *js* tag provides a way to execute embedded Javascript code directly.
+
+The Javascript code runs in a different VM.
+
+**Warning:** Running third-party Javascript code can be unsafe, **so this feature can be turned off by the host!**
+
+Example:
+
+```
+[set $wizard] Zang'dar
+[message] $> Hello ${wizard}!
+
+[js]
+	> wizard = "Oz" ;
+
+[message] $> Hello ${wizard}!
+```
+
+... this will output:
+
+```
+Hello Zang'dar!
+Hello Oz!
+```
+
+
+
+<a name="ref.misc.debug"></a>
+### [debug *level*]
+
+* types: run
+* attribute style: label
+* content type: anything (the content to debug)
+
+The *debug* tag produces a debug log at level *level*, that inspects its content.
+
+Available log levels:
+* debug
+* verbose
+* info
+* warning
+* error
+* fatal
+
+Example:
+
+```
+[debug info] Script loaded!
+
+[set $var]
+	a: one
+	b: two
+
+[debug] $var
+```
+
+... this would output (in the command line, or any configured log transporter) something similar to:
+
+```
+[INFO.] 09:41:19 <script> -- Script loaded!
+[DEBUG] 09:41:19 <script> -- Object object {
+        a: one number
+        b: two number
+    }
+```
+
+
+
+<a name="ref.misc.debugf"></a>
+### [debugf *level*]
+
+* types: run
+* attribute style: label
+* content type: an array of one format string followed by variable to inspect
+
+The *debugf* tag is similar too the *debug* tag, but provides a way to format what should be debugged.
+
+The first element of the array is the format string, it should follow
+[the string-kit's format](https://github.com/cronvel/string-kit#ref.format).
+
+Other elements are formated according to the format string.
+
+Example:
+
+```
+[set $var]
+	a: one
+	b: two
+
+[debugf]
+	- "This is $var.a: '%s', $var.b: '%s', and $var: \n%Y"
+	- $var.a
+	- $var.b
+	- $var
+```
+
+... this would output (in the command line, or any configured log transporter) something similar to:
+
+```
+[DEBUG] 09:57:38 <script> -- This is $var.a: 'one', $var.b: 'two', and $var: 
+    Object object {
+        a: "one" string(3)
+        b: "two" string(3)
+    }
+```
 
 
