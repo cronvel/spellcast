@@ -226,6 +226,10 @@ It also supports some parameter tags of the *scene* tag, if present they will ac
 
 The *scene* tag is the most important tag of Spellcast Scripting in *Adventurer mode*.
 
+A scenario is basically a lot of scenes, jumping from scene to scene through the [*next* tag](#ref.scenario.next).
+
+At *init time*, the scene is globally registrered using the *label*.
+
 TODO: documentation
 
 
