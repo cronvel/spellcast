@@ -1,0 +1,17 @@
+
+[[doctype adventurer]]
+
+[chapter main]
+	
+	[scene intro]
+		[message] > Elisa looks very sad...
+		[message] > She turns to you.
+		[message] > Elisa: Would you come with me?
+		
+		[next intro]
+			[label] > Sure!
+		[next intro]
+			[label] > I would like but I have something important to do...
+		[next intro]
+			[label] > No...
+	
