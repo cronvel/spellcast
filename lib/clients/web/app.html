@@ -50,4 +50,17 @@
 
 	<script src="app.js"></script>
 </body>
+	<script>
+	document.body.onkeypress = function( event ) {
+		if ( event.keyCode !== 120 ) return ;
+
+		var sheets = document.querySelectorAll('link[rel=stylesheet]') ,
+		href ;
+
+		for ( var i = 0 ; i < sheets.length ; i++ ) {
+			href = sheets[i].getAttribute('href').split('?')[0] + '?' + Math.random() ;
+			sheets[i].setAttribute( 'href' , href ) ;
+		}
+	} ;
+	</script>
 </html>

@@ -1,11 +1,19 @@
+@import url('https://fonts.googleapis.com/css?family=Indie+Flower');
+
 body {
-	font-family: sans-serif;
-	font-size: 16px;
+    font-family: 'Indie Flower', cursive;
+	font-size: 24px;
+}
+
+#content {
+	display: flex;
+	flex-direction: column;
+	height:100vh;
 }
 
 .scene-image {
 	position: fixed;
-	z-index: 0;
+	z-index: -1;
 	top: 0;
 	left: 0;
 	right: 0;
@@ -16,21 +24,24 @@ body {
 	background-repeat: no-repeat;
 	background-size: cover;
 
-	cursor: pointer;
-
 	opacity: 1;
 	transition: opacity 2s ;
 }
 
 
+	/* TEMPORARY */
+.messages , .choices {
+	width:50%;
+	box-sizing: border-box;
+	margin:auto;
+}
+
 	/* MESSAGES */
 
 .messages {
-	position:absolute;
-	bottom:200px;
-	width:50%;
+	order:2;
 	border:5px solid #000;
-    transform: translate(50%, 0);
+	padding:10px;
 }
 .messages:empty {
 	display:none;
@@ -45,13 +56,63 @@ body {
 
 
 	/* CHOICES */
+
 .choices {
-	position:absolute;
-	bottom:200px;
-	width:50%;
-	border:5px solid #000;
-    transform: translate(50%, 0);
+	order:1;
 }
+
+.choices:empty {
+	display:none;
+}
+
+.choices button,
+.choice {
+	font-family:inherit;
+	font-size:inherit;
+	color:white;
+	display:block;
+	width:auto;
+	padding:10px;
+	background:#333;
+	border:none;
+	margin:2px;
+	width:100%;
+	box-sizing: border-box;
+}
+
+.choices button:hover,
+.choice:hover {
+	color:red;
+	cursor:pointer;
+}
+.choices p { display:none; }
+
+.choices button:active,
+.choice:active {
+}
+
+
+
+.choices button.next {
+}
+
+.choices button.next:hover {
+}
+
+.choices button.next:active {
+}
+
+
+.choices button.role {
+}
+
+.choices button.role:hover {
+}
+
+.choices button.role:active {
+}
+
+
 
 .choices p.unassigned-users {
 	color: #555753;
@@ -69,75 +130,6 @@ body {
 .choices span.waiting-roles {
 	color: #555753;
 	font-style: italic;
-}
-
-.choices button {
-	display: block;
-	position: relative;
-	top: 0px;
-	border: none;
-	outline: none;
-	background-color: #aaa ;
-	padding: 10px 20px;
-	margin: 15px 0px;
-	border-radius: 15px ;
-	box-shadow: 0 6px #3c3c3c;
-	cursor: pointer ;
-	font-family: inherit;
-	font-size: inherit;
-	color: inherit;
-	letter-spacing: 1px;
-	-webkit-transition: all 0.3s;
-	-moz-transition: all 0.3s;
-	transition: all 0.3s;
-}
-
-.choices button:hover {
-	background-color: #f77 ;
-	box-shadow: 0 4px #3c3c3c;
-	top: 2px;
-}
-
-.choices button:active {
-	box-shadow: 0 0 #3c3c3c;
-	top: 6px;
-}
-
-.choices button:after {
-	content: '';
-	position: absolute;
-	z-index: -1;
-	-webkit-transition: all 0.3s;
-	-moz-transition: all 0.3s;
-	transition: all 0.3s;
-}
-
-.choices button.next {
-	background-color: #faa ;
-	box-shadow: 0 6px #ab3c3c;
-}
-
-.choices button.next:hover {
-	background-color: #f77 ;
-	box-shadow: 0 4px #ab3c3c;
-}
-
-.choices button.next:active {
-	box-shadow: 0 0 #ab3c3c;
-}
-
-.choices button.role {
-	background-color: #aaf ;
-	box-shadow: 0 6px #3c3cab;
-}
-
-.choices button.role:hover {
-	background-color: #77f ;
-	box-shadow: 0 4px #3c3cab;
-}
-
-.choices button.role:active {
-	box-shadow: 0 0 #3c3cab;
 }
 
 
@@ -176,7 +168,7 @@ body {
 }
 
 
-
+#chat { display:none; }
 
 #chat {
 	position: absolute;
