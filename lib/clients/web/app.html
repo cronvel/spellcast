@@ -3,7 +3,9 @@
 <html>
 <head>
 	<meta charset="utf8" />
-	<link rel="stylesheet" href="app.css" />
+	<link rel="stylesheet" href="common.css" />
+	<!-- <link rel="stylesheet" href="themes/default.css" /> -->
+	<link rel="stylesheet" href="themes/visual-novel.css" />
 </head>
 <body>
 	<audio id="music"></audio>
@@ -11,23 +13,41 @@
 	<audio id="sound1"></audio>
 	<audio id="sound2"></audio>
 	<audio id="sound3"></audio>
-	
+
 	<main>
 		<div id="gfx">
+			<!-- Background, Sprites-->
 			<div class="scene-image"></div>
 		</div>
+
 		<div id="content">
-			<div id="text"></div>
-			<div id="next"></div>
-			<div id="hint"></div>
+			<!-- Everything not related to the game -->
+			<div id="text" class="messages">
+				<!-- Contain all messages sended by server + inputs fields -->
+			</div>
+
+			<div id="next" class="choices">
+				<!-- Contain all choices -->
+			</div>
+
+			<div id="hint" class="alerts">
+				<!-- Contain hints -->
+			</div>
+
 			<div id="chat">
+				<!-- Chatbox -->
 				<form id="chat-form">
 					<input type="text" id="chat-input" />
 				</form>
 			</div>
 		</div>
-		<div id="connection"></div>
 	</main>
+
+	<div id="lobby">
+		<!-- Everything not related to the game -->
+		<div id="connection"></div>
+	</div>
+
 	<script src="app.js"></script>
 </body>
 </html>

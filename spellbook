@@ -36,7 +36,9 @@
 	[summon]
 		- browser/app.html
 		- browser/app.min.js
-		- browser/app.css
+		- browser/common.css
+		- browser/themes/default.css
+		- browser/themes/visual-novel.css
 
 [summoning browser/app.html]
 	[summon]
@@ -44,11 +46,23 @@
 	[scroll]
 		- > cp lib/clients/web/app.html browser/app.html
 
-[summoning browser/app.css]
+[summoning browser/common.css]
 	[summon]
-		- lib/clients/web/app.css
+		- lib/clients/web/common.css
 	[scroll]
-		- > cp lib/clients/web/app.css browser/app.css
+		- > cp lib/clients/web/common.css browser/common.css
+
+[summoning browser/themes/default.css]
+	[summon]
+		- lib/clients/web/themes/default.css
+	[scroll]
+		- > cp lib/clients/web/themes/default.css browser/themes/default.css
+
+[summoning browser/themes/visual-novel.css]
+	[summon]
+		- lib/clients/web/themes/visual-novel.css
+	[scroll]
+		- > cp lib/clients/web/themes/visual-novel.css browser/themes/visual-novel.css
 
 [summoning browser/app.js]
 	[summon]

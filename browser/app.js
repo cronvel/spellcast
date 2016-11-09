@@ -268,21 +268,21 @@ toolkit.markup = markupMethod.bind( markupConfig ) ;
 },{"string-kit/lib/format.js":21}],3:[function(require,module,exports){
 /*
 	Spellcast
-	
+
 	Copyright (c) 2014 - 2016 Cédric Ronvel
-	
+
 	The MIT License (MIT)
-	
+
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-	
+
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
-	
+
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -308,7 +308,7 @@ var toolkit = require( '../toolkit.js' ) ;
 function UI( bus , client , self )
 {
 	console.log( Array.from( arguments ) ) ;
-	
+
 	if ( ! self )
 	{
 		self = Object.create( UI.prototype , {
@@ -329,7 +329,7 @@ function UI( bus , client , self )
 			animations: { value: {} , enumerable: true } ,
 		} ) ;
 	}
-	
+
 	self.$gfx = document.querySelector( '#gfx' ) ;
 	self.$content = document.querySelector( '#content' ) ;
 	self.$text = document.querySelector( '#text' ) ;
@@ -344,14 +344,14 @@ function UI( bus , client , self )
 	self.$sound1 = document.querySelector( '#sound1' ) ;
 	self.$sound2 = document.querySelector( '#sound2' ) ;
 	self.$sound3 = document.querySelector( '#sound3' ) ;
-	
+
 	self.initInteractions() ;
-	
+
 	self.client.once( 'connecting' , UI.clientConnecting.bind( self ) ) ;
 	self.client.once( 'open' , UI.clientOpen.bind( self ) ) ;
 	self.client.once( 'close' , UI.clientClose.bind( self ) ) ;
 	self.client.on( 'error' , UI.clientError.bind( self ) ) ;
-	
+
 	return self ;
 }
 
@@ -366,27 +366,27 @@ function arrayGetById( id ) { return this.find( function( e ) { return e.id === 
 UI.prototype.initInteractions = function initInteractions()
 {
 	var self = this , fullScreenImageTimer = null ;
-	
+
 	// Chat
 	this.$chatForm.onsubmit = UI.onChatSubmit.bind( this ) ;
-	
+
 	// Switch to fullscreen background image on click
 	var fromFullScreenImage = function fromFullScreenImage( event ) {
 		if ( fullScreenImageTimer !== null ) { clearTimeout( fullScreenImageTimer ) ; fullScreenImageTimer = null ; }
 		self.$content.classList.remove( 'hidden' ) ;
 	} ;
-	
+
 	var toFullScreenImage = function toFullScreenImage( event ) {
 		if ( fullScreenImageTimer !== null ) { clearTimeout( fullScreenImageTimer ) ; fullScreenImageTimer = null ; }
-		
+
 		self.$content.classList.toggle( 'hidden' ) ;
-		
+
 		if ( self.$content.classList.contains( 'hidden' ) )
 		{
 			fullScreenImageTimer = setTimeout( fromFullScreenImage , 8000 ) ;
 		}
 	} ;
-	
+
 	this.$content.addEventListener( 'click' , fromFullScreenImage , false ) ;
 	this.$gfx.addEventListener( 'click' , toFullScreenImage , false ) ;
 } ;
@@ -399,41 +399,41 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'user' , UI.user.bind( this ) ) ;
 	this.bus.on( 'userList' , UI.userList.bind( this ) ) ;
 	this.bus.on( 'roleList' , UI.roleList.bind( this ) ) ;
-	
+
 	//this.bus.on( 'coreMessage' , UI.coreMessage.bind( this ) ) ;
 	//this.bus.on( 'errorMessage' , UI.errorMessage.bind( this ) ) ;
 	this.bus.on( 'extOutput' , UI.extOutput.bind( this ) ) ;
 	this.bus.on( 'extErrorOutput' , UI.extErrorOutput.bind( this ) ) ;
-	
+
 	this.bus.on( 'message' , UI.message.bind( this ) , { async: true } ) ;
 	this.bus.on( 'chatConfig' , UI.chatConfig.bind( this ) ) ;
-	
+
 	this.bus.on( 'image' , UI.image.bind( this ) ) ;
 	this.bus.on( 'sound' , UI.sound.bind( this ) ) ;
 	this.bus.on( 'music' , UI.music.bind( this ) ) ;
-	
+
 	this.bus.on( 'defineAnimation' , UI.defineAnimation.bind( this ) ) ;
-	
+
 	this.bus.on( 'showSprite' , UI.showSprite.bind( this ) ) ;
 	this.bus.on( 'updateSprite' , UI.prototype.updateSprite.bind( this ) ) ;
 	this.bus.on( 'animateSprite' , UI.animateSprite.bind( this ) ) ;
 	this.bus.on( 'clearSprite' , UI.clearSprite.bind( this ) ) ;
-	
+
 	this.bus.on( 'enterScene' , UI.enterScene.bind( this ) ) ;
 	this.bus.on( 'leaveScene' , UI.leaveScene.bind( this ) , { async: true } ) ;
 	this.bus.on( 'nextList' , UI.nextList.bind( this ) ) ;
 	this.bus.on( 'nextTriggered' , UI.nextTriggered.bind( this ) ) ;
-	
+
 	this.bus.on( 'textInput' , UI.textInput.bind( this ) ) ;
-	
+
 	//this.bus.on( 'split' , UI.split.bind( this ) ) ;
     this.bus.on( 'rejoin' , UI.rejoin.bind( this ) ) ;
-    
+
     this.bus.on( 'wait' , UI.wait.bind( this ) ) ;
     this.bus.on( 'end' , UI.end.bind( this ) ) ;
-	
+
 	this.bus.on( 'exit' , UI.exit.bind( this ) ) ;
-	
+
 	this.bus.emit( 'ready' ) ;
 } ;
 
@@ -491,7 +491,7 @@ UI.user = function user( user_ )
 UI.userList = function userList( users )
 {
 	console.log( 'User-list received: ' , users ) ;
-	
+
 	// Add the get method to the array
 	users.get = arrayGetById ;
 	this.users = users ;
@@ -503,53 +503,53 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 {
 	var self = this , $roles , userName ,
 		max = 0x61 + roles.length - 1 ;
-	
+
 	// Add the get method to the array
 	roles.get = arrayGetById ;
 
 	this.roles = roles ;
-	
+
 	// If already in-game, nothing more to do...
 	if ( this.inGame ) { return ; }
-	
+
 	if ( assigned && roles.length <= 1 )
 	{
 		// Nothing to do and nothing to display...
 		this.roleId = roles[ 0 ].id ;
 		return ;
 	}
-	
+
 	this.$next.innerHTML = '' ;
-	
+
 	roles.forEach( function( role , i ) {
-		
+
 		userName = role.clientId && self.users.get( role.clientId ).name ;
-		
+
 		self.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_' + i + '" class="role classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + role.label +
+			'<button id="next_' + i + '" class="role">' + String.fromCharCode( 0x61 + i ) + '. ' + role.label +
 			( userName ? ' <span class="italic brightBlack">' + userName + '</span>' : '' ) +
 			'</button>'
 		) ;
 	} ) ;
-	
+
 	if ( assigned )
 	{
 		roles.find( function( e , i ) {
 			if ( e.clientId === self.user.id ) { self.roleId = e.id ; return true ; }
 			return false ;
 		} ) ;
-		
+
 		this.afterLeave = true ;	// tmp
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<h2 class="end classic-ui">Start!</h2>'
+			'<h2 class="end">Start!</h2>'
 		) ;
 		return ;
 	}
-	
+
 	if ( unassignedUsers.length )
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<p class="unassigned-users classic-ui">Idling: <span class="unassigned-users classic-ui">' +
+			'<p class="unassigned-users">Idling: <span class="unassigned-users">' +
 			unassignedUsers.map( function( e ) { return self.users.get( e ).name ; } ).join( ', ' ) +
 			'</span></p>'
 		) ;
@@ -557,7 +557,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 
 	$roles = document.querySelectorAll( '.role' ) ;
 	$roles = Array.prototype.slice.call( $roles ) ;
-	
+
 	$roles.forEach( function( e , i ) {
 		e.onclick = function() {
 			if ( roles[ i ].clientId === self.user.id )
@@ -574,7 +574,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 			{
 				self.bus.emit( 'selectRole' , i ) ;
 			}
-			
+
 			$roles.forEach( function( e , i ) { e.onclick = null ; } ) ;
 		} ;
 	} ) ;
@@ -594,18 +594,18 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 UI.message = function message( text , options , callback )
 {
 	var self = this , triggered = false ;
-	
+
 	text = toolkit.markup( text ) ;
-	
+
 	if ( ! options ) { options = {} ; }
-	
+
 	var triggerCallback = function triggerCallback() {
 		if ( triggered ) { return ; }
 		triggered = true ;
 		if ( options.next ) { self.messageNext( callback ) ; return ; }
 		callback() ;
 	} ;
-	
+
 	/*
 	if ( options.slowTyping )
 	{
@@ -613,11 +613,11 @@ UI.message = function message( text , options , callback )
 		return ;
 	}
 	*/
-	
+
 	this.$text.insertAdjacentHTML( 'beforeend' ,
-		'<p class="text classic-ui">' + text + '</p>'
+		'<p class="text">' + text + '</p>'
 	) ;
-	
+
 	triggerCallback() ;
 } ;
 
@@ -634,7 +634,7 @@ UI.chatConfig = function chatConfig( data )
 {
 	this.chatConfig = data ;
 	console.warn( 'chatConfig:' , this.chatConfig ) ;
-	
+
 	if ( this.roleId && this.chatConfig[ this.roleId ].write )
 	{
 		if ( this.$chatInput.getAttribute( 'disabled' ) )
@@ -659,9 +659,9 @@ UI.chatConfig = function chatConfig( data )
 UI.onChatSubmit = function onChatSubmit( event )
 {
 	event.preventDefault() ;
-	
+
 	if ( this.$chatInput.getAttribute( 'disabled' ) ) { return ; }
-	
+
 	if ( this.redirectChat )
 	{
 		this.redirectChat( this.$chatInput.value ) ;
@@ -670,7 +670,7 @@ UI.onChatSubmit = function onChatSubmit( event )
 	{
 		this.bus.emit( 'chat' , this.$chatInput.value ) ;
 	}
-	
+
 	this.$chatInput.value = '' ;
 } ;
 
@@ -680,14 +680,14 @@ UI.onChatSubmit = function onChatSubmit( event )
 UI.enterScene = function enterScene()
 {
 	this.inGame = true ;
-	
+
 	if ( this.afterLeave && ! this.afterNextTriggered )
 	{
 		this.$text.innerHTML = '' ;
 		this.$next.innerHTML = '' ;
 		this.$hint.innerHTML = '' ;
 	}
-	
+
 	this.afterNext = this.afterLeave = this.afterNextTriggered = false ;
 } ;
 
@@ -697,7 +697,7 @@ UI.enterScene = function enterScene()
 UI.leaveScene = function leaveScene( callback )
 {
 	this.afterLeave = true ;
-	
+
 	if ( this.afterNext ) { callback() ; return ; }
 	setTimeout( callback , 500 ) ;
 } ;
@@ -718,12 +718,12 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , tim
 {
 	this.nexts = nexts ;
 	this.afterNext = true ;
-	
+
 	// No need to update if we are alone
 	if ( isUpdate && this.roles.length === 1 ) { return ; }
-	
+
 	//if ( nexts.length === 0 ) { this.nextEnd() ; }
-	//else 
+	//else
 	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] , grantedRoleIds , undecidedRoleIds , timeout , isUpdate ) ; }
 	else { this.nextListMenu( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate ) ; }
 } ;
@@ -734,15 +734,15 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , grantedRoleIds ,
 {
 	var self = this , $next , roles ,
 		startTime , timer , $timer ;
-	
+
 	this.$next.innerHTML = '' ;
-	
+
 	if ( next.label )
 	{
 		roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
-		
+
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_0" class="next classic-ui">Next: ' + next.label +
+			'<button id="next_0" class="next">Next: ' + next.label +
 			( roles ? ' <span class="italic brightBlack">' + roles + '</span>' : '' ) +
 			'</button>'
 		) ;
@@ -750,43 +750,43 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , grantedRoleIds ,
 	else
 	{
 		roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
-		
+
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_0" class="next classic-ui">Next.' +
+			'<button id="next_0" class="next">Next.' +
 			( roles ? ' <span class="italic brightBlack">' + roles + '</span>' : '' ) +
 			'</button>'
 		) ;
 	}
-	
+
 	if ( undecidedRoleIds.length && this.roles.length > 1 )
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<p class="waiting-roles classic-ui">Waiting: <span class="waiting-roles classic-ui">' +
+			'<p class="waiting-roles">Waiting: <span class="waiting-roles">' +
 			undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
 			'</span></p>'
 		) ;
 	}
-	
+
 	if ( timeout !== null )
 	{
 		startTime = Date.now() ;
-		
+
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<p class="timer classic-ui">Time limit: <span class="time">' + Math.round( timeout / 1000 ) + 's' + '</span></p>'
+			'<p class="timer">Time limit: <span class="time">' + Math.round( timeout / 1000 ) + 's' + '</span></p>'
 		) ;
-		
+
 		$timer = document.querySelector( '.timer .time' ) ;
-		
+
 		timer = setInterval( function() {
 			// If no parentNode, the element has been removed...
 			if ( ! $timer.parentNode ) { clearInterval( timer ) ; return ; }
-			
+
 			$timer.textContent = Math.round( ( timeout + startTime - Date.now() ) / 1000 ) + 's' ;
 		} , 1000 ) ;
 	}
-	
+
 	$next = document.querySelector( '#next_0' ) ;
-	
+
 	$next.onclick = function() {
 		self.bus.emit( 'selectNext' , 0 ) ;
 		$next.onclick = null ;
@@ -800,50 +800,50 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , unde
 	var self = this , $nexts ,
 		startTime , timer , $timer ,
 		max = 0x61 + nexts.length - 1 ;
-	
+
 	this.$next.innerHTML = '' ;
-	
+
 	nexts.forEach( function( next , i ) {
-		
+
 		var roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
-		
+
 		self.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_' + i + '" class="next classic-ui">' + String.fromCharCode( 0x61 + i ) + '. ' + next.label +
+			'<button id="next_' + i + '" class="next">' + String.fromCharCode( 0x61 + i ) + '. ' + next.label +
 			( roles ? ' <span class="italic brightBlack">' + roles + '</span>' : '' ) +
 			'</button>'
 		) ;
 	} ) ;
-	
+
 	if ( undecidedRoleIds.length && this.roles.length )
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<p class="waiting-roles classic-ui">Waiting: <span class="waiting-roles classic-ui">' +
+			'<p class="waiting-roles">Waiting: <span class="waiting-roles">' +
 			undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
 			'</span></p>'
 		) ;
 	}
-	
+
 	if ( timeout !== null )
 	{
 		startTime = Date.now() ;
-		
+
 		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<p class="timer classic-ui">Time limit: <span class="time">' + Math.round( timeout / 1000 ) + 's' + '</span></p>'
+			'<p class="timer">Time limit: <span class="time">' + Math.round( timeout / 1000 ) + 's' + '</span></p>'
 		) ;
-		
+
 		$timer = document.querySelector( '.timer .time' ) ;
-		
+
 		timer = setInterval( function() {
 			// If no parentNode, the element has been removed...
 			if ( ! $timer.parentNode ) { clearInterval( timer ) ; return ; }
-			
+
 			$timer.textContent = Math.round( ( timeout + startTime - Date.now() ) / 1000 ) + 's' ;
 		} , 1000 ) ;
 	}
-	
+
 	$nexts = document.querySelectorAll( '.next' ) ;
 	$nexts = Array.prototype.slice.call( $nexts ) ;
-	
+
 	$nexts.forEach( function( e , i ) {
 		e.onclick = function() {
 			if ( nexts[ i ].roleIds.indexOf( self.roleId ) !== -1 )
@@ -854,7 +854,7 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , unde
 			{
 				self.bus.emit( 'selectNext' , i ) ;
 			}
-			
+
 			$nexts.forEach( function( e , i ) { e.onclick = null ; } ) ;
 		} ;
 	} ) ;
@@ -884,57 +884,57 @@ UI.extErrorOutput = function extErrorOutput( output )
 UI.textInput = function textInput( label , grantedRoleIds )
 {
 	var self = this , $form , $input , finalized = false ;
-	
+
 	//alert( 'textInput is not coded ATM!' ) ;
-	
+
 	if ( grantedRoleIds.indexOf( this.roleId ) === -1 )
 	{
 		// Not granted!
 		this.$text.insertAdjacentHTML( 'beforeend' ,
-			'<p class="text classic-ui">' + label +
-			'<input type="text" id="textInput" class="text-input classic-ui" placeholder="YOU CAN\'T RESPOND - WAIT..." disabled /></p>'
+			'<p class="text">' + label +
+			'<input type="text" id="textInput" class="text-input" placeholder="YOU CAN\'T RESPOND - WAIT..." disabled /></p>'
 		) ;
 		return ;
 	}
-	
+
 	this.$text.insertAdjacentHTML( 'beforeend' ,
-		'<form class="form-text-input classic-ui"><p class="text classic-ui">' + label +
-		'<input type="text" class="text-input classic-ui" /></p></form>'
+		'<form class="form-text-input"><p class="text">' + label +
+		'<input type="text" class="text-input" /></p></form>'
 	) ;
-	
+
 	$form = document.querySelector( '.form-text-input' ) ;
 	$input = $form.querySelector( '.text-input' ) ;
-	
+
 	$input.value = this.$chatInput.value ;
-	
+
 	$input.focus() ;
-	
+
 	var finalize = function finalize( text ) {
 		if ( finalized ) { return ; }
 		finalized = true ;
-		
+
 		self.redirectChat = null ;
 		$form.onsubmit = function() {} ;
 		$input.oninput = null ;
 		self.$chatInput.oninput = null ;
 		$input.setAttribute( 'disabled' , true ) ;
-		
-		self.bus.emit( 'textSubmit' , text ) ; 
+
+		self.bus.emit( 'textSubmit' , text ) ;
 	} ;
-	
+
 	this.redirectChat = function redirectChat( text ) {
 		finalize( text ) ;
 	} ;
-	
+
 	$form.onsubmit = function onSubmit( event ) {
 		event.preventDefault() ;
-		finalize( $input.value ) ; 
+		finalize( $input.value ) ;
 	} ;
-	
+
 	$input.oninput = function onInput() {
 		self.$chatInput.value = $input.value ;
 	} ;
-	
+
 	this.$chatInput.oninput = function onChatInput() {
 		$input.value = self.$chatInput.value ;
 	} ;
@@ -950,18 +950,18 @@ UI.rejoin = function rejoin() {} ;
 UI.wait = function wait( what )
 {
 	var self = this ;
-	
+
 	switch ( what )
 	{
 		case 'otherBranches' :
 			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="wait pulse-animation classic-ui">WAITING FOR OTHER BRANCHES TO FINISH...</h2>'
+				'<h2 class="wait pulse-animation">WAITING FOR OTHER BRANCHES TO FINISH...</h2>'
 			) ;
 			this.bus.once( 'rejoin' , function() { self.$hint.innerHTML = '' ; } ) ;
 			break ;
 		default :
 			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="wait pulse-animation classic-ui">WAITING FOR ' + what +'</h2>'
+				'<h2 class="wait pulse-animation">WAITING FOR ' + what +'</h2>'
 			) ;
 	}
 } ;
@@ -971,31 +971,31 @@ UI.wait = function wait( what )
 UI.image = function image( data )
 {
 	var self = this , cleaned = false ;
-	
+
 	var div = document.createElement( 'div' ) ;
 	div.classList.add( 'scene-image' ) ;
-	
+
 	if ( data.url ) { div.style.backgroundImage = 'url("' + data.url + '")' ; }
-	
+
 	if ( data.origin && typeof data.origin === 'string' )
 	{
 		div.style.backgroundPosition = data.origin ;
 	}
-	
+
 	var oldImage = this.$gfx.firstElementChild || null ;
-	
+
 	var cleanUp = function cleanUp() {
 		if ( cleaned ) { return ; }
 		cleaned = true ;
 		oldImage.remove() ;
 	} ;
-	
+
 	if ( oldImage )
 	{
 		oldImage.addEventListener( 'transitionend' , cleanUp , false ) ;
 		this.$gfx.insertBefore( div , oldImage ) ;
 		oldImage.classList.add( 'hidden' ) ;
-		
+
 		// For some very obscure reason, sometime we don't get the 'transitionend' event,
 		// Maybe no transition happend at all... So we need to clean up anyway after a while...
 		setTimeout( cleanUp , 2000 ) ;
@@ -1004,7 +1004,7 @@ UI.image = function image( data )
 	{
 		this.$gfx.append( div ) ;
 	}
-	
+
 	switch ( data.position )
 	{
 		case 'left' :
@@ -1030,22 +1030,22 @@ UI.defineAnimation = function defineAnimation( id , data )
 UI.showSprite = function showSprite( id , data )
 {
 	var self = this , sprite , oldSprite ;
-	
+
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
-	
+
 	oldSprite = this.sprites[ id ] ;
-	
+
 	sprite = this.sprites[ id ] = {
 		animation: null ,
 		action: null ,
 		style: {}
 	} ;
-	
+
 	sprite.$img = document.createElement( 'img' ) ;
 	sprite.$img.classList.add( 'sprite' ) ;
-	
+
 	this.updateSprite( null , data , sprite ) ;
-	
+
 	if ( oldSprite ) { oldSprite.$img.remove() ; }
 	this.$gfx.append( sprite.$img ) ;
 } ;
@@ -1056,9 +1056,9 @@ UI.showSprite = function showSprite( id , data )
 UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 {
 	var self = this , sprite ;
-	
+
 	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
-	
+
 	if ( internalSprite )
 	{
 		sprite = internalSprite ;
@@ -1070,29 +1070,29 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 			console.warn( 'Unknown sprite id: ' , id ) ;
 			return ;
 		}
-		
+
 		sprite = this.sprites[ id ] ;
 	}
-	
+
 	delete data.style.position ;
-	
+
 	if ( data.url )
 	{
 		sprite.$img.setAttribute( "src" ,  data.url ) ;
 	}
-	
+
 	if ( data.action !== undefined )
 	{
 		if ( data.action && ! sprite.action )
 		{
 			sprite.$img.classList.add( 'clickable' ) ;
-			
+
 			sprite.onClick = function( event ) {
 				console.warn( "action triggered: " , sprite.action ) ;
 				self.bus.emit( 'action' , sprite.action ) ;
 				event.stopPropagation() ;
 			} ;
-			
+
 			sprite.$img.addEventListener( 'click' , sprite.onClick ) ;
 		}
 		else if ( ! data.action && sprite.action )
@@ -1100,13 +1100,13 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 			sprite.$img.classList.remove( 'clickable' ) ;
 			sprite.$img.removeEventListener( 'click' , sprite.onClick ) ;
 		}
-		
+
 		sprite.action = data.action || null ;
 	}
-	
+
 	//treeExtend( { deep: true } , sprite , data ) ;
 	treeExtend( null , sprite.style , data.style ) ;
-	
+
 	// Use data.style, NOT sprite.style: we have to set only new/updated styles
 	dom.css( sprite.$img , data.style ) ;
 } ;
@@ -1116,36 +1116,36 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 UI.animateSprite = function animateSprite( spriteId , animationId )
 {
 	var self = this , sprite , animation , frame , frameIndex = 0 ;
-	
+
 	if ( ! this.sprites[ spriteId ] )
 	{
 		console.warn( 'Unknown sprite id: ' , spriteId ) ;
 		return ;
 	}
-	
+
 	if ( ! this.animations[ animationId ] )
 	{
 		console.warn( 'Unknown animation id: ' , animationId ) ;
 		return ;
 	}
-	
+
 	sprite = this.sprites[ spriteId ] ;
 	animation = this.animations[ animationId ] ;
 	sprite.animation = animationId ;
-	
+
 	// What should be done if an animation is already running???
-	
+
 	//console.warn( "Animation: " , animation ) ;
-	
+
 	// If there is no frames, quit now
 	if ( ! Array.isArray( animation.frames ) || ! animation.frames.length ) { return ; }
-	
+
 	var nextFrame = function() {
 		frame = animation.frames[ frameIndex ] ;
-		
+
 		// Update the sprite
 		self.updateSprite( null , frame , sprite ) ;
-		
+
 		if ( ++ frameIndex < animation.frames.length )
 		{
 			setTimeout( nextFrame , frame.duration * 1000 ) ;
@@ -1157,7 +1157,7 @@ UI.animateSprite = function animateSprite( spriteId , animationId )
 			sprite.animation = null ;
 		}
 	} ;
-	
+
 	nextFrame() ;
 } ;
 
@@ -1166,17 +1166,17 @@ UI.animateSprite = function animateSprite( spriteId , animationId )
 UI.clearSprite = function clearSprite( id , data )
 {
 	var sprite ;
-	
+
 	if ( ! this.sprites[ id ] )
 	{
 		console.warn( 'Unknown sprite id: ' , id ) ;
 		return ;
 	}
-	
+
 	sprite = this.sprites[ id ] ;
-	
+
 	sprite.$img.remove() ;
-	
+
 	delete this.sprites[ id ] ;
 } ;
 
@@ -1187,7 +1187,7 @@ UI.sound = function sound( data )	// maybe? , callback )
 	var element = this[ '$sound' + this.nextSoundChannel ] ;
 	console.warn( '$sound' + this.nextSoundChannel , data , element ) ;
 	this.nextSoundChannel = ( this.nextSoundChannel + 1 ) % 4 ;
-	
+
 	element.setAttribute( 'src' , data.url ) ;
 	element.play() ;
 } ;
@@ -1198,7 +1198,7 @@ UI.music = function music( data )
 {
 	var self = this ,
 		oldSrc = this.$music.getAttribute( 'src' ) ;
-	
+
 	if ( data.url )
 	{
 		if ( oldSrc )
@@ -1247,13 +1247,13 @@ var FADE_VALUE = 0.01 ;
 function fadeIn( element , callback )
 {
 	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
-	
+
 	if ( element.volume >= 1 )
 	{
 		if ( callback ) { callback() ; }
 		return ;
 	}
-	
+
 	element.volume = Math.min( 1 , element.volume + FADE_VALUE ) ;
 	element.__fadeTimer = setTimeout( fadeIn.bind( undefined , element , callback ) , FADE_TIMEOUT ) ;
 }
@@ -1263,13 +1263,13 @@ function fadeIn( element , callback )
 function fadeOut( element , callback )
 {
 	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
-	
+
 	if ( element.volume <= 0 )
 	{
 		if ( callback ) { callback() ; }
 		return ;
 	}
-	
+
 	element.volume = Math.max( 0 , element.volume - FADE_VALUE ) ;
 	element.__fadeTimer = setTimeout( fadeOut.bind( undefined , element , callback ) , FADE_TIMEOUT ) ;
 }
@@ -1283,26 +1283,26 @@ UI.end = function end( result , data )
 	{
 		case 'end' :
 			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="end classic-ui">The End.</h2>'
+				'<h2 class="end">The End.</h2>'
 			) ;
 			break ;
 		case 'win' :
 			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="end win classic-ui">You win!</h2>'
+				'<h2 class="end win">You win!</h2>'
 			) ;
 			break ;
 		case 'lost' :
 			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="end lost classic-ui">You lose...</h2>'
+				'<h2 class="end lost">You lose...</h2>'
 			) ;
 			break ;
 		case 'draw' :
 			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="end draw classic-ui">Draw.</h2>'
+				'<h2 class="end draw">Draw.</h2>'
 			) ;
 			break ;
 	}
-	
+
 } ;
 
 
@@ -1313,8 +1313,6 @@ UI.exit = function exit()
 	//term( "\n" ) ;
 	//term.styleReset() ;
 } ;
-
-
 
 },{"../toolkit.js":2,"dom-kit":13,"kung-fig/lib/treeOps.js":15,"tree-kit/lib/extend.js":23}],4:[function(require,module,exports){
 
@@ -5979,13 +5977,33 @@ module.exports={
     ],
     "owner": "Cédric Ronvel"
   },
-  "readme": "\n\n# NextGen Events\n\nNext generation of events handling for node.js\n\n* License: MIT\n* Current status: close to release\n* Platform: Node.js and browsers\n\n*NextGen Events* solves common trouble that one may encounter when dealing with events and listeners.\n\n## Feature highlights:\n\n* Standard event-handling almost compatible with Node.js built-in events\n* .emit() support a completion callback\n* Support for asynchronous event-handling\n* Multiple listeners can be tied to a single context\n* A context can be temporarly *disabled*\n* A context can be in *queue* mode: events for its listeners are stored, they will be *resumed* when the context is enabled again\n* Context serialization: async listeners can be run one after the other is fully completed\n* **NEW: proxy services!** Abstract away your network: emit and listen to emitter on the other side of the plug!\n\nEmitting events asynchronously or registering a listener that will be triggered asynchronously because it performs\nnon-critical tasks has some virtues: it gives some breath to the event-loop, so important I/O can be processed as soon as possible.\n\nContexts are really useful, it handles a collection of listeners.\nAt first glance, it looks like a sort of namespace for listeners.\nBut it can do more than that: you can turn a context off, so every listener tied to this context will not be triggered anymore,\nthen turn it on and they will be available again. \n\nYou can even switch a context into queue mode: the listeners tied to it will not be triggered, but events for those\nlisteners will be stored in the context. When the context is resumed, all retained events will trigger their listeners.\nThis allow one to postpone some operations, while performing some other high priority tasks, but be careful:\ndepending on your application nature, the queue may grow fast and consumes a lot of memory very quickly.\n\nOne of the top feature of this lib is the context serialization: it greatly eases the flow of the code!\nWhen differents events can fire at the same time, there are use cases when one does not want that async listener run concurrently.\nThe context serialization feature will ensure you that no concurrency will happen for listeners tied to it.\nYou do not have to code fancy or complicated tests to cover all cases anymore: just let *NextGen Events* do it for you!\n\n**Proxy services are awesome.** They abstract away the network so we can emit and listen to emitter on the other side of the plug!\nBoth side of the channel create a Proxy, and add to it local and remote *services*, i.e. event emitters, and that's all.\nA remote service looks like a normal (i.e. local) emitter, and share the same API (with few limitations).\nIt's totally protocol agnostic, you just define two methods for your proxy: one to read from the network and one to send to it\n(e.g. for Web Socket, this is a one-liner).\n\n\n\n# Install\n\nUse npm:\n\n```\nnpm install nextgen-events\n```\n\n\n# Getting started\n\nBy the way you can create an event emitter simply by creating a new object, this way:\n\n```js\nvar NGEmitter = require( 'nextgen-events' ) ;\nvar emitter = new NGEmitter() ;\n```\n\nYou can use `var emitter = Object.create( NGEmitter.prototype )` as well, the object does not need the constructor.\n\nBut in real life, you would make your own objects inherit it:\n\n```js\nvar NGEmitter = require( 'nextgen-events' ) ;\n\nfunction myClass()\n{\n\t// myClass constructor code here\n}\n\nmyClass.prototype = Object.create( NGEmitter.prototype ) ;\nmyClass.prototype.constructor = myClass ;\t// restore the constructor\n\n// define other methods for myClass...\n```\n\nThe basis of the event emitter works like Node.js built-in events:\n\n```js\nvar NGEmitter = require( 'nextgen-events' ) ;\nvar emitter = new NGEmitter() ;\n\n// Normal listener\nemitter.on( 'message' , function( message ) {\n\tconsole.log( 'Message received: ' , message ) ;\n} ) ;\n\n// One time listener:\nemitter.once( 'close' , function() {\n\tconsole.log( 'Connection closed!' ) ;\n} ) ;\n\n// The error listener: if it is not defined, the error event will throw an exception\nemitter.on( 'error' , function( error ) {\n\tconsole.log( 'Shit happens: ' , error ) ;\n} ) ;\n\nemitter.emit( 'message' , 'Hello world!' ) ;\n// ...\n```\n\n\n\n# References\n\nNode.js documentation:\n\n> When an EventEmitter instance experiences an error, the typical action is to emit an 'error' event.\n> Error events are treated as a special case in node. If there is no listener for it,\n> then the default action is to print a stack trace and exit the program.\n\n> All EventEmitters emit the event 'newListener' when new listeners are added and 'removeListener' when a listener is removed. \n\nFor the 'newListener' and 'removeListener' events, see the section about [incompatibilities](#incompatibilities), since there\nare few differences with the built-in Node.js EventEmitter.\n\n\n\n## Table of Content\n\n* [Events](#ref.events)\n\t* [.addListener() / .on()](#ref.events.addListener)\n\t* [.once()](#ref.events.once)\n\t* [.removeListener() / .off()](#ref.events.removeListener)\n\t* [.removeAllListeners()](#ref.events.removeAllListeners)\n\t* [.setMaxListeners()](#ref.events.setMaxListeners)\n\t* [.listeners()](#ref.events.listeners)\n\t* [.listenerCount()](#ref.events.listenerCount)\n\t* [.setNice()](#ref.events.setNice)\n\t* [.emit()](#ref.events.emit)\n\t* [.addListenerContext()](#ref.events.addListenerContext)\n\t* [.disableListenerContext()](#ref.events.disableListenerContext)\n\t* [.queueListenerContext()](#ref.events.queueListenerContext)\n\t* [.enableListenerContext()](#ref.events.enableListenerContext)\n\t* [.setListenerContextNice()](#ref.events.setListenerContextNice)\n\t* [.serializeListenerContext()](#ref.events.serializeListenerContext)\n\t* [.destroyListenerContext()](#ref.events.destroyListenerContext)\n\t* [the *nice feature*](#ref.note.nice)\n\t* [incompatibilities](#incompatibilities)\n* [Proxy Services](#ref.proxy)\n\n\n\n<a name=\"ref.events\"></a>\n## Events\n\n<a name=\"ref.events.addListener\"></a>\n### .addListener( eventName , [fn] , [options] )   *or*   .on( eventName , [fn] , [options] )\n\n* eventName `string` the name of the event to bind to\n* fn `Function` the callback function for this event, this argument is optional: it can be passed to the `fn` property of `options`\n* options `Object` where:\n\t* fn `Function` (mandatory if no `fn` argument provided) the listener function\n\t* id `any type` (default to the provided *fn* function) the identifier of the listener, useful if we have to remove it later\n\t* once `boolean` (default: false) *true* if this is a one-time-listener\n\t* context `string` (default: undefined - no context) a non-empty string identifying a context, if defined the listener\n\t  will be tied to this context, if this context is unexistant, it will be implicitly defined with default behaviour\n\t* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\t* async `boolean` (default: false) set it to *true* if the listener is async by nature and a context serialization is wanted,\n\t  when *async* is set for a listener, it **MUST** accept a completion callback as its last argument.\n\t* eventObject `boolean` (default: false) if set, the listener will be passed an unique argument: the very same event object\n\t  that is returned by `.emit()`, if the listener is async, a second argument is passed as the callback\n\nNode.js documentation:\n\n> Adds a listener to the end of the listeners array for the specified event.\n> No checks are made to see if the listener has already been added.\n> Multiple calls passing the same combination of event and listener will result in the listener being added multiple times.\n\n```js\nserver.on( 'connection' , function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ) ;\n```\n\n> Returns emitter, so calls can be chained.\n\nExample, creating implicitly a context the listeners will be tied to:\n\n```js\nserver.on( 'connection' , {\n\tcontext: 'ctx' ,\n\tfn: function( stream ) {\n\t\tconsole.log( 'someone connected!' ) ;\n\t}\n} ) ;\n\nserver.on( 'close' , {\n\tcontext: 'ctx' ,\n\tfn: function() {\n\t\tconsole.log( 'connection closed!' ) ;\n\t\t\n\t\t// Destroy the context and all listeners tied to it:\n\t\tserver.destroyListenerContext( 'ctx' ) ;\n\t}\n} ) ;\n\nserver.on( 'error' , {\n\tcontext: 'ctx' ,\n\tfn: function() {\n\t\t// some error handling code\n\t\t\n\t\t// Destroy the context and all listeners tied to it:\n\t\tserver.destroyListenerContext( 'ctx' ) ;\n\t}\n} ) ;\n```\n\nWhen an async listener is defined, the completion callback is automatically added at the end of the arguments \nsupplied to [.emit()](#ref.events.emit) for any listeners with *async = true*.\n\n\n\n<a name=\"ref.events.once\"></a>\n### .once( eventName , listener )\n\n* eventName `string` the name of the event to bind to\n* listener `Function` or `Object` the listener that will listen to this event, it can be a function or an object where:\n\t* fn `Function` (mandatory) the listener function\n\t* id `any type` (default to the provided *fn* function) the identifier of the listener, useful if we have to remove it later\n\t* context `string` (default: undefined - no context) a non-empty string identifying a context, if defined the listener\n\t  will be tied to this context, if this context is unexistant, it will be implicitly defined with default behaviour\n\t* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\t* async `boolean` (default: false) set it to *true* if the listener is async by nature and a context serialization is wanted\n\nNode.js documentation:\n\n> Adds a **one time** listener for the event.\n> This listener is invoked only the next time the event is fired, after which it is removed. \n\n```js\nserver.once( 'connection' , function( stream ) {\n\tconsole.log( 'Ah, we have our first user!' ) ;\n} ) ;\n```\n\n> Returns emitter, so calls can be chained.\n\nNote that using `.once()` in *NextGen Events* lib is just a syntactic sugar (and it's also there for compatibility),\nthe previous example can be rewritten using `.on()`:\n\n```js\nserver.on( 'connection' , {\n\tfn: function( stream ) {\n\t\tconsole.log( 'Ah, we have our first user!' ) ;\n\t} ,\n\tonce: true\n} ) ;\n```\n\n\n\n<a name=\"ref.events.removeListener\"></a>\n### .removeListener( eventName , listenerID )   *or*   .off( eventName , listenerID )\n\n* eventName `string` the name of the event the listener to remove is binded to\n* listenerID `any type` the identifier of the listener to remove\n\nNode.js documentation:\n\n> Remove a listener from the listener array for the specified event.\n> **Caution**: changes array indices in the listener array behind the listener. \n\n```js\nvar callback = function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ;\n\nserver.on( 'connection' , callback ) ;\n// ...\nserver.removeListener( 'connection' , callback ) ;\n```\n\n**CAUTION: Unlike the built-in Node.js emitter**, `.removeListener()` will remove **ALL** listeners whose ID is matching\nthe given *listenerID*.\nIf any single listener has been added multiple times to the listener array for the specified event, then only one\ncall to `.removeListener()` will remove them all.\n\n> Returns emitter, so calls can be chained.\n\nExample using user-defined ID:\n\n```js\nvar callback = function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ;\n\nserver.on( 'connection' , { id: 'foo' , fn: callback } ) ;\nserver.on( 'connection' , { id: 'bar' , fn: callback } ) ;\n\n// ...\n\n// Does nothing! we have used custom IDs!\nserver.removeListener( 'connection' , callback ) ;\n\n// Remove the first listener only, despite the fact they are sharing the same function\nserver.removeListener( 'connection' , 'foo' ) ;\n```\n\nDon't forget that by default, the ID is the callback function itself.\n\n\n\n<a name=\"ref.events.removeAllListeners\"></a>\n### .removeAllListeners( [eventName] )\n\n* eventName `string` (optional) the name of the event the listeners to remove are binded to\n\nNode.js documentation:\n\n> Removes all listeners, or those of the specified event.\n> It's not a good idea to remove listeners that were added elsewhere in the code, especially when it's on an emitter\n> that you didn't create (e.g. sockets or file streams).\n\n> Returns emitter, so calls can be chained.\n\n\n\n<a name=\"ref.events.setMaxListeners\"></a>\n### .setMaxListeners()\n\nOnly available for compatibility with the built-in Node.js emitter, so it does not break the code for people that want\nto make the switch.\n\nBut please note that **there is no such concept of max listener in NextGen Events**, this method does nothing\n(it's an empty function).\n\n\n\n<a name=\"ref.events.listeners\"></a>\n### .listeners( eventName )\n\n* eventName `string` (optional) the name of the event the listeners to list are binded to\n\nNode.js documentation:\n\n> Returns an array of listeners for the specified event.\n\n```js\nserver.on( 'connection' , function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ) ;\n\nconsole.log( util.inspect( server.listeners( 'connection' ) ) ) ;\n// output:\n// [ { id: [Function], fn: [Function], nice: -Infinity, event: 'connection' } ]\n```\n\n\n\n<a name=\"ref.events.listenerCount\"></a>\n### .listenerCount( eventName )\n\n* eventName `string` the name of the event\n\nNode.js documentation:\n\n> Returns the number of listeners listening to the type of event.\n\n\n\n<a name=\"ref.events.setNice\"></a>\n### .setNice( nice )\n\n* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\nSet the default *nice value* of the current emitter.\n\n\n\n<a name=\"ref.events.emit\"></a>\n### .emit( [nice] , eventName , [arg1] , [arg2] , [...] , [callback] )\n\n* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n* eventName `string` (optional) the name of the event to emit\n* arg1 `any type` (optional) first argument to transmit\n* arg2 `any type` (optional) second argument to transmit\n* ...\n* callback `function` (optional) a completion callback triggered when all listener have done, accepting arguments:\n\t* interruption `any type` if truthy, then emit was interrupted with this interrupt value (provided by userland)\n\t* event `Object` representing the current event\n\nIt returns an object representing the current event.\n\nNode.js documentation:\n\n> Execute each of the listeners in order with the supplied arguments.\n\n**It does not returns the emitter!**\n\n\n\n\n<a name=\"ref.note.nice\"></a>\n### A note about the *nice feature*\n\nThe *nice value* represent the *niceness* of the event-emitting processing.\nThis concept is inspired by the UNIX *nice* concept for processus (see the man page for the *nice* and *renice* command).\n\nIn this lib, this represents the asyncness of the event-emitting processing.\n\nThe constant `require( 'nextgen-events' ).SYNC` can be used to have synchronous event emitting, its value is `-Infinity`\nand it's the default value.\n\n* any nice value *N* greater than or equals to 0 will be emitted asynchronously using setTimeout() with a *N* ms timeout\n  to call the listeners\n* any nice value *N* lesser than 0 will emit event synchronously until *-N* recursion is reached, after that, setImmediate()\n  will be used to call the listeners, the first event count as 1 recursion, so if nice=-1, all events will be asynchronously emitted,\n  if nice=-2 the initial event will call the listener synchronously, but if the listener emits events on the same emitter object,\n  the sub-listener will be called through setImmediate(), breaking the recursion... and so on...\n\nThey are many elements that can define their own *nice value*.\n\nHere is how this is resolved:\n\n* First the *emit nice value* will be the one passed to the `.emit()` method if given, or the default *emitter nice value*\n  defined with [.setNice()](#ref.events.setNice).\n* For each listener to be called, the real *nice value* for the current listener will be the **HIGHEST** *nice value* of\n  the *emit nice value* (see above), the listener *nice value* (defined with [.addListener()](#ref.events.addListener)), and\n  if the listener is tied to a context, the context *nice value* (defined with [.addListenerContext()](#ref.events.addListenerContext)\n  or [.setListenerContextNice](#ref.events.setListenerContextNice))\n\n\n\n<a name=\"ref.events.addListenerContext\"></a>\n### .addListenerContext( contextName , options )\n\n* contextName `string` a non-empty string identifying the context to be created\n* options `Object` an object of options, where:\n\t* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\t* serial `boolean` (default: false) if true, the async listeners tied to this context will run sequentially,\n\t  one after the other is fully completed\n\nCreate a context using the given *contextName*.\n\nListeners can be tied to a context, enabling some grouping features like turning them on or off just by enabling/disabling\nthe context, queuing them, resuming them, or forcing serialization of all async listeners.\n\n\n\n<a name=\"ref.events.disableListenerContext\"></a>\n### .disableListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nIt disables a context: any listeners tied to it will not be triggered anymore.\n\nThe context is not destroyed, the listeners are not removed, they are just inactive.\nThey can be enabled again using [.enableListenerContext()](#ref.events.enableListenerContext).\n\n\n\n<a name=\"ref.events.queueListenerContext\"></a>\n### .queueListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nIt switchs a context into *queue mode*: any listeners tied to it will not be triggered anymore, but every listener's call\nwill be queued.\n\nWhen the context will be enabled again using [.enableListenerContext()](#ref.events.enableListenerContext), any queued listener's call\nwill be processed.\n\n\n\n<a name=\"ref.events.enableListenerContext\"></a>\n### .enableListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nThis enables a context previously disabled using [.disableListenerContext()](#ref.events.disableListenerContext) or queued\nusing [.disableListenerContext()](#ref.events.disableListenerContext).\n\nIf the context was queued, any queued listener's call will be processed right now for synchronous emitter, or a bit later\ndepending on the *nice value*. E.g. if a listener would have been called with a timeout of 50 ms (nice value = 5),\nand the call has been queued, the timeout will apply at resume time.\n\n\n\n<a name=\"ref.events.setListenerContextNice\"></a>\n### .setListenerContextNice( contextName , nice )\n\n* contextName `string` a non-empty string identifying the context to be created\n* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\nSet the *nice* value for the current context.\n\n\n\n<a name=\"ref.events.serializeListenerContext\"></a>\n### .serializeListenerContext( contextName , [value] )\n\n* contextName `string` a non-empty string identifying the context to be created\n* value `boolean` (optional, default is true) if *true* the context will enable serialization for async listeners.\n\nThis is one of the top feature of this lib.\n\nIf set to *true* it enables the context serialization.\n\nIt has no effect on listeners defined without the *async* option (see [.addListener()](#ref.events.addListener)).\nListeners defined with the async option will postpone any other listener's calls part of the same context.\nThose calls will be queued until the completion callback of the listener is triggered.\n\nExample:\n\n```js\napp.on( 'maintenance' , {\n\tcontext: 'maintenanceHandlers' ,\n\tasync: true ,\n\tfn: function( type , done ) {\n\t\tperformSomeCriticalAsyncStuff( function() {\n\t\t\tconsole.log( 'Critical maintenance stuff finished' ) ;\n\t\t\tdone() ;\n\t\t} ) ;\n\t}\n} ) ;\n\napp.serializeListenerContext( maintenanceHandlers ) ;\n\n// ...\n\napp.emit( 'maintenance' , 'doBackup' ) ;\n\n// Despite the fact we emit synchronously, the listener will not be called now,\n// it will be queued and called later when the previous call will be finished\napp.emit( 'maintenance' , 'doUpgrade' ) ;\n```\n\nBy the way, there is only one listener here that will queue itself, and only one event type is fired.\nBut this would work the same with multiple listener and event type, if they share the same context.\n\nSame code with two listeners and two event type:\n\n```js\napp.on( 'doBackup' , {\n\tcontext: 'maintenanceHandlers' ,\n\tasync: true ,\n\tfn: function( done ) {\n\t\tperformBackup( function() {\n\t\t\tconsole.log( 'Backup finished' ) ;\n\t\t\tdone() ;\n\t\t} ) ;\n\t}\n} ) ;\n\napp.on( 'doUpgrade' , {\n\tcontext: 'maintenanceHandlers' ,\n\tasync: true ,\n\tfn: function( done ) {\n\t\tperformUpgrade( function() {\n\t\t\tconsole.log( 'Upgrade finished' ) ;\n\t\t\tdone() ;\n\t\t} ) ;\n\t}\n} ) ;\n\napp.on( 'whatever' , function() {\n\t// Some actions...\n} ) ;\n\napp.serializeListenerContext( maintenanceHandlers ) ;\n\n// ...\n\napp.emit( 'doBackup' ) ;\n\n// Despite the fact we emit synchronously, the second listener will not be called now,\n// it will be queued and called later when the first listener will have finished its job\napp.emit( 'doUpgrade' ) ;\n\n// The third listener is not part of the 'maintenanceHandlers' context, so it will be called\n// right now, before the first listener finished, and before the second listener ever start\napp.emit( 'whatever' ) ;\n```\n\n\n\n<a name=\"ref.events.destroyListenerContext\"></a>\n### .destroyListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nThis destroy a context and remove all listeners tied to it.\n\nAny queued listener's calls will be lost.\n\n\n\n<a name=\"incompatibilities\"></a>\n## Incompatibilities with the built-in Node.js EventEmitter\n\nNextGen Events is almost compatible with Node.js' EventEmitter, except for few things:\n\n* .emit() does not return the emitter, but an object representing the current event.\n\n* If the last argument passed to .emit() is a function, it is not passed to listeners, instead it is a completion callback\n  triggered when all listeners have done their job. If one want to pass function to listeners as the final argument, it is easy\n  to add an extra `null` or `undefined` argument to .emit().\n\n* There is more reserved event name: 'interrupt', 'emitted'.\n\n* There is no such concept of *max listener* in NextGen Events, .setMaxListeners() function exists only to not break compatibility\n  for people that want to make the switch, but it does nothing (it's an empty function).\n\n* .removeListener() will remove all matching listener, not only the first listener found.\n\n* 'newListener'/'removeListener' event listener will receive an array of new/removed *listener object*, instead of only one\n  *listener function*.\n  E.g: it will be fired only once by when .removeListener() or .removeAllListener() is invoked and multiple listeners are deleted.\n  A *listener object* contains a property called 'fn' that hold the actual *listener function*.\n\n* `.removeAllListeners()` without any argument does not trigger 'removeListener' listener, because there are actually removed too.\n  The same apply to `.removeAllListeners( 'removeListener' )`.\n\n* .listeners() same here: rather than providing an array of *listener function* an array of *listener object* is provided.\n\n\n\n<a name=\"ref.proxy\"></a>\n## Proxy Services\n\n**This part of the doc is still a work in progress!**\n\n**Proxy services are awesome.** They abstract away the network so we can emit and listen to emitter on the other side of the plug!\nBoth side of the channel create a Proxy, and add to it local and remote *services*, i.e. event emitters, and that's all.\nA remote service looks like a normal (i.e. local) emitter, and share the same API (with few limitations).\n\nIt's totally protocol agnostic, you just define two methods for your proxy: one to read from the network and one to send to it\n(e.g. for Web Socket, this is a one-liner).\n\n\n\n#### Example, using the Web Socket *ws* node module\n\nThe code below set up a server and a client written in Node.js.\nThe server expose the *heartBeatService* which simply emit an *heartBeat* event once in a while with the beat count as data.\nMost of this code is websocket boiler-plate, the actual proxy code involves only few lines.\nThe client code could be easily rewritten for the browser.\n\n**Server:**\n\n```js\nvar NGEvents = require( 'nextgen-events' ) ;\n\n// Create our service/emitter\nvar heartBeatEmitter = new NGEvents() ;\nvar nextBeat = 1 ;\n\n// Emit one 'heartBeat' event every few seconds\nsetInterval( function() {\n  var beat = nextBeat ++ ;\n  heartBeatEmitter.emit( 'heartBeat' , beat ) ;\n} , 2000 ) ;\n\n// Create our server\nvar WebSocket = require( 'ws' ) ;\nvar server = new WebSocket.Server( { port: 12345 } ) ;\n\n// On new connection... \nserver.on( 'connection' , function connection( ws ) {\n  \n  // Create a proxy for this client\n  var proxy = new NGEvents.Proxy() ;\n  \n  // Add the local service exposed to this client and grant it all right\n  proxy.addLocalService( 'heartBeatService' , heartBeatEmitter ,\n    { listen: true , emit: true , ack: true } ) ;\n  \n  // message received: just hook to proxy.receive()\n  ws.on( 'message' , function incoming( message ) {\n    proxy.receive( message ) ;\n  } ) ;\n  \n  // Define the receive method: should call proxy.push()\n  // after decoding the raw message\n  proxy.receive = function receive( raw ) {\n    try { proxy.push( JSON.parse( raw ) ) ; } catch ( error ) {}\n  } ;\n  \n  // Define the send method\n  proxy.send = function send( message ) {\n    ws.send( JSON.stringify( message ) ) ;\n  } ;\n  \n  // Clean up after everything is done\n  ws.on( 'close' , function close() {\n    proxy.destroy() ;\n  } ) ;\n} ) ;\n```\n\n**Client:**\n\n```js\nvar NGEvents = require( 'nextgen-events' ) ;\nvar WebSocket = require( 'ws' ) ;\nvar ws = new WebSocket( 'ws://127.0.0.1:12345' ) ;\n\n// Create a proxy\nvar proxy = new NGEvents.Proxy() ;\n\n// Once the connection is established...\nws.on( 'open' , function open() {\n  \n  // Add the remote service we want to access\n  proxy.addRemoteService( 'heartBeatService' ) ;\n  \n  // Listen to the event 'heartBeat' on this service\n  proxy.remoteServices.heartBeatService.on( 'heartBeat' , function( beat ) {\n    console.log( '>>> Heart Beat (%d) received!' , beat ) ;\n  } ) ;\n} ) ;\n\n// message received: just hook to proxy.receive()\nws.on( 'message' , function( message ) {\n  proxy.receive( message ) ;\n} ) ;\n\n// Define the receive method: should call proxy.push()\n// after decoding the raw message\nproxy.receive = function receive( raw ) {\n  try { proxy.push( JSON.parse( raw ) ) ; } catch ( error ) {}\n} ;\n\n// Define the send method\nproxy.send = function send( message ) {\n  ws.send( JSON.stringify( message ) ) ;\n} ;\n\n// Clean up after everything is done\nws.on( 'close' , function close() {\n  proxy.destroy() ;\n} ) ;\n```\n\n\n\nOptions passed to `.addLocalService()`:\n\n* listen `boolean` if set, the remote client can listen (addListener()/on()) to the local emitter\n* emit `boolean` if set, the remote client can emit on the local emitter\n* ack `boolean` if set, the remote client can acknowledge or ask for acknowledgement, enabling **async listeners**\n  and .emit()'s **completion callback**\n\n\n\nNextGen Events features available in proxy services:\n\n* All the basic API is supported (the node-compatible API)\n* Emit completion callback supported\n* Async listeners supported\n\n\n\nFeatures that could be supported in the future:\n\n* Emit interruption and retrieving the interruption value\n\n\n\nFeatures that are unlikely to be supported:\n\n* Remote emit with a nice value (does not make sense at all through a network)\n* Contexts cannot be shared across different proxies/client, think of it as if they were namespaced behind their proxy\n\n\n",
-  "readmeFilename": "README.md",
   "gitHead": "e91559128a1653ed3b58dcadefcac62aa7056207",
   "homepage": "https://github.com/cronvel/nextgen-events#readme",
   "_id": "nextgen-events@0.9.8",
   "_shasum": "ed1712c2b37dad55407b3e941672d1568c3a4630",
-  "_from": "nextgen-events@>=0.9.8 <0.10.0"
+  "_from": "nextgen-events@>=0.9.8 <0.10.0",
+  "_npmVersion": "2.15.9",
+  "_nodeVersion": "4.5.0",
+  "_npmUser": {
+    "name": "cronvel",
+    "email": "cedric.ronvel@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "cronvel",
+      "email": "cedric.ronvel@gmail.com"
+    }
+  ],
+  "dist": {
+    "shasum": "ed1712c2b37dad55407b3e941672d1568c3a4630",
+    "tarball": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.9.8.tgz"
+  },
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/nextgen-events-0.9.8.tgz_1473951316005_0.2686476525850594"
+  },
+  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.9.8.tgz",
+  "readme": "ERROR: No README data found!"
 }
 
 },{}],19:[function(require,module,exports){
@@ -6427,7 +6445,6 @@ exports.formatMethod = function format( str )
 	
 	return str ;
 } ;
-
 
 
 

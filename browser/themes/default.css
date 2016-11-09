@@ -1,14 +1,6 @@
-
-html {
-	margin: 0;
-	padding: 0;
-}
-
 body {
 	font-family: sans-serif;
 	font-size: 16px;
-	margin: 0;
-	padding: 0;
 }
 
 .scene-image {
@@ -18,40 +10,16 @@ body {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	
+
 	background-image: url("default.jpg");
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
-	
+
 	cursor: pointer;
-	
+
 	opacity: 1;
 	transition: opacity 2s ;
-}
-
-div.sprite {
-	position: absolute;
-	width: 50%;
-	height: 50%;
-	z-index: 1;
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: contain;
-	opacity: 1;
-	transition: all 1s ;
-}
-
-img.sprite {
-	position: absolute;
-	height: 50%;
-	z-index: 1;
-	opacity: 1;
-	transition: all 1s ;
-}
-
-img.sprite.clickable:hover {
-	filter: drop-shadow(0px 0px 0.2em red)
 }
 
 #content {
@@ -142,58 +110,26 @@ p {
 	margin: 0.2em 0em;
 }
 
-p.unassigned-users.classic-ui {
+p.unassigned-users {
 	color: #555753;
 }
 
-span.unassigned-users.classic-ui {
-	color: #555753;
-	font-style: italic;
-}
-
-p.waiting-roles.classic-ui {
-	color: #555753;
-}
-
-span.waiting-roles.classic-ui {
+span.unassigned-users {
 	color: #555753;
 	font-style: italic;
 }
 
+p.waiting-roles {
+	color: #555753;
+}
+
+span.waiting-roles {
+	color: #555753;
+	font-style: italic;
+}
 
 
-			/* Markup style support */
-
-/* Terminal-kit's gnome color scheme */
-.black { color: #000000; }
-.brightBlack { color: #555753; }
-.red { color: #cc0000; }
-.brightRed { color: #ef2929; }
-.green { color: #4e9a06; }
-.brightGreen { color: #8ae234; }
-.yellow { color: #c4a000; }
-.brightYellow { color: #fce94f; }
-.blue { color: #3465a4; }
-.brightBlue { color: #729fcf; }
-.magenta { color: #75507b; }
-.brightMagenta { color: #ad7fa8; }
-.cyan { color: #06989a; }
-.brightCyan { color: #34e2e2; }
-.white { color: #d3d7cf; }
-.brightWhite { color: #eeeeec; }
-
-.dim { opacity: 0.5; }
-.bold { font-weight: bold; }
-.underline { text-decoration: underline; }
-.italic { font-style: italic; }
-
-/* this does not inverse background and foreground, but it is not possible using only CSS */
-.inverse { filter: invert(100%); }
-/* .inverse { mix-blend-mode: difference; } */
-
-
-
-.end.classic-ui {
+.end {
 	background-color: #fce94f;
 	margin: 2em 30%;
 	border-radius: 10px;
@@ -202,19 +138,19 @@ span.waiting-roles.classic-ui {
 	text-shadow: 1px 1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff, -1px -1px 1px #fff;
 }
 
-.win.classic-ui {
+.win {
 	background-color: #34e2e2;
 }
 
-.lost.classic-ui {
+.lost {
 	background-color: #ef2929;
 }
 
-.draw.classic-ui {
+.draw {
 	background-color: #8ae234;
 }
 
-.wait.classic-ui {
+.wait {
 	background-color: #75507b;
 	margin: 2em 20%;
 	border-radius: 10px;
@@ -225,10 +161,10 @@ span.waiting-roles.classic-ui {
 
 
 
-form.form-text-input.classic-ui {
+form.form-text-input {
 }
 
-input[type=text].text-input.classic-ui {
+input[type=text].text-input {
 	display: inline;
 	width: 50%;
 }
@@ -246,18 +182,18 @@ input[type=text].text-input.classic-ui {
 
 .pulse-animation {
 	animation-name: pulse-animation;
-	animation-duration: 1s; 
-	animation-timing-function: ease-in-out; 
+	animation-duration: 1s;
+	animation-timing-function: ease-in-out;
 	animation-delay: 0ms;
 	animation-direction: alternate;
 	animation-iteration-count: infinite;
 	animation-fill-mode: none;
-	animation-play-state: running; 
+	animation-play-state: running;
 }
 
 
 
-button.classic-ui {
+button {
 	display: block;
 	position: relative;
 	top: 0px;
@@ -278,18 +214,18 @@ button.classic-ui {
 	transition: all 0.3s;
 }
 
-button.classic-ui:hover {
+button:hover {
 	background-color: #f77 ;
 	box-shadow: 0 4px #3c3c3c;
 	top: 2px;
 }
 
-button.classic-ui:active {
+button:active {
 	box-shadow: 0 0 #3c3c3c;
 	top: 6px;
 }
 
-button.classic-ui:after {
+button:after {
 	content: '';
 	position: absolute;
 	z-index: -1;
@@ -300,34 +236,32 @@ button.classic-ui:after {
 
 
 
-button.next.classic-ui {
+button.next {
 	background-color: #faa ;
 	box-shadow: 0 6px #ab3c3c;
 }
 
-button.next.classic-ui:hover {
+button.next:hover {
 	background-color: #f77 ;
 	box-shadow: 0 4px #ab3c3c;
 }
 
-button.next.classic-ui:active {
+button.next:active {
 	box-shadow: 0 0 #ab3c3c;
 }
 
 
 
-button.role.classic-ui {
+button.role {
 	background-color: #aaf ;
 	box-shadow: 0 6px #3c3cab;
 }
 
-button.role.classic-ui:hover {
+button.role:hover {
 	background-color: #77f ;
 	box-shadow: 0 4px #3c3cab;
 }
 
-button.role.classic-ui:active {
+button.role:active {
 	box-shadow: 0 0 #3c3cab;
 }
-
-
