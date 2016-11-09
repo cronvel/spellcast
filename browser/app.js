@@ -176,7 +176,7 @@ dom.ready( function() {
 
 
 
-},{"./ui/classic.js":3,"dom-kit":5,"nextgen-events":9,"url":22}],2:[function(require,module,exports){
+},{"./ui/classic.js":3,"dom-kit":5,"nextgen-events":9,"url":23}],2:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -265,7 +265,7 @@ toolkit.markup = markupMethod.bind( markupConfig ) ;
 
 
 
-},{"string-kit/lib/format.js":19}],3:[function(require,module,exports){
+},{"string-kit/lib/format.js":20}],3:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -298,6 +298,8 @@ toolkit.markup = markupMethod.bind( markupConfig ) ;
 
 /* global alert */
 
+var path = require( 'path' ) ;
+
 var dom = require( 'dom-kit' ) ;
 var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
 var treeOps = require( 'kung-fig/lib/treeOps.js' ) ;
@@ -318,7 +320,7 @@ function UI( bus , client , self )
 			users: { value: null , writable: true , enumerable: true } ,
 			roles: { value: null , writable: true , enumerable: true } ,
 			roleId: { value: null , writable: true , enumerable: true } ,
-			assetBaseUrl: { value: null , writable: true , enumerable: true } ,
+			config: { value: null , writable: true , enumerable: true } ,
 			chatConfig: { value: null , writable: true , enumerable: true } ,
 			inGame: { value: false , writable: true , enumerable: true } ,
 			redirectChat: { value: null , writable: true , enumerable: true } ,
@@ -397,10 +399,10 @@ UI.prototype.initInteractions = function initInteractions()
 // 'open' event on client
 UI.prototype.initBus = function initBus()
 {
+	this.bus.on( 'clientConfig' , UI.clientConfig.bind( this ) ) ;
 	this.bus.on( 'user' , UI.user.bind( this ) ) ;
 	this.bus.on( 'userList' , UI.userList.bind( this ) ) ;
 	this.bus.on( 'roleList' , UI.roleList.bind( this ) ) ;
-	this.bus.on( 'assetConfig' , UI.assetConfig.bind( this ) ) ;
 	
 	//this.bus.on( 'coreMessage' , UI.coreMessage.bind( this ) ) ;
 	//this.bus.on( 'errorMessage' , UI.errorMessage.bind( this ) ) ;
@@ -441,6 +443,14 @@ UI.prototype.initBus = function initBus()
 
 
 
+UI.prototype.cleanUrl = function cleanUrl( url )
+{
+	if ( path.isAbsolute( url ) ) { return url ; }
+	return this.config.assetBaseUrl + '/' + url ;
+}
+
+
+
 UI.clientConnecting = function clientConnecting()
 {
 	console.log( 'Connecting!' ) ;
@@ -478,6 +488,14 @@ UI.clientError = function clientError( code )
 			this.$connection.classList.add( 'alert' ) ;
 			break ;
 	}
+} ;
+
+
+
+UI.clientConfig = function clientConfig( config )
+{
+	console.warn( 'Client config received: ' , config ) ;
+	this.config = config ;
 } ;
 
 
@@ -580,14 +598,6 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 			$roles.forEach( function( e , i ) { e.onclick = null ; } ) ;
 		} ;
 	} ) ;
-} ;
-
-
-
-UI.assetConfig = function assetConfig( config )
-{
-	console.warn( 'Asset config received: ' , config ) ;
-	this.assetBaseUrl = config.url ;
 } ;
 
 
@@ -985,7 +995,10 @@ UI.image = function image( data )
 	var div = document.createElement( 'div' ) ;
 	div.classList.add( 'scene-image' ) ;
 	
-	if ( data.url ) { div.style.backgroundImage = 'url("' + data.url + '")' ; }
+	if ( data.url )
+	{
+		div.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
+	}
 	
 	if ( data.origin && typeof data.origin === 'string' )
 	{
@@ -1088,7 +1101,7 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 	
 	if ( data.url )
 	{
-		sprite.$img.setAttribute( "src" ,  data.url ) ;
+		sprite.$img.setAttribute( "src" , this.cleanUrl( data.url ) ) ;
 	}
 	
 	if ( data.action !== undefined )
@@ -1198,7 +1211,7 @@ UI.sound = function sound( data )	// maybe? , callback )
 	console.warn( '$sound' + this.nextSoundChannel , data , element ) ;
 	this.nextSoundChannel = ( this.nextSoundChannel + 1 ) % 4 ;
 	
-	element.setAttribute( 'src' , data.url ) ;
+	element.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 	element.play() ;
 } ;
 
@@ -1216,7 +1229,7 @@ UI.music = function music( data )
 			if ( oldSrc !== data.url )
 			{
 				fadeOut( this.$music , function() {
-					self.$music.setAttribute( 'src' , data.url ) ;
+					self.$music.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 					self.$music.play() ;
 					fadeIn( self.$music ) ;
 				} ) ;
@@ -1231,7 +1244,7 @@ UI.music = function music( data )
 		else
 		{
 			this.$music.volume = 0 ;
-			this.$music.setAttribute( 'src' , data.url ) ;
+			this.$music.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 			this.$music.play() ;
 			fadeIn( this.$music ) ;
 		}
@@ -1326,7 +1339,7 @@ UI.exit = function exit()
 
 
 
-},{"../toolkit.js":2,"dom-kit":5,"kung-fig/lib/treeOps.js":8,"tree-kit/lib/extend.js":21}],4:[function(require,module,exports){
+},{"../toolkit.js":2,"dom-kit":5,"kung-fig/lib/treeOps.js":8,"path":12,"tree-kit/lib/extend.js":22}],4:[function(require,module,exports){
 
 },{}],5:[function(require,module,exports){
 /*
@@ -4349,6 +4362,234 @@ module.exports={
 }
 
 },{}],12:[function(require,module,exports){
+(function (process){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe =
+    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+  var resolvedPath = '',
+      resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = (i >= 0) ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+  var isAbsolute = exports.isAbsolute(path),
+      trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function(path) {
+  return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+};
+
+
+// path.relative(from, to)
+// posix version
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function(path) {
+  var result = splitPath(path),
+      root = result[0],
+      dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+};
+
+
+exports.basename = function(path, ext) {
+  var f = splitPath(path)[2];
+  // TODO: make this comparison case-insensitive on windows?
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+
+exports.extname = function(path) {
+  return splitPath(path)[3];
+};
+
+function filter (xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b'
+    ? function (str, start, len) { return str.substr(start, len) }
+    : function (str, start, len) {
+        if (start < 0) start = str.length + start;
+        return str.substr(start, len);
+    }
+;
+
+}).call(this,require('_process'))
+},{"_process":13}],13:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -4530,7 +4771,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -5067,7 +5308,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5153,7 +5394,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5240,13 +5481,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":14,"./encode":15}],17:[function(require,module,exports){
+},{"./decode":15,"./encode":16}],18:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -5306,7 +5547,7 @@ module.exports = {
 
 
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -5405,7 +5646,7 @@ exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
 
 
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -5824,7 +6065,7 @@ exports.format.hasFormatting = function hasFormatting( str )
 
 
 
-},{"./ansi.js":17,"./inspect.js":20}],20:[function(require,module,exports){
+},{"./ansi.js":18,"./inspect.js":21}],21:[function(require,module,exports){
 (function (Buffer,process){
 /*
 	String Kit
@@ -6388,7 +6629,7 @@ inspectStyle.html = treeExtend( null , {} , inspectStyle.none , {
 
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")},require('_process'))
-},{"../../is-buffer/index.js":7,"./ansi.js":17,"./escape.js":18,"_process":12,"tree-kit/lib/extend.js":21}],21:[function(require,module,exports){
+},{"../../is-buffer/index.js":7,"./ansi.js":18,"./escape.js":19,"_process":13,"tree-kit/lib/extend.js":22}],22:[function(require,module,exports){
 /*
 	Tree Kit
 	
@@ -6729,7 +6970,7 @@ function extendOne( runtime , options , target , source )
 }
 
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7463,7 +7704,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":23,"punycode":13,"querystring":16}],23:[function(require,module,exports){
+},{"./util":24,"punycode":14,"querystring":17}],24:[function(require,module,exports){
 'use strict';
 
 module.exports = {
