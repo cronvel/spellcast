@@ -14,12 +14,12 @@
 [chapter intro]
 	
 	[image]
-		url: ../sample/story1.jpg
+		url: ../story1.jpg
 		position: right
 		origin: top
 	
 	[music]
-		url: ../sample/music1.ogg
+		url: ../music1.ogg
 	
 	[scene intro]
 		
@@ -50,7 +50,7 @@
 			label: > What do you like, Alice? 
 		
 		[sound]
-			url: ../sample/open.wav
+			url: ../open.wav
 		
 		[message]
 			$> Alice likes ^/${aliceLike}.
@@ -83,7 +83,7 @@
 	
 	[scene a]
 		[image]
-			url: ../sample/story1.jpg
+			url: ../story1.jpg
 			origin: top
 			position: left
 		
@@ -93,7 +93,7 @@
 	
 	[scene b]
 		[image]
-			url: ../sample/story1.jpg
+			url: ../story1.jpg
 			origin: top
 			position: left
 		
