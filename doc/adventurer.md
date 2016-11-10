@@ -291,9 +291,14 @@ If the content is a string, it contains the *url* of the music.
 
 * types: parameter
 * attribute style: none
-* content type: object
+* content type: boolean or object
 
-TODO: documentation
+The content is an object, where each key is a *role id* and the value is an object where:
+* read `boolean` is true if the current *role* can read the chat
+* write `boolean` is true if the current *role* can write to the chat
+
+Alternatively, the content can be a boolean used as a global setting, in that case all *roles* read and write permission
+will be set to that boolean.
 
 
 
@@ -308,13 +313,60 @@ TODO: documentation
 
 
 
-#### [vote-style]
-
+<a name="ref.scenario.scene.vote-time"></a>
 #### [vote-time]
 
+* types: parameter
+* attribute style: none
+* content type: number, time in seconds
+
+This parameter tag is used to set up the time to make a choice, or timeout for votes for multiplayer games.
+Once the timeout is reached, the behaviour depends on the *vote style*.
+
+
+
+<a name="ref.scenario.scene.vote-style"></a>
+#### [vote-style]
+
+* types: parameter
+* attribute style: none
+* content type: string
+
+Used in multiplayer game only.
+This parameter tag is used to set up the vote behaviour.
+Its content is a string, where:
+* *immediate*: the first choice to be made is immediately validated
+* *unanimity*: it validates the choice if all players has made the same choice
+* *relative* or *relative-majority* or *majority*: it validates the choice if it has the most voters
+* *absolute* or *absolute-majority*: it validates the choice if it has more than 50% of the votes
+
+The *vote timeout* is very important:
+* before timeout, undecided players are counted in
+* after timeout they are counted out.
+
+
+
+<a name="ref.scenario.scene.hurry-time"></a>
 #### [hurry-time]
 
+* types: parameter
+* attribute style: none
+* content type: number, time in seconds
+
+Used in multiplayer game only.
+This parameter tag is used to set up the hurry time.
+Once the first player made a choice, the vote timeout is reduced to this time.
+
+
+
+<a name="ref.scenario.scene.show-time"></a>
 #### [show-timer]
+
+* types: parameter
+* attribute style: none
+* content type: boolean
+
+Whether the vote timer should be displayed or be held secret.
 
 
 
