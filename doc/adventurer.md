@@ -214,7 +214,11 @@ The attribute style refers to one of those:
 The *chapter* tag is used to organize *scene* tags in groups.
 It also acts as a namespace, to ease management of big Spellcast projects.
 
-It also supports some parameter tags of the *scene* tag, if present they will act as default for all *scene* children.
+It also supports some parameter tags of the *scene* tag, if present they will act as default for all its *scene* children:
+* [image](#ref.scenario.scene.image)
+* [music](#ref.scenario.scene.music)
+* [chat](#ref.scenario.scene.chat)
+* [action-config](#ref.scenario.scene.action-config)
 
 
 
@@ -229,32 +233,60 @@ The *scene* tag is the most important tag of Spellcast Scripting in *Adventurer 
 
 A scenario is basically a lot of scenes, jumping from scene to scene through the [*next* tag](#ref.scenario.next).
 
-At *init time*, the scene is globally registrered using the *label*.
+A *scene* tag *MUST* be inside a *chapter* tag.
 
-TODO: documentation
+At *init time*, the scene is globally registrered using the parent *chapter label* and its own *label*.
+
+Once init is done, the *starting scene* is *exec*.
+The *starting scene* is either the [*starting-scene* tag](#ref.scenario.starting-scene), or the first registered *scene* tag.
+
+When the scene is executed, it simply runs all its inner tags.
+
+However, a *scene* has the following parameters tags:
 
 
 
+<a name="ref.scenario.scene.image"></a>
 #### [image]
 
 * types: parameter
 * attribute style: none
 * content type: string (URL) or object
 
-TODO: documentation
+This paremeter configures the image related to the scene.
+In most clients/themes, this is displayed as the background image.
+
+The content is an object where:
+* url `string` (optional) if set this is the URL of the image, else the client *MAY* display a default image if any
+* position `string` (optional) is one of 'left' or 'right', indicating if the image should be on the left or on the right
+  of the text. The exact result depends on the theme, some themes don't care about the position at all.
+* origin `string` (optional) indicating how the image should be centered. One of 'center', 'top', 'bottom', 'left', right', ...
+
+If the content is a string, it contains the *url* of the image.
 
 
 
+<a name="ref.scenario.scene.music"></a>
 #### [music]
 
 * types: parameter
 * attribute style: none
 * content type: string (URL) or object
 
-TODO: documentation
+This paremeter configurew the music related to the scene.
+
+The music is played immediately when entering the scene:
+* if the new music to play has the same URL than the old one, nothing happens at all: it simply **continues to play**
+* if the URL is different, the new music replaces the old one and it starts playing **at the begining of the soundtrack**
+
+The content is an object where:
+* url `string` (optional) if set this is the URL of the music to play, else the client should stop playing music
+
+If the content is a string, it contains the *url* of the music.
 
 
 
+<a name="ref.scenario.scene.chat"></a>
 #### [chat]
 
 * types: parameter
@@ -265,6 +297,7 @@ TODO: documentation
 
 
 
+<a name="ref.scenario.scene.action-config"></a>
 #### [action-config]
 
 * types: parameter
@@ -272,6 +305,30 @@ TODO: documentation
 * content type: object
 
 TODO: documentation
+
+
+
+#### [vote-style]
+
+#### [vote-time]
+
+#### [hurry-time]
+
+#### [show-timer]
+
+
+
+<a name="ref.scenario.starting-scene"></a>
+### [starting-scene *label*]
+
+* types: init, exec
+* attribute style: label
+* content type: tags
+
+This tag works exactly like the [*scene* tag](#ref.scenario.scene), except that it is automatically used as the *starting scene*,
+e.g. the first scene to be *executed*, the entry point.
+
+If there is no *starting-scene* tag in a scenario, the first *scene* tag will be used for this purpose.
 
 
 
