@@ -27,6 +27,190 @@
 
 "use strict" ;
 
+/* global window */
+
+
+
+var domKit = require( 'dom-kit' ) ;
+
+
+
+function Dom() { return Dom.create() ; }
+module.exports = Dom ;
+
+
+
+Dom.create = function create()
+{
+	var self = Object.create( Dom.prototype ) ;
+	
+	self.$gfx = document.querySelector( '#gfx' ) ;
+	self.$content = document.querySelector( '#content' ) ;
+	self.$text = document.querySelector( '#text' ) ;
+	self.$chat = document.querySelector( '#chat' ) ;
+	self.$chatForm = document.querySelector( '#chat-form' ) ;
+	self.$chatInput = document.querySelector( '#chat-input' ) ;
+	self.$next = document.querySelector( '#next' ) ;
+	self.$hint = document.querySelector( '#hint' ) ;
+	self.$connection = document.querySelector( '#connection' ) ;
+	self.$music = document.querySelector( '#music' ) ;
+	self.$sound0 = document.querySelector( '#sound0' ) ;
+	self.$sound1 = document.querySelector( '#sound1' ) ;
+	self.$sound2 = document.querySelector( '#sound2' ) ;
+	self.$sound3 = document.querySelector( '#sound3' ) ;
+	
+	return self ;
+} ;
+
+
+
+Dom.prototype.clientStatus = function clientStatus( text , options )
+{
+	this.$connection.innerHTML = '<span class="' + options.color + ' bold">' + text + '</span>' ;
+	
+	if ( options.alert ) { this.$connection.classList.add( 'alert' ) ; }
+	else { this.$connection.classList.remove( 'alert' ) ; }
+} ;
+
+
+
+Dom.prototype.addMessage = function addMessage( text , options , callback )
+{
+	this.$text.insertAdjacentHTML( 'beforeend' ,
+		'<p class="text">' + text + '</p>'
+	) ;
+	
+	callback() ;
+} ;
+
+
+
+Dom.prototype.clearChoices = function clearChoices( callback )
+{
+	this.$next.innerHTML = '' ;
+	callback() ;
+} ;
+
+
+
+Dom.prototype.addChoices = function addChoices( choices , callback )
+{
+	var self = this ;
+	
+	choices.forEach( function( choice ) {
+		
+		self.$next.insertAdjacentHTML( 'beforeend' ,
+			'<button id="next_' + choice.index + '" class="' + choice.type +'">' +
+			String.fromCharCode( 0x61 + choice.index ) + '. ' + choice.label +
+			(
+				choice.selectedBy && choice.selectedBy.length ?
+				' <span class="italic brightBlack">' + choice.selectedBy.join( ', ' ) + '</span>' : ''
+			) +
+			'</button>'
+		) ;
+	} ) ;
+	
+} ;
+
+
+
+// This is used when new choices replaces the previous scene choices
+Dom.prototype.setChoices = function setChoices( choices , undecidedNames , timeout , callback )
+{
+	var self = this ;
+	
+	this.clearChoices( function() {
+		self.addChoices( choices , callback ) ;
+		
+		if ( undecidedNames && undecidedNames.length )
+		{
+			self.$next.insertAdjacentHTML( 'beforeend' ,
+				'<p class="unassigned-users">Idling: <span class="unassigned-users">' +
+				undecidedNames.join( ', ' ) +
+				'</span></p>'
+			) ;
+		}
+		
+		if ( typeof timeout === 'number' ) { self.choiceTimeout( timeout ) ; }
+	} ) ;
+} ;
+
+
+
+// This is used when the scene update its choices details (selectedBy, ...)
+Dom.prototype.updateChoices = function setChoices( choices , undecidedNames , timeout , callback )
+{
+	var self = this ;
+	
+	// TEMP!
+	this.clearChoices( function() {
+		self.addChoices( choices , callback ) ;
+		
+		if ( undecidedNames && undecidedNames.length )
+		{
+			self.$next.insertAdjacentHTML( 'beforeend' ,
+				'<p class="unassigned-users">Idling: <span class="unassigned-users">' +
+				undecidedNames.join( ', ' ) +
+				'</span></p>'
+			) ;
+		}
+		
+		if ( typeof timeout === 'number' ) { self.choiceTimeout( timeout ) ; }
+	} ) ;
+} ;
+
+
+
+Dom.prototype.choiceTimeout = function choiceTimeout( timeout )
+{
+	var startTime = Date.now() , $timer , timer ;
+
+	this.$next.insertAdjacentHTML( 'beforeend' ,
+		'<p class="timer">Time limit: <span class="time">' + Math.round( timeout / 1000 ) + 's' + '</span></p>'
+	) ;
+
+	$timer = document.querySelector( '.timer .time' ) ;
+
+	timer = setInterval( function() {
+		// If no parentNode, the element has been removed...
+		if ( ! $timer.parentNode ) { clearInterval( timer ) ; return ; }
+
+		$timer.textContent = Math.round( ( timeout + startTime - Date.now() ) / 1000 ) + 's' ;
+	} , 1000 ) ;
+} ;
+
+
+
+
+},{"dom-kit":6}],2:[function(require,module,exports){
+/*
+	Spellcast
+	
+	Copyright (c) 2015 - 2016 Cédric Ronvel
+	
+	The MIT License (MIT)
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
 /* global window, WebSocket */
 
 
@@ -176,7 +360,7 @@ dom.ready( function() {
 
 
 
-},{"./ui/classic.js":3,"dom-kit":5,"nextgen-events":9,"url":23}],2:[function(require,module,exports){
+},{"./ui/classic.js":4,"dom-kit":6,"nextgen-events":10,"url":24}],3:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -265,7 +449,7 @@ toolkit.markup = markupMethod.bind( markupConfig ) ;
 
 
 
-},{"string-kit/lib/format.js":20}],3:[function(require,module,exports){
+},{"string-kit/lib/format.js":21}],4:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -300,7 +484,8 @@ toolkit.markup = markupMethod.bind( markupConfig ) ;
 
 var path = require( 'path' ) ;
 
-var dom = require( 'dom-kit' ) ;
+var Dom = require( '../Dom.js' ) ;
+var domKit = require( 'dom-kit' ) ;
 var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
 var treeOps = require( 'kung-fig/lib/treeOps.js' ) ;
 var toolkit = require( '../toolkit.js' ) ;
@@ -330,9 +515,12 @@ function UI( bus , client , self )
 			nextSoundChannel: { value: 0 , writable: true , enumerable: true } ,
 			sprites: { value: {} , enumerable: true } ,
 			animations: { value: {} , enumerable: true } ,
+			dom: { value: Dom.create() } ,
 		} ) ;
 	}
-
+	
+	
+	// ------------ TEMP!!! ------------------------------------------------
 	self.$gfx = document.querySelector( '#gfx' ) ;
 	self.$content = document.querySelector( '#content' ) ;
 	self.$text = document.querySelector( '#text' ) ;
@@ -347,7 +535,9 @@ function UI( bus , client , self )
 	self.$sound1 = document.querySelector( '#sound1' ) ;
 	self.$sound2 = document.querySelector( '#sound2' ) ;
 	self.$sound3 = document.querySelector( '#sound3' ) ;
-
+	// ------------ TEMP!!! ------------------------------------------------
+	
+	
 	self.initInteractions() ;
 
 	self.client.once( 'connecting' , UI.clientConnecting.bind( self ) ) ;
@@ -454,8 +644,7 @@ UI.prototype.cleanUrl = function cleanUrl( url )
 UI.clientConnecting = function clientConnecting()
 {
 	console.log( 'Connecting!' ) ;
-	this.$connection.innerHTML = '<span class="blue bold">connecting...</span>' ;
-	this.$connection.classList.remove( 'alert' ) ;
+	this.dom.clientStatus( 'connecting...' , { color: 'blue' } ) ;
 } ;
 
 
@@ -463,8 +652,7 @@ UI.clientConnecting = function clientConnecting()
 UI.clientOpen = function clientOpen()
 {
 	console.log( 'Connected!' ) ;
-	this.$connection.innerHTML = '<span class="green bold">connected</span>' ;
-	this.$connection.classList.remove( 'alert' ) ;
+	this.dom.clientStatus( 'connected' , { color: 'green' } ) ;
 	this.initBus() ;
 } ;
 
@@ -473,8 +661,7 @@ UI.clientOpen = function clientOpen()
 UI.clientClose = function clientClose()
 {
 	console.log( 'Closed!' ) ;
-	this.$connection.innerHTML = '<span class="red bold">connection closed</span>' ;
-	this.$connection.classList.add( 'alert' ) ;
+	this.dom.clientStatus( 'connection closed' , { color: 'red' , alert: true } ) ;
 } ;
 
 
@@ -484,8 +671,7 @@ UI.clientError = function clientError( code )
 	switch ( code )
 	{
 		case 'unreachable' :
-			this.$connection.innerHTML = '<span class="red bold">server unreachable</span>' ;
-			this.$connection.classList.add( 'alert' ) ;
+			this.dom.clientStatus( 'server unreachable' , { color: 'red' , alert: true } ) ;
 			break ;
 	}
 } ;
@@ -521,7 +707,7 @@ UI.userList = function userList( users )
 
 UI.roleList = function roleList( roles , unassignedUsers , assigned )
 {
-	var self = this , $roles , userName ,
+	var self = this , $roles , userName , choices = [] , undecidedNames ,
 		max = 0x61 + roles.length - 1 ;
 
 	// Add the get method to the array
@@ -538,20 +724,26 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 		this.roleId = roles[ 0 ].id ;
 		return ;
 	}
-
-	this.$next.innerHTML = '' ;
-
+	
 	roles.forEach( function( role , i ) {
-
-		userName = role.clientId && self.users.get( role.clientId ).name ;
-
-		self.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_' + i + '" class="role">' + String.fromCharCode( 0x61 + i ) + '. ' + role.label +
-			( userName ? ' <span class="italic brightBlack">' + userName + '</span>' : '' ) +
-			'</button>'
-		) ;
+		
+		var userName = role.clientId && self.users.get( role.clientId ).name ;
+		
+		choices.push( {
+			index: i ,
+			label: role.label ,
+			type: 'role' ,
+			selectedBy: userName && [ userName ]
+		} ) ;
 	} ) ;
-
+	
+	if ( unassignedUsers.length )
+	{
+		undecidedNames = unassignedUsers.map( function( e ) { return self.users.get( e ).name ; } ) ;
+	}
+	
+	this.dom.setChoices( choices , undecidedNames ) ;
+	
 	if ( assigned )
 	{
 		roles.find( function( e , i ) {
@@ -560,19 +752,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 		} ) ;
 
 		this.afterLeave = true ;	// tmp
-		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<h2 class="end">Start!</h2>'
-		) ;
 		return ;
-	}
-
-	if ( unassignedUsers.length )
-	{
-		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<p class="unassigned-users">Idling: <span class="unassigned-users">' +
-			unassignedUsers.map( function( e ) { return self.users.get( e ).name ; } ).join( ', ' ) +
-			'</span></p>'
-		) ;
 	}
 
 	$roles = document.querySelectorAll( '.role' ) ;
@@ -633,12 +813,14 @@ UI.message = function message( text , options , callback )
 		return ;
 	}
 	*/
-
+	
+	/*
 	this.$text.insertAdjacentHTML( 'beforeend' ,
 		'<p class="text">' + text + '</p>'
 	) ;
-
-	triggerCallback() ;
+	*/
+	
+	this.dom.addMessage( text , options , triggerCallback ) ;
 } ;
 
 
@@ -817,10 +999,11 @@ UI.prototype.nextListConfirm = function nextListConfirm( next , grantedRoleIds ,
 
 UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
 {
-	var self = this , $nexts ,
+	var self = this , $nexts , choices = [] , undecidedNames ,
 		startTime , timer , $timer ,
 		max = 0x61 + nexts.length - 1 ;
-
+	
+	/*
 	this.$next.innerHTML = '' ;
 
 	nexts.forEach( function( next , i ) {
@@ -833,7 +1016,26 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , unde
 			'</button>'
 		) ;
 	} ) ;
+	*/
+	
+	nexts.forEach( function( next , i ) {
+		
+		var roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
+		
+		choices.push( {
+			index: i ,
+			label: next.label ,
+			type: 'next' ,
+			selectedBy: roles
+		} ) ;
+	} ) ;
 
+	if ( undecidedRoleIds.length && this.roles.length )
+	{
+		undecidedNames = undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ) ;
+	}
+	
+	/*
 	if ( undecidedRoleIds.length && this.roles.length )
 	{
 		this.$next.insertAdjacentHTML( 'beforeend' ,
@@ -842,7 +1044,9 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , unde
 			'</span></p>'
 		) ;
 	}
-
+	*/
+	
+	/*
 	if ( timeout !== null )
 	{
 		startTime = Date.now() ;
@@ -860,6 +1064,9 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , unde
 			$timer.textContent = Math.round( ( timeout + startTime - Date.now() ) / 1000 ) + 's' ;
 		} , 1000 ) ;
 	}
+	*/
+	
+	this.dom.setChoices( choices , undecidedNames , timeout ) ;
 
 	$nexts = document.querySelectorAll( '.next' ) ;
 	$nexts = Array.prototype.slice.call( $nexts ) ;
@@ -1131,7 +1338,7 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 	treeExtend( null , sprite.style , data.style ) ;
 
 	// Use data.style, NOT sprite.style: we have to set only new/updated styles
-	dom.css( sprite.$img , data.style ) ;
+	domKit.css( sprite.$img , data.style ) ;
 } ;
 
 
@@ -1338,9 +1545,9 @@ UI.exit = function exit()
 	//term.styleReset() ;
 } ;
 
-},{"../toolkit.js":2,"dom-kit":5,"kung-fig/lib/treeOps.js":8,"path":12,"tree-kit/lib/extend.js":22}],4:[function(require,module,exports){
+},{"../Dom.js":1,"../toolkit.js":3,"dom-kit":6,"kung-fig/lib/treeOps.js":9,"path":13,"tree-kit/lib/extend.js":23}],5:[function(require,module,exports){
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /*
 	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
 
@@ -1569,7 +1776,7 @@ dom.html = function html( element , html ) { element.innerHTML = html ; } ;
 
 
 
-},{"./svg.js":6}],6:[function(require,module,exports){
+},{"./svg.js":7}],7:[function(require,module,exports){
 /*
 	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
 
@@ -1769,7 +1976,7 @@ domSvg.ajax.ajaxStatus = function ajaxStatus( callback )
 
 
 
-},{"./dom.js":5,"fs":4}],7:[function(require,module,exports){
+},{"./dom.js":6,"fs":5}],8:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -1792,7 +1999,7 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*
 	Kung Fig
 	
@@ -2631,7 +2838,7 @@ treeOps.operators['$'] = {
 } ;
 */
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 (function (global){
 /*
 	Next Gen Events
@@ -3696,7 +3903,7 @@ NextGenEvents.Proxy = require( './Proxy.js' ) ;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../package.json":11,"./Proxy.js":10}],10:[function(require,module,exports){
+},{"../package.json":12,"./Proxy.js":11}],11:[function(require,module,exports){
 /*
 	Next Gen Events
 	
@@ -4299,7 +4506,7 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message )
 
 
 
-},{"./NextGenEvents.js":9}],11:[function(require,module,exports){
+},{"./NextGenEvents.js":10}],12:[function(require,module,exports){
 module.exports={
   "name": "nextgen-events",
   "version": "0.9.8",
@@ -4360,7 +4567,7 @@ module.exports={
   "_from": "nextgen-events@>=0.9.8 <0.10.0"
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -4588,7 +4795,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":13}],13:[function(require,module,exports){
+},{"_process":14}],14:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -4770,7 +4977,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -5307,7 +5514,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5393,7 +5600,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5480,13 +5687,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":15,"./encode":16}],18:[function(require,module,exports){
+},{"./decode":16,"./encode":17}],19:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -5546,7 +5753,7 @@ module.exports = {
 
 
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -5645,7 +5852,7 @@ exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
 
 
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -6064,7 +6271,7 @@ exports.format.hasFormatting = function hasFormatting( str )
 
 
 
-},{"./ansi.js":18,"./inspect.js":21}],21:[function(require,module,exports){
+},{"./ansi.js":19,"./inspect.js":22}],22:[function(require,module,exports){
 (function (Buffer,process){
 /*
 	String Kit
@@ -6628,7 +6835,7 @@ inspectStyle.html = treeExtend( null , {} , inspectStyle.none , {
 
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")},require('_process'))
-},{"../../is-buffer/index.js":7,"./ansi.js":18,"./escape.js":19,"_process":13,"tree-kit/lib/extend.js":22}],22:[function(require,module,exports){
+},{"../../is-buffer/index.js":8,"./ansi.js":19,"./escape.js":20,"_process":14,"tree-kit/lib/extend.js":23}],23:[function(require,module,exports){
 /*
 	Tree Kit
 	
@@ -6969,7 +7176,7 @@ function extendOne( runtime , options , target , source )
 }
 
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7703,7 +7910,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":24,"punycode":14,"querystring":17}],24:[function(require,module,exports){
+},{"./util":25,"punycode":15,"querystring":18}],25:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -7721,5 +7928,5 @@ module.exports = {
   }
 };
 
-},{}]},{},[1])(1)
+},{}]},{},[2])(2)
 });
