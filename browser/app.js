@@ -68,8 +68,45 @@ Dom.create = function create()
 	self.$sound1 = document.querySelector( '#sound1' ) ;
 	self.$sound2 = document.querySelector( '#sound2' ) ;
 	self.$sound3 = document.querySelector( '#sound3' ) ;
-
+	
+	self.hideContentTimer = null ;
+	
+	self.initEvents() ;
+	
 	return self ;
+} ;
+
+
+
+Dom.prototype.initEvents = function initEvents()
+{
+	this.$gfx.addEventListener( 'click' , this.toggleContent.bind( this ) , false ) ;
+} ;
+
+
+
+Dom.prototype.toggleContent = function toggleContent()
+{
+	if ( self.$content.classList.contains( 'hidden' ) ) { this.showContent() ; }
+	else { this.hideContent() ; }
+} ;
+
+
+
+Dom.prototype.hideContent = function hideContent()
+{
+	if ( this.hideContentTimer !== null ) { clearTimeout( this.hideContentTimer ) ; this.hideContentTimer = null ; }
+
+	this.$content.classList.add( 'hidden' ) ;
+	this.hideContentTimer = setTimeout( this.showContent.bind( this ) , 8000 ) ;
+} ;
+
+
+
+Dom.prototype.showContent = function showContent()
+{
+	if ( this.hideContentTimer !== null ) { clearTimeout( this.hideContentTimer ) ; this.hideContentTimer = null ; }
+	this.$content.classList.remove( 'hidden' ) ;
 } ;
 
 
@@ -264,6 +301,11 @@ Dom.prototype.disableChat = function disableChat()
 	this.$chat.classList.add( 'hidden' ) ;
 	this.$chatInput.setAttribute( 'disabled' , true ) ;
 } ;
+
+
+
+
+
 
 },{"dom-kit":6}],2:[function(require,module,exports){
 /*
@@ -641,26 +683,7 @@ UI.prototype.initInteractions = function initInteractions()
 
 	// Chat
 	this.$chatForm.onsubmit = UI.onChatSubmit.bind( this ) ;
-
-	// Switch to fullscreen background image on click
-	var fromFullScreenImage = function fromFullScreenImage( event ) {
-		if ( fullScreenImageTimer !== null ) { clearTimeout( fullScreenImageTimer ) ; fullScreenImageTimer = null ; }
-		self.$content.classList.remove( 'hidden' ) ;
-	} ;
-
-	var toFullScreenImage = function toFullScreenImage( event ) {
-		if ( fullScreenImageTimer !== null ) { clearTimeout( fullScreenImageTimer ) ; fullScreenImageTimer = null ; }
-
-		self.$content.classList.toggle( 'hidden' ) ;
-
-		if ( self.$content.classList.contains( 'hidden' ) )
-		{
-			fullScreenImageTimer = setTimeout( fromFullScreenImage , 8000 ) ;
-		}
-	} ;
-
-	this.$content.addEventListener( 'click' , fromFullScreenImage , false ) ;
-	this.$gfx.addEventListener( 'click' , toFullScreenImage , false ) ;
+	
 } ;
 
 
@@ -999,7 +1022,7 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , tim
 
 		choices.push( {
 			index: i ,
-			label: next.label || 'NEXT' ,
+			label: next.label || 'Next' ,
 			orderedList: nexts.length > 1 ,
 			type: 'next' ,
 			selectedBy: roles
