@@ -664,7 +664,7 @@ Its content is an array of *role ID*: the role list that will go to the *sub-sce
 <a name="ref.scenario.action"></a>
 ## [action]
 
-TODO: documentation.
+TODO.
 
 
 
