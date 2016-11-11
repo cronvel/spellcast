@@ -34,9 +34,21 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Next Tag](#ref.scenario.next)
 			* [Label Tag](#ref.scenario.next.label)
 			* [Vote-style Tag](#ref.scenario.next.vote-style)
+			* [Auto Tag](#ref.scenario.next.auto)
 			* [On-trigger Tag](#ref.scenario.next.on-trigger)
 			* [Args Tag](#ref.scenario.next.args)
-			* [Auto Tag](#ref.scenario.next.auto)
+			* [This Tag](#ref.scenario.next.this)
+		* [End Tag](#ref.scenario.end)
+		* [Win Tag](#ref.scenario.win)
+		* [Lost Tag](#ref.scenario.lost)
+		* [Draw Tag](#ref.scenario.draw)
+		* [Goto Tag](#ref.scenario.goto)
+		* [Gosub Tag](#ref.scenario.gosub)
+			* [Args Tag](#ref.scenario.gosub.args)
+			* [This Tag](#ref.scenario.gosub.this)
+			* [Roles Tag](#ref.scenario.gosub.roles)
+		* [Include Tag](#ref.scenario.include)
+		* [Action Tag](#ref.scenario.action)
 	* [Input/Output Tags](#ref.io)
 		* [Message Tag](#ref.io.message)
 		* [Fortune Tag](#ref.io.fortune)
@@ -402,10 +414,10 @@ If there is no *starting-scene* tag in a scenario, the first *scene* tag will be
 
 
 <a name="ref.scenario.next"></a>
-### [next *label*]
+### [next *scene-label*]
 
 * types: run, exec
-* attribute style: label
+* attribute style: scene label
 * content type: tags
 
 The *next* tag is one of the most important tag of Spellcast Scripting in *Adventurer mode*.
@@ -446,6 +458,17 @@ The label of the choice, i.e. the text used as the description.
 
 This is a particular *vote style* just for this choice, see
 [the *image* tag's *vote-style* parameter tag](#ref.scenario.scene.vote-style) for details.
+
+
+
+<a name="ref.scenario.next.auto"></a>
+#### [auto]
+
+* types: parameter
+* attribute style: none
+* content type: number (in seconds)
+
+The *auto* tag is used to automatically select the current choice once the time set in the content is elapsed.
 
 
 
@@ -503,17 +526,6 @@ In fact, the *args* tag here works just like *args* tag of *gosub* and *call* ta
 
 
 
-<a name="ref.scenario.next.auto"></a>
-#### [auto]
-
-* types: parameter
-* attribute style: none
-* content type: number (in seconds)
-
-The *auto* tag is used to automatically select the current choice once the time set in the content is elapsed.
-
-
-
 <a name="ref.scenario.next.this"></a>
 #### [this]
 
@@ -521,9 +533,138 @@ The *auto* tag is used to automatically select the current choice once the time 
 
 
 
+<a name="ref.scenario.end"></a>
+### [end]
+
+* types: run
+* attribute style: none
+* content type: none
+
+The *end* tag is used to explicitly end the scenario.
+
+It's worth noting that a scenario will end if the top-level execution layer has nothing more to do
+(i.e. the current scene is fully rendered but there is no more user interaction possible that would jump somewhere else).
+
+This is a *neutral end*, mostly useful for non-game scenario.
+
+Game scenario would want to use the [*win* tag](#ref.scenario.win), the [*lost* tag](#ref.scenario.win),
+or the [*draw* tag](#ref.scenario.win).
 
 
 
+<a name="ref.scenario.win"></a>
+### [win]
+
+* types: run
+* attribute style: none
+* content type: none
+
+The *win* tag is used to explicitly end the scenario, like the [*end* tag](#ref.scenario.end) does,
+but instead being a *neutral end* it means the player *wins* the game.
+
+
+
+<a name="ref.scenario.lost"></a>
+### [lost]
+
+* types: run
+* attribute style: none
+* content type: none
+
+The *lost* tag is used to explicitly end the scenario, like the [*end* tag](#ref.scenario.end) does,
+but instead being a *neutral end* it means the player *loses* the game.
+
+
+
+<a name="ref.scenario.draw"></a>
+### [draw]
+
+* types: run
+* attribute style: none
+* content type: none
+
+The *draw* tag is used to explicitly end the scenario, like the [*end* tag](#ref.scenario.end) does,
+but instead being a *neutral end* (a non-game end) it is a *draw game*.
+
+
+
+<a name="ref.scenario.goto"></a>
+### [goto *scene-label*]
+
+* types: run
+* attribute style: scene label
+* content type: none
+
+The *goto* tag immediately jumps to a new scene.
+Unlike the *next* tag, it does not need any user interaction to do that.
+
+
+
+<a name="ref.scenario.gosub"></a>
+### [gosub *scene-label*]
+
+* types: run
+* attribute style: scene label
+* content type: none
+
+The *gosub* tag works mostly like function calls in programming language.
+
+The *gosub* tag immediately executes the target scene as a *sub scene*.
+
+The target scene is run, and all *next* tags, *goto* are followed as usual, but once
+a [*return* tag](#ref.flow.return) is reached, the script execution is *restored* just where it lefts,
+so it continues just after the *gosub* tag.
+
+Think of it as a new execution layer.
+
+If there is no *return* tag, there are implicit *returns* when a scene without any *next* tags is executed entirely:
+i.e. there is nothing more to do, so it returns.
+
+
+
+<a name="ref.scenario.gosub.args"></a>
+#### [args]
+
+* types: parameter
+* attribute style: none
+* content type: anything
+
+Since *gosub* creates a new context to run the target sub-scene, this tag is used to set the **$args** special variable
+for that sub-scene.
+
+
+
+<a name="ref.scenario.gosub.this"></a>
+#### [this]
+
+**DEPRECATED.**
+
+
+
+<a name="ref.scenario.gosub.roles"></a>
+#### [roles]
+
+* types: parameter
+* attribute style: none
+* content type: array of string (role ID)
+
+The *roles* tag is used when the *gosub* tag is inside a [*split* tag](#ref.multiplayer.split) (used in multiplayer books).
+
+Its content is an array of *role ID*: the role list that will go to the *sub-scene*.
+
+
+
+<a name="ref.scenario.include"></a>
+### [include]
+
+**DEPRECATED.**
+
+
+
+<a name="ref.scenario.action"></a>
+### [action]
+
+TODO: documentation.
 
 
 
