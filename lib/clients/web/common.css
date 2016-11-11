@@ -39,6 +39,28 @@ body {
 
 
 
+.timer:before {
+	content:'Time limit: ';
+}
+.timer:after {
+	content:'s';
+}
+.next[data-isOrdered=true] {
+	counter-increment: next;
+}
+.next[data-isOrdered=true]:before {
+	content: counter( next , lower-alpha ) '. ' ;
+}
+
+.unassigned-users:before {
+	content:'Idling: ';
+
+}
+
+
+
+
+
 div.sprite {
 	position: absolute;
 	width: 50%;
@@ -66,6 +88,7 @@ img.sprite.clickable:hover {
 
 #lobby #connection {
 	position: fixed;
+	font-weight:bold;
 	z-index: 5;
 	overflow: hidden;
 	top: 0%;
