@@ -21,6 +21,22 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 * [Tag Reference](#ref)
 	* [Scenario Tags](#ref.scenario)
 		* [Chapter Tag](#ref.scenario.chapter)
+		* [Scene Tag](#ref.scenario.scene)
+			* [Image Tag](#ref.scenario.scene.image)
+			* [Music Tag](#ref.scenario.scene.music)
+			* [Chat Tag](#ref.scenario.scene.chat)
+			* [Action-config Tag](#ref.scenario.scene.action-config)
+			* [Vote-time Tag](#ref.scenario.scene.vote-time)
+			* [Vote-style Tag](#ref.scenario.scene.vote-style)
+			* [Hurry-time Tag](#ref.scenario.scene.hurry-time)
+			* [Show-timer Tag](#ref.scenario.scene.show-timer)
+		* [Starting Scene Tag](#ref.scenario.starting-scene)
+		* [Next Tag](#ref.scenario.next)
+			* [Label Tag](#ref.scenario.next.label)
+			* [Vote-style Tag](#ref.scenario.next.vote-style)
+			* [On-trigger Tag](#ref.scenario.next.on-trigger)
+			* [Args Tag](#ref.scenario.next.args)
+			* [Auto Tag](#ref.scenario.next.auto)
 	* [Input/Output Tags](#ref.io)
 		* [Message Tag](#ref.io.message)
 		* [Fortune Tag](#ref.io.fortune)
@@ -241,8 +257,9 @@ Once init is done, the *starting scene* is *exec*.
 The *starting scene* is either the [*starting-scene* tag](#ref.scenario.starting-scene), or the first registered *scene* tag.
 
 When the scene is executed, it simply runs all its inner tags.
+**Once the scene is executed, it sends all registered choices** (i.e. [*next* tags](#ref.scenerio.next)) to the client.
 
-However, a *scene* has the following parameters tags:
+A *scene* has the following parameters tags:
 
 
 
@@ -335,14 +352,14 @@ Once the timeout is reached, the behaviour depends on the *vote style*.
 Used in multiplayer game only.
 This parameter tag is used to set up the vote behaviour.
 Its content is a string, where:
-* *immediate*: the first choice to be made is immediately validated
-* *unanimity*: it validates the choice if all players has made the same choice
-* *relative* or *relative-majority* or *majority*: it validates the choice if it has the most voters
+* *unanimity*: it validates the choice if all players have chosen it
 * *absolute* or *absolute-majority*: it validates the choice if it has more than 50% of the votes
+* *relative* or *relative-majority* or *majority*: it validates the choice if it has the most voters
+* *immediate*: it validates the choice immediately once anyone choose it
 
 The *vote timeout* is very important:
 * before timeout, undecided players are counted in
-* after timeout they are counted out.
+* after timeout, they are counted out
 
 
 
@@ -359,7 +376,7 @@ Once the first player made a choice, the vote timeout is reduced to this time.
 
 
 
-<a name="ref.scenario.scene.show-time"></a>
+<a name="ref.scenario.scene.show-timer"></a>
 #### [show-timer]
 
 * types: parameter
@@ -381,6 +398,132 @@ This tag works exactly like the [*scene* tag](#ref.scenario.scene), except that 
 e.g. the first scene to be *executed*, the entry point.
 
 If there is no *starting-scene* tag in a scenario, the first *scene* tag will be used for this purpose.
+
+
+
+<a name="ref.scenario.next"></a>
+### [next *label*]
+
+* types: run, exec
+* attribute style: label
+* content type: tags
+
+The *next* tag is one of the most important tag of Spellcast Scripting in *Adventurer mode*.
+
+A scenario is basically a lot of scenes, jumping from scene to scene through the *next* tag.
+
+Each *next* tag is a choice the user can make.
+Once done, the script jumps to the *scene* tag whose id is the one of the *next* tag attribute.
+
+At *run time*, the choice is added to the current *scene* list of choices.
+
+Once init is done, the *starting scene* is *exec*.
+The *starting scene* is either the [*starting-scene* tag](#ref.scenario.starting-scene), or the first registered *scene* tag.
+
+When the scene is executed, it simply runs all its inner tags.
+
+However, a *scene* has the following parameters tags:
+
+
+
+<a name="ref.scenario.next.label"></a>
+#### [label]
+
+* types: parameter
+* attribute style: none
+* content type: string
+
+The label of the choice, i.e. the text used as the description.
+
+
+
+<a name="ref.scenario.next.vote-style"></a>
+#### [vote-style]
+
+* types: parameter
+* attribute style: none
+* content type: string
+
+This is a particular *vote style* just for this choice, see
+[the *image* tag's *vote-style* parameter tag](#ref.scenario.scene.vote-style) for details.
+
+
+
+<a name="ref.scenario.next.on-trigger"></a>
+#### [on-trigger]
+
+* types: parameter, exec
+* attribute style: none
+* content type: tags
+
+The *on-trigger* tag contains code that should be executed once the current *next* tag (i.e. the current choice) is chosen,
+but before jumping to the next scene.
+
+Since it will jump immediately after running the *on-trigger* code, this should generally not be used for things
+involving the user (like message), but for pure internal usage (like setting some variables).
+
+**This tag has its own scope/context per choice instance** (e.g. if the *next* tag is in a loop, each created choice
+has its own scope).
+
+
+
+<a name="ref.scenario.next.args"></a>
+#### [args]
+
+* types: parameter
+* attribute style: none
+* content type: anything
+
+Used in conjunction with the *on-trigger* tag, it set the **$args** special variable for the
+[*on-trigger*](ref.scenario.next.on-trigger) context.
+
+There is only one use-case for that tag, when one want to nest the *next* tag inside a loop.
+Since the values in the *args* tag are solved *at the run time* (of the *next* tag), and since each choice instance
+(of the same *next* tag) has its own scope/context, is used to discriminate in which choice we are in.
+
+Here an example of a *next* tag nested inside a loop, this is fragment of the RPG script lib, used for attack targeting:
+
+```
+[message] Target?
+
+[foreach $local.enemies => $local.index : $local.entity]
+	
+	[next]
+		[args]
+			index: $local.index
+		[label] $> ${local.entity.label//uc1}
+		[on-trigger]
+			[set $fight.target] $local.enemies[$args.index]
+```
+
+The *on-trigger* tag receives an argument **$args** variable solved during the loop.
+All other variable have the same values since the *on-trigger* content is always run *after* the loop.
+
+In fact, the *args* tag here works just like *args* tag of *gosub* and *call* tags, but target the *on-trigger* tag.
+
+
+
+<a name="ref.scenario.next.auto"></a>
+#### [auto]
+
+* types: parameter
+* attribute style: none
+* content type: number (in seconds)
+
+The *auto* tag is used to automatically select the current choice once the time set in the content is elapsed.
+
+
+
+<a name="ref.scenario.next.this"></a>
+#### [this]
+
+**DEPRECATED.**
+
+
+
+
+
+
 
 
 
