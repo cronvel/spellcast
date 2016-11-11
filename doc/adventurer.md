@@ -228,12 +228,12 @@ The attribute style refers to one of those:
 
 
 <a name="ref.scenario"></a>
-## Scenario Tags
+# Scenario Tags
 
 
 
 <a name="ref.scenario.chapter"></a>
-### [chapter *label*]
+## [chapter *label*]
 
 * types: init
 * attribute style: label
@@ -251,7 +251,7 @@ It also supports some parameter tags of the *scene* tag, if present they will ac
 
 
 <a name="ref.scenario.scene"></a>
-### [scene *label*]
+## [scene *label*]
 
 * types: init, exec
 * attribute style: label
@@ -276,7 +276,7 @@ A *scene* has the following parameters tags:
 
 
 <a name="ref.scenario.scene.image"></a>
-#### [image]
+### [image]
 
 * types: parameter
 * attribute style: none
@@ -296,7 +296,7 @@ If the content is a string, it contains the *url* of the image.
 
 
 <a name="ref.scenario.scene.music"></a>
-#### [music]
+### [music]
 
 * types: parameter
 * attribute style: none
@@ -316,7 +316,7 @@ If the content is a string, it contains the *url* of the music.
 
 
 <a name="ref.scenario.scene.chat"></a>
-#### [chat]
+### [chat]
 
 * types: parameter
 * attribute style: none
@@ -332,7 +332,7 @@ will be set to that boolean.
 
 
 <a name="ref.scenario.scene.action-config"></a>
-#### [action-config]
+### [action-config]
 
 * types: parameter
 * attribute style: none
@@ -343,7 +343,7 @@ TODO: documentation
 
 
 <a name="ref.scenario.scene.vote-time"></a>
-#### [vote-time]
+### [vote-time]
 
 * types: parameter
 * attribute style: none
@@ -355,7 +355,7 @@ Once the timeout is reached, the behaviour depends on the *vote style*.
 
 
 <a name="ref.scenario.scene.vote-style"></a>
-#### [vote-style]
+### [vote-style]
 
 * types: parameter
 * attribute style: none
@@ -376,7 +376,7 @@ The *vote timeout* is very important:
 
 
 <a name="ref.scenario.scene.hurry-time"></a>
-#### [hurry-time]
+### [hurry-time]
 
 * types: parameter
 * attribute style: none
@@ -389,7 +389,7 @@ Once the first player made a choice, the vote timeout is reduced to this time.
 
 
 <a name="ref.scenario.scene.show-timer"></a>
-#### [show-timer]
+### [show-timer]
 
 * types: parameter
 * attribute style: none
@@ -400,7 +400,7 @@ Whether the vote timer should be displayed or be held secret.
 
 
 <a name="ref.scenario.starting-scene"></a>
-### [starting-scene *label*]
+## [starting-scene *label*]
 
 * types: init, exec
 * attribute style: label
@@ -414,7 +414,7 @@ If there is no *starting-scene* tag in a scenario, the first *scene* tag will be
 
 
 <a name="ref.scenario.next"></a>
-### [next *scene-label*]
+## [next *scene-label*]
 
 * types: run, exec
 * attribute style: scene label
@@ -439,7 +439,7 @@ However, a *scene* has the following parameters tags:
 
 
 <a name="ref.scenario.next.label"></a>
-#### [label]
+### [label]
 
 * types: parameter
 * attribute style: none
@@ -450,7 +450,7 @@ The label of the choice, i.e. the text used as the description.
 
 
 <a name="ref.scenario.next.vote-style"></a>
-#### [vote-style]
+### [vote-style]
 
 * types: parameter
 * attribute style: none
@@ -462,7 +462,7 @@ This is a particular *vote style* just for this choice, see
 
 
 <a name="ref.scenario.next.auto"></a>
-#### [auto]
+### [auto]
 
 * types: parameter
 * attribute style: none
@@ -473,7 +473,7 @@ The *auto* tag is used to automatically select the current choice once the time 
 
 
 <a name="ref.scenario.next.on-trigger"></a>
-#### [on-trigger]
+### [on-trigger]
 
 * types: parameter, exec
 * attribute style: none
@@ -491,7 +491,7 @@ has its own scope).
 
 
 <a name="ref.scenario.next.args"></a>
-#### [args]
+### [args]
 
 * types: parameter
 * attribute style: none
@@ -527,14 +527,14 @@ In fact, the *args* tag here works just like *args* tag of *gosub* and *call* ta
 
 
 <a name="ref.scenario.next.this"></a>
-#### [this]
+### [this]
 
 **DEPRECATED.**
 
 
 
 <a name="ref.scenario.end"></a>
-### [end]
+## [end]
 
 * types: run
 * attribute style: none
@@ -553,7 +553,7 @@ or the [*draw* tag](#ref.scenario.win).
 
 
 <a name="ref.scenario.win"></a>
-### [win]
+## [win]
 
 * types: run
 * attribute style: none
@@ -565,7 +565,7 @@ but instead being a *neutral end* it means the player *wins* the game.
 
 
 <a name="ref.scenario.lost"></a>
-### [lost]
+## [lost]
 
 * types: run
 * attribute style: none
@@ -577,7 +577,7 @@ but instead being a *neutral end* it means the player *loses* the game.
 
 
 <a name="ref.scenario.draw"></a>
-### [draw]
+## [draw]
 
 * types: run
 * attribute style: none
@@ -589,7 +589,7 @@ but instead being a *neutral end* (a non-game end) it is a *draw game*.
 
 
 <a name="ref.scenario.goto"></a>
-### [goto *scene-label*]
+## [goto *scene-label*]
 
 * types: run
 * attribute style: scene label
@@ -601,7 +601,7 @@ Unlike the *next* tag, it does not need any user interaction to do that.
 
 
 <a name="ref.scenario.gosub"></a>
-### [gosub *scene-label*]
+## [gosub *scene-label*]
 
 * types: run
 * attribute style: scene label
@@ -623,7 +623,7 @@ i.e. there is nothing more to do, so it returns.
 
 
 <a name="ref.scenario.gosub.args"></a>
-#### [args]
+### [args]
 
 * types: parameter
 * attribute style: none
@@ -635,14 +635,14 @@ for that sub-scene.
 
 
 <a name="ref.scenario.gosub.this"></a>
-#### [this]
+### [this]
 
 **DEPRECATED.**
 
 
 
 <a name="ref.scenario.gosub.roles"></a>
-#### [roles]
+### [roles]
 
 * types: parameter
 * attribute style: none
@@ -655,26 +655,26 @@ Its content is an array of *role ID*: the role list that will go to the *sub-sce
 
 
 <a name="ref.scenario.include"></a>
-### [include]
+## [include]
 
 **DEPRECATED.**
 
 
 
 <a name="ref.scenario.action"></a>
-### [action]
+## [action]
 
 TODO: documentation.
 
 
 
 <a name="ref.io"></a>
-## Input/Output Tags
+# Input/Output Tags
 
 
 
 <a name="ref.io.message"></a>
-### [message]
+## [message]
 
 * types: run
 * attribute style: none
@@ -725,7 +725,7 @@ Finally, the content can be an array, in that case each element is a message to 
 
 
 <a name="ref.io.fortune"></a>
-### [fortune]
+## [fortune]
 
 * types: run
 * attribute style: none
@@ -753,7 +753,7 @@ Example:
 
 
 <a name="ref.io.input"></a>
-### [input *$var*]
+## [input *$var*]
 
 * types: run
 * attribute style: var
@@ -772,7 +772,7 @@ If some particular options are needed, the content should be formated as an obje
 
 
 <a name="ref.io.sound"></a>
-### [sound]
+## [sound]
 
 * types: run
 * attribute style: none
@@ -788,7 +788,7 @@ If some particular options are needed, the content should be formated as an obje
 
 
 <a name="ref.io.show-sprite"></a>
-### [show-sprite *id*] / [show-sprite *$var*]
+## [show-sprite *id*] / [show-sprite *$var*]
 
 * types: run
 * attribute style: label or var
@@ -799,7 +799,7 @@ TODO: documentation
 
 
 <a name="ref.io.update-sprite"></a>
-### [update-sprite *id*] / [update-sprite *$var*]
+## [update-sprite *id*] / [update-sprite *$var*]
 
 * types: run
 * attribute style: label or var
@@ -810,7 +810,7 @@ TODO: documentation
 
 
 <a name="ref.io.clear-sprite"></a>
-### [clear-sprite *id*] / [clear-sprite *$var*]
+## [clear-sprite *id*] / [clear-sprite *$var*]
 
 * types: run
 * attribute style: label or var
@@ -821,7 +821,7 @@ TODO: documentation
 
 
 <a name="ref.io.animation"></a>
-### [animation *id*] / [animation *$var*]
+## [animation *id*] / [animation *$var*]
 
 * types: run
 * attribute style: label or var
@@ -832,7 +832,7 @@ TODO: documentation
 
 
 <a name="ref.io.animate-sprite"></a>
-### [animate-sprite *id*] / [animate-sprite *$var*]
+## [animate-sprite *id*] / [animate-sprite *$var*]
 
 * types: run
 * attribute style: label or var
@@ -843,12 +843,12 @@ TODO: documentation
 
 
 <a name="ref.flow"></a>
-## Flow Control Tags
+# Flow Control Tags
 
 
 
 <a name="ref.flow.conditional"></a>
-### Conditional Tags: [if], [elsif]/[elseif] and [else]
+## Conditional Tags: [if], [elsif]/[elseif] and [else]
 
 Those tags works like every other if/elseif/else construct in any programming language.
 [See the MDN doc](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else).
@@ -871,7 +871,7 @@ Example:
 
 
 <a name="ref.flow.if"></a>
-### [if *expression*]
+## [if *expression*]
 
 * types: run
 * attribute style: expression
@@ -883,7 +883,7 @@ Otherwise, it passes controle to the eventual following *elseif* or *else* sibli
 
 
 <a name="ref.flow.elseif"></a>
-### [elseif *expression*] / [elsif *expression*]
+## [elseif *expression*] / [elsif *expression*]
 
 * types: run
 * attribute style: expression
@@ -899,7 +899,7 @@ The *elsif* tag is simply an alias of the *elseif* tag.
 
 
 <a name="ref.flow.else"></a>
-### [else]
+## [else]
 
 * types: run
 * attribute style: none
@@ -912,12 +912,12 @@ If it has, the *else* tag runs its content.
 
 
 <a name="ref.flow.loop"></a>
-### Loop Tags: [while], [foreach], [continue], [break]
+## Loop Tags: [while], [foreach], [continue], [break]
 
 
 
 <a name="ref.flow.while"></a>
-### [while *expression*]
+## [while *expression*]
 
 * types: run
 * attribute style: expression
@@ -951,7 +951,7 @@ Count: 1
 
 
 <a name="ref.flow.foreach"></a>
-### [foreach *$var* => *$value*] / [foreach *$var* => *$key* : *$value*]
+## [foreach *$var* => *$value*] / [foreach *$var* => *$key* : *$value*]
 
 * types: run
 * attribute style: foreach syntax
@@ -1030,7 +1030,7 @@ job: designer
 ```
 
 <a name="ref.flow.continue"></a>
-### [continue]
+## [continue]
 
 * types: run
 * attribute style: none
@@ -1041,7 +1041,7 @@ The *continue* tag terminates the current iteration of the current loop, and con
 
 
 <a name="ref.flow.break"></a>
-### [break]
+## [break]
 
 * types: run
 * attribute style: none
@@ -1052,12 +1052,12 @@ The *break* tag exit from the current loop immediately.
 
 
 <a name="ref.flow.function"></a>
-### Function Tags: [fn], [call], [return]
+## Function Tags: [fn], [call], [return]
 
 
 
 <a name="ref.flow.fn"></a>
-### [fn *$var*] / [fn *label*]
+## [fn *$var*] / [fn *label*]
 
 * types: run or init, exec
 * attribute style: var or label
@@ -1077,7 +1077,7 @@ This syntax has **no run time**.
 
 
 <a name="ref.flow.call"></a>
-### [call *$var*] / [call *label*] / [call *$var* => *$into*] / [call *label* => *$into*]
+## [call *$var*] / [call *label*] / [call *$var* => *$into*] / [call *label* => *$into*]
 
 * types: run or init, exec
 * attribute style: var or label or call syntax
@@ -1101,7 +1101,7 @@ It is also possible to call a native JS function or object method, if it is stor
 
 
 <a name="ref.flow.return"></a>
-### [return]
+## [return]
 
 * types: run
 * attribute style: none
@@ -1118,12 +1118,12 @@ immediately.
 
 
 <a name="ref.ops"></a>
-## Operation Tags
+# Operation Tags
 
 
 
 <a name="ref.ops.set"></a>
-### [set *$var*]
+## [set *$var*]
 
 * types: run
 * attribute style: var
@@ -1156,7 +1156,7 @@ Hello Joe Doe!
 
 
 <a name="ref.ops.inc"></a>
-### [inc *$var*]
+## [inc *$var*]
 
 * types: run
 * attribute style: var
@@ -1167,7 +1167,7 @@ The *inc* tag increments the *$var* number by one.
 
 
 <a name="ref.ops.dec"></a>
-### [dec *$var*]
+## [dec *$var*]
 
 * types: run
 * attribute style: var
@@ -1178,7 +1178,7 @@ The *dec* tag decrements the *$var* number by one.
 
 
 <a name="ref.ops.add"></a>
-### [add *$var*]
+## [add *$var*]
 
 * types: run
 * attribute style: var
@@ -1189,7 +1189,7 @@ The *add* tag adds its content's number to the *$var* number.
 
 
 <a name="ref.ops.sub"></a>
-### [sub *$var*]
+## [sub *$var*]
 
 * types: run
 * attribute style: var
@@ -1200,7 +1200,7 @@ The *sub* tag subtracts its content's number from the *$var* number.
 
 
 <a name="ref.ops.mul"></a>
-### [mul *$var*]
+## [mul *$var*]
 
 * types: run
 * attribute style: var
@@ -1211,7 +1211,7 @@ The *mul* tag multiplies *$var* number by its content's number.
 
 
 <a name="ref.ops.div"></a>
-### [div *$var*]
+## [div *$var*]
 
 * types: run
 * attribute style: var
@@ -1222,7 +1222,7 @@ The *div* tag divides the *$var* number by its content's number.
 
 
 <a name="ref.ops.swap"></a>
-### [swap *$var1* *$var2*]
+## [swap *$var1* *$var2*]
 
 * types: run
 * attribute style: swap syntax
@@ -1261,7 +1261,7 @@ So thanks to the *swap* tag, three lines become one, and there is no trash varia
 
 
 <a name="ref.ops.clone"></a>
-### [clone *$var*]
+## [clone *$var*]
 
 * types: run
 * attribute style: var
@@ -1274,7 +1274,7 @@ Read [this article](http://blog.soulserv.net/tag/cloning/) if you don't know wha
 
 
 <a name="ref.ops.apply-to"></a>
-### [apply-to *$var*]
+## [apply-to *$var*]
 
 * types: run
 * attribute style: var
@@ -1287,12 +1287,12 @@ and put the result into the *$var* variable.
 
 
 <a name="ref.ops.array-ops"></a>
-### Array Operators Tag
+## Array Operators Tag
 
 
 
 <a name="ref.ops.append"></a>
-### [append *$var*]
+## [append *$var*]
 
 * types: run
 * attribute style: var
@@ -1303,7 +1303,7 @@ The *append* tag appends its content to the *$var* array.
 
 
 <a name="ref.ops.prepend"></a>
-### [prepend *$var*]
+## [prepend *$var*]
 
 * types: run
 * attribute style: var
@@ -1314,7 +1314,7 @@ The *prepend* tag prepends its content to the *$var* array.
 
 
 <a name="ref.ops.concat"></a>
-### [concat *$var*] / [concat *$var* => *$into*]
+## [concat *$var*] / [concat *$var* => *$into*]
 
 * types: run
 * attribute style: array operators
@@ -1332,7 +1332,7 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 
 <a name="ref.ops.slice"></a>
-### [slice *$var*] / [slice *$var* => *$into*]
+## [slice *$var*] / [slice *$var* => *$into*]
 
 * types: run
 * attribute style: array operators
@@ -1352,7 +1352,7 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 
 <a name="ref.ops.splice"></a>
-### [splice *$var*] / [splice *$var* => *$into*]
+## [splice *$var*] / [splice *$var* => *$into*]
 
 * types: run
 * attribute style: array operators
@@ -1373,7 +1373,7 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 
 <a name="ref.ops.filter"></a>
-### [filter *$var*] / [filter *$var* => *$into*]
+## [filter *$var*] / [filter *$var* => *$into*]
 
 * types: run
 * attribute style: array operators
@@ -1418,7 +1418,7 @@ Filtered: orange apple ananas
 
 
 <a name="ref.ops.map"></a>
-### [map *$var*] / [map *$var* => *$into*]
+## [map *$var*] / [map *$var* => *$into*]
 
 * types: run
 * attribute style: array operators
@@ -1457,7 +1457,7 @@ Example:
 
 
 <a name="ref.ops.reduce"></a>
-### [reduce *$var*] / [reduce *$var* => *$into*] / [reduce *$var* , *init expression*] / [reduce *$var* , *init expression* => *$into*]
+## [reduce *$var*] / [reduce *$var* => *$into*] / [reduce *$var* , *init expression*] / [reduce *$var* , *init expression* => *$into*]
 
 * types: run
 * attribute style: array operators
@@ -1505,7 +1505,7 @@ Example:
 
 
 <a name="ref.ops.reverse"></a>
-### [reverse *$var*] / [reverse *$var* => *$into*]
+## [reverse *$var*] / [reverse *$var* => *$into*]
 
 * types: run
 * attribute style: array operators
@@ -1523,7 +1523,7 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 
 <a name="ref.ops.sort"></a>
-### [sort *$var*] / [sort *$var* => *$into*]
+## [sort *$var*] / [sort *$var* => *$into*]
 
 * types: run
 * attribute style: array operators
@@ -1552,7 +1552,7 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 
 <a name="ref.ops.fill"></a>
-### [fill *$var*] / [fill *$var* => *$into*]
+## [fill *$var*] / [fill *$var* => *$into*]
 
 * types: run
 * attribute style: array operators
@@ -1590,7 +1590,7 @@ Example:
 
 
 <a name="ref.ops.copy-within"></a>
-### [copy-within *$var*] / [copy-within *$var* => *$into*]
+## [copy-within *$var*] / [copy-within *$var* => *$into*]
 
 * types: run
 * attribute style: array operators
@@ -1610,12 +1610,12 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 
 <a name="ref.misc"></a>
-## Misc Tags
+# Misc Tags
 
 
 
 <a name="ref.misc.module"></a>
-### [module]
+## [module]
 
 * types: init
 * attribute style: none
@@ -1635,7 +1635,7 @@ Example:
 
 
 <a name="ref.misc.pause"></a>
-### [pause]
+## [pause]
 
 * types: run
 * attribute style: none
@@ -1656,7 +1656,7 @@ Example:
 
 
 <a name="ref.misc.js"></a>
-### [js]
+## [js]
 
 * types: run
 * attribute style: none
@@ -1690,7 +1690,7 @@ Hello Oz!
 
 
 <a name="ref.misc.debug"></a>
-### [debug *level*]
+## [debug *level*]
 
 * types: run
 * attribute style: label
@@ -1731,7 +1731,7 @@ Example:
 
 
 <a name="ref.misc.debugf"></a>
-### [debugf *level*]
+## [debugf *level*]
 
 * types: run
 * attribute style: label
