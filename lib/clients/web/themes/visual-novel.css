@@ -85,7 +85,7 @@ body {
 	color:red;
 	cursor:pointer;
 }
-.choices p { display:none; }
+.choices p { display: block; }
 
 .choices button:active,
 .choice:active {

@@ -33,6 +33,8 @@
 
 var domKit = require( 'dom-kit' ) ;
 
+function noop() {}
+
 
 
 function Dom() { return Dom.create() ; }
@@ -74,8 +76,39 @@ Dom.prototype.clientStatus = function clientStatus( text , options )
 
 
 
+Dom.prototype.clear = function clear( callback )
+{
+	callback = callback || noop ;
+	this.$hint.innerHTML = '' ;
+	this.$text.innerHTML = '' ;
+	this.$next.innerHTML = '' ;
+	callback() ;
+} ;
+
+
+
+Dom.prototype.clearHints = function clearHints( callback )
+{
+	callback = callback || noop ;
+	this.$hint.innerHTML = '' ;
+	callback() ;
+} ;
+
+
+
+Dom.prototype.clearMessages = function clearMessages( callback )
+{
+	callback = callback || noop ;
+	this.$text.innerHTML = '' ;
+	callback() ;
+} ;
+
+
+
 Dom.prototype.addMessage = function addMessage( text , options , callback )
 {
+	callback = callback || noop ;
+	
 	this.$text.insertAdjacentHTML( 'beforeend' ,
 		'<p class="text">' + text + '</p>'
 	) ;
@@ -87,6 +120,7 @@ Dom.prototype.addMessage = function addMessage( text , options , callback )
 
 Dom.prototype.clearChoices = function clearChoices( callback )
 {
+	callback = callback || noop ;
 	this.$next.innerHTML = '' ;
 	callback() ;
 } ;
@@ -97,17 +131,42 @@ Dom.prototype.addChoices = function addChoices( choices , callback )
 {
 	var self = this ;
 	
+	callback = callback || noop ;
+	
 	choices.forEach( function( choice ) {
+		
+		console.warn( "choice.selectedBy:" , choice.selectedBy ) ;
 		
 		self.$next.insertAdjacentHTML( 'beforeend' ,
 			'<button id="next_' + choice.index + '" class="' + choice.type +'">' +
-			String.fromCharCode( 0x61 + choice.index ) + '. ' + choice.label +
+			( choice.orderedList ? String.fromCharCode( 0x61 + choice.index ) + '. ' : '' ) +
+			choice.label +
 			(
 				choice.selectedBy && choice.selectedBy.length ?
 				' <span class="italic brightBlack">' + choice.selectedBy.join( ', ' ) + '</span>' : ''
 			) +
 			'</button>'
 		) ;
+		
+		/*
+		$nexts = document.querySelectorAll( '.next' ) ;
+		$nexts = Array.prototype.slice.call( $nexts ) ;
+
+		$nexts.forEach( function( e , i ) {
+			e.onclick = function() {
+				if ( nexts[ i ].roleIds.indexOf( self.roleId ) !== -1 )
+				{
+					self.bus.emit( 'selectNext' , null ) ;
+				}
+				else
+				{
+					self.bus.emit( 'selectNext' , i ) ;
+				}
+
+				$nexts.forEach( function( e , i ) { e.onclick = null ; } ) ;
+			} ;
+		} ) ;
+		*/
 	} ) ;
 	
 } ;
@@ -118,6 +177,8 @@ Dom.prototype.addChoices = function addChoices( choices , callback )
 Dom.prototype.setChoices = function setChoices( choices , undecidedNames , timeout , callback )
 {
 	var self = this ;
+	
+	callback = callback || noop ;
 	
 	this.clearChoices( function() {
 		self.addChoices( choices , callback ) ;
@@ -142,7 +203,9 @@ Dom.prototype.updateChoices = function setChoices( choices , undecidedNames , ti
 {
 	var self = this ;
 	
-	// TEMP!
+	callback = callback || noop ;
+	
+	// TEMP! This does not update but just reset, just like .setChoices()
 	this.clearChoices( function() {
 		self.addChoices( choices , callback ) ;
 		
@@ -177,6 +240,28 @@ Dom.prototype.choiceTimeout = function choiceTimeout( timeout )
 
 		$timer.textContent = Math.round( ( timeout + startTime - Date.now() ) / 1000 ) + 's' ;
 	} , 1000 ) ;
+} ;
+
+
+
+Dom.prototype.enableChat = function enableChat()
+{
+	if ( this.$chatInput.getAttribute( 'disabled' ) )
+	{
+		this.$chat.classList.remove( 'hidden' ) ;
+		this.$chatInput.removeAttribute( 'disabled' ) ;
+	}
+} ;
+
+
+
+Dom.prototype.disableChat = function disableChat()
+{
+	if ( ! this.$chatInput.getAttribute( 'disabled' ) )
+	{
+		this.$chat.classList.add( 'hidden' ) ;
+		this.$chatInput.setAttribute( 'disabled' , true ) ;
+	}
 } ;
 
 
@@ -556,6 +641,7 @@ function arrayGetById( id ) { return this.find( function( e ) { return e.id === 
 
 
 
+// DOM
 UI.prototype.initInteractions = function initInteractions()
 {
 	var self = this , fullScreenImageTimer = null ;
@@ -754,7 +840,9 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 		this.afterLeave = true ;	// tmp
 		return ;
 	}
-
+	
+	
+	// DOM
 	$roles = document.querySelectorAll( '.role' ) ;
 	$roles = Array.prototype.slice.call( $roles ) ;
 
@@ -825,6 +913,7 @@ UI.message = function message( text , options , callback )
 
 
 
+// DOM
 UI.prototype.messageNext = function messageNext( callback )
 {
 	callback() ;
@@ -839,25 +928,18 @@ UI.chatConfig = function chatConfig( data )
 
 	if ( this.roleId && this.chatConfig[ this.roleId ].write )
 	{
-		if ( this.$chatInput.getAttribute( 'disabled' ) )
-		{
-			this.$chat.classList.remove( 'hidden' ) ;
-			this.$chatInput.removeAttribute( 'disabled' ) ;
-		}
+		this.dom.enableChat() ;
 	}
 	else
 	{
-		if ( ! this.$chatInput.getAttribute( 'disabled' ) )
-		{
-			this.$chat.classList.add( 'hidden' ) ;
-			this.$chatInput.setAttribute( 'disabled' , true ) ;
-		}
+		this.dom.disableChat() ;
 	}
 } ;
 
 
 
 // Dom event
+// DOM
 UI.onChatSubmit = function onChatSubmit( event )
 {
 	event.preventDefault() ;
@@ -885,9 +967,7 @@ UI.enterScene = function enterScene()
 
 	if ( this.afterLeave && ! this.afterNextTriggered )
 	{
-		this.$text.innerHTML = '' ;
-		this.$next.innerHTML = '' ;
-		this.$hint.innerHTML = '' ;
+		this.dom.clear() ;
 	}
 
 	this.afterNext = this.afterLeave = this.afterNextTriggered = false ;
@@ -910,121 +990,32 @@ UI.leaveScene = function leaveScene( callback )
 UI.nextTriggered = function nextTriggered()
 {
 	this.afterNextTriggered = true ;
-	this.$text.innerHTML = '' ;
-	this.$next.innerHTML = '' ;
+	this.dom.clearMessages() ;
+	this.dom.clearChoices() ;
 } ;
 
 
 
 UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
 {
+	var self = this , $nexts , choices = [] , undecidedNames ,
+		startTime , timer , $timer ,
+		max = 0x61 + nexts.length - 1 ;
+	
 	this.nexts = nexts ;
 	this.afterNext = true ;
 
 	// No need to update if we are alone
 	if ( isUpdate && this.roles.length === 1 ) { return ; }
-
-	//if ( nexts.length === 0 ) { this.nextEnd() ; }
-	//else
-	if ( nexts.length === 1 ) { this.nextListConfirm( nexts[ 0 ] , grantedRoleIds , undecidedRoleIds , timeout , isUpdate ) ; }
-	else { this.nextListMenu( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate ) ; }
-} ;
-
-
-
-UI.prototype.nextListConfirm = function nextListConfirm( next , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
-{
-	var self = this , $next , roles ,
-		startTime , timer , $timer ;
-
-	this.$next.innerHTML = '' ;
-
-	if ( next.label )
-	{
-		roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
-
-		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_0" class="next">Next: ' + next.label +
-			( roles ? ' <span class="italic brightBlack">' + roles + '</span>' : '' ) +
-			'</button>'
-		) ;
-	}
-	else
-	{
-		roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
-
-		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_0" class="next">Next.' +
-			( roles ? ' <span class="italic brightBlack">' + roles + '</span>' : '' ) +
-			'</button>'
-		) ;
-	}
-
-	if ( undecidedRoleIds.length && this.roles.length > 1 )
-	{
-		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<p class="waiting-roles">Waiting: <span class="waiting-roles">' +
-			undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
-			'</span></p>'
-		) ;
-	}
-
-	if ( timeout !== null )
-	{
-		startTime = Date.now() ;
-
-		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<p class="timer">Time limit: <span class="time">' + Math.round( timeout / 1000 ) + 's' + '</span></p>'
-		) ;
-
-		$timer = document.querySelector( '.timer .time' ) ;
-
-		timer = setInterval( function() {
-			// If no parentNode, the element has been removed...
-			if ( ! $timer.parentNode ) { clearInterval( timer ) ; return ; }
-
-			$timer.textContent = Math.round( ( timeout + startTime - Date.now() ) / 1000 ) + 's' ;
-		} , 1000 ) ;
-	}
-
-	$next = document.querySelector( '#next_0' ) ;
-
-	$next.onclick = function() {
-		self.bus.emit( 'selectNext' , 0 ) ;
-		$next.onclick = null ;
-	} ;
-} ;
-
-
-
-UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
-{
-	var self = this , $nexts , choices = [] , undecidedNames ,
-		startTime , timer , $timer ,
-		max = 0x61 + nexts.length - 1 ;
-	
-	/*
-	this.$next.innerHTML = '' ;
-
-	nexts.forEach( function( next , i ) {
-
-		var roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
-
-		self.$next.insertAdjacentHTML( 'beforeend' ,
-			'<button id="next_' + i + '" class="next">' + String.fromCharCode( 0x61 + i ) + '. ' + next.label +
-			( roles ? ' <span class="italic brightBlack">' + roles + '</span>' : '' ) +
-			'</button>'
-		) ;
-	} ) ;
-	*/
 	
 	nexts.forEach( function( next , i ) {
 		
-		var roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ).join( ', ' ) ;
+		var roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ) ;
 		
 		choices.push( {
 			index: i ,
-			label: next.label ,
+			label: next.label || 'NEXT' ,
+			orderedList: nexts.length > 1 ,
 			type: 'next' ,
 			selectedBy: roles
 		} ) ;
@@ -1034,37 +1025,6 @@ UI.prototype.nextListMenu = function nextListMenu( nexts , grantedRoleIds , unde
 	{
 		undecidedNames = undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ) ;
 	}
-	
-	/*
-	if ( undecidedRoleIds.length && this.roles.length )
-	{
-		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<p class="waiting-roles">Waiting: <span class="waiting-roles">' +
-			undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ).join( ', ' ) +
-			'</span></p>'
-		) ;
-	}
-	*/
-	
-	/*
-	if ( timeout !== null )
-	{
-		startTime = Date.now() ;
-
-		this.$next.insertAdjacentHTML( 'beforeend' ,
-			'<p class="timer">Time limit: <span class="time">' + Math.round( timeout / 1000 ) + 's' + '</span></p>'
-		) ;
-
-		$timer = document.querySelector( '.timer .time' ) ;
-
-		timer = setInterval( function() {
-			// If no parentNode, the element has been removed...
-			if ( ! $timer.parentNode ) { clearInterval( timer ) ; return ; }
-
-			$timer.textContent = Math.round( ( timeout + startTime - Date.now() ) / 1000 ) + 's' ;
-		} , 1000 ) ;
-	}
-	*/
 	
 	this.dom.setChoices( choices , undecidedNames , timeout ) ;
 
@@ -1437,7 +1397,7 @@ UI.music = function music( data )
 			if ( oldSrc !== data.url )
 			{
 				fadeOut( this.$music , function() {
-					self.$music.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
+					self.$music.setAttribute( 'src' , self.cleanUrl( data.url ) ) ;
 					self.$music.play() ;
 					fadeIn( self.$music ) ;
 				} ) ;
