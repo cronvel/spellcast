@@ -97,6 +97,12 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Sort Tag](#ref.ops.sort)
 			* [Fill Tag](#ref.ops.fill)
 			* [Copy-within Tag](#ref.ops.copy-within)
+	* [Event Tags](#ref.event)
+		* [Emit Tag](#ref.event.emit)
+		* [On Tag](#ref.event.on)
+		* [Once Tag](#ref.event.once)
+		* [On-global Tag](#ref.event.on-global)
+		* [Once-global Tag](#ref.event.once-global)
 	* [Misc Tags](#ref.misc)
 		* [Module Tag](#ref.misc.module)
 		* [Pause Tag](#ref.misc.pause)
@@ -1607,6 +1613,79 @@ If the second syntax `[copy-within *$var* => *$into*]` is used, the *$var* array
 instead the result is stored into the *$into* variable.
 
 See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin).
+
+
+
+<a name="ref.event"></a>
+# Event Tags
+
+
+
+<a name="ref.event.emit"></a>
+## [emit *event-label*]
+
+* types: run
+* attribute style: label
+* content type: anything
+
+The *emit* tag emits the *event-label* event.
+
+The event is emitted with the whole solved content as its data.
+
+
+
+<a name="ref.event.on"></a>
+## [on *event-label*]
+
+* types: run, exec
+* attribute style: label
+* content type: tags
+
+The *on* tag listen for the *event-label* event: whenever the event is fired, it executes its content.
+
+Inside the listener, the special **$args** variable will be an object, where:
+* event `string` this is the *event-label*
+* data `anything` this is the data of the event (the solved content of the *emit* tag)
+
+The listener is destroyed once the script leave the current scene.
+
+
+
+<a name="ref.event.once"></a>
+## [once *event-label*]
+
+* types: run, exec
+* attribute style: label
+* content type: tags
+
+The *once* tag works just like the [*on* tag](#ref.event.on), except that it listens for that event only once
+(i.e. it triggers at most only once).
+
+
+
+<a name="ref.event.on-global"></a>
+## [on-global *event-label*]
+
+* types: run, exec
+* attribute style: label
+* content type: tags
+
+The *on-global* tag works just like the [*on* tag](#ref.event.on), except that it is **NOT** destroyed
+at the end of the current scene, instead it continues to be active even after the execution leaves it
+
+
+
+<a name="ref.event.on-global"></a>
+## [once-global *event-label*]
+
+* types: run, exec
+* attribute style: label
+* content type: tags
+
+The *once-global* tag works just like the [*on* tag](#ref.event.on), except that:
+* it listens for that event only once (i.e. it triggers at most only once)
+* it is **NOT** destroyed at the end of the current scene, instead it continues to be active even after the execution leaves it
+
 
 
 <a name="ref.misc"></a>
