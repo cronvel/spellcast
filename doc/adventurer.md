@@ -103,6 +103,9 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Once Tag](#ref.event.once)
 		* [On-global Tag](#ref.event.on-global)
 		* [Once-global Tag](#ref.event.once-global)
+	* [Multiplayer Tags](#ref.multiplayer)
+		* [Role Tag](#ref.multiplayer.role)
+		* [Split Tag](#ref.multiplayer.split)
 	* [Misc Tags](#ref.misc)
 		* [Module Tag](#ref.misc.module)
 		* [Pause Tag](#ref.misc.pause)
@@ -1685,6 +1688,87 @@ at the end of the current scene, instead it continues to be active even after th
 The *once-global* tag works just like the [*on* tag](#ref.event.on), except that:
 * it listens for that event only once (i.e. it triggers at most only once)
 * it is **NOT** destroyed at the end of the current scene, instead it continues to be active even after the execution leaves it
+
+
+
+<a name="ref.multiplayer"></a>
+# Multiplayer Tags
+
+
+
+<a name="ref.multiplayer.role"></a>
+## [role *role-label*]
+
+* types: init
+* attribute style: label
+* content type: tags
+
+The *role* tag creates a role.
+A role is a player slot.
+
+When no *role* tag exists, one default role is automatically created.
+
+Usually, a script uses *role* tags only if it features multiplayer: it is the link between a player and its role
+in the game/scenario.
+
+It has some parameter tags.
+
+
+
+<a name="ref.multiplayer.role.label"></a>
+### [label]
+
+* types: parameter
+* attribute style: none
+* content type: string
+
+The *label* tag contains the name of the role, as displayed to users.
+
+
+
+<a name="ref.multiplayer.role.entity"></a>
+### [entity]
+
+* types: parameter
+* attribute style: none
+* content type: object
+
+The *entity* tag creates and assigns an entity to the current role.
+It works like the [*create-entity* tag](#ref.rpg.create-entity).
+
+
+
+<a name="ref.multiplayer.split"></a>
+## [split]
+
+* types: run
+* attribute style: none
+* content type: tags (only *gosub* tags)
+
+The *split* tag is used to split players in two or more scenario branches.
+Instead of playing together the same scene, group of players can play different scenes.
+
+Inside a *split* tag, there must be at least two [*gosub* tags](#ref.flow.gosub), those *gosub* tags must have
+a [*roles* parameter tags](#ref.flow.gosub.roles).
+
+Roles are reunited once all groups have returned from their respective *gosub* tags.
+
+Example of *split* tag in action:
+
+```
+[split]
+	[gosub alice-branch]
+		[roles]
+			- alice
+	[gosub bob-branch]
+		[roles]
+			- bob
+```
+
+In this example, there are two roles whose ID are `alice` and `bob`.
+When the *split* tag is run, Alice and Bob's player are splitted in two branches.
+Alice will play on the `alice-branch` sub-scene and Bob will play on the `bob-branch` sub-scene,
+until they finished their respective sub-scenario.
 
 
 
