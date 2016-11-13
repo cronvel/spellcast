@@ -106,6 +106,16 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 	* [Multiplayer Tags](#ref.multiplayer)
 		* [Role Tag](#ref.multiplayer.role)
 		* [Split Tag](#ref.multiplayer.split)
+	* [RPG Tags](#ref.rpg)
+		* [Entity-class Tag](#ref.rpg.entity-class)
+		* [Entity-model Tag](#ref.rpg.entity-model)
+		* [Create-entity Tag](#ref.rpg.create-entity)
+		* [Entity-compound-stats Tag](#ref.rpg.entity-compound-stats)
+		* [Usage-compound-stats Tag](#ref.rpg.usage-compound-stats)
+		* [Item-model Tag](#ref.rpg.item-model)
+		* [Create-item Tag](#ref.rpg.create-item)
+		* [Equip Tag](#ref.rpg.equip)
+		* [Unequip Tag](#ref.rpg.unequip)
 	* [Misc Tags](#ref.misc)
 		* [Module Tag](#ref.misc.module)
 		* [Pause Tag](#ref.misc.pause)
@@ -1769,6 +1779,153 @@ In this example, there are two roles whose ID are `alice` and `bob`.
 When the *split* tag is run, Alice and Bob's player are splitted in two branches.
 Alice will play on the `alice-branch` sub-scene and Bob will play on the `bob-branch` sub-scene,
 until they finished their respective sub-scenario.
+
+
+
+<a name="ref.rpg"></a>
+# RPG Tags
+
+
+
+<a name="ref.rpg.entity-class"></a>
+## [entity-class *class-label*]
+
+* types: init
+* attribute style: label
+* content type: object
+
+The *entity-class* tag defines a class of entity, i.e. a global kind of *things* that can perform some actions in the scenario,
+that may (or may not) be human controled.
+
+E.g.:
+* character
+* batallion
+* city
+* kingdom
+* ...
+
+At *init time*, the class is registered globally.
+
+Its content is an object containing some or all of the *Entity* properties.
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.entity-model"></a>
+## [entity-model *model-label*]
+
+* types: init
+* attribute style: label
+* content type: object
+
+The *entity-model* tag defines a model for futur entity creation.
+
+At *init time*, the model is registered globally.
+
+Its content is an object containing some or all of the *Entity* properties.
+
+It may inherit from an entity class.
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.create-entity"></a>
+## [create-entity *$var*]
+
+* types: run
+* attribute style: var
+* content type: string (the model to create) or object
+
+The *create-entity* tag is used to create an entity and store it into a variable.
+
+Its content content can be either a simple string containing the model ID to create, or a whole object containing
+some or all of the *Entity* properties, that may inherit from an entity model.
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.entity-compound-stats"></a>
+## [entity-compound-stats *entity-class-label*]
+
+* types: init
+* attribute style: label
+* content type: object
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.usage-compound-stats"></a>
+## [usage-compound-stats *usage-label* *variation-label*]
+
+* types: init
+* attribute style: usage-compound-stats syntax
+* content type: object
+
+TODO: documentation
+
+
+
+## [item-model *model-label*]
+
+* types: init
+* attribute style: label
+* content type: object
+
+The *item-model* tag defines a model for futur item creation.
+
+At *init time*, the model is registered globally.
+
+Its content is an object containing some or all of the *Item* properties.
+
+It may inherit from an item class.
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.create-item"></a>
+## [create-item *$var*]
+
+* types: run
+* attribute style: var
+* content type: string (the model to create) or object
+
+The *create-item* tag is used to create an item and store it into a variable.
+
+Its content content can be either a simple string containing the model ID to create, or a whole object containing
+some or all of the *Item* properties, that may inherit from an item model.
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.equip"></a>
+## [equip *$var*]
+
+* types: run
+* attribute style: var
+* content type: object
+
+The *equip* tag is used to equip an item on the entity stored in the *$var*.
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.unequip"></a>
+## [unequip *$var*]
+
+* types: run
+* attribute style: var
+* content type: object
+
+The *unequip* tag is used to unequip an item off the entity stored in the *$var*.
+
+TODO: documentation
 
 
 
