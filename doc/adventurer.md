@@ -1869,6 +1869,7 @@ TODO: documentation
 
 
 
+<a name="ref.rpg.item-model"></a>
 ## [item-model *model-label*]
 
 * types: init
