@@ -1797,11 +1797,11 @@ until they finished their respective sub-scenario.
 The *entity-class* tag defines a class of entity, i.e. a global kind of *things* that can perform some actions in the scenario,
 that may (or may not) be human controled.
 
-E.g.:
-* character
-* batallion
-* city
-* kingdom
+Some example of entity types:
+* a character
+* a battalion
+* a city
+* a kingdom
 * ...
 
 At *init time*, the class is registered globally.
@@ -1854,18 +1854,63 @@ TODO: documentation
 * attribute style: label
 * content type: object
 
-TODO: documentation
+The *entity-compound-stats* tag defines compound stats for for an *entity-class-label* entity class.
+
+The content should be an object where the key is a stat name and the value is usually an *expression*.
+The *expression* usually contains *ref* (variable) relative to the entity object.
+
+Example:
+
+```
+[entity-compound-stats character]
+	fighting: $= ( $stats.dexterity + $stats.strength ) / 2
+```
+
+This will define a compound stat *fighting*, computed using the entity *dexterity* stat and *strength* stat,
+that will exist for all *character* type entity.
 
 
 
 <a name="ref.rpg.usage-compound-stats"></a>
-## [usage-compound-stats *usage-label* *variation-label*]
+## [usage-compound-stats *usage-label*] / [usage-compound-stats *usage-label* *variation-label*]
 
 * types: init
 * attribute style: usage-compound-stats syntax
 * content type: object
 
-TODO: documentation
+The *usage-compound-stats* tag defines compound stats for a particular *usage-label* usage,
+eventually for the *variation-label* variation.
+
+The content should be an object where the key is a stat name and the value is usually an *expression*.
+The *expression* usually contains *ref* (variable) relative to the entity object.
+
+Example without variation:
+
+```
+[usage-compound-stats ranged-fighting]
+	attack: $= $stats.shooting
+	damages: $= $stats.strength
+```
+
+This will define a compound stat *attack*, computed using the entity *shooting* stat, and a *damages* stat computed
+with the entity *strength* stat, that will be active for the *ranged-fighting* usage.
+
+Example with variation:
+
+```
+[usage-compound-stats ranged-fighting firearm]
+	damages: $= $stats.shooting / 4
+```
+
+This will define a compound stat *damages* computed with the entity *shooting* stat, 
+that will be active for the *ranged-fighting* usage when the item has the *firearm* type.
+
+The variation usage inherits from the standard usage (the one without variation), hence the *attack* stat is computed
+using the code in the previous example.
+
+Variations are useful when the same usage has different stats depending on the item performing it.
+Here the entity has a *firearm* type of weapon (guns, etc), the damages caused by that weapon rely more on
+the item stats than on the entity stats, and so the *strength* of the character does not affect the damages.
 
 
 
@@ -1913,7 +1958,20 @@ TODO: documentation
 
 The *equip* tag is used to equip an item on the entity stored in the *$var*.
 
-TODO: documentation
+The content is an object describing what to equip and how, properties are:
+* item `ref` the variable containing the item to equip
+* owned `boolean` true if the item is already owned by the entity (default: true)
+* primary `string` or `array` of `string`: this is the list of usages for what this item is the primary item
+
+The equipment slot used will be the item's *$item.slotType*.
+
+This will equip *$hero* with the *$sword*, and set it as the primary item for the *melee-fighting* usage:
+
+```
+[equip $hero]
+	item: $sword
+	primary: melee-fighting
+```
 
 
 
@@ -1926,7 +1984,25 @@ TODO: documentation
 
 The *unequip* tag is used to unequip an item off the entity stored in the *$var*.
 
-TODO: documentation
+The content is an object describing what to unequip, properties are:
+* item `ref` the variable containing the item to unequip
+* slot `string` the equipment slot ID to unequip
+
+An item is unequipped using **either** the item ref itself **or** the equipment slot.
+
+This will unequip all items in the hands of the *$hero*:
+
+```
+[unequip $hero]
+	slot: hand
+```
+
+This will unequip the item *$sword* in the hands of the *$hero*:
+
+```
+[unequip $hero]
+	item: $sword
+```
 
 
 
