@@ -9,8 +9,7 @@
 		[set $fight] <Object>
 		
 		[set $fight.foes] <Array>
-		[set $fight.turnIndex] 0
-		[set $fight.round] 0
+		[set $fight.allies] <Array>
 		[set $fight.turns] <Array>
 		[set $fight.distance] $= ( $args.distance is-set? ) ? ( floor ( abs $args.distance ) 2 ) 0
 		
@@ -40,9 +39,6 @@
 				pressure: 0
 				speed: 0
 			
-		[filter $fight.foes => $fight.aliveFoes] $= $this.status.hp > 0
-		[filter $fight.allies => $fight.aliveAllies] $= $this.status.hp > 0
-		
 		#[debug info] $fight.allies
 		#[debug info] $fight.foes
 		#[debug info] $fight.aliveFoes
@@ -52,7 +48,9 @@
 		
 		[call initiative]
 		#[next initiative]
-		[goto new-turn]
+		#[goto new-turn]
+		
+		[call fight-loop]
 	
 	
 	
@@ -75,44 +73,54 @@
 		
 	
 	
-	[scene new-turn]
-		[set $fight.entityTurn] $= $fight.turns[$fight.turnIndex]
+	[fn fight-loop]
 		
-		[if $fight.entityTurn.status.hp <= 0]
-			[goto end-turn]
+		[set $fight.turnCount] 0
+		[set $fight.turnIndex] 0
+		[set $fight.round] 0
 		
-		[if $fight.entityTurn.adhoc.fight.cooldown > 0]
-			[dec $fight.entityTurn.adhoc.fight.cooldown]
-			[goto end-turn]
-		
-		[call battle-lines]
-		
-		[if $fight.entityTurn.npc]
-			[goto npc-turn]
-		[else]
-			[goto pc-turn]
-	
-	
-	
-	[scene end-turn]
-		[set $fight.turnIndex] $= ( $fight.turnIndex + 1 ) % $fight.turns.length
-		
-		[if $fight.turnIndex = 0]
-			[call new-round]
-		
-		[filter $fight.foes => $fight.aliveFoes] $= $this.status.hp > 0
-		[filter $fight.allies => $fight.aliveAllies] $= $this.status.hp > 0
-		
-		[if ! $fight.aliveAllies.length]
-			[goto lost]
-		[elseif ! $fight.aliveFoes.length]
-			[goto win]
-		
-		[goto new-turn]
-	
-	
-	
-	[fn new-round]
+		[while true]
+			
+			# Former scene end-turn:
+			
+			[if $fight.turnCount]
+				[set $fight.turnIndex] $= ( $fight.turnIndex + 1 ) % $fight.turns.length
+				
+				[if $fight.turnIndex = 0]
+					[call next-round]
+			
+			[inc $fight.turnCount]
+			
+			[filter $fight.foes => $fight.aliveFoes] $= $this.status.hp > 0
+			[filter $fight.allies => $fight.aliveAllies] $= $this.status.hp > 0
+			
+			[if ! $fight.aliveAllies.length]
+				[goto lost]
+			[elseif ! $fight.aliveFoes.length]
+				[goto win]
+			
+			
+			# Former scene new-turn:
+			
+			[set $fight.entityTurn] $= $fight.turns[$fight.turnIndex]
+			
+			[if $fight.entityTurn.status.hp <= 0]
+				[continue]
+			
+			[if $fight.entityTurn.adhoc.fight.cooldown > 0]
+				[dec $fight.entityTurn.adhoc.fight.cooldown]
+				[continue]
+			
+			[call battle-lines]
+			
+			[if $fight.entityTurn.npc]
+				[call npc-turn]
+			[else]
+				[gosub pc-turn]
+			
+			
+			
+	[fn next-round]
 		[inc $fight.round]
 		
 		# Manage distance
@@ -127,6 +135,28 @@
 			[else]
 				[message] $> ^yThe remaining distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
 		
+	
+	
+	[scene win]
+		[message] $> ${fight.allies[0].label//uc1} win the fight.
+		[set $local.xpReward] 0
+		
+		[foreach $fight.foes => $local.entity]
+			[add $local.xpReward] $local.entity.params.xpReward
+		
+		[set $local.xpReward] $= ceil ( $local.xpReward / $fight.allies.length )
+		
+		[foreach $fight.allies => $local.index : $local.entity]
+			[add $local.entity.status.xp] $local.xpReward
+		
+		[message] $> You gain ${local.xpReward} xp (=${fight.allies[0].status.xp}).
+	
+	
+	
+	[scene lost]
+		[message] $> ${fight.allies[0].label//uc1} died on the battlefield.
+		[lost]
+	
 	
 	
 	[fn all-pressure]
@@ -202,9 +232,9 @@
 		
 		
 	
-	[scene npc-turn]
+	[fn npc-turn]
 		
-		[gosub npc-targeting]
+		[call npc-targeting]
 		
 		[set $performer] $fight.entityTurn
 		
@@ -220,14 +250,26 @@
 			[call charge]
 				performer: $performer
 				target: $fight.target
-			[goto end-turn]
+			[return]
 		
 		[call melee-fighting]
 			performer: $performer
 			target: $fight.target
 		
-		[goto end-turn]
+		[return]
 		
+	
+	
+	[fn npc-targeting]
+		
+		[if $fight.entityTurn.adhoc.fight.side = "allies"]
+			[set $local.enemies] $fight.aliveFoes
+		[else]
+			[set $local.enemies] $fight.aliveAllies
+		
+		[set $local.index] $= random ( $local.enemies.length - 1 )
+		[set $fight.target] $local.enemies[$local.index]
+	
 	
 	
 	[scene pc-turn]
@@ -306,19 +348,7 @@
 					[set $fight.entityTurn.adhoc.fight.offensiveness] -1
 					[set $fight.entityTurn.adhoc.fight.pressTarget] null
 					[set $fight.entityTurn.adhoc.fight.pressValue] 0
-					[goto end-turn]
-	
-	
-	
-	[scene npc-targeting]
-		
-		[if $fight.entityTurn.adhoc.fight.side = "allies"]
-			[set $local.enemies] $fight.aliveFoes
-		[else]
-			[set $local.enemies] $fight.aliveAllies
-		
-		[set $local.index] $= random ( $local.enemies.length - 1 )
-		[set $fight.target] $local.enemies[$local.index]
+					[return]
 	
 	
 	
@@ -359,7 +389,7 @@
 		[call melee-fighting]
 			performer: $fight.entityTurn
 			target: $fight.target
-		[goto end-turn]
+		[return]
 	
 	
 	
@@ -368,7 +398,7 @@
 		[call ranged-fighting]
 			performer: $fight.entityTurn
 			target: $fight.target
-		[goto end-turn]
+		[return]
 	
 	
 	
@@ -378,30 +408,8 @@
 		[call charge]
 			performer: $fight.entityTurn
 			target: $fight.target
-		[goto end-turn]
+		[return]
 	
-	
-	
-	[scene win]
-		[message] $> ${fight.allies[0].label//uc1} win the fight.
-		[set $local.xpReward] 0
-		
-		[foreach $fight.foes => $local.entity]
-			[add $local.xpReward] $local.entity.params.xpReward
-		
-		[set $local.xpReward] $= ceil ( $local.xpReward / $fight.allies.length )
-		
-		[foreach $fight.allies => $local.index : $local.entity]
-			[add $local.entity.status.xp] $local.xpReward
-		
-		[message] $> You gain ${local.xpReward} xp (=${fight.allies[0].status.xp}).
-	
-	
-	
-	[scene lost]
-		[message] $> ${fight.allies[0].label//uc1} died on the battlefield.
-		[lost]
-
 	
 	
 	[fn deal-damages]
