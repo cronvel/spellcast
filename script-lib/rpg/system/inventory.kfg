@@ -1,7 +1,7 @@
 
 [[doctype adventurer]]
 
-[chapter inventory]
+[system inventory]
 	
 	# Equip an ability as primary, or make any equipped item (ability or not) a primary
 	[scene select-ability-primary]

@@ -68,6 +68,7 @@
 	[summon]
 		- lib/clients/web/app.js
 		- lib/clients/web/Dom.js
+		- lib/clients/web/toolkit.js
 		- lib/clients/web/ui/*.js
 	[scroll]
 		- $> ${browserify} lib/clients/web/app.js -s SpellcastClient -o browser/app.js

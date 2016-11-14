@@ -22,7 +22,7 @@
 		[on-global blast]
 		#[on blast]
 			[message]
-				$> ${this.data} was blasted!
+				$> ${args.data} was blasted!
 		
 		[message] $> ...
 		[pause] 0.2

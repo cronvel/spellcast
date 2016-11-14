@@ -119,10 +119,10 @@
 [spell event]
 	[on blast]
 		[message]
-			$> ^RBlasted ${this.data}!
+			$> ^RBlasted ${args.data}!
 	[once blast]
 		[message]
-			$> ^RRoasted ${this.data}!
+			$> ^RRoasted ${args.data}!
 	[emit blast] Troll
 	[emit blast] Gnoll
 

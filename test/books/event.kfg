@@ -4,9 +4,9 @@
 [spell event]
 	[on blast]
 		[message]
-			$> Blasted ${this.data}!
+			$> Blasted ${args.data}!
 	[once blast]
 		[message]
-			$> Roasted ${this.data}!
+			$> Roasted ${args.data}!
 	[emit blast] Troll
 	[emit blast] Gnoll

@@ -522,6 +522,9 @@ module.exports = toolkit ;
 
 
 var markupMethod = require( 'string-kit/lib/format.js' ).markupMethod ;
+var escapeHtml = require( 'string-kit/lib/escape.js' ).html ;
+
+
 
 var markupConfig = {
 	endingMarkupReset: true ,
@@ -567,9 +570,17 @@ var markupConfig = {
 	}
 } ;
 
-toolkit.markup = markupMethod.bind( markupConfig ) ;
 
-},{"string-kit/lib/format.js":21}],4:[function(require,module,exports){
+
+toolkit.markup = function()
+{
+	var args = Array.from( arguments ) ;
+	args[ 0 ] = escapeHtml( args[ 0 ] ).replace( /\n/ , '<br />' ) ;
+	return markupMethod.apply( markupConfig , args ) ;
+} ;
+
+
+},{"string-kit/lib/escape.js":20,"string-kit/lib/format.js":21}],4:[function(require,module,exports){
 /*
 	Spellcast
 

@@ -461,6 +461,9 @@ describe( "Control flow tags" , function() {
 					[ 'Local fn' ] ,
 					[ 'Global myfn' ] ,
 					[ 'other value 1 2' ] ,
+					[ 'nsfn' ] ,
+					[ 'myfn2' ] ,
+					[ 'nsfn2' ] ,
 				] ) ;
 				
 				done() ;

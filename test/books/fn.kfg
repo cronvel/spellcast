@@ -7,6 +7,17 @@
 		some: value
 		args: $args
 
+[fn myfn2]
+	[message] myfn2
+
+[system ns]
+	[fn nsfn]
+		[message] nsfn
+		[call myfn2]
+		[call nsfn2]
+	[fn nsfn2]
+		[message] nsfn2
+
 [spell fn]
 	
 	[call myfn => $return]
@@ -44,4 +55,5 @@
 	
 	[message] $> ${return.some} ${return.args[0]} ${return.args[1]}
 	
-	
+	[call ns/nsfn]
+
