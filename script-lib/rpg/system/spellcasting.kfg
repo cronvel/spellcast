@@ -2,6 +2,7 @@
 [[doctype adventurer]]
 
 [system spellcasting]
+	
 	[fn cast]
 		
 		[if $args.performer.status.mana <= 0]

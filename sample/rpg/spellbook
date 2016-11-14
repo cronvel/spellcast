@@ -54,7 +54,7 @@
 					- spear
 					- shield
 		
-		[gosub fighting/init]
+		[gosub fighting/fight]
 			[args]
 				distance: 16
 				allies:
@@ -83,7 +83,7 @@
 			$> Suddenly, a big and tough guy appears.
 			$> He does not say much except grumbling something like “I'm the guardian”, then he starts rushing you with a giant club.
 		
-		[gosub fighting/init]
+		[gosub fighting/fight]
 			[args]
 				distance: 10
 				allies:
@@ -104,7 +104,7 @@
 			$> Instead of waiting for you, he starts walking on the beam toward you.
 			$> He swings the air with its giant club as he taunts you, inviting you to go ahead fighting him.
 		
-		[gosub fighting/init]
+		[gosub fighting/fight]
 			[args]
 				distance: 10
 				allies:

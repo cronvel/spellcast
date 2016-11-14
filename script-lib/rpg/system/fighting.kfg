@@ -4,7 +4,8 @@
 
 [system fighting]
 	
-	[scene init]
+	[scene fight]
+		
 		[set $fight] <Object>
 		
 		[set $fight.foes] <Array>
@@ -49,11 +50,13 @@
 		
 		[set $fight.deadlyPush] $args.deadlyPush
 		
-		[next initiative]
+		[call initiative]
+		#[next initiative]
+		[goto new-turn]
 	
 	
 	
-	[scene initiative]
+	[fn initiative]
 		[foreach $fight.turns => $local.entity]
 			[set $local.entity.adhoc.fight.initiativeScore] $= $local.entity.actual.stats.fighting + ( 2 D 8 )
 		
@@ -68,7 +71,7 @@
 		#[debug info] $fight.turns
 		[message] $> ^yThe distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
 		[message] $> ${fight.turns[0].label//uc1} takes the initiative.
-		[goto new-turn]
+		#[goto new-turn]
 		
 	
 	
@@ -82,7 +85,7 @@
 			[dec $fight.entityTurn.adhoc.fight.cooldown]
 			[goto end-turn]
 		
-		[gosub battle-lines]
+		[call battle-lines]
 		
 		[if $fight.entityTurn.npc]
 			[goto npc-turn]
@@ -139,7 +142,7 @@
 		
 		
 		
-	[scene battle-lines]
+	[fn battle-lines]
 		
 		[filter $fight.aliveFoes => $front] $= $this.adhoc.fight.offensiveness > 0
 		[filter $fight.aliveFoes => $middle] $= $this.adhoc.fight.offensiveness = 0
@@ -214,16 +217,14 @@
 		
 		
 		[if $performer.params.charge && ( ( random ) <= $performer.params.charge )]
-			[gosub charge]
-				[args]
-					performer: $performer
-					target: $fight.target
-			[goto end-turn]
-		
-		[gosub melee-fighting]
-			[args]
+			[call charge]
 				performer: $performer
 				target: $fight.target
+			[goto end-turn]
+		
+		[call melee-fighting]
+			performer: $performer
+			target: $fight.target
 		
 		[goto end-turn]
 		
@@ -355,20 +356,18 @@
 	[scene pc-melee-fighting]
 		[if $fight.distance = 0]
 			[gosub pc-targeting]
-		[gosub melee-fighting]
-			[args]
-				performer: $fight.entityTurn
-				target: $fight.target
+		[call melee-fighting]
+			performer: $fight.entityTurn
+			target: $fight.target
 		[goto end-turn]
 	
 	
 	
 	[scene pc-ranged-fighting]
 		[gosub pc-targeting]
-		[gosub ranged-fighting]
-			[args]
-				performer: $fight.entityTurn
-				target: $fight.target
+		[call ranged-fighting]
+			performer: $fight.entityTurn
+			target: $fight.target
 		[goto end-turn]
 	
 	
@@ -376,10 +375,9 @@
 	[scene pc-charge]
 		[if $fight.distance = 0]
 			[gosub pc-targeting]
-		[gosub charge]
-			[args]
-				performer: $fight.entityTurn
-				target: $fight.target
+		[call charge]
+			performer: $fight.entityTurn
+			target: $fight.target
 		[goto end-turn]
 	
 	
@@ -406,7 +404,7 @@
 
 	
 	
-	[scene deal-damages]
+	[fn deal-damages]
 		[if $args.target]
 			[set $target] $args.target
 		
@@ -493,7 +491,7 @@
 	
 	
 	
-	[scene splash-effect]
+	[fn splash-effect]
 		#[debug info] $args
 		
 		[foreach $fight.aliveEntities => $target]
@@ -521,13 +519,12 @@
 					[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 				
 				[if $local.attackScore > $local.defenseScore]
-					[gosub deal-damages]
-						[args]
-							target: $target
-							hitFlavour: $args.hitFlavour
-							criticalHitFlavour: $args.criticalHitFlavour
-							fatalHitFlavour: $args.fatalHitFlavour
-							damages: $args.damages
+					[call deal-damages]
+						target: $target
+						hitFlavour: $args.hitFlavour
+						criticalHitFlavour: $args.criticalHitFlavour
+						fatalHitFlavour: $args.fatalHitFlavour
+						damages: $args.damages
 				
 				[else]
 					[if $args.missFlavour]
@@ -536,7 +533,7 @@
 			
 	
 	
-	[scene melee-fighting]
+	[fn melee-fighting]
 		[set $performer] $args.performer
 		[set $target] $args.target
 		
@@ -591,7 +588,7 @@
 		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
 		
 		[if $local.attackScore > $local.defenseScore]
-			[gosub deal-damages]
+			[call deal-damages]
 			
 		[else]
 			[fortune]
@@ -601,7 +598,7 @@
 	
 	
 	
-	[scene ranged-fighting]
+	[fn ranged-fighting]
 		[set $performer] $args.performer
 		[set $target] $args.target
 		
@@ -720,25 +717,23 @@
 		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
 		
 		[if $local.attackScore > $local.defenseScore]
-			[gosub deal-damages]
-				[args]
-					faces: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 6 10
-					usage: ranged-fighting
+			[call deal-damages]
+				faces: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 6 10
+				usage: ranged-fighting
 			
 			[if $performer.actualUsages.ranged-fighting.params.splash]
-				[gosub splash-effect]
-					[args]
-						exclude:
-							- $performer
-							- $target
-						position: $target.adhoc.fight.position
-						attack: $= $performer.actualUsages.ranged-fighting.compound.attack + $performer.actualUsages.ranged-fighting.params.splash.attack
-						damages: $= $performer.actualUsages.ranged-fighting.compound.damages + $performer.actualUsages.ranged-fighting.params.splash.damages
-						radius: $performer.actualUsages.ranged-fighting.params.splash.radius
-						missFlavour: $performer.actualUsages.ranged-fighting.params.splash.missFlavour
-						hitFlavour: $performer.actualUsages.ranged-fighting.params.splash.hitFlavour
-						criticalHitFlavour: $performer.actualUsages.ranged-fighting.params.splash.criticalHitFlavour
-						fatalHitFlavour: $performer.actualUsages.ranged-fighting.params.splash.fatalHitFlavour
+				[call splash-effect]
+					exclude:
+						- $performer
+						- $target
+					position: $target.adhoc.fight.position
+					attack: $= $performer.actualUsages.ranged-fighting.compound.attack + $performer.actualUsages.ranged-fighting.params.splash.attack
+					damages: $= $performer.actualUsages.ranged-fighting.compound.damages + $performer.actualUsages.ranged-fighting.params.splash.damages
+					radius: $performer.actualUsages.ranged-fighting.params.splash.radius
+					missFlavour: $performer.actualUsages.ranged-fighting.params.splash.missFlavour
+					hitFlavour: $performer.actualUsages.ranged-fighting.params.splash.hitFlavour
+					criticalHitFlavour: $performer.actualUsages.ranged-fighting.params.splash.criticalHitFlavour
+					fatalHitFlavour: $performer.actualUsages.ranged-fighting.params.splash.fatalHitFlavour
 			
 		[else]
 			[fortune]
@@ -747,7 +742,7 @@
 	
 	
 	
-	[scene charge]
+	[fn charge]
 		[set $performer] $args.performer
 		[set $target] $args.target
 		
@@ -793,13 +788,13 @@
 		[message] $> ${performer.label//uc1} charges ${target.label}!
 		
 		[if $local.attackScore > $local.defenseScore]
-			[gosub deal-damages]
+			[call deal-damages]
 			
 			[if $fight.deadlyPush]
-				[gosub deadly-push]
+				[call deadly-push]
 		[elseif ( $local.attackScore = $local.defenseScore ) && $fight.deadlyPush]
 			[message] $> ${target.label//uc1} blocks ${performer.label}.
-			[gosub deadly-push]
+			[call deadly-push]
 		[else]
 			[fortune]
 				- $> ${performer.label//uc1} misses ${target.label}.
@@ -808,7 +803,7 @@
 	
 	
 	
-	[scene deadly-push]
+	[fn deadly-push]
 		[set $local.attackScore] $= ( ( max $performer.actual.stats.strength ( $performer.actual.stats.fighting - 3 ) ) + $fight.deadlyPush.bonus ) + ( 2 D 6 )
 		[set $local.defenseScore] $= $target.actual.stats.strength + ( 2 D 6 )
 		
