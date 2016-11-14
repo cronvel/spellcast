@@ -2,7 +2,7 @@
 [[doctype adventurer]]
 [[locales locales/*]]
 
-[chapter fighting]
+[system fighting]
 	
 	[scene init]
 		[set $fight] <Object>
@@ -95,7 +95,7 @@
 		[set $fight.turnIndex] $= ( $fight.turnIndex + 1 ) % $fight.turns.length
 		
 		[if $fight.turnIndex = 0]
-			[call fighting/new-round]
+			[call new-round]
 		
 		[filter $fight.foes => $fight.aliveFoes] $= $this.status.hp > 0
 		[filter $fight.allies => $fight.aliveAllies] $= $this.status.hp > 0
@@ -109,7 +109,7 @@
 	
 	
 	
-	[fn fighting/new-round]
+	[fn new-round]
 		[inc $fight.round]
 		
 		# Manage distance
@@ -126,11 +126,11 @@
 		
 	
 	
-	[fn fighting/all-pressure]
+	[fn all-pressure]
 		[foreach $fight.aliveEntities => $local.entity]
-			[call fighting/pressure] $local.entity
+			[call pressure] $local.entity
 		
-	[fn fighting/pressure]
+	[fn pressure]
 		[reduce $fight.aliveEntities , 0 => $args.adhoc.fight.pressure] $= $this.previous + ( ( $this.current.adhoc.fight.pressTarget = $args ) ? $this.current.adhoc.fight.pressValue 0 )
 		# Pressure has a max level, because when the target is saturated,
 		# extra opponents are not able to reach the target properly:
@@ -508,7 +508,7 @@
 				[set $local.attackScore] $= $args.attack + ( 2 D 8 )
 				[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense + ( 2 D 8 )
 				
-				[call fighting/pressure] $target
+				[call pressure] $target
 				
 				[if $target.adhoc.fight.offensiveness > 0]
 					[sub $local.defenseScore] 3
@@ -562,8 +562,8 @@
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] $= $performer.adhoc.fight.offensiveness ??? 3 4 6
 		
-		[call fighting/pressure] $performer
-		[call fighting/pressure] $target
+		[call pressure] $performer
+		[call pressure] $target
 		
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
@@ -628,8 +628,8 @@
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] 4
 		
-		[call fighting/pressure] $performer
-		[call fighting/pressure] $target
+		[call pressure] $performer
+		[call pressure] $target
 		
 		[if $performer.actualUsages.ranged-fighting.params.spellLevel is-set?]
 			[call spellcasting/cast => $local.casted]
@@ -767,8 +767,8 @@
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] 6
 		
-		[call fighting/pressure] $performer
-		[call fighting/pressure] $target
+		[call pressure] $performer
+		[call pressure] $target
 		
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}

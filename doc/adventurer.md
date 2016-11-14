@@ -118,6 +118,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Unequip Tag](#ref.rpg.unequip)
 	* [Misc Tags](#ref.misc)
 		* [Module Tag](#ref.misc.module)
+		* [System Tag](#ref.misc.system)
 		* [Pause Tag](#ref.misc.pause)
 		* [Js Tag](#ref.misc.js)
 		* [Debug Tag](#ref.misc.debug)
@@ -1090,8 +1091,13 @@ This syntax has **no init time**.
 
 If the `[fn label]` syntax is used, the function is created globally **at init time**.
 This means that even if the function is declared inside some dead code (code that is never reached),
-the function will be present globally anyway at the starting of the script.
+the function will still be present globally anyway at the starting of the script.
 This syntax has **no run time**.
+
+Also is worth noting that a *global* function is namespaced if it has a
+[*chapter*](#ref.scenario.chapter) or [*system*](#ref.misc.system) tag in its ancestor line,
+using the *chapter* or *system* tag's ID as its namespace.
+Calling that function from another namespace require to prefix it with the namespace, e.g.: `[call namespace/label]`.
 
 
 
@@ -1114,6 +1120,12 @@ see the [*fn* tag](#ref.flow.fn) for details.
 
 If the `[call $var => $into]` or the `[call label => $into]` syntax is used, the return value of the *fn* tag will be stored
 into the *$into* variable, see the [*return* tag](#ref.flow.return) for details.
+
+Also, when calling for a *global* function without any namespace, the function is first searched into the current namespace,
+then on the *default* namespace.
+
+Calling using the namespace is simply done by prepending the namespace before the function label, with the `/` separator,
+e.g. `[call namespace/label]`.
 
 It is also possible to call a native JS function or object method, if it is stored inside a Spellcast Scripting variable.
 
@@ -2028,6 +2040,15 @@ Example:
 ```
 [module] @@path/to/my-spellcast-module.kfg
 ```
+
+
+
+<a name="ref.misc.system"></a>
+## [system *label*]
+
+At the moment, this is an alias of the [*chapter* tag](#ref.scenario.chapter).
+
+It is used to encapsulate *fn* tags into a namespace.
 
 
 
