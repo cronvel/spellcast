@@ -25,6 +25,52 @@
 
 
 
+[item-model electric-arc]
+	class: ability
+	label: electric-arc
+	slotType: ability
+	usages:
+		ranged-fighting:
+			primary:
+				params:
+					# How hard it is to cast
+					spellLevel: 9
+					manaLevel: 5
+					menuLabel: $> cast electric arc
+					hitFlavour: $$> ^rThe electric arc hits ${target.label} for ${damages} hp.^:
+					criticalHitFlavour: $$> ^rThe electric arc electrocutes ${target.label} for ${damages} hp.^:
+					fatalHitFlavour: $$> ^rThe electric arc blasts ${target.label} for ${damages} hp.^:
+				compoundVariation: spell
+				compound:
+					close-ranged: (+) 12
+					aiming: (+) 18
+					attack: (+) 30
+					damages: (+) 12
+
+
+
+[item-model nova]
+	class: ability
+	label: nova
+	slotType: ability
+	usages:
+		melee-fighting:
+			primary:
+				params:
+					# How hard it is to cast
+					spellLevel: 12
+					manaLevel: 20
+					menuLabel: $> cast nova
+					hitFlavour: $$> ^rA flash of raw energy hits ${target.label} for ${damages} hp.^:
+					criticalHitFlavour: $$> ^rA violent flash of raw energy blows ${target.label} for ${damages} hp.^:
+					fatalHitFlavour: $$> ^rA violent flash of raw energy blasts ${target.label} for ${damages} hp.^:
+				compoundVariation: spell
+				compound:
+					attack: (+) 20
+					damages: (+) 24
+
+
+
 [item-model fireball]
 	class: ability
 	label: fireball
