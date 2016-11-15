@@ -32,6 +32,31 @@
 
 
 
+[item-model dagger]
+	class: object
+	label: dagger
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee-fighting:
+			# When the weapon is used
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${performer.label//uc1} stabs ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} deadly stabs ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 2
+					defense: (+) 1
+					damages: (+) 4
+					anti-ranged: (+) 1
+			# Bonuses when the weapon is used as a support for the primary weapon
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+
+
+
 [item-model axe]
 	class: object
 	label: axe
@@ -56,6 +81,38 @@
 					attack: (+) 3
 					defense: (+) 1
 	
+
+
+[item-model staff]
+	class: object
+	label: staff
+	slotType: hand
+	slotCount: 1
+	usages:
+		melee-fighting:
+			# When the weapon is used
+			primary:
+				params:
+					criticalHitFlavour: $$> ^r${performer.label//uc1} thumps ${target.label} for ${damages} hp.
+					fatalHitFlavour: $$> ^r${performer.label//uc1} deadly thumps ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 1
+					anti-ranged: (+) 1
+			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
+			extraSlot:
+				compound:
+					attack: (+) 4
+					defense: (+) 4
+					damages: (+) 3
+					anti-ranged: (+) 3
+			# Bonuses when the weapon is used as a support for the primary weapon
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+
 
 
 [item-model spear]
