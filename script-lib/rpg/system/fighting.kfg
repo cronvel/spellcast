@@ -580,13 +580,6 @@
 		[set $performer.adhoc.fight.speed] 0
 		[set $performer.adhoc.fight.offensiveness] -1
 		
-		[if ! $performer.primary.ranged-fighting]
-			# Should never happen
-			[set $performer.adhoc.fight.pressTarget] null
-			[set $performer.adhoc.fight.pressValue] 0
-			[message] $> ${performer.label//uc1} can't fire anything.
-			[return]
-		
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] 4
 		
@@ -707,13 +700,6 @@
 		# Check if the ability has its own speed and offensiveness value
 		[set $performer.adhoc.fight.speed] $= ( $item.params.speed is-set? ) ? $item.params.speed 0
 		[set $performer.adhoc.fight.offensiveness] $= ( $item.params.offensiveness is-set? ) ? $item.params.offensiveness 0
-		
-		[if ! $performer.primary.battle-ability]
-			# Should never happen
-			[set $performer.adhoc.fight.pressTarget] null
-			[set $performer.adhoc.fight.pressValue] 0
-			[message] $> ${performer.label//uc1} has no ability.
-			[return]
 		
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] $= ( $item.params.pressValue is-set? ) ? $item.params.pressValue 4
@@ -843,8 +829,8 @@
 			[call splash-effect]
 				exclude: $local.exclude
 				position: $args.position
-				attack: $= $args.usage.compound.attack + $args.usage.params.splash.attack
-				damages: $= $args.usage.compound.damages + $args.usage.params.splash.damages
+				attack: $= $args.usage.compound.attack + ( ( $args.usage.params.splash.attack is-set? ) ? $args.usage.params.splash.attack 0 )
+				damages: $= $args.usage.compound.damages + ( ( $args.usage.params.splash.damages is-set? ) ? $args.usage.params.splash.damages 0 )
 				radius: $args.usage.params.splash.radius
 				missFlavour: $args.usage.params.splash.missFlavour
 				hitFlavour: $args.usage.params.splash.hitFlavour

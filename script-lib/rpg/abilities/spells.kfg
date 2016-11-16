@@ -63,14 +63,36 @@
 					menuLabel: $> cast nova
 					speed: 0
 					offensiveness: 0
-					hitFlavour: $$> ^rA flash of raw energy hits ${target.label} for ${damages} hp.^:
-					criticalHitFlavour: $$> ^rA violent flash of raw energy blows ${target.label} for ${damages} hp.^:
-					fatalHitFlavour: $$> ^rA violent flash of raw energy blasts ${target.label} for ${damages} hp.^:
 					splash:
 						missFlavour: $$> ^y${target.label//uc1} evades the explosion.
 						hitFlavour: $$> ^rThe raw energy explosion hits ${target.label} for ${damages} hp.^:
 						criticalHitFlavour: $$> ^rThe raw energy explosion blows ${target.label} for ${damages} hp.^:
 						fatalHitFlavour: $$> ^rThe raw energy explosion blasts ${target.label} for ${damages} hp.^:
+						excludeSelf: true
+						radius: 2.8
+				compoundVariation: spell
+				compound:
+					attack: (+) 30
+					damages: (+) 24
+
+
+
+[item-model heal-wound]
+	class: ability
+	label: heal-wound
+	slotType: ability
+	usages:
+		battle-ability:
+			primary:
+				params:
+					# How hard it is to cast
+					spellLevel: 8
+					manaLevel: 16
+					menuLabel: $> cast heal wound
+					speed: 0
+					offensiveness: -1
+					heal:
+						flavour: $$> ^y${target.label//uc1} is healed.
 						excludeSelf: true
 						radius: 2.8
 						attack: 0
