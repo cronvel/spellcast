@@ -54,19 +54,30 @@
 	label: nova
 	slotType: ability
 	usages:
-		ranged-fighting:
+		battle-ability:
 			primary:
 				params:
 					# How hard it is to cast
 					spellLevel: 12
 					manaLevel: 20
 					menuLabel: $> cast nova
+					speed: 0
+					offensiveness: 0
 					hitFlavour: $$> ^rA flash of raw energy hits ${target.label} for ${damages} hp.^:
 					criticalHitFlavour: $$> ^rA violent flash of raw energy blows ${target.label} for ${damages} hp.^:
 					fatalHitFlavour: $$> ^rA violent flash of raw energy blasts ${target.label} for ${damages} hp.^:
+					splash:
+						missFlavour: $$> ^y${target.label//uc1} evades the explosion.
+						hitFlavour: $$> ^rThe raw energy explosion hits ${target.label} for ${damages} hp.^:
+						criticalHitFlavour: $$> ^rThe raw energy explosion blows ${target.label} for ${damages} hp.^:
+						fatalHitFlavour: $$> ^rThe raw energy explosion blasts ${target.label} for ${damages} hp.^:
+						excludeSelf: true
+						radius: 2.8
+						attack: 0
+						damages: 0
 				compoundVariation: spell
 				compound:
-					attack: (+) 20
+					attack: (+) 30
 					damages: (+) 24
 
 
@@ -97,6 +108,8 @@
 						hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
 						criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
 						fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
+						excludeSelf: true
+						excludeTarget: true
 						radius: 1.8
 						# Attack modifier applied over the regular attack value
 						attack: -2

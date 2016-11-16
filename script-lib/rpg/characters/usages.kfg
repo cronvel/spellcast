@@ -35,3 +35,10 @@
 	aiming: $= floor ( $stats.spellcasting / 2 )
 	attack: $= floor ( $stats.spellcasting / 4 )
 	damages: $= floor ( $stats.spellcasting / 2 )
+
+[usage-compound-stats battle-ability] <Object>
+
+[usage-compound-stats battle-ability spell]
+	attack: $= floor ( $stats.spellcasting / 4 )
+	damages: $= floor ( $stats.spellcasting / 2 )
+
