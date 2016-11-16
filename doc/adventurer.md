@@ -438,7 +438,7 @@ If there is no *starting-scene* tag in a scenario, the first *scene* tag will be
 
 * types: run, exec
 * attribute style: scene label
-* content type: tags
+* content type: tags or string/template (the label)
 
 The *next* tag is one of the most important tag of Spellcast Scripting in *Adventurer mode*.
 
@@ -453,6 +453,14 @@ Once init is done, the *starting scene* is *exec*.
 The *starting scene* is either the [*starting-scene* tag](#ref.scenario.starting-scene), or the first registered *scene* tag.
 
 When the scene is executed, it simply runs all its inner tags.
+
+There is also a shorthand syntax where the content is only a string or a template containing the label.
+So `[next scene2] $> Tell him the truth` is the same than:
+
+```
+[next scene2]
+	[label] $> Tell him the truth
+```
 
 However, a *scene* has the following parameters tags:
 
