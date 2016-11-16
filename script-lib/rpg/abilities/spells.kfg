@@ -54,7 +54,7 @@
 	label: nova
 	slotType: ability
 	usages:
-		melee-fighting:
+		ranged-fighting:
 			primary:
 				params:
 					# How hard it is to cast

@@ -648,6 +648,23 @@ Think of it as a new execution layer.
 If there is no *return* tag, there are implicit *returns* when a scene without any *next* tags is executed entirely:
 i.e. there is nothing more to do, so it returns.
 
+There is also a shorthand syntax where the content is an object containing the arguments. E.g.:
+
+```
+[gosub scene2]
+	a: 5
+	b: 7
+```
+
+... is the same than:
+
+```
+[gosub scene2]
+	[args]
+		a: 5
+		b: 7
+```
+
 
 
 <a name="ref.scenario.gosub.args"></a>
@@ -659,13 +676,6 @@ i.e. there is nothing more to do, so it returns.
 
 Since *gosub* creates a new context to run the target sub-scene, this tag is used to set the **$args** special variable
 for that sub-scene.
-
-
-
-<a name="ref.scenario.gosub.this"></a>
-### [this]
-
-**DEPRECATED.**
 
 
 
