@@ -4,6 +4,7 @@
 
 [system fighting]
 	
+	# We have to gosub to that scene, not call to a fn, because we need a fresh scope
 	[scene fight]
 		
 		[set $fight] <Object>
@@ -847,9 +848,27 @@
 			[if $args.exclude has $target]
 				[continue]
 			
+			# Clone it, it can be modified
+			#[clone $targetPos] $target.adhoc.fight.position
 			[set $targetPos] $target.adhoc.fight.position
 			
-			[if ( hypot ( $targetPos.x - $args.position.x ) ( $targetPos.y - $args.position.y ) ) <= $args.radius]
+			# If the target is currently attacking/pressing the current position,
+			# act as if its y was the same than the spash y position
+			[set $local.pressPos] $= $target.adhoc.fight.pressTarget.adhoc.fight.position
+			[debugf warning]
+				- "Splash position: %Y\nTarget position: %Y\nPress position: %Y"
+				- $args.position
+				- $targetPos
+				- $local.pressPos
+			[if $local.pressPos && $local.pressPos.x = $args.position.x && $local.pressPos.y = $args.position.y]
+				[debugf warning]
+					- Target %1 is included!
+					- $target.label
+				[set $targetPos.y] $args.position.y
+			
+			[set $local.distance] $= hypot ( $targetPos.x - $args.position.x ) ( $targetPos.y - $args.position.y )
+			
+			[if $local.distance <= $args.radius]
 				
 				[set $local.attackScore] $= $args.attack + ( 2 D 8 )
 				[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense + ( 2 D 8 )
