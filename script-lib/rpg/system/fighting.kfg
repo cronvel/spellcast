@@ -822,6 +822,9 @@
 		[if $args.target]
 			[set $target] $args.target
 		
+		[if $target.status.hp >= 100]
+			[return]
+		
 		[set $local.faces] $= $args.faces ? $args.faces 4
 		
 		# Heal level
@@ -832,7 +835,7 @@
 		
 		[set $local.defenseScore] $= $target.actual.stats.resilience + ( 2 D $local.faces )
 		
-		#[message] $> ${local.healScore} vs ${local.defenseScore}
+		#[message] $> ^K${local.healScore} vs ${local.defenseScore}
 		
 		[set $healing] $= ( ( $local.healScore - $local.defenseScore ) + ( random ) ) - 0.5
 		
@@ -840,13 +843,13 @@
 		[if $args.bonus is-real?]
 			[add $healing] $args.bonus
 		
-		#[message] $> damages: ${damages}
+		#[message] $> healing: ${healing}
 		
 		# This is the magic formula that transform heal levels into real hit point gain.
 		# If the target has +10 resilience over another one, it gets two times less healing.
-		[set $healing] $= round ( 10 * ( 2 ^ ( $damages / 10 ) ) )
+		[set $healing] $= round ( 10 * ( 2 ^ ( $healing / 10 ) ) )
 		
-		#[message] $> damages: ${damages}
+		#[message] $> ^Khealing: ${healing}
 		
 		# Cap the healing
 		[set $healing] $= min $healing ( 100 - $target.status.hp )
@@ -861,7 +864,7 @@
 		[elseif $performer.actualUsages[$local.usageType].params.flavour is-set?]
 			[apply-to $local.flavour] $performer.actualUsages[$local.usageType].params.flavour
 		[else]
-			[set $local.flavour] $> ^r${performer.label//uc1} heals ${target.label} for ${damages} hp.
+			[set $local.flavour] $> ^r${performer.label//uc1} heals ${target.label} for ${healing} hp.
 		
 		[message] $local.flavour
 	
