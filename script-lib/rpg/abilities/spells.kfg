@@ -63,13 +63,17 @@
 					menuLabel: $> cast nova
 					speed: 0
 					offensiveness: 0
-					splash:
-						missFlavour: $$> ^y${target.label//uc1} evades the explosion.
-						hitFlavour: $$> ^rThe raw energy explosion hits ${target.label} for ${damages} hp.^:
-						criticalHitFlavour: $$> ^rThe raw energy explosion blows ${target.label} for ${damages} hp.^:
-						fatalHitFlavour: $$> ^rThe raw energy explosion blasts ${target.label} for ${damages} hp.^:
-						excludeSelf: true
-						radius: 2.8
+					effects:
+						-	type: attack
+							defenseType: ranged-fighting
+							missFlavour: $$> ^y${target.label//uc1} evades the raw energy explosion.
+							hitFlavour: $$> ^rThe raw energy explosion hits ${target.label} for ${damages} hp.^:
+							criticalHitFlavour: $$> ^rThe raw energy explosion blows ${target.label} for ${damages} hp.^:
+							fatalHitFlavour: $$> ^rThe raw energy explosion blasts ${target.label} for ${damages} hp.^:
+							filter:
+								type: splash
+								excludeSelf: true
+								radius: 2.8
 				compoundVariation: spell
 				compound:
 					attack: (+) 30
@@ -91,16 +95,15 @@
 					menuLabel: $> cast heal wound
 					speed: 0
 					offensiveness: -1
-					heal:
-						flavour: $$> ^y${target.label//uc1} is healed.
-						excludeSelf: true
-						radius: 2.8
-						attack: 0
-						damages: 0
+					effects:
+						-	type: healing
+							flavour: $$> ^g${target.label//uc1} is healed for ${healing} hp.^:
+							filter:
+								type: splash
+								radius: 5.8
 				compoundVariation: spell
 				compound:
-					attack: (+) 30
-					damages: (+) 24
+					healing: (+) 10
 
 
 
@@ -125,18 +128,22 @@
 					fatalHitFlavour:
 						$$> ^rThe fireball burns ${target.label} to death for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
-					splash:
-						missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
-						hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
-						criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
-						fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
-						excludeSelf: true
-						excludeTarget: true
-						radius: 1.8
-						# Attack modifier applied over the regular attack value
-						attack: -2
-						# Damage modifier applied over the regular damage value
-						damages: -8
+					effects:
+						-	type: attack
+							defenseType: ranged-fighting
+							# Attack modifier applied over the regular attack value
+							attack: -2
+							# Damage modifier applied over the regular damage value
+							damages: -8
+							missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
+							hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
+							criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
+							fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
+							filter:
+								type: splash
+								excludeSelf: true
+								excludeTarget: true
+								radius: 1.8
 				compoundVariation: spell
 				compound:
 					close-ranged: (+) 12

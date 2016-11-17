@@ -41,4 +41,5 @@
 [usage-compound-stats battle-ability spell]
 	attack: $= floor ( $stats.spellcasting / 4 )
 	damages: $= floor ( $stats.spellcasting / 2 )
+	healing: $= floor ( $stats.spellcasting / 2 )
 

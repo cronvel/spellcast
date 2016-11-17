@@ -7,14 +7,15 @@
 	stats:
 		fighting: 16
 		shooting: 12
-		#spellcasting: 16
-		spellcasting: 26
+		spellcasting: 16
+		#spellcasting: 26
 		strength: 12
 		resilience: 11
 	items:
 		- ice-shard
 		- nova
 		- firebolt
+		- heal-wound
 		- excalibur
 		- javelin
 		- crossbow
