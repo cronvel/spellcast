@@ -7,5 +7,5 @@
 [spell apply-to]
 	[set $template] $$> This is a template! Here some ${var}.
 	[set $var] characters
-	[apply-to $message] $template
+	[apply-to $template => $message] $
 	[message] $message
