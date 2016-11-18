@@ -1,0 +1,21 @@
+
+[[doctype adventurer]]
+
+[system common]
+	
+	[fn update-malus]
+		#[set $args.target.status.bodyMalus] 0
+		#[set $args.target.status.spiritMalus] 0
+		
+		[if $args.status.hp < 50]
+			[set $args.status.bodyMalus] $= ( 59 - $args.status.hp ) \ 10
+		
+		[if $args.status.mana < 50]
+			[set $args.status.spiritMalus] $= ( 59 - $args.status.mana ) \ 10
+		
+		#[message] $> ^K${args.label} -- bodyMalus: ${args.status.bodyMalus}, spiritMalus: ${args.status.spiritMalus}
+		
+		[update-entity $args]
+	
+	
+	

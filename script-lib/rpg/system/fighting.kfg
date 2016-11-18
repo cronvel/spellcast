@@ -434,6 +434,8 @@
 		[set $performer] $args.performer
 		[set $target] $args.target
 		
+		[set $item] $performer.primary.melee-fighting
+		
 		[set $performer.adhoc.fight.speed] $= $performer.adhoc.fight.offensiveness ??? 2 4 6
 		
 		[if $fight.distance > 0]
@@ -463,6 +465,9 @@
 				bonus: $= - ( ceil ( $performer.adhoc.fight.pressure / 4 ) )
 			[if ! $local.casted]
 				[return]
+		
+		#[if ! $performer.npc]
+		#	[message] $> ^KAttack: ${performer.actualUsages.melee-fighting.compound.attack}
 		
 		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
 		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
@@ -661,7 +666,7 @@
 		[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense + ( 2 D 12 )
 		
 		# The longer the distance, the better the chance to evade the ranged-fighting
-		[sub $local.attackScore] $= floor ( $fight.distance / 8 )
+		[sub $local.attackScore] $= $fight.distance \\ 8
 		
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
@@ -701,6 +706,19 @@
 	
 	[fn battle-ability]
 		[set $performer] $args.performer
+		[set $local.usage] $performer.actualUsages.battle-ability
+		[set $local.target] $performer
+		[set $local.position] $performer.adhoc.fight.position
+		
+		[if $local.usage.params.targeting]
+			[if $performer.npc]
+				[call npc-targeting]
+					targetAllies: $local.usage.params.targetAllies
+			[else]
+				[gosub pc-targeting]
+					targetAllies: $local.usage.params.targetAllies
+			[set $local.target] $fight.target
+			[set $local.position] $fight.target.adhoc.fight.position
 		
 		[set $item] $performer.primary.battle-ability
 		
@@ -710,17 +728,13 @@
 		[if $item.params.offensiveness is-number?]
 			[set $performer.adhoc.fight.offensiveness] $= $item.params.offensiveness
 		
-		#[set $performer.adhoc.fight.pressTarget] $target
-		#[set $performer.adhoc.fight.pressValue] $= ( $item.params.pressValue is-set? ) ? $item.params.pressValue 4
-		
 		[call pressure] $performer
-		#[call pressure] $target
 		
-		[if $performer.actualUsages.battle-ability.params.spellLevel is-set?]
+		[if $local.usage.params.spellLevel is-set?]
 			[call spellcasting/cast => $local.casted]
 				performer: $performer
 				item: $item
-				usage: $performer.actualUsages.battle-ability
+				usage: $local.usage
 				bonus: $= - ( ceil ( $performer.adhoc.fight.pressure / 4 ) )
 			[if ! $local.casted]
 				[return]
@@ -731,9 +745,9 @@
 		
 		[call effects]
 			performer: $performer
-			target: $performer
-			position: $performer.adhoc.fight.position
-			usage: $performer.actualUsages.battle-ability
+			target: $local.target
+			position: $local.position
+			usage: $local.usage
 	
 	
 	
@@ -783,6 +797,8 @@
 		
 		[sub $target.status.hp] $damages
 		
+		[call common/update-malus] $target
+		
 		[if $damages >= 100]
 			[if $args.fatalHitFlavour is-set?]
 				[apply-to $local.flavour] $args.fatalHitFlavour
@@ -830,8 +846,8 @@
 		
 		#[message] $> ^Khealing -- checking: ${target.label}
 		
-		[if $target.status.hp >= 100]
-			[return]
+		#[if $target.status.hp >= 100]
+		#	[return]
 		
 		[set $local.faces] $= $args.faces ? $args.faces 4
 		
@@ -862,10 +878,12 @@
 		# Cap the healing
 		[set $healing] $= min $healing ( 100 - $target.status.hp )
 		
-		[if $healing <= 0]
-			[return]
+		#[if $healing <= 0]
+		#	[return]
 		
 		[add $target.status.hp] $healing
+		
+		[call common/update-malus] $target
 		
 		[if $args.flavour is-set?]
 			[apply-to $local.flavour] $args.flavour
@@ -882,16 +900,6 @@
 		[if $args.usage.params.effects is-empty?]
 			[return]
 		
-		[if $args.usage.params.targeting]
-			[if $args.performer.npc]
-				[call npc-targeting]
-					targetAllies: $args.usage.params.targetAllies
-			[else]
-				[gosub pc-targeting]
-					targetAllies: $args.usage.params.targetAllies
-			[set $args.target] $fight.target
-			[set $args.position] $fight.target.adhoc.fight.position
-		
 		[foreach $args.usage.params.effects => $local.effect]
 			
 			[set $local.exclude] <Array>
@@ -902,8 +910,8 @@
 			[if $local.effect.filter.excludeTarget]
 				[append $local.exclude] $args.target
 			
-			[if $local.effect.filter.type = "splash"]
-				[call splash-filter => $local.entities]
+			[if $local.effect.filter.type = "radius"]
+				[call radius-filter => $local.entities]
 					exclude: $local.exclude
 					position: $args.position
 					radius: $local.effect.filter.radius
@@ -929,7 +937,7 @@
 	
 	
 	
-	[fn splash-filter]
+	[fn radius-filter]
 		#[debug info] $args
 		
 		[set $local.entities] <Array>

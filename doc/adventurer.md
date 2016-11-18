@@ -110,6 +110,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Entity-class Tag](#ref.rpg.entity-class)
 		* [Entity-model Tag](#ref.rpg.entity-model)
 		* [Create-entity Tag](#ref.rpg.create-entity)
+		* [Update-entity Tag](#ref.rpg.update-entity)
 		* [Entity-compound-stats Tag](#ref.rpg.entity-compound-stats)
 		* [Usage-compound-stats Tag](#ref.rpg.usage-compound-stats)
 		* [Item-model Tag](#ref.rpg.item-model)
@@ -1877,6 +1878,21 @@ TODO: documentation
 
 
 
+<a name="ref.rpg.update-entity"></a>
+## [update-entity *$var*]
+
+* types: run
+* attribute style: var
+* content type: none
+
+The *update-entity* tag is used to update the entity stored the variable: it computes again compound stats.
+
+It should be used whenever the script has modified a stat, a skill or a status that is involved in compound stats.
+
+Some tags do it automatically, e.g. the [*equip*](#ref.rpg.equip) and [*unequip*](#ref.rpg.unequip) tags.
+
+
+
 <a name="ref.rpg.entity-compound-stats"></a>
 ## [entity-compound-stats *entity-class-label*]
 
@@ -2003,6 +2019,8 @@ This will equip *$hero* with the *$sword*, and set it as the primary item for th
 	primary: melee-fighting
 ```
 
+**It automatically [update the entity](#ref.rpg.update-entity)**.
+
 
 
 <a name="ref.rpg.unequip"></a>
@@ -2033,6 +2051,8 @@ This will unequip the item *$sword* in the hands of the *$hero*:
 [unequip $hero]
 	item: $sword
 ```
+
+**It automatically [update the entity](#ref.rpg.update-entity)**.
 
 
 
