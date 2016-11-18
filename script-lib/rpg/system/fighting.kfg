@@ -689,7 +689,7 @@
 		[if $local.attackScore > $local.defenseScore]
 			[call deal-damages]
 				faces: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 6 10
-				usageType: ranged-fighting
+				usage: $performer.actualUsages.ranged-fighting
 			
 			[call effects]
 				performer: $performer
@@ -755,14 +755,20 @@
 		[if $args.target]
 			[set $target] $args.target
 		
-		[set $local.usageType] $= $args.usageType ? $args.usageType "melee-fighting"
+		[if ! $args.usage]
+			[set $args.usage] $performer.actualUsages.melee-fighting
+		
 		[set $local.faces] $= $args.faces ? $args.faces 6
 		
 		# Damage level
 		[if $args.damages is-real?]
 			[set $local.attackScore] $= $args.damages + ( 2 D $local.faces )
+			#[if ! $performer.npc]
+			#	[message] $> ^KD: ${args.damages}
 		[else]
-			[set $local.attackScore] $= $performer.actualUsages[$local.usageType].compound.damages + ( 2 D $local.faces )
+			[set $local.attackScore] $= $args.usage.compound.damages + ( 2 D $local.faces )
+			#[if ! $performer.npc]
+			#	[message] $> ^KD: ${args.usage.compound.damages}
 			
 			# Attacker offensiveness is used only when not using fixed damage base
 			[if $performer.adhoc.fight.offensiveness > 0]
@@ -806,12 +812,12 @@
 				[apply-to $local.flavour] $args.criticalHitFlavour
 			[elseif $args.hitFlavour is-set?]
 				[apply-to $local.flavour] $args.hitFlavour
-			[elseif $performer.actualUsages[$local.usageType].params.fatalHitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usageType].params.fatalHitFlavour
-			[elseif $performer.actualUsages[$local.usageType].params.criticalHitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usageType].params.criticalHitFlavour
-			[elseif $performer.actualUsages[$local.usageType].params.hitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usageType].params.hitFlavour
+			[elseif $args.usage.params.fatalHitFlavour is-set?]
+				[apply-to $local.flavour] $args.usage.params.fatalHitFlavour
+			[elseif $args.usage.params.criticalHitFlavour is-set?]
+				[apply-to $local.flavour] $args.usage.params.criticalHitFlavour
+			[elseif $args.usage.params.hitFlavour is-set?]
+				[apply-to $local.flavour] $args.usage.params.hitFlavour
 			[else]
 				[set $local.flavour] $> ^r${performer.label//uc1} deadly hits ${target.label} for ${damages} hp.
 		[elseif $damages >= 25]
@@ -819,17 +825,17 @@
 				[apply-to $local.flavour] $args.criticalHitFlavour
 			[elseif $args.hitFlavour is-set?]
 				[apply-to $local.flavour] $args.hitFlavour
-			[elseif $performer.actualUsages[$local.usageType].params.criticalHitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usageType].params.criticalHitFlavour
-			[elseif $performer.actualUsages[$local.usageType].params.hitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usageType].params.hitFlavour
+			[elseif $args.usage.params.criticalHitFlavour is-set?]
+				[apply-to $local.flavour] $args.usage.params.criticalHitFlavour
+			[elseif $args.usage.params.hitFlavour is-set?]
+				[apply-to $local.flavour] $args.usage.params.hitFlavour
 			[else]
 				[set $local.flavour] $> ^r${performer.label//uc1} critically hits ${target.label} for ${damages} hp.
 		[else]
 			[if $args.hitFlavour is-set?]
 				[apply-to $local.flavour] $args.hitFlavour
-			[elseif $performer.actualUsages[$local.usageType].params.hitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usageType].params.hitFlavour
+			[elseif $args.usage.params.hitFlavour is-set?]
+				[apply-to $local.flavour] $args.usage.params.hitFlavour
 			[else]
 				[set $local.flavour] $> ^r${performer.label//uc1} hits ${target.label} for ${damages} hp.
 		
@@ -844,6 +850,9 @@
 		[if $args.target]
 			[set $target] $args.target
 		
+		[if ! $args.usage]
+			[set $args.usage] $performer.actualUsages.battle-ability
+		
 		#[message] $> ^Khealing -- checking: ${target.label}
 		
 		#[if $target.status.hp >= 100]
@@ -855,7 +864,7 @@
 		[if $args.healing is-real?]
 			[set $local.healScore] $= $args.healing + ( 2 D $local.faces )
 		[else]
-			[set $local.healScore] $= $performer.actualUsages[$local.usageType].compound.healing + ( 2 D $local.faces )
+			[set $local.healScore] $= $args.usage.compound.healing + ( 2 D $local.faces )
 		
 		[set $local.defenseScore] $= $target.actual.stats.resilience + ( 2 D $local.faces )
 		
@@ -887,8 +896,8 @@
 		
 		[if $args.flavour is-set?]
 			[apply-to $local.flavour] $args.flavour
-		[elseif $performer.actualUsages[$local.usageType].params.flavour is-set?]
-			[apply-to $local.flavour] $performer.actualUsages[$local.usageType].params.flavour
+		[elseif $args.usage.params.flavour is-set?]
+			[apply-to $local.flavour] $args.usage.params.flavour
 		[else]
 			[set $local.flavour] $> ^r${performer.label//uc1} heals ${target.label} for ${healing} hp.
 		
