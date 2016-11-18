@@ -95,12 +95,11 @@
 					menuLabel: $> cast heal wound
 					speed: 0
 					offensiveness: -1
+					targeting: true
+					targetAllies: true
 					effects:
 						-	type: healing
 							flavour: $$> ^g${target.label//uc1} is healed for ${healing} hp.^:
-							filter:
-								type: splash
-								radius: 5.8
 				compoundVariation: spell
 				compound:
 					healing: (+) 10

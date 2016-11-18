@@ -358,18 +358,21 @@
 	[scene pc-targeting]
 		[set $local.count] 0
 		
-		[if $fight.entityTurn.adhoc.fight.side = "allies"]
-			[set $local.enemies] $fight.aliveFoes
-		[else]
-			[set $local.enemies] $fight.aliveAllies
+		[set $local.possibleTargets] <Array>
 		
-		[if $local.enemies.length <= 1]
-			[set $fight.target] $local.enemies[0]
+		[if ( $fight.entityTurn.adhoc.fight.side = "allies" ) xor ( $args.targetAllies )]
+			[concat $local.possibleTargets] $fight.aliveFoes
+		
+		[if ( $fight.entityTurn.adhoc.fight.side = "foes" ) xor ( $args.targetAllies )]
+			[concat $local.possibleTargets] $fight.aliveAllies
+		
+		[if $local.possibleTargets.length <= 1]
+			[set $fight.target] $local.possibleTargets[0]
 			[return]
 		
 		[message] Target?
 		
-		[foreach $local.enemies => $local.index : $local.entity]
+		[foreach $local.possibleTargets => $local.index : $local.entity]
 			[if $local.entity.adhoc.fight.offensiveness > 0]
 				[set $local.position] "←"
 			[elseif $local.entity.adhoc.fight.offensiveness < 0]
@@ -382,7 +385,7 @@
 					index: $local.index
 				[label] $> ${local.position} ${local.entity.label//uc1}
 				[on-trigger]
-					[set $fight.target] $local.enemies[$args.index]
+					[set $fight.target] $local.possibleTargets[$args.index]
 	
 	
 	
@@ -725,7 +728,7 @@
 		
 		[call effects]
 			performer: $performer
-			target: $target
+			target: $performer
 			position: $performer.adhoc.fight.position
 			usage: $performer.actualUsages.battle-ability
 	
@@ -822,6 +825,8 @@
 		[if $args.target]
 			[set $target] $args.target
 		
+		#[message] $> ^Khealing -- checking: ${target.label}
+		
 		[if $target.status.hp >= 100]
 			[return]
 		
@@ -843,7 +848,7 @@
 		[if $args.bonus is-real?]
 			[add $healing] $args.bonus
 		
-		#[message] $> healing: ${healing}
+		#[message] $> ^Khealing: ${healing}
 		
 		# This is the magic formula that transform heal levels into real hit point gain.
 		# If the target has +10 resilience over another one, it gets two times less healing.
@@ -873,6 +878,12 @@
 	[fn effects]
 		[if $args.usage.params.effects is-empty?]
 			[return]
+		
+		[if $args.usage.params.targeting]
+			[gosub pc-targeting]
+				targetAllies: $args.usage.params.targetAllies
+			[set $args.target] $fight.target
+			[set $args.position] $fight.target.adhoc.fight.position
 		
 		[foreach $args.usage.params.effects => $local.effect]
 			
