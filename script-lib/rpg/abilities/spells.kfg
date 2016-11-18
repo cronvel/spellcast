@@ -99,7 +99,7 @@
 					targetAllies: true
 					effects:
 						-	type: healing
-							flavour: $$> ^g${target.label//uc1} is healed for ${healing} hp.^:
+							flavour: $$> ^g${performer.label//uc1} heals ${target.label} for ${healing} hp.^:
 				compoundVariation: spell
 				compound:
 					healing: (+) 10

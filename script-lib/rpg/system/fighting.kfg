@@ -263,13 +263,16 @@
 	
 	[fn npc-targeting]
 		
-		[if $fight.entityTurn.adhoc.fight.side = "allies"]
-			[set $local.enemies] $fight.aliveFoes
-		[else]
-			[set $local.enemies] $fight.aliveAllies
+		[set $local.possibleTargets] <Array>
 		
-		[set $local.index] $= random ( $local.enemies.length - 1 )
-		[set $fight.target] $local.enemies[$local.index]
+		[if ( $fight.entityTurn.adhoc.fight.side = "allies" ) xor ( $args.targetAllies )]
+			[concat $local.possibleTargets] $fight.aliveFoes
+		
+		[if ( $fight.entityTurn.adhoc.fight.side = "foes" ) xor ( $args.targetAllies )]
+			[concat $local.possibleTargets] $fight.aliveAllies
+		
+		[set $local.index] $= random ( $local.possibleTargets.length - 1 )
+		[set $fight.target] $local.possibleTargets[$local.index]
 	
 	
 	
@@ -880,8 +883,12 @@
 			[return]
 		
 		[if $args.usage.params.targeting]
-			[gosub pc-targeting]
-				targetAllies: $args.usage.params.targetAllies
+			[if $args.performer.npc]
+				[call npc-targeting]
+					targetAllies: $args.usage.params.targetAllies
+			[else]
+				[gosub pc-targeting]
+					targetAllies: $args.usage.params.targetAllies
 			[set $args.target] $fight.target
 			[set $args.position] $fight.target.adhoc.fight.position
 		
