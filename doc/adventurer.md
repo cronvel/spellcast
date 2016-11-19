@@ -83,7 +83,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Div Tag](#ref.ops.div)
 		* [Swap Tag](#ref.ops.swap)
 		* [Clone Tag](#ref.ops.clone)
-		* [Apply-to Tag](#ref.ops.apply-to)
+		* [Apply Tag](#ref.ops.apply)
 		* [Array Operators Tags](#ref.ops.array-ops)
 			* [Append Tag](#ref.ops.append)
 			* [Prepend Tag](#ref.ops.prepend)
@@ -1323,14 +1323,14 @@ Read [this article](http://blog.soulserv.net/tag/cloning/) if you don't know wha
 
 
 
-<a name="ref.ops.apply-to"></a>
-## [apply-to *$var*]
+<a name="ref.ops.apply"></a>
+## [apply *$var*]
 
 * types: run
 * attribute style: var
 * content type: an applicable object
 
-The *apply-to* tag apply its content, that should be an
+The *apply* tag apply its content, that should be an
 [applicable object](https://github.com/cronvel/kung-fig/blob/master/doc/lib.md#ref.Dynamic.apply),
 and put the result into the *$var* variable.
 

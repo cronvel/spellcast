@@ -1,0 +1,20 @@
+
+[[doctype spellcaster]]
+
+[spell apply]
+	[set $template] $$> This is a template! Here some ${var}.
+	
+	[set $var] characters
+	[set $a]
+		b:
+			var: texts
+	
+	[apply $template => $message] $
+	[message] $message
+	
+	[apply $template => $message] $a.b
+	[message] $message
+	
+	[apply $template => $message]
+		var: words
+	[message] $message

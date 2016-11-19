@@ -663,11 +663,11 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
-	it( "[apply-to] tag" , function( done ) {
+	it( "[apply] tag" , function( done ) {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/apply-to.kfg' , { type: 'cast' , target: 'apply-to' } ,
+		runBook( __dirname + '/books/apply.kfg' , { type: 'cast' , target: 'apply' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
