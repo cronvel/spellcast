@@ -675,7 +675,9 @@ describe( "Operations tags" , function() {
 			} ,
 			function() {
 				doormen.equals( messages , [
-					[ 'This is a template! Here some characters.' ]
+					[ 'This is a template! Here some characters.' ] ,
+					[ 'This is a template! Here some texts.' ] ,
+					[ 'This is a template! Here some words.' ] ,
 				] ) ;
 				
 				done() ;

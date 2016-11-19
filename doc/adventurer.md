@@ -1324,15 +1324,27 @@ Read [this article](http://blog.soulserv.net/tag/cloning/) if you don't know wha
 
 
 <a name="ref.ops.apply"></a>
-## [apply *$var*]
+## [apply *$applicable-var* => *$target-var*]
 
 * types: run
-* attribute style: var
-* content type: an applicable object
+* attribute style: apply syntax
+* content type: a context object
 
-The *apply* tag apply its content, that should be an
-[applicable object](https://github.com/cronvel/kung-fig/blob/master/doc/lib.md#ref.Dynamic.apply),
-and put the result into the *$var* variable.
+The *apply* tag uses its content as a context to *render* a template or any
+[applicable object](https://github.com/cronvel/kung-fig/blob/master/doc/lib.md#ref.Dynamic.apply)
+stored into the *$applicable-var*, and put the result into the *$target-var* variable.
+
+Example:
+
+```
+[set $template] $$> Hello ${first-name} ${last-name}!
+[apply $template => $text]
+	first-name: Joe
+	last-name: Doe
+[message] $text
+```
+
+... will output: `Hello Joe Doe!`.
 
 
 
