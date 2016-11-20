@@ -84,6 +84,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Swap Tag](#ref.ops.swap)
 		* [Clone Tag](#ref.ops.clone)
 		* [Apply Tag](#ref.ops.apply)
+		* [Merge Tag](#ref.ops.merge)
 		* [Array Operators Tags](#ref.ops.array-ops)
 			* [Append Tag](#ref.ops.append)
 			* [Prepend Tag](#ref.ops.prepend)
@@ -1345,6 +1346,48 @@ Example:
 ```
 
 ... will output: `Hello Joe Doe!`.
+
+
+
+<a name="ref.ops.merge"></a>
+## [merge *$source-var*] , [merge *$source-var* => *$target-var*] , [merge *$source-var1* , *$source-var2*] , [merge *$source-var1* , *$source-var2* => *$target-var*] 
+
+* types: run
+* attribute style: merge syntax
+* content type: none
+
+The *merge* tag is used to perform
+[Kung Fig's tree operations](https://github.com/cronvel/kung-fig/blob/master/doc/KFG.md#ref.treeops).
+
+Multiple *$source-var* can be specified, separated by comma (surrounded by at least one space on each side),
+that will be merged together.
+
+The syntax without a *$target-var* uses the
+[Kung Fig's .autoReduce() method](https://github.com/cronvel/kung-fig/blob/master/doc/lib.md#ref.treeops.autoReduce),
+so it merges and reduces into the first *$source-var*.
+
+The syntax with a *$target-var* uses the
+[Kung Fig's .reduce()](https://github.com/cronvel/kung-fig/blob/master/doc/lib.md#ref.treeops.reduce)
+so it doesn't modify any *$source-var*, but instead it puts the result into the *$target-var* variable.
+
+Example:
+
+```
+[set $character]
+	name: Jörgl, the Barbarian
+	hp: 8
+	attack: 5
+	defense: 4
+
+[set $amulet-of-protection]
+	defense: (+) 1
+	hp: (+) 2
+
+[merge $character , $amulet-of-protection => $final]
+```
+
+The *$character* and *$amulet-of-protection* variables will be merged in the *$final* variable
+to produce `{ "name": "Jörgl, the Barbarian", "hp": 10 , "attack": 5 , "defense": 5 }`.
 
 
 
