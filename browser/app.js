@@ -1074,10 +1074,20 @@ UI.showSprite = function showSprite( id , data )
 	sprite.$img = document.createElement( 'img' ) ;
 	sprite.$img.classList.add( 'sprite' ) ;
 	
+	if ( data.maskUrl )
+	{
+		console.warn( 'has mask!' ) ;
+		sprite.$mask = document.createElement( 'img' ) ;
+		sprite.$mask.classList.add( 'spriteMask' ) ;
+	}
+	
 	this.updateSprite( null , data , sprite ) ;
 	
 	if ( oldSprite ) { oldSprite.$img.remove() ; }
+	
 	this.$gfx.append( sprite.$img ) ;
+	
+	if ( sprite.$mask ) { this.$gfx.append( sprite.$mask ) ; }
 } ;
 
 
@@ -1111,6 +1121,11 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 		sprite.$img.setAttribute( "src" , this.cleanUrl( data.url ) ) ;
 	}
 	
+	if ( data.maskUrl && sprite.$mask )
+	{
+		sprite.$mask.setAttribute( "src" , this.cleanUrl( data.maskUrl ) ) ;
+	}
+	
 	if ( data.action !== undefined )
 	{
 		if ( data.action && ! sprite.action )
@@ -1123,12 +1138,12 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 				event.stopPropagation() ;
 			} ;
 			
-			sprite.$img.addEventListener( 'click' , sprite.onClick ) ;
+			sprite.$mask.addEventListener( 'click' , sprite.onClick ) ;
 		}
 		else if ( ! data.action && sprite.action )
 		{
-			sprite.$img.classList.remove( 'clickable' ) ;
-			sprite.$img.removeEventListener( 'click' , sprite.onClick ) ;
+			sprite.$mask.classList.remove( 'clickable' ) ;
+			sprite.$mask.removeEventListener( 'click' , sprite.onClick ) ;
 		}
 		
 		sprite.action = data.action || null ;
@@ -1139,6 +1154,13 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 	
 	// Use data.style, NOT sprite.style: we have to set only new/updated styles
 	dom.css( sprite.$img , data.style ) ;
+	
+	// Update the mask, if any
+	if ( sprite.$mask )
+	{
+		console.warn( 'update mask!' ) ;
+		dom.css( sprite.$mask , data.style ) ;
+	}
 } ;
 
 
@@ -5933,7 +5955,6 @@ exports.formatMethod = function format( str )
 	
 	return str ;
 } ;
-
 
 
 
