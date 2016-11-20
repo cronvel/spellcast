@@ -685,6 +685,31 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[merge] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/merge.kfg' , { type: 'cast' , target: 'merge' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'tree.a: 1 tree.b: 2 out.a: 4 out.b: 2' ] ,
+					[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 2' ] ,
+					[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 10' ] ,
+					[ 'tree.a: 4 tree.b: 2' ] ,
+					[ 'tree.a: 11 tree.b: 2' ] ,
+					[ 'tree.a: 11 tree.b: 10' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "[clone] tag" , function( done ) {
 		
 		var messages = [] ;
