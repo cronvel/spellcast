@@ -929,11 +929,17 @@
 				[set $local.entities]
 					- $args.target
 			
+			# If the effect has modifiers, apply them now
+			[if $local.effect.mods]
+				[merge $args.usage.compound , $local.effect.mods => $local.effectCompound]
+			[else]
+				[set $local.effectCompound] $args.usage.compound
+			
 			[if $local.effect.type = "attack"]
 				[call attack-effect]
 					entities: $local.entities
-					attack: $= $args.usage.compound.attack + ( ( $local.effect.attack is-set? ) ? $local.effect.attack 0 )
-					damages: $= $args.usage.compound.damages + ( ( $local.effect.damages is-set? ) ? $local.effect.damages 0 )
+					attack: $= $local.effectCompound.attack
+					damages: $= $local.effectCompound.damages
 					defenseType: $local.effect.defenseType
 					missFlavour: $local.effect.missFlavour
 					hitFlavour: $local.effect.hitFlavour
@@ -942,7 +948,7 @@
 			[elseif $local.effect.type = "healing"]
 				[call healing-effect]
 					entities: $local.entities
-					healing: $= $args.usage.compound.healing + ( ( $local.effect.healing is-set? ) ? $local.effect.healing 0 )
+					healing: $= $local.effectCompound.healing
 					flavour: $local.effect.flavour
 	
 	

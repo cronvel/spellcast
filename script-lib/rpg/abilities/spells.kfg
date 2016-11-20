@@ -105,10 +105,11 @@
 					effects:
 						-	type: attack
 							defenseType: ranged-fighting
-							# Attack modifier applied over the regular attack value
-							attack: -2
-							# Damage modifier applied over the regular damage value
-							damages: -8
+							mods:
+								# Attack modifier applied over the regular attack value
+								attack: (-) 2
+								# Damage modifier applied over the regular damage value
+								damages: (-) 8
 							missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
 							hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
 							criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
