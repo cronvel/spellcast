@@ -418,7 +418,7 @@ domSvg.ajax = function ajax( url , callback )
 	var xhr = new XMLHttpRequest() ;
 	
 	console.warn( "ajax url:" , url ) ;
-	url = 'file:///home/cedric/inside/github/spellcast/sample/shaman.mask.svg'
+	url = 'file:///home/cedric/inside/github/spellcast/browser/shaman.mask.svg'
 	
 	xhr.responseType = 'document' ;
 	xhr.onreadystatechange = domSvg.ajax.ajaxStatus.bind( xhr , callback ) ;

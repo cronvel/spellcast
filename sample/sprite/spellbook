@@ -1,5 +1,6 @@
 
 [[doctype adventurer]]
+[[assets ../]]
 
 [action drink]
     [message]

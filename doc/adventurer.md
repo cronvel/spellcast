@@ -140,8 +140,9 @@ Options:
 * `--locale-list`: List the available locales
 * `--assets <URL>`: Set the asset base URL (default: main book directory)
 * `--ws-server [<port>]`: Create a web socket server (default to port 57311)
+* `--http-content`: Create a HTTP server for content, sharing the port of the web socket server
 * `--token <token>`: Add a token to server accepted token list (can be used multiple times)
-* `--browser , - B <exe>`: Open the browser <exe>, force --ws-server
+* `--browser , - B <exe>`: Open the browser <exe>, force --ws-server and --http-content
 * `--client-ui <name>`: Set the UI for the local client (use with --browser)
 * `--client-name <name>`: Set the name of the local client user
 * `--script-debug`: Activate debug-level logs for scripts ([debug] tag)
