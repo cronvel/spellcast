@@ -1614,18 +1614,17 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 	
 	if ( data.action !== undefined )
 	{
-		$element = sprite.$mask || sprite.$img ;
+		var $element = sprite.$mask || sprite.$img ;
 		
 		if ( data.action && ! sprite.action )
 		{
-			$element.classList.add( 'clickable' ) ;
-			
 			sprite.onClick = function( event ) {
 				console.warn( "action triggered: " , sprite.action ) ;
 				self.bus.emit( 'action' , sprite.action ) ;
 				event.stopPropagation() ;
 			} ;
 			
+			$element.classList.add( 'clickable' ) ;
 			$element.addEventListener( 'click' , sprite.onClick ) ;
 		}
 		else if ( ! data.action && sprite.action )
