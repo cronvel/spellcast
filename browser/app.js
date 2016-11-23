@@ -111,11 +111,9 @@ dom.batch = function batch( method , elements )
 
 
 // Set a bunch of css properties given as an object
-dom.css = function css( element , object )	// , deb )
+dom.css = function css( element , object )
 {
 	var key ;
-	
-	//if ( deb ) { console.log( 'css: ' + string.inspect( object ) ) ; }
 	
 	for ( key in object )
 	{
@@ -126,17 +124,28 @@ dom.css = function css( element , object )	// , deb )
 
 
 // Set a bunch of attributes given as an object
-dom.attr = function attr( element , object )	// , deb )
+dom.attr = function attr( element , object )
 {
 	var key ;
 	
-	//if ( deb ) { console.log( 'css: ' + string.inspect( object ) ) ; }
+	for ( key in object )
+	{
+		if ( object[ key ] === null ) { element.removeAttribute( key ) ; }
+		else { element.setAttribute( key , object[ key ] ) ; }
+	}
+} ;
+
+
+
+// Set/unset a bunch of classes given as an object
+dom.class = function class_( element , object )
+{
+	var key ;
 	
 	for ( key in object )
 	{
-		//element.attributes[ key ] = object[ key ] ;
-		if ( object[ key ] === null ) { element.removeAttribute( key ) ; }
-		else { element.setAttribute( key , object[ key ] ) ; }
+		if ( object[ key ] ) { element.classList.add( key ) ; }
+		else { element.classList.remove( key ) ; }
 	}
 } ;
 
@@ -276,7 +285,7 @@ module.exports = domSvg ;
 	* url: the URL of the .svg file
 	* options: an optional object with optional options
 		* id: the id attribute of the <svg> tag (recommanded)
-		* class: the class attribute of the <svg> tag
+		* class: a class object to add/remove on the <svg> tag
 		* hidden: inject the svg but make it hidden (useful to apply modification before the show)
 		* noWidthHeightAttr: remove the width and height attribute of the <svg> tag
 		* css: a css object to apply on the <svg> tag
@@ -315,9 +324,9 @@ domSvg.load = function load( container , url , options , callback )
 		
 		domSvg.ajax( url , function( error , xmlDoc ) {
 			
-			var svg = xmlDoc.documentElement ;
-			
 			if ( error ) { callback( error ) ; return ; }
+			
+			var svg = xmlDoc.documentElement ;
 			
 			try {
 				domSvg.attachXmlTo( container , svg , options ) ;
@@ -348,8 +357,7 @@ domSvg.attachXmlTo = function attachXmlTo( container , svg , options )
 		else if ( ! options.id ) { svg.removeAttribute( 'id' ) ; }
 	}
 	
-	//if ( typeof options.class === 'string' ) { svg.classList.add( options.class ) ; }	// like jQuery .addClass()
-	if ( typeof options.class === 'string' ) { svg.setAttribute( 'class' , options.class ) ; }
+	if ( options.class && typeof options.class === 'object' ) { dom.class( svg , options.class ) ; }
 	
 	if ( options.idNamespace ) { dom.idNamespace( svg , options.idNamespace ) ; }
 	
@@ -418,7 +426,7 @@ domSvg.ajax = function ajax( url , callback )
 	var xhr = new XMLHttpRequest() ;
 	
 	console.warn( "ajax url:" , url ) ;
-	url = 'file:///home/cedric/inside/github/spellcast/browser/shaman.mask.svg'
+	//url = 'file:///home/cedric/inside/github/spellcast/browser/shaman.mask.svg'
 	
 	xhr.responseType = 'document' ;
 	xhr.onreadystatechange = domSvg.ajax.ajaxStatus.bind( xhr , callback ) ;
@@ -509,7 +517,7 @@ SpellcastClient.create = function create( options )
 {
 	var self = Object.create( SpellcastClient.prototype , {
 		token: { value: options.token || 'null' , writable: true , enumerable: true } ,
-		port: { value: options.port || 57311 , writable: true , enumerable: true } ,
+		port: { value: options.port || 80 , writable: true , enumerable: true } ,
 		userName: { value: options.name || 'unknown_' + Math.floor( Math.random() * 10000 ) , writable: true , enumerable: true } ,
 		ws: { value: null , writable: true , enumerable: true } ,
 		proxy: { value: null , writable: true , enumerable: true } ,
@@ -560,8 +568,8 @@ SpellcastClient.prototype.run = function run( callback )
 	
 	this.emit( 'connecting' ) ;
 	
-	this.ws.onerror = function onError()
-	{
+	this.ws.onerror = function onError() {
+		
 		if ( ! isOpen )
 		{
 			// The connection has never opened, we can't connect to the server.
@@ -571,8 +579,8 @@ SpellcastClient.prototype.run = function run( callback )
 		}
 	} ;
 	
-	this.ws.onopen = function onOpen()
-	{
+	this.ws.onopen = function onOpen() {
+		
 		isOpen = true ;
 		
 		// Send 'ready' to server? 
@@ -590,8 +598,8 @@ SpellcastClient.prototype.run = function run( callback )
 		if ( typeof callback === 'function' ) { callback() ; }
 	} ;
 	
-	this.ws.onclose = function onClose()
-	{
+	this.ws.onclose = function onClose() {
+		
 		if ( ! isOpen )
 		{
 			// The connection has never opened, we can't connect to the server.
@@ -606,8 +614,8 @@ SpellcastClient.prototype.run = function run( callback )
 		self.emit( 'close' ) ;
 	} ;
 	
-	this.ws.onmessage = function onMessage( wsMessage )
-	{
+	this.ws.onmessage = function onMessage( wsMessage ) {
+		
 		var message ;
 		
 		try {
@@ -913,8 +921,12 @@ UI.prototype.initBus = function initBus()
 
 UI.prototype.cleanUrl = function cleanUrl( url )
 {
+	/*
 	if ( path.isAbsolute( url ) ) { return url ; }
 	return this.config.assetBaseUrl + '/' + url ;
+	*/
+	
+	return '/script/' + url ;
 }
 
 
@@ -1540,7 +1552,7 @@ UI.showSprite = function showSprite( id , data )
 		console.warn( 'has mask!' ) ;
 		
 		dom.svg.load( null , this.cleanUrl( data.maskUrl ) , {
-				class: 'clickable' ,
+				class: { spriteMask: true , clickable: true } ,
 				css: data.style ,
 				noWidthHeightAttr: true
 			} ,
@@ -1554,10 +1566,12 @@ UI.showSprite = function showSprite( id , data )
 				
 				if ( oldSprite ) { oldSprite.$img.remove() ; }
 				
-				this.$gfx.append( sprite.$img ) ;
-				this.$gfx.append( sprite.$mask ) ;
+				self.$gfx.append( sprite.$img ) ;
+				self.$gfx.append( sprite.$mask ) ;
 			}
 		) ;
+		
+		return ;
 	}
 		
 	this.updateSprite( null , data , sprite ) ;
