@@ -13,27 +13,21 @@
 
 	[scene step2-man]
 		[message] There was a man...
-		[next step3]
-			[label] to step 3
+		[next step3] to step 3
 
 	[scene step2-woman]
 		[message] There was a woman...
-		[next step3]
-			[label] to step 3
+		[next step3] to step 3
 
 	[scene step2-child]
 		[message] There was a child...
-		[next step3]
-			[label] to step 3
+		[next step3] to step 3
 	
 	[scene step3]
 		[message] Who was constantly...
-		[next step4-fencing]
-			[label] fencing
-		[next step4-riding]
-			[label] riding
-		[next step4-crying]
-			[label] crying
+		[next step4-fencing] $> fencing
+		[next step4-riding] $> riding
+		[next step4-crying] $> crying
 	
 	[scene step4-fencing]
 		[message] Fencing...

@@ -8,11 +8,14 @@
 		fighting: 16
 		shooting: 12
 		spellcasting: 16
+		#spellcasting: 26
 		strength: 12
 		resilience: 11
 	items:
-		- ice-shard
+		- ice-blade
+		- nova
 		- firebolt
+		- heal-wound
 		- excalibur
 		- javelin
 		- crossbow
@@ -21,10 +24,10 @@
 	equippedItems:
 		ability:
 			- fireball
-#			- ice-shard
+#			- ice-blade
 		hand:
-#			- sword
-			- crossbow
+			- sword
+#			- crossbow
 		ring:
 			- ring-of-fighting-spirit
 

@@ -357,7 +357,7 @@ SpellcastClient.create = function create( options )
 {
 	var self = Object.create( SpellcastClient.prototype , {
 		token: { value: options.token || 'null' , writable: true , enumerable: true } ,
-		port: { value: options.port || 57311 , writable: true , enumerable: true } ,
+		port: { value: options.port || 80 , writable: true , enumerable: true } ,
 		userName: { value: options.name || 'unknown_' + Math.floor( Math.random() * 10000 ) , writable: true , enumerable: true } ,
 		ws: { value: null , writable: true , enumerable: true } ,
 		proxy: { value: null , writable: true , enumerable: true } ,
@@ -408,8 +408,8 @@ SpellcastClient.prototype.run = function run( callback )
 	
 	this.emit( 'connecting' ) ;
 	
-	this.ws.onerror = function onError()
-	{
+	this.ws.onerror = function onError() {
+		
 		if ( ! isOpen )
 		{
 			// The connection has never opened, we can't connect to the server.
@@ -419,8 +419,8 @@ SpellcastClient.prototype.run = function run( callback )
 		}
 	} ;
 	
-	this.ws.onopen = function onOpen()
-	{
+	this.ws.onopen = function onOpen() {
+		
 		isOpen = true ;
 		
 		// Send 'ready' to server? 
@@ -438,8 +438,8 @@ SpellcastClient.prototype.run = function run( callback )
 		if ( typeof callback === 'function' ) { callback() ; }
 	} ;
 	
-	this.ws.onclose = function onClose()
-	{
+	this.ws.onclose = function onClose() {
+		
 		if ( ! isOpen )
 		{
 			// The connection has never opened, we can't connect to the server.
@@ -454,8 +454,8 @@ SpellcastClient.prototype.run = function run( callback )
 		self.emit( 'close' ) ;
 	} ;
 	
-	this.ws.onmessage = function onMessage( wsMessage )
-	{
+	this.ws.onmessage = function onMessage( wsMessage ) {
+		
 		var message ;
 		
 		try {
@@ -616,7 +616,7 @@ toolkit.markup = function()
 var path = require( 'path' ) ;
 
 var Dom = require( '../Dom.js' ) ;
-var domKit = require( 'dom-kit' ) ;
+var dom = require( 'dom-kit' ) ;	// tmp...
 var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
 var treeOps = require( 'kung-fig/lib/treeOps.js' ) ;
 var toolkit = require( '../toolkit.js' ) ;
@@ -748,8 +748,7 @@ UI.prototype.initBus = function initBus()
 
 UI.prototype.cleanUrl = function cleanUrl( url )
 {
-	if ( path.isAbsolute( url ) ) { return url ; }
-	return this.config.assetBaseUrl + '/' + url ;
+	return '/script/' + url ;
 } ;
 
 
@@ -1245,10 +1244,38 @@ UI.showSprite = function showSprite( id , data )
 
 	sprite.$img = document.createElement( 'img' ) ;
 	sprite.$img.classList.add( 'sprite' ) ;
-
+	
+	if ( data.maskUrl )
+	{
+		console.warn( 'has mask!' ) ;
+		
+		dom.svg.load( null , this.cleanUrl( data.maskUrl ) , {
+				class: { spriteMask: true , clickable: true } ,
+				css: data.style ,
+				noWidthHeightAttr: true
+			} ,
+			function( error , svg ) {
+				if ( error ) { console.warn( error ) ; return ; }
+				sprite.$mask = svg ;
+				
+				// /!\ Duplicated code:
+				
+				self.updateSprite( null , data , sprite ) ;
+				
+				if ( oldSprite ) { oldSprite.$img.remove() ; }
+				
+				self.$gfx.append( sprite.$img ) ;
+				self.$gfx.append( sprite.$mask ) ;
+			}
+		) ;
+		
+		return ;
+	}
+		
 	this.updateSprite( null , data , sprite ) ;
 
 	if ( oldSprite ) { oldSprite.$img.remove() ; }
+	
 	this.$gfx.append( sprite.$img ) ;
 } ;
 
@@ -1257,8 +1284,8 @@ UI.showSprite = function showSprite( id , data )
 // internalSprite is used for internal update call
 UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 {
-	var self = this , sprite ;
-
+	var self = this , sprite , $element ;
+	
 	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
 
 	if ( internalSprite )
@@ -1285,22 +1312,23 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 
 	if ( data.action !== undefined )
 	{
+		var $element = sprite.$mask || sprite.$img ;
+		
 		if ( data.action && ! sprite.action )
 		{
-			sprite.$img.classList.add( 'clickable' ) ;
-
 			sprite.onClick = function( event ) {
 				console.warn( "action triggered: " , sprite.action ) ;
 				self.bus.emit( 'action' , sprite.action ) ;
 				event.stopPropagation() ;
 			} ;
-
-			sprite.$img.addEventListener( 'click' , sprite.onClick ) ;
+			
+			$element.classList.add( 'clickable' ) ;
+			$element.addEventListener( 'click' , sprite.onClick ) ;
 		}
 		else if ( ! data.action && sprite.action )
 		{
-			sprite.$img.classList.remove( 'clickable' ) ;
-			sprite.$img.removeEventListener( 'click' , sprite.onClick ) ;
+			$element.classList.remove( 'clickable' ) ;
+			$element.removeEventListener( 'click' , sprite.onClick ) ;
 		}
 
 		sprite.action = data.action || null ;
@@ -1310,7 +1338,14 @@ UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 	treeExtend( null , sprite.style , data.style ) ;
 
 	// Use data.style, NOT sprite.style: we have to set only new/updated styles
-	domKit.css( sprite.$img , data.style ) ;
+	dom.css( sprite.$img , data.style ) ;
+	
+	// Update the mask, if any
+	if ( sprite.$mask )
+	{
+		console.warn( 'update mask!' ) ;
+		dom.css( sprite.$mask , data.style ) ;
+	}
 } ;
 
 
@@ -1632,11 +1667,9 @@ dom.batch = function batch( method , elements )
 
 
 // Set a bunch of css properties given as an object
-dom.css = function css( element , object )	// , deb )
+dom.css = function css( element , object )
 {
 	var key ;
-	
-	//if ( deb ) { console.log( 'css: ' + string.inspect( object ) ) ; }
 	
 	for ( key in object )
 	{
@@ -1647,17 +1680,28 @@ dom.css = function css( element , object )	// , deb )
 
 
 // Set a bunch of attributes given as an object
-dom.attr = function attr( element , object )	// , deb )
+dom.attr = function attr( element , object )
 {
 	var key ;
 	
-	//if ( deb ) { console.log( 'css: ' + string.inspect( object ) ) ; }
+	for ( key in object )
+	{
+		if ( object[ key ] === null ) { element.removeAttribute( key ) ; }
+		else { element.setAttribute( key , object[ key ] ) ; }
+	}
+} ;
+
+
+
+// Set/unset a bunch of classes given as an object
+dom.class = function class_( element , object )
+{
+	var key ;
 	
 	for ( key in object )
 	{
-		//element.attributes[ key ] = object[ key ] ;
-		if ( object[ key ] === null ) { element.removeAttribute( key ) ; }
-		else { element.setAttribute( key , object[ key ] ) ; }
+		if ( object[ key ] ) { element.classList.add( key ) ; }
+		else { element.classList.remove( key ) ; }
 	}
 } ;
 
@@ -1749,6 +1793,7 @@ dom.html = function html( element , html ) { element.innerHTML = html ; } ;
 
 
 },{"./svg.js":7}],7:[function(require,module,exports){
+(function (process){
 /*
 	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
 
@@ -1792,12 +1837,14 @@ module.exports = domSvg ;
 /*
 	load( container , url , [options] , callback )
 	
-	* container: the DOM element where the <svg> tag will be put
+	* container: null or the DOM element where the <svg> tag will be put
 	* url: the URL of the .svg file
 	* options: an optional object with optional options
 		* id: the id attribute of the <svg> tag (recommanded)
-		* class: the class attribute of the <svg> tag
+		* class: a class object to add/remove on the <svg> tag
 		* hidden: inject the svg but make it hidden (useful to apply modification before the show)
+		* noWidthHeightAttr: remove the width and height attribute of the <svg> tag
+		* css: a css object to apply on the <svg> tag
 	* callback: completion callback
 */
 domSvg.load = function load( container , url , options , callback )
@@ -1805,7 +1852,7 @@ domSvg.load = function load( container , url , options , callback )
 	if ( typeof options === 'function' ) { callback = options ; }
 	if ( ! options || typeof options !== 'object' ) { options = {} ; }
 	
-	if ( url.substring( 0 , 7 ) === 'file://' )
+	if ( url.substring( 0 , 7 ) === 'file://' && ! process.browser )
 	{
 		// Use Node.js 'fs' module
 		
@@ -1833,9 +1880,9 @@ domSvg.load = function load( container , url , options , callback )
 		
 		domSvg.ajax( url , function( error , xmlDoc ) {
 			
-			var svg = xmlDoc.documentElement ;
-			
 			if ( error ) { callback( error ) ; return ; }
+			
+			var svg = xmlDoc.documentElement ;
 			
 			try {
 				domSvg.attachXmlTo( container , svg , options ) ;
@@ -1855,6 +1902,8 @@ domSvg.load = function load( container , url , options , callback )
 // Dummy ATM...
 domSvg.attachXmlTo = function attachXmlTo( container , svg , options )
 {
+	var viewBox , width , height ;
+	
 	domSvg.lightCleanup( svg ) ;
 	
 	// Fix id, if necessary
@@ -1864,14 +1913,34 @@ domSvg.attachXmlTo = function attachXmlTo( container , svg , options )
 		else if ( ! options.id ) { svg.removeAttribute( 'id' ) ; }
 	}
 	
-	//if ( typeof options.class === 'string' ) { svg.classList.add( options.class ) ; }	// like jQuery .addClass()
-	if ( typeof options.class === 'string' ) { svg.setAttribute( 'class' , options.class ) ; }
+	if ( options.class && typeof options.class === 'object' ) { dom.class( svg , options.class ) ; }
 	
 	if ( options.idNamespace ) { dom.idNamespace( svg , options.idNamespace ) ; }
 	
 	if ( options.hidden ) { svg.style.visibility = 'hidden' ; }
 	
-	container.appendChild( svg ) ;
+	if ( options.noWidthHeightAttr )
+	{
+		// Save and remove the width and height attribute
+		width = svg.getAttribute( 'width' ) ;
+		height = svg.getAttribute( 'height' ) ;
+		
+		svg.removeAttribute( 'height' ) ;
+		svg.removeAttribute( 'width' ) ;
+		
+		// if the svg don't have a viewBox attribute, set it now from the width and height (it works most of time)
+		if ( ! svg.getAttribute( 'viewBox' ) && width && height )
+		{
+			viewBox = '0 0 ' + width + ' ' + height ;
+			//console.log( "viewBox:" , viewBox ) ;
+			svg.setAttribute( 'viewBox' , viewBox ) ;
+		}
+	}
+	
+	if ( options.css ) { dom.css( svg , options.css ) ; }
+	
+	// If a container was specified, attach to it
+	if ( container ) { container.appendChild( svg ) ; }
 } ;
 
 
@@ -1912,11 +1981,15 @@ domSvg.ajax = function ajax( url , callback )
 {
 	var xhr = new XMLHttpRequest() ;
 	
+	//console.warn( "ajax url:" , url ) ;
+	
 	xhr.responseType = 'document' ;
 	xhr.onreadystatechange = domSvg.ajax.ajaxStatus.bind( xhr , callback ) ;
 	xhr.open( 'GET', url ) ;
 	xhr.send() ;
 } ;
+
+
 
 domSvg.ajax.ajaxStatus = function ajaxStatus( callback )
 {
@@ -1948,7 +2021,8 @@ domSvg.ajax.ajaxStatus = function ajaxStatus( callback )
 
 
 
-},{"./dom.js":6,"fs":5}],8:[function(require,module,exports){
+}).call(this,require('_process'))
+},{"./dom.js":6,"_process":14,"fs":5}],8:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -6104,7 +6178,6 @@ exports.formatMethod = function format( str )
 	
 	return str ;
 } ;
-
 
 
 

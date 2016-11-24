@@ -25,8 +25,7 @@
 		#[debug info] $performer.items
 		#[debug info] $local.items
 		
-		[next]
-			[label] $local.abortLabel
+		[next] $local.abortLabel
 		
 		[foreach $local.items => $local.index : $local.item]
 			[next]
@@ -49,8 +48,7 @@
 		
 		[message] Which usage?
 		
-		[next]
-			[label] $> (Abort)
+		[next] $> (Abort)
 		
 		[foreach $performer.usageTypes => $local.usage]
 			[next]
@@ -59,9 +57,8 @@
 				[label] $> ${local.usage//uc1/dash2space}
 				[on-trigger]
 					[gosub inventory/select-ability-primary]
-						[args]
-							performer: $performer
-							usage: $args.usage
+						performer: $performer
+						usage: $args.usage
 
 	
 	
@@ -79,8 +76,7 @@
 		#[debug info] $performer.items
 		#[debug info] $local.equippedItems
 		
-		[next]
-			[label] $> (Abort)
+		[next] $> (Abort)
 		
 		[foreach $local.unequippedItems => $local.index : $local.item]
 			[next]
@@ -111,8 +107,7 @@
 		
 		[message] Which slot?
 		
-		[next]
-			[label] $> (Abort)
+		[next] $> (Abort)
 		
 		[foreach $performer.slots => $local.slot : $local.count]
 			[next]
@@ -121,8 +116,7 @@
 				[label] $> ${local.slot//uc1/dash2space}
 				[on-trigger]
 					[gosub inventory/equip-object]
-						[args]
-							performer: $performer
-							slot: $args.slot
+						performer: $performer
+						slot: $args.slot
 
 

@@ -11,9 +11,8 @@
 	[scene sub]
 		[message] $> sub args before: ${args.a} ${args.b}
 		[gosub subsub]
-			[args]
-				a: 5
-				b: 7
+			a: 5
+			b: 7
 		[message] $> sub args after: ${args.a} ${args.b}
 	
 	[scene subsub]

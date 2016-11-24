@@ -663,11 +663,11 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
-	it( "[apply-to] tag" , function( done ) {
+	it( "[apply] tag" , function( done ) {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/apply-to.kfg' , { type: 'cast' , target: 'apply-to' } ,
+		runBook( __dirname + '/books/apply.kfg' , { type: 'cast' , target: 'apply' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -675,7 +675,34 @@ describe( "Operations tags" , function() {
 			} ,
 			function() {
 				doormen.equals( messages , [
-					[ 'This is a template! Here some characters.' ]
+					[ 'This is a template! Here some characters.' ] ,
+					[ 'This is a template! Here some texts.' ] ,
+					[ 'This is a template! Here some words.' ] ,
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[merge] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/merge.kfg' , { type: 'cast' , target: 'merge' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'tree.a: 1 tree.b: 2 out.a: 4 out.b: 2' ] ,
+					[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 2' ] ,
+					[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 10' ] ,
+					[ 'tree.a: 4 tree.b: 2' ] ,
+					[ 'tree.a: 11 tree.b: 2' ] ,
+					[ 'tree.a: 11 tree.b: 10' ] ,
 				] ) ;
 				
 				done() ;

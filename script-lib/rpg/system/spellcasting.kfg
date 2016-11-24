@@ -10,7 +10,7 @@
 			[return] false
 		
 		# First, mana consumption
-		[set $local.castScore] $= $args.performer.actual.stats.spellcasting + ( 2 D 4 )
+		[set $local.castScore] $= $args.usage.compound.mana + ( 2 D 4 )
 		[set $local.vsScore] $= $args.usage.params.manaLevel + ( 2 D 4 )
 		
 		[set $local.mana] $= ( ( $local.vsScore - $local.castScore ) + ( random ) ) - 0.5
@@ -26,20 +26,28 @@
 		[if $args.performer.status.mana < 0]
 			[set $args.performer.status.mana] 0
 			[message] $> ${args.performer.label//uc1} used all its mana and miscasts ^/${args.item.label}^:!
+			
+			# Don't forget to update malus before leaving!
+			[call common/update-malus] $performer
 			[return] false
 		
 		[message] $> Remaining mana: ${args.performer.status.mana}
 		
 		
 		# Then spellcasting
-		[set $local.castScore] $= $args.performer.actual.stats.spellcasting + ( 2 D 8 )
+		[set $local.castScore] $= $args.usage.compound.spellcasting + ( 2 D 8 )
 		[set $local.vsScore] $= $args.usage.params.spellLevel + ( 2 D 8 )
+		
+		#[message] $> ^KSpellcasting: ${args.usage.compound.spellcasting}
 		
 		[if $args.bonus is-set?]
 			[add $local.castScore] $args.bonus
 		
 		#[message] $> ${local.castScore} vs ${local.vsScore} ${args.bonus}
 		#[debug info] $> ${args.performer.actual.stats.spellcasting}
+		
+		# Update malus now, that the score is already computed
+		[call common/update-malus] $performer
 		
 		[if $local.castScore < $local.vsScore]
 			[message] $> ${args.performer.label//uc1} miscasts ^/${args.item.label}^:!

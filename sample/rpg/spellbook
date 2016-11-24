@@ -1,6 +1,7 @@
 
 [[doctype adventurer]]
 [[locales locales/*]]
+[[assets ../]]
 
 [module] @@../../script-lib/rpg/rpg.kfg
 [module] @@data.kfg
@@ -55,25 +56,24 @@
 					- shield
 		
 		[gosub fighting/fight]
-			[args]
-				distance: 16
-				allies:
-					- $roles.hero.entity
-					- $dog
-				foes:
-					- goblin
-					- goblin
-					- goblin
-					- goblin
-					- goblin
-					- goblin
-					- $goblin-boss
-					- goblin
-					- goblin
-					- goblin
-					- goblin
-					- goblin
-					- goblin
+			distance: 16
+			allies:
+				- $roles.hero.entity
+				- $dog
+			foes:
+				- goblin
+				- goblin
+				- goblin
+				- goblin
+				- goblin
+				- goblin
+				- $goblin-boss
+				- goblin
+				- goblin
+				- goblin
+				- goblin
+				- goblin
+				- goblin
 		
 		[next first-encounter]
 
@@ -84,16 +84,15 @@
 			$> He does not say much except grumbling something like “I'm the guardian”, then he starts rushing you with a giant club.
 		
 		[gosub fighting/fight]
-			[args]
-				distance: 10
-				allies:
-					- $roles.hero.entity
-				foes:
-					- guardian
-				deadlyPush:
-					bonus: 0
-					flavour:
-						$$> ^R${performer.label//uc1} pushes ${target.label} and ${target.label} falls off the cliff!
+			distance: 10
+			allies:
+				- $roles.hero.entity
+			foes:
+				- guardian
+			deadlyPush:
+				bonus: 0
+				flavour:
+					$$> ^R${performer.label//uc1} pushes ${target.label} and ${target.label} falls off the cliff!
 		
 		[next second-encounter]
 
@@ -105,16 +104,15 @@
 			$> He swings the air with its giant club as he taunts you, inviting you to go ahead fighting him.
 		
 		[gosub fighting/fight]
-			[args]
-				distance: 10
-				allies:
-					- $roles.hero.entity
-				foes:
-					- guardian
-				deadlyPush:
-					bonus: 6
-					flavour:
-						$$> ^RAs ${performer.label} charges, ${target.label} slips from the wooden beam!
-						$$> ${target.label//uc1} falls into the chasm!
+			distance: 10
+			allies:
+				- $roles.hero.entity
+			foes:
+				- guardian
+			deadlyPush:
+				bonus: 6
+				flavour:
+					$$> ^RAs ${performer.label} charges, ${target.label} slips from the wooden beam!
+					$$> ${target.label//uc1} falls into the chasm!
 
 

@@ -1,0 +1,46 @@
+
+[[doctype spellcaster]]
+
+[spell merge]
+	[set $tree]
+		a: 1
+		b: 2
+		a: (+) 3
+	
+	[set $tree2]
+		a: (+) 7
+	
+	[set $tree3]
+		b: (*) 5
+	
+	[merge $tree => $out]
+	[message] $> tree.a: ${tree.a} tree.b: ${tree.b} out.a: ${out.a} out.b: ${out.b}
+	
+	[merge $tree , $tree2 => $out]
+	[message] $> tree.a: ${tree.a} tree.b: ${tree.b} out.a: ${out.a} out.b: ${out.b}
+	
+	[merge $tree , $tree2 , $tree3 => $out]
+	[message] $> tree.a: ${tree.a} tree.b: ${tree.b} out.a: ${out.a} out.b: ${out.b}
+	
+	[set $tree]
+		a: 1
+		b: 2
+		a: (+) 3
+	[merge $tree]
+	[message] $> tree.a: ${tree.a} tree.b: ${tree.b}
+
+	[set $tree]
+		a: 1
+		b: 2
+		a: (+) 3
+	[merge $tree , $tree2]
+	[message] $> tree.a: ${tree.a} tree.b: ${tree.b}
+	
+	[set $tree]
+		a: 1
+		b: 2
+		a: (+) 3
+	[merge $tree , $tree2 , $tree3]
+	[message] $> tree.a: ${tree.a} tree.b: ${tree.b}
+
+	

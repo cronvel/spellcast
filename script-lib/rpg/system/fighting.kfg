@@ -4,6 +4,7 @@
 
 [system fighting]
 	
+	# We have to gosub to that scene, not call to a fn, because we need a fresh scope
 	[scene fight]
 		
 		[set $fight] <Object>
@@ -240,7 +241,8 @@
 		
 		[if $performer.params.battleCry && ( ( random ) <= $performer.params.battleCry )]
 			[if $performer.params.battleCryFlavour]
-				[apply-to $local.flavour] $= random-element $performer.params.battleCryFlavour
+				[set $local.battleCry] $= random-element $performer.params.battleCryFlavour
+				[apply $local.battleCry => $local.flavour] $
 				[message] $local.flavour
 			[else]
 				[message] $> ${performer.label//uc1} shouts!
@@ -262,13 +264,16 @@
 	
 	[fn npc-targeting]
 		
-		[if $fight.entityTurn.adhoc.fight.side = "allies"]
-			[set $local.enemies] $fight.aliveFoes
-		[else]
-			[set $local.enemies] $fight.aliveAllies
+		[set $local.possibleTargets] <Array>
 		
-		[set $local.index] $= random ( $local.enemies.length - 1 )
-		[set $fight.target] $local.enemies[$local.index]
+		[if ( $fight.entityTurn.adhoc.fight.side = "allies" ) xor ( $args.targetAllies )]
+			[concat $local.possibleTargets] $fight.aliveFoes
+		
+		[if ( $fight.entityTurn.adhoc.fight.side = "foes" ) xor ( $args.targetAllies )]
+			[concat $local.possibleTargets] $fight.aliveAllies
+		
+		[set $local.index] $= random ( $local.possibleTargets.length - 1 )
+		[set $fight.target] $local.possibleTargets[$local.index]
 	
 	
 	
@@ -311,10 +316,8 @@
 				[on-trigger]
 					[set $fight.entityTurn.adhoc.fight.offensiveness] -1
 		
-		[next pc-charge]
-			[label] Charge!
+		[next pc-charge] $> Charge!
 	
-		#[if ( $fight.distance > 0 ) && ( $fight.entityTurn.primary.ranged-fighting )]
 		[if $fight.entityTurn.primary.ranged-fighting]
 			[set $local.item] $fight.entityTurn.primary.ranged-fighting
 			
@@ -323,26 +326,30 @@
 			[else]
 				[set $local.label] $> Shoot
 			
-			[next pc-ranged-fighting]
-				[label] $> ${local.label//uc1}
+			[next pc-ranged-fighting] $> ${local.label//uc1}
 		
-		#[next inventory/equip-ability]
-		#	[label] Choose an ability
-	
+		[if $fight.entityTurn.primary.battle-ability]
+			[set $local.item] $fight.entityTurn.primary.battle-ability
+			
+			[if $local.item.usages.battle-ability.primary.params.menuLabel]
+				[set $local.label] $local.item.usages.battle-ability.primary.params.menuLabel
+			[else]
+				[set $local.label] $> Use ability
+			
+			[next pc-battle-ability] $> ${local.label//uc1}
+		
 		[next pc-turn]
 			[label] Select primary ability or object
 			[on-trigger]
 				[gosub inventory/select-ability-choose-primary]
-					[args]
-						performer: $fight.entityTurn
+					performer: $fight.entityTurn
 	
 		[next pc-turn]
 			[label] Equip object in hand
 			[on-trigger]
 				[gosub inventory/equip-object => $local.changed]
-					[args]
-						performer: $fight.entityTurn
-						slot: hand
+					performer: $fight.entityTurn
+					slot: hand
 				[if $local.changed]
 					[set $fight.entityTurn.adhoc.fight.speed] 0
 					[set $fight.entityTurn.adhoc.fight.offensiveness] -1
@@ -355,18 +362,21 @@
 	[scene pc-targeting]
 		[set $local.count] 0
 		
-		[if $fight.entityTurn.adhoc.fight.side = "allies"]
-			[set $local.enemies] $fight.aliveFoes
-		[else]
-			[set $local.enemies] $fight.aliveAllies
+		[set $local.possibleTargets] <Array>
 		
-		[if $local.enemies.length <= 1]
-			[set $fight.target] $local.enemies[0]
+		[if ( $fight.entityTurn.adhoc.fight.side = "allies" ) xor ( $args.targetAllies )]
+			[concat $local.possibleTargets] $fight.aliveFoes
+		
+		[if ( $fight.entityTurn.adhoc.fight.side = "foes" ) xor ( $args.targetAllies )]
+			[concat $local.possibleTargets] $fight.aliveAllies
+		
+		[if $local.possibleTargets.length <= 1]
+			[set $fight.target] $local.possibleTargets[0]
 			[return]
 		
 		[message] Target?
 		
-		[foreach $local.enemies => $local.index : $local.entity]
+		[foreach $local.possibleTargets => $local.index : $local.entity]
 			[if $local.entity.adhoc.fight.offensiveness > 0]
 				[set $local.position] "←"
 			[elseif $local.entity.adhoc.fight.offensiveness < 0]
@@ -379,7 +389,7 @@
 					index: $local.index
 				[label] $> ${local.position} ${local.entity.label//uc1}
 				[on-trigger]
-					[set $fight.target] $local.enemies[$args.index]
+					[set $fight.target] $local.possibleTargets[$args.index]
 	
 	
 	
@@ -387,15 +397,6 @@
 		[if $fight.distance = 0]
 			[gosub pc-targeting]
 		[call melee-fighting]
-			performer: $fight.entityTurn
-			target: $fight.target
-		[return]
-	
-	
-	
-	[scene pc-ranged-fighting]
-		[gosub pc-targeting]
-		[call ranged-fighting]
 			performer: $fight.entityTurn
 			target: $fight.target
 		[return]
@@ -412,138 +413,29 @@
 	
 	
 	
-	[fn deal-damages]
-		[if $args.target]
-			[set $target] $args.target
-		
-		[set $local.usage] $= $args.usage ? $args.usage "melee-fighting"
-		[set $local.faces] $= $args.faces ? $args.faces 6
-		
-		# Damage level
-		[if $args.damages is-real?]
-			[set $local.attackScore] $= $args.damages + ( 2 D $local.faces )
-		[else]
-			[set $local.attackScore] $= $performer.actualUsages[$local.usage].compound.damages + ( 2 D $local.faces )
-			
-			# Attacker offensiveness is used only when not using fixed damage base
-			[if $performer.adhoc.fight.offensiveness > 0]
-				[add $local.attackScore] 2
-			[elseif $performer.adhoc.fight.offensiveness < 0]
-				[sub $local.attackScore] 3
-			
-		
-		[set $local.defenseScore] $= $target.actual.stats.resilience + ( 2 D 6 )
-		
-		# Always used?
-		[if $target.adhoc.fight.offensiveness > 0]
-			[sub $local.defenseScore] 3
-		[elseif $target.adhoc.fight.offensiveness < 0]
-			[add $local.defenseScore] 2
-		
-		#[message] $> ${local.attackScore} vs ${local.defenseScore}
-		
-		[set $damages] $= ( ( $local.attackScore - $local.defenseScore ) + ( random ) ) - 0.5
-		
-		
-		[if $args.bonus is-real?]
-			[add $damages] $args.bonus
-		
-		#[message] $> damages: ${damages}
-		
-		# This is the magic formula that transform damage levels into real hit point loss, with the correct feeling
-		# damage-level = +20 is needed for an instant death
-		[set $damages] $= round ( 10 * ( 2 ^ ( $damages / 6 ) ) )
-		
-		#[message] $> damages: ${damages}
-		
-		[sub $target.status.hp] $damages
-		
-		[if $damages >= 100]
-			[if $args.fatalHitFlavour is-set?]
-				[apply-to $local.flavour] $args.fatalHitFlavour
-			[elseif $args.criticalHitFlavour is-set?]
-				[apply-to $local.flavour] $args.criticalHitFlavour
-			[elseif $args.hitFlavour is-set?]
-				[apply-to $local.flavour] $args.hitFlavour
-			[elseif $performer.actualUsages[$local.usage].params.fatalHitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usage].params.fatalHitFlavour
-			[elseif $performer.actualUsages[$local.usage].params.criticalHitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usage].params.criticalHitFlavour
-			[elseif $performer.actualUsages[$local.usage].params.hitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usage].params.hitFlavour
-			[else]
-				[set $local.flavour] $> ^r${performer.label//uc1} deadly hits ${target.label} for ${damages} hp.
-		[elseif $damages >= 25]
-			[if $args.criticalHitFlavour is-set?]
-				[apply-to $local.flavour] $args.criticalHitFlavour
-			[elseif $args.hitFlavour is-set?]
-				[apply-to $local.flavour] $args.hitFlavour
-			[elseif $performer.actualUsages[$local.usage].params.criticalHitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usage].params.criticalHitFlavour
-			[elseif $performer.actualUsages[$local.usage].params.hitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usage].params.hitFlavour
-			[else]
-				[set $local.flavour] $> ^r${performer.label//uc1} critically hits ${target.label} for ${damages} hp.
-		[else]
-			[if $args.hitFlavour is-set?]
-				[apply-to $local.flavour] $args.hitFlavour
-			[elseif $performer.actualUsages[$local.usage].params.hitFlavour is-set?]
-				[apply-to $local.flavour] $performer.actualUsages[$local.usage].params.hitFlavour
-			[else]
-				[set $local.flavour] $> ^r${performer.label//uc1} hits ${target.label} for ${damages} hp.
-		
-		[message] $local.flavour
-		
-		[if $target.status.hp <= 0]
-			[message] $> ^R^+${target.label//uc1} is dead.
+	[scene pc-ranged-fighting]
+		[gosub pc-targeting]
+		[call ranged-fighting]
+			performer: $fight.entityTurn
+			target: $fight.target
+		[return]
 	
 	
 	
-	[fn splash-effect]
-		#[debug info] $args
-		
-		[foreach $fight.aliveEntities => $target]
-			
-			[if $args.exclude has $target]
-				[continue]
-			
-			[set $targetPos] $target.adhoc.fight.position
-			
-			[if ( hypot ( $targetPos.x - $args.position.x ) ( $targetPos.y - $args.position.y ) ) <= $args.radius]
-				
-				[set $local.attackScore] $= $args.attack + ( 2 D 8 )
-				[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense + ( 2 D 8 )
-				
-				[call pressure] $target
-				
-				[if $target.adhoc.fight.offensiveness > 0]
-					[sub $local.defenseScore] 3
-					[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
-				[elseif $target.adhoc.fight.offensiveness < 0]
-					[add $local.defenseScore] 2
-					# Less sensible to the pressure when defending
-					[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
-				[else]
-					[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
-				
-				[if $local.attackScore > $local.defenseScore]
-					[call deal-damages]
-						target: $target
-						hitFlavour: $args.hitFlavour
-						criticalHitFlavour: $args.criticalHitFlavour
-						fatalHitFlavour: $args.fatalHitFlavour
-						damages: $args.damages
-				
-				[else]
-					[if $args.missFlavour]
-						[apply-to $flavour] $args.missFlavour
-						[message] $flavour
-			
+	[scene pc-battle-ability]
+		#[gosub pc-targeting]
+		[call battle-ability]
+			performer: $fight.entityTurn
+			#target: $fight.target
+		[return]
+	
 	
 	
 	[fn melee-fighting]
 		[set $performer] $args.performer
 		[set $target] $args.target
+		
+		[set $item] $performer.primary.melee-fighting
 		
 		[set $performer.adhoc.fight.speed] $= $performer.adhoc.fight.offensiveness ??? 2 4 6
 		
@@ -560,15 +452,26 @@
 			
 			[return]
 			
-		
-		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
-		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
-		
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] $= $performer.adhoc.fight.offensiveness ??? 3 4 6
 		
 		[call pressure] $performer
 		[call pressure] $target
+		
+		[if $performer.actualUsages.melee-fighting.params.spellLevel is-set?]
+			[call spellcasting/cast => $local.casted]
+				performer: $performer
+				item: $item
+				usage: $performer.actualUsages.melee-fighting
+				bonus: $= - ( ceil ( $performer.adhoc.fight.pressure / 4 ) )
+			[if ! $local.casted]
+				[return]
+		
+		#[if ! $performer.npc]
+		#	[message] $> ^KAttack: ${performer.actualUsages.melee-fighting.compound.attack}
+		
+		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
+		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
 		
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
@@ -598,6 +501,73 @@
 		[if $local.attackScore > $local.defenseScore]
 			[call deal-damages]
 			
+			[call effects]
+				performer: $performer
+				target: $target
+				position: $target.adhoc.fight.position
+				actualUsage: $performer.actualUsages.ranged-fighting
+			
+		[else]
+			[fortune]
+				- $> ${performer.label//uc1} misses ${target.label}.
+				- $> ${target.label//uc1} blocks ${performer.label}.
+				- $> ${target.label//uc1} avoids ${performer.label}.
+	
+	
+	
+	[fn charge]
+		[set $performer] $args.performer
+		[set $target] $args.target
+		
+		[set $performer.adhoc.fight.speed] 10
+		[set $performer.adhoc.fight.offensiveness] 1
+		
+		[if $fight.distance > 0]
+			[set $performer.adhoc.fight.pressTarget] null
+			[set $performer.adhoc.fight.pressValue] 0
+			[message] $> ${performer.label//uc1} charges toward the opposing crew.
+			[return]
+		
+		
+		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
+		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
+		
+		[set $performer.adhoc.fight.pressTarget] $target
+		[set $performer.adhoc.fight.pressValue] 6
+		
+		[call pressure] $performer
+		[call pressure] $target
+		
+		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
+		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
+		
+		# A charge is always offensive!
+		[add $local.attackScore] 2
+		# Charge is less sensible to the pressure
+		[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 4 )
+		
+		[if $target.adhoc.fight.offensiveness > 0]
+			[sub $local.defenseScore] 3
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+		[elseif $target.adhoc.fight.offensiveness < 0]
+			[add $local.defenseScore] 2
+			# Less sensible to the pressure when defending
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
+		[else]
+			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+		
+		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
+		
+		[message] $> ${performer.label//uc1} charges ${target.label}!
+		
+		[if $local.attackScore > $local.defenseScore]
+			[call deal-damages]
+			
+			[if $fight.deadlyPush]
+				[call deadly-push]
+		[elseif ( $local.attackScore = $local.defenseScore ) && $fight.deadlyPush]
+			[message] $> ${target.label//uc1} blocks ${performer.label}.
+			[call deadly-push]
 		[else]
 			[fortune]
 				- $> ${performer.label//uc1} misses ${target.label}.
@@ -622,13 +592,6 @@
 		
 		[set $performer.adhoc.fight.speed] 0
 		[set $performer.adhoc.fight.offensiveness] -1
-		
-		[if ! $performer.primary.ranged-fighting]
-			# Should never happen
-			[set $performer.adhoc.fight.pressTarget] null
-			[set $performer.adhoc.fight.pressValue] 0
-			[message] $> ${performer.label//uc1} can't fire anything.
-			[return]
 		
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] 4
@@ -694,7 +657,7 @@
 		
 		[if $local.aimingScore < $local.guardScore]
 			[if $target.actualUsages.ranged-fighting.params.guardFlavour is-set?]
-				[apply-to $local.flavour] $target.actualUsages.ranged-fighting.params.guardFlavour
+				[apply $target.actualUsages.ranged-fighting.params.guardFlavour => $local.flavour] $
 				[message] $local.flavour
 			[else]
 				[message] $> ${performer.label//uc1} misses ${target.label}.
@@ -704,7 +667,7 @@
 		[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense + ( 2 D 12 )
 		
 		# The longer the distance, the better the chance to evade the ranged-fighting
-		[sub $local.attackScore] $= floor ( $fight.distance / 8 )
+		[sub $local.attackScore] $= $fight.distance \\ 8
 		
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
@@ -727,21 +690,13 @@
 		[if $local.attackScore > $local.defenseScore]
 			[call deal-damages]
 				faces: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 6 10
-				usage: ranged-fighting
+				usage: $performer.actualUsages.ranged-fighting
 			
-			[if $performer.actualUsages.ranged-fighting.params.splash]
-				[call splash-effect]
-					exclude:
-						- $performer
-						- $target
-					position: $target.adhoc.fight.position
-					attack: $= $performer.actualUsages.ranged-fighting.compound.attack + $performer.actualUsages.ranged-fighting.params.splash.attack
-					damages: $= $performer.actualUsages.ranged-fighting.compound.damages + $performer.actualUsages.ranged-fighting.params.splash.damages
-					radius: $performer.actualUsages.ranged-fighting.params.splash.radius
-					missFlavour: $performer.actualUsages.ranged-fighting.params.splash.missFlavour
-					hitFlavour: $performer.actualUsages.ranged-fighting.params.splash.hitFlavour
-					criticalHitFlavour: $performer.actualUsages.ranged-fighting.params.splash.criticalHitFlavour
-					fatalHitFlavour: $performer.actualUsages.ranged-fighting.params.splash.fatalHitFlavour
+			[call effects]
+				performer: $performer
+				target: $target
+				position: $target.adhoc.fight.position
+				usage: $performer.actualUsages.ranged-fighting
 			
 		[else]
 			[fortune]
@@ -750,64 +705,341 @@
 	
 	
 	
-	[fn charge]
+	[fn battle-ability]
 		[set $performer] $args.performer
-		[set $target] $args.target
+		[set $local.usage] $performer.actualUsages.battle-ability
+		[set $local.target] $performer
+		[set $local.position] $performer.adhoc.fight.position
 		
-		[set $performer.adhoc.fight.speed] 10
-		[set $performer.adhoc.fight.offensiveness] 1
+		[if $local.usage.params.targeting]
+			[if $performer.npc]
+				[call npc-targeting]
+					targetAllies: $local.usage.params.targetAllies
+			[else]
+				[gosub pc-targeting]
+					targetAllies: $local.usage.params.targetAllies
+			[set $local.target] $fight.target
+			[set $local.position] $fight.target.adhoc.fight.position
 		
-		[if $fight.distance > 0]
-			[set $performer.adhoc.fight.pressTarget] null
-			[set $performer.adhoc.fight.pressValue] 0
-			[message] $> ${performer.label//uc1} charges toward the opposing crew.
-			[return]
+		[set $item] $performer.primary.battle-ability
 		
-		
-		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
-		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
-		
-		[set $performer.adhoc.fight.pressTarget] $target
-		[set $performer.adhoc.fight.pressValue] 6
+		# Check if the ability has its own speed and offensiveness value
+		[if $item.params.speed is-number?]
+			[set $performer.adhoc.fight.speed] $= $item.params.speed
+		[if $item.params.offensiveness is-number?]
+			[set $performer.adhoc.fight.offensiveness] $= $item.params.offensiveness
 		
 		[call pressure] $performer
-		[call pressure] $target
 		
-		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
-		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
+		[if $local.usage.params.spellLevel is-set?]
+			[call spellcasting/cast => $local.casted]
+				performer: $performer
+				item: $item
+				usage: $local.usage
+				bonus: $= - ( ceil ( $performer.adhoc.fight.pressure / 4 ) )
+			[if ! $local.casted]
+				[return]
 		
-		# A charge is always offensive!
-		[add $local.attackScore] 2
-		# Charge is less sensible to the pressure
-		[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 4 )
+		#[debugf error]
+		#	- stats %Y
+		#	- $performer.actualUsages.battle-ability
 		
+		[call effects]
+			performer: $performer
+			target: $local.target
+			position: $local.position
+			usage: $local.usage
+	
+	
+	
+	[fn deal-damages]
+		[if $args.target]
+			[set $target] $args.target
+		
+		[if ! $args.usage]
+			[set $args.usage] $performer.actualUsages.melee-fighting
+		
+		[set $local.faces] $= $args.faces ? $args.faces 6
+		
+		# Damage level
+		[if $args.damages is-real?]
+			[set $local.attackScore] $= $args.damages + ( 2 D $local.faces )
+			#[if ! $performer.npc]
+			#	[message] $> ^KD: ${args.damages}
+		[else]
+			[set $local.attackScore] $= $args.usage.compound.damages + ( 2 D $local.faces )
+			#[if ! $performer.npc]
+			#	[message] $> ^KD: ${args.usage.compound.damages}
+			
+			# Attacker offensiveness is used only when not using fixed damage base
+			[if $performer.adhoc.fight.offensiveness > 0]
+				[add $local.attackScore] 2
+			[elseif $performer.adhoc.fight.offensiveness < 0]
+				[sub $local.attackScore] 3
+			
+		
+		[set $local.defenseScore] $= $target.actual.stats.resilience + ( 2 D $local.faces )
+		
+		# Always used?
 		[if $target.adhoc.fight.offensiveness > 0]
 			[sub $local.defenseScore] 3
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 		[elseif $target.adhoc.fight.offensiveness < 0]
 			[add $local.defenseScore] 2
-			# Less sensible to the pressure when defending
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
+		
+		#[message] $> ${local.attackScore} vs ${local.defenseScore}
+		
+		[set $damages] $= ( ( $local.attackScore - $local.defenseScore ) + ( random ) ) - 0.5
+		
+		
+		[if $args.bonus is-real?]
+			[add $damages] $args.bonus
+		
+		#[message] $> damages: ${damages}
+		
+		# This is the magic formula that transform damage levels into real hit point loss, with the correct feeling
+		# damage-level = +20 is needed for an instant death
+		[set $damages] $= round ( 10 * ( 2 ^ ( $damages / 6 ) ) )
+		
+		#[message] $> damages: ${damages}
+		
+		[sub $target.status.hp] $damages
+		
+		[call common/update-malus] $target
+		
+		[if $damages >= 100]
+			[if $args.fatalHitFlavour is-set?]
+				[apply $args.fatalHitFlavour => $local.flavour] $
+			[elseif $args.criticalHitFlavour is-set?]
+				[apply $args.criticalHitFlavour => $local.flavour] $
+			[elseif $args.hitFlavour is-set?]
+				[apply $args.hitFlavour => $local.flavour] $
+			[elseif $args.usage.params.fatalHitFlavour is-set?]
+				[apply $args.usage.params.fatalHitFlavour => $local.flavour] $
+			[elseif $args.usage.params.criticalHitFlavour is-set?]
+				[apply $args.usage.params.criticalHitFlavour => $local.flavour] $
+			[elseif $args.usage.params.hitFlavour is-set?]
+				[apply $args.usage.params.hitFlavour => $local.flavour] $
+			[else]
+				[set $local.flavour] $> ^r${performer.label//uc1} deadly hits ${target.label} for ${damages} hp.
+		[elseif $damages >= 25]
+			[if $args.criticalHitFlavour is-set?]
+				[apply $args.criticalHitFlavour => $local.flavour] $
+			[elseif $args.hitFlavour is-set?]
+				[apply $args.hitFlavour => $local.flavour] $
+			[elseif $args.usage.params.criticalHitFlavour is-set?]
+				[apply $args.usage.params.criticalHitFlavour => $local.flavour] $
+			[elseif $args.usage.params.hitFlavour is-set?]
+				[apply $args.usage.params.hitFlavour => $local.flavour] $
+			[else]
+				[set $local.flavour] $> ^r${performer.label//uc1} critically hits ${target.label} for ${damages} hp.
 		[else]
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+			[if $args.hitFlavour is-set?]
+				[apply $args.hitFlavour => $local.flavour] $
+			[elseif $args.usage.params.hitFlavour is-set?]
+				[apply $args.usage.params.hitFlavour => $local.flavour] $
+			[else]
+				[set $local.flavour] $> ^r${performer.label//uc1} hits ${target.label} for ${damages} hp.
 		
-		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
+		[message] $local.flavour
 		
-		[message] $> ${performer.label//uc1} charges ${target.label}!
+		[if $target.status.hp <= 0]
+			[message] $> ^R^+${target.label//uc1} is dead.
+	
+	
+	
+	[fn heal-damages]
+		[if $args.target]
+			[set $target] $args.target
 		
-		[if $local.attackScore > $local.defenseScore]
-			[call deal-damages]
+		[if ! $args.usage]
+			[set $args.usage] $performer.actualUsages.battle-ability
+		
+		#[message] $> ^Khealing -- checking: ${target.label}
+		
+		#[if $target.status.hp >= 100]
+		#	[return]
+		
+		[set $local.faces] $= $args.faces ? $args.faces 4
+		
+		# Heal level
+		[if $args.healing is-real?]
+			[set $local.healScore] $= $args.healing + ( 2 D $local.faces )
+		[else]
+			[set $local.healScore] $= $args.usage.compound.healing + ( 2 D $local.faces )
+		
+		[set $local.defenseScore] $= $target.actual.stats.resilience + ( 2 D $local.faces )
+		
+		#[message] $> ^K${local.healScore} vs ${local.defenseScore}
+		
+		[set $healing] $= ( ( $local.healScore - $local.defenseScore ) + ( random ) ) - 0.5
+		
+		
+		[if $args.bonus is-real?]
+			[add $healing] $args.bonus
+		
+		#[message] $> ^Khealing: ${healing}
+		
+		# This is the magic formula that transform heal levels into real hit point gain.
+		# If the target has +10 resilience over another one, it gets two times less healing.
+		[set $healing] $= round ( 10 * ( 2 ^ ( $healing / 10 ) ) )
+		
+		#[message] $> ^Khealing: ${healing}
+		
+		# Cap the healing
+		[set $healing] $= min $healing ( 100 - $target.status.hp )
+		
+		#[if $healing <= 0]
+		#	[return]
+		
+		[add $target.status.hp] $healing
+		
+		[call common/update-malus] $target
+		
+		[if $args.flavour is-set?]
+			[apply $args.flavour => $local.flavour] $
+		[elseif $args.usage.params.flavour is-set?]
+			[apply $args.usage.params.flavour => $local.flavour] $
+		[else]
+			[set $local.flavour] $> ^r${performer.label//uc1} heals ${target.label} for ${healing} hp.
+		
+		[message] $local.flavour
+	
+	
+	
+	[fn effects]
+		[if $args.usage.params.effects is-empty?]
+			[return]
+		
+		[foreach $args.usage.params.effects => $local.effect]
 			
-			[if $fight.deadlyPush]
-				[call deadly-push]
-		[elseif ( $local.attackScore = $local.defenseScore ) && $fight.deadlyPush]
-			[message] $> ${target.label//uc1} blocks ${performer.label}.
-			[call deadly-push]
-		[else]
-			[fortune]
-				- $> ${performer.label//uc1} misses ${target.label}.
-				- $> ${target.label//uc1} blocks ${performer.label}.
-				- $> ${target.label//uc1} avoids ${performer.label}.
+			[set $local.exclude] <Array>
+			
+			[if $local.effect.filter.excludeSelf]
+				[append $local.exclude] $args.performer
+			
+			[if $local.effect.filter.excludeTarget]
+				[append $local.exclude] $args.target
+			
+			[if $local.effect.filter.type = "radius"]
+				[call radius-filter => $local.entities]
+					exclude: $local.exclude
+					position: $args.position
+					radius: $local.effect.filter.radius
+			[else]
+				[set $local.entities]
+					- $args.target
+			
+			# If the effect has modifiers, apply them now
+			[if $local.effect.mods]
+				[merge $args.usage.compound , $local.effect.mods => $local.effectCompound]
+			[else]
+				[set $local.effectCompound] $args.usage.compound
+			
+			[if $local.effect.type = "attack"]
+				[call attack-effect]
+					entities: $local.entities
+					attack: $= $local.effectCompound.attack
+					damages: $= $local.effectCompound.damages
+					defenseType: $local.effect.defenseType
+					missFlavour: $local.effect.missFlavour
+					hitFlavour: $local.effect.hitFlavour
+					criticalHitFlavour: $local.effect.criticalHitFlavour
+					fatalHitFlavour: $local.effect.fatalHitFlavour
+			[elseif $local.effect.type = "healing"]
+				[call healing-effect]
+					entities: $local.entities
+					healing: $= $local.effectCompound.healing
+					flavour: $local.effect.flavour
+	
+	
+	
+	[fn radius-filter]
+		#[debug info] $args
+		
+		[set $local.entities] <Array>
+		
+		[foreach $fight.aliveEntities => $local.target]
+			
+			[if $args.exclude has $local.target]
+				[continue]
+			
+			# Clone it, it can be modified
+			[clone $local.targetPos] $local.target.adhoc.fight.position
+			#[set $local.targetPos] $local.target.adhoc.fight.position
+			
+			# If the target is currently attacking/pressing the current position and is not defensive,
+			# act as if its y twice as close as the spash y position, because of encirclement
+			[set $local.pressPos] $= $local.target.adhoc.fight.pressTarget.adhoc.fight.position
+			#[debugf warning]
+			#	- "Target name: %s\nSplash position: %Y\nTarget position: %Y\nPress position: %Y"
+			#	- $local.target.label
+			#	- $args.position
+			#	- $local.targetPos
+			#	- $local.pressPos
+			
+			[if $local.pressPos && ( $local.target.adhoc.fight.offensiveness >= 0 ) && ( $local.pressPos.x = $args.position.x ) && ( $local.pressPos.y = $args.position.y )]
+				# Divide the delta-y by 2
+				[set $local.targetPos.y] $= avg $local.targetPos.y $args.position.y
+				#[debugf warning]
+				#	- Target %s is included! position changed to %Y
+				#	- $local.target.label
+				#	- $local.targetPos
+			
+			[set $local.distance] $= hypot ( $local.targetPos.x - $args.position.x ) ( $local.targetPos.y - $args.position.y )
+			
+			[if $local.distance <= $args.radius]
+				
+				[append $local.entities] $local.target
+		
+		[return] $local.entities
+	
+	
+	
+	[fn attack-effect]
+		
+		[if $args.usageType is-empty?]
+			[set $args.defenseType] ranged-fighting
+		
+		[foreach $args.entities => $target]
+			
+			[set $local.attackScore] $= $args.attack + ( 2 D 8 )
+			[set $local.defenseScore] $= $target.actualUsages[$args.defenseType].compound.defense + ( 2 D 8 )
+			
+			[call pressure] $target
+			
+			[if $target.adhoc.fight.offensiveness > 0]
+				[sub $local.defenseScore] 3
+				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+			[elseif $target.adhoc.fight.offensiveness < 0]
+				[add $local.defenseScore] 2
+				# Less sensible to the pressure when defending
+				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
+			[else]
+				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+			
+			[if $local.attackScore > $local.defenseScore]
+				[call deal-damages]
+					target: $target
+					hitFlavour: $args.hitFlavour
+					criticalHitFlavour: $args.criticalHitFlavour
+					fatalHitFlavour: $args.fatalHitFlavour
+					damages: $args.damages
+			
+			[else]
+				[if $args.missFlavour]
+					[apply $args.missFlavour => $local.flavour] $
+					[message] $local.flavour
+	
+	
+	
+	[fn healing-effect]
+		
+		[foreach $args.entities => $target]
+			
+			[call heal-damages]
+				target: $target
+				flavour: $args.flavour
+				healing: $args.healing
 	
 	
 	
@@ -836,7 +1068,7 @@
 		
 		[if $local.attackScore > $local.defenseScore]
 			[set $target.status.hp] 0
-			[apply-to $local.flavour] $fight.deadlyPush.flavour
+			[apply $fight.deadlyPush.flavour => $local.flavour] $
 			[message] $local.flavour
 		
 		

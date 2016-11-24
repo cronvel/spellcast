@@ -83,7 +83,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Div Tag](#ref.ops.div)
 		* [Swap Tag](#ref.ops.swap)
 		* [Clone Tag](#ref.ops.clone)
-		* [Apply-to Tag](#ref.ops.apply-to)
+		* [Apply Tag](#ref.ops.apply)
+		* [Merge Tag](#ref.ops.merge)
 		* [Array Operators Tags](#ref.ops.array-ops)
 			* [Append Tag](#ref.ops.append)
 			* [Prepend Tag](#ref.ops.prepend)
@@ -110,6 +111,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Entity-class Tag](#ref.rpg.entity-class)
 		* [Entity-model Tag](#ref.rpg.entity-model)
 		* [Create-entity Tag](#ref.rpg.create-entity)
+		* [Update-entity Tag](#ref.rpg.update-entity)
 		* [Entity-compound-stats Tag](#ref.rpg.entity-compound-stats)
 		* [Usage-compound-stats Tag](#ref.rpg.usage-compound-stats)
 		* [Item-model Tag](#ref.rpg.item-model)
@@ -138,8 +140,9 @@ Options:
 * `--locale-list`: List the available locales
 * `--assets <URL>`: Set the asset base URL (default: main book directory)
 * `--ws-server [<port>]`: Create a web socket server (default to port 57311)
+* `--http-content`: Create a HTTP server for content, sharing the port of the web socket server
 * `--token <token>`: Add a token to server accepted token list (can be used multiple times)
-* `--browser , - B <exe>`: Open the browser <exe>, force --ws-server
+* `--browser , - B <exe>`: Open the browser <exe>, force --ws-server and --http-content
 * `--client-ui <name>`: Set the UI for the local client (use with --browser)
 * `--client-name <name>`: Set the name of the local client user
 * `--script-debug`: Activate debug-level logs for scripts ([debug] tag)
@@ -438,7 +441,7 @@ If there is no *starting-scene* tag in a scenario, the first *scene* tag will be
 
 * types: run, exec
 * attribute style: scene label
-* content type: tags
+* content type: tags or string/template (the label)
 
 The *next* tag is one of the most important tag of Spellcast Scripting in *Adventurer mode*.
 
@@ -453,6 +456,14 @@ Once init is done, the *starting scene* is *exec*.
 The *starting scene* is either the [*starting-scene* tag](#ref.scenario.starting-scene), or the first registered *scene* tag.
 
 When the scene is executed, it simply runs all its inner tags.
+
+There is also a shorthand syntax where the content is only a string or a template containing the label.
+So `[next scene2] $> Tell him the truth` is the same than:
+
+```
+[next scene2]
+	[label] $> Tell him the truth
+```
 
 However, a *scene* has the following parameters tags:
 
@@ -640,6 +651,23 @@ Think of it as a new execution layer.
 If there is no *return* tag, there are implicit *returns* when a scene without any *next* tags is executed entirely:
 i.e. there is nothing more to do, so it returns.
 
+There is also a shorthand syntax where the content is an object containing the arguments. E.g.:
+
+```
+[gosub scene2]
+	a: 5
+	b: 7
+```
+
+... is the same than:
+
+```
+[gosub scene2]
+	[args]
+		a: 5
+		b: 7
+```
+
 
 
 <a name="ref.scenario.gosub.args"></a>
@@ -651,13 +679,6 @@ i.e. there is nothing more to do, so it returns.
 
 Since *gosub* creates a new context to run the target sub-scene, this tag is used to set the **$args** special variable
 for that sub-scene.
-
-
-
-<a name="ref.scenario.gosub.this"></a>
-### [this]
-
-**DEPRECATED.**
 
 
 
@@ -1304,16 +1325,70 @@ Read [this article](http://blog.soulserv.net/tag/cloning/) if you don't know wha
 
 
 
-<a name="ref.ops.apply-to"></a>
-## [apply-to *$var*]
+<a name="ref.ops.apply"></a>
+## [apply *$applicable-var* => *$target-var*]
 
 * types: run
-* attribute style: var
-* content type: an applicable object
+* attribute style: apply syntax
+* content type: a context object
 
-The *apply-to* tag apply its content, that should be an
-[applicable object](https://github.com/cronvel/kung-fig/blob/master/doc/lib.md#ref.Dynamic.apply),
-and put the result into the *$var* variable.
+The *apply* tag uses its content as a context to *render* a template or any
+[applicable object](https://github.com/cronvel/kung-fig/blob/master/doc/lib.md#ref.Dynamic.apply)
+stored into the *$applicable-var*, and put the result into the *$target-var* variable.
+
+Example:
+
+```
+[set $template] $$> Hello ${first-name} ${last-name}!
+[apply $template => $text]
+	first-name: Joe
+	last-name: Doe
+[message] $text
+```
+
+... will output: `Hello Joe Doe!`.
+
+
+
+<a name="ref.ops.merge"></a>
+## [merge *$source-var*] , [merge *$source-var* => *$target-var*] , [merge *$source-var1* , *$source-var2*] , [merge *$source-var1* , *$source-var2* => *$target-var*] 
+
+* types: run
+* attribute style: merge syntax
+* content type: none
+
+The *merge* tag is used to perform
+[Kung Fig's tree operations](https://github.com/cronvel/kung-fig/blob/master/doc/KFG.md#ref.treeops).
+
+Multiple *$source-var* can be specified, separated by comma (surrounded by at least one space on each side),
+that will be merged together.
+
+The syntax without a *$target-var* uses the
+[Kung Fig's .autoReduce() method](https://github.com/cronvel/kung-fig/blob/master/doc/lib.md#ref.treeops.autoReduce),
+so it merges and reduces into the first *$source-var*.
+
+The syntax with a *$target-var* uses the
+[Kung Fig's .reduce()](https://github.com/cronvel/kung-fig/blob/master/doc/lib.md#ref.treeops.reduce)
+so it doesn't modify any *$source-var*, but instead it puts the result into the *$target-var* variable.
+
+Example:
+
+```
+[set $character]
+	name: Jörgl, the Barbarian
+	hp: 8
+	attack: 5
+	defense: 4
+
+[set $amulet-of-protection]
+	defense: (+) 1
+	hp: (+) 2
+
+[merge $character , $amulet-of-protection => $final]
+```
+
+The *$character* and *$amulet-of-protection* variables will be merged in the *$final* variable
+to produce `{ "name": "Jörgl, the Barbarian", "hp": 10 , "attack": 5 , "defense": 5 }`.
 
 
 
@@ -1859,6 +1934,21 @@ TODO: documentation
 
 
 
+<a name="ref.rpg.update-entity"></a>
+## [update-entity *$var*]
+
+* types: run
+* attribute style: var
+* content type: none
+
+The *update-entity* tag is used to update the entity stored the variable: it computes again compound stats.
+
+It should be used whenever the script has modified a stat, a skill or a status that is involved in compound stats.
+
+Some tags do it automatically, e.g. the [*equip*](#ref.rpg.equip) and [*unequip*](#ref.rpg.unequip) tags.
+
+
+
 <a name="ref.rpg.entity-compound-stats"></a>
 ## [entity-compound-stats *entity-class-label*]
 
@@ -1985,6 +2075,8 @@ This will equip *$hero* with the *$sword*, and set it as the primary item for th
 	primary: melee-fighting
 ```
 
+**It automatically [update the entity](#ref.rpg.update-entity)**.
+
 
 
 <a name="ref.rpg.unequip"></a>
@@ -2015,6 +2107,8 @@ This will unequip the item *$sword* in the hands of the *$hero*:
 [unequip $hero]
 	item: $sword
 ```
+
+**It automatically [update the entity](#ref.rpg.update-entity)**.
 
 
 
