@@ -3,13 +3,6 @@ body {
 	font-size: 16px;
 }
 
-#gfx {
-	user-select: none;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-}
-
 .scene-image {
 	position: fixed;
 	z-index: 0;
@@ -22,59 +15,11 @@ body {
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
-<<<<<<< HEAD:browser/themes/default.css
-=======
-	
-	/*cursor: pointer;*/
-	
+
+	cursor: pointer;
+
 	opacity: 1;
 	transition: opacity 2s ;
-}
->>>>>>> master:lib/clients/web/app.css
-
-	cursor: pointer;
-
-<<<<<<< HEAD:browser/themes/default.css
-	opacity: 1;
-	transition: opacity 2s ;
-=======
-.sprite {
-	position: absolute;
-	height: 50%;
-	z-index: 2;
-	opacity: 1;
-	transition: all 1s ;
-	pointer-events: none;
-}
-
-.sprite.clickable {
-	cursor: pointer;
-	pointer-events: auto;
-}
-
-.sprite.clickable:hover {
-	filter: drop-shadow(0px 0px 5px red)
-}
-
-.spriteMask {
-	position: absolute;
-	height: 50%;
-	z-index: 1;
-	opacity: 1;
-	transition: all 1s ;
-	
-	/* "none" should be put on the <svg> tag itself, "painted" on the <path> tag */
-	pointer-events: none;
-}
-
-.spriteMask.clickable path {
-	cursor: pointer;
-	pointer-events: painted;
-}
-
-.spriteMask.clickable path:hover {
-	filter: drop-shadow(0px 0px 50px red)
->>>>>>> master:lib/clients/web/app.css
 }
 
 #content {
