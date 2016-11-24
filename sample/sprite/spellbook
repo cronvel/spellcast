@@ -72,6 +72,9 @@
 				bottom: 0
 				transition: 1s
 		
+		#[pause] 2000
+		#[return]
+		
 		[fake-show-sprite another-one]
 			url: shaman.png
 			label: A Druidess!

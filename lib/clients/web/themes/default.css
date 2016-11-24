@@ -16,7 +16,7 @@ body {
 	background-repeat: no-repeat;
 	background-size: cover;
 
-	cursor: pointer;
+	/*cursor: pointer;*/
 
 	opacity: 1;
 	transition: opacity 2s ;

@@ -1,3 +1,4 @@
+
 html , body {
 	margin: 0;
 	padding: 0;
@@ -61,29 +62,53 @@ body {
 
 
 
-div.sprite {
-	position: absolute;
-	width: 50%;
-	height: 50%;
-	z-index: 1;
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: contain;
-	opacity: 1;
-	transition: all 1s ;
+#gfx {
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
 }
 
-img.sprite {
+
+
+.sprite {
+	position: absolute;
+	height: 50%;
+	z-index: 2;
+	opacity: 1;
+	transition: all 1s ;
+	pointer-events: none;
+}
+
+.sprite.clickable {
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.sprite.clickable:hover {
+	filter: drop-shadow(0px 0px 5px red)
+}
+
+.spriteMask {
 	position: absolute;
 	height: 50%;
 	z-index: 1;
 	opacity: 1;
 	transition: all 1s ;
+	
+	/* "none" should be put on the <svg> tag itself, "painted" on the <path> tag */
+	pointer-events: none;
 }
 
-img.sprite.clickable:hover {
-	filter: drop-shadow(0px 0px 0.2em red)
+.spriteMask.clickable path {
+	cursor: pointer;
+	pointer-events: painted;
 }
+
+.spriteMask.clickable path:hover {
+	filter: drop-shadow(0px 0px 50px red)
+}
+
 
 
 #lobby #connection {
