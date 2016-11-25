@@ -96,9 +96,11 @@
 			[filter $fight.allies => $fight.aliveAllies] $= $this.status.hp > 0
 			
 			[if ! $fight.aliveAllies.length]
-				[goto lost]
+				[call lost]
+				[return]
 			[elseif ! $fight.aliveFoes.length]
-				[goto win]
+				[call win]
+				[return]
 			
 			
 			# Former scene new-turn:
@@ -138,7 +140,7 @@
 		
 	
 	
-	[scene win]
+	[fn win]
 		[message] $> ${fight.allies[0].label//uc1} win the fight.
 		[set $local.xpReward] 0
 		
@@ -154,7 +156,7 @@
 	
 	
 	
-	[scene lost]
+	[fn lost]
 		[message] $> ${fight.allies[0].label//uc1} died on the battlefield.
 		[lost]
 	
