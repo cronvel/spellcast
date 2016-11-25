@@ -166,7 +166,7 @@ Dom.prototype.addMessage = function addMessage( text , options , callback )
 {
 	callback = callback || noop ;
 
-	var textElement = document.createElement('p') ;
+	var textElement = document.createElement( 'p' ) ;
 	textElement.classList.add( 'text' ) ;
 	
 	//textElement.textContent = text ;
@@ -201,7 +201,7 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 		var buttonElement = document.createElement('button') ;
 		buttonElement.classList.add( 'choice' , choice.type ) ;
 		buttonElement.setAttribute( 'data-isOrdered' , choice.orderedList ) ;
-
+		
 		buttonElement.textContent = choice.label ;
 
 		if ( choice.selectedBy && choice.selectedBy.length )
@@ -209,7 +209,8 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 			var spanElement = document.createElement('span') ;
 			spanElement.classList.add( 'italic' , 'brightBlack' ) ;
 
-			spanElement.textContent = choice.selectedBy.join( ', ' ) ;
+			// Add an extra space to separate from the label text
+			spanElement.textContent = ' ' + choice.selectedBy.join( ', ' ) ;
 			buttonElement.appendChild( spanElement ) ;
 		}
 
@@ -240,7 +241,7 @@ Dom.prototype.setChoices = function setChoices( choices , undecidedNames , timeo
 
 		if ( undecidedNames && undecidedNames.length )
 		{
-			var $unassignedUsers = document.createElement('p') ;
+			var $unassignedUsers = document.createElement( 'p' ) ;
 			$unassignedUsers.classList.add( 'unassigned-users' ) ;
 			$unassignedUsers.textContent = undecidedNames.join( ', ' ) ;
 			self.$next.appendChild( $unassignedUsers ) ;
@@ -253,19 +254,20 @@ Dom.prototype.setChoices = function setChoices( choices , undecidedNames , timeo
 
 
 // This is used when the scene update its choices details (selectedBy, ...)
+// /!\ TEMP! This does not update but just reset, just like .setChoices()
 Dom.prototype.updateChoices = function setChoices( choices , undecidedNames , timeout , onSelect , callback )
 {
 	var self = this ;
 
 	callback = callback || noop ;
 
-	// TEMP! This does not update but just reset, just like .setChoices()
+	// /!\ TEMP! This does not update but just reset, just like .setChoices()
 	this.clearChoices( function() {
 		self.addChoices( choices , onSelect , callback ) ;
 
 		if ( undecidedNames && undecidedNames.length )
 		{
-			var $unassignedUsers = document.createElement('p') ;
+			var $unassignedUsers = document.createElement( 'p' ) ;
 			$unassignedUsers.classList.add( 'unassigned-users' ) ;
 			$unassignedUsers.textContent = undecidedNames.join( ', ' ) ;
 			self.$next.appendChild( $unassignedUsers ) ;
@@ -281,7 +283,7 @@ Dom.prototype.choiceTimeout = function choiceTimeout( timeout )
 {
 	var startTime = Date.now() , $timer , timer ;
 
-	$timer = document.createElement('p') ;
+	$timer = document.createElement( 'p' ) ;
 	$timer.classList.add( 'timer' ) ;
 	$timer.textContent = Math.round( timeout / 1000 ) ;
 
@@ -313,9 +315,31 @@ Dom.prototype.disableChat = function disableChat()
 
 
 
+Dom.prototype.clearHint = function clearHint()
+{
+	domTools.empty( this.$hint ) ;
+} ;
+
+
+
+Dom.prototype.setBigHint = function setBigHint( text , classes )
+{
+	var $hint = document.createElement( 'h2' ) ;
+	$hint.textContent = text ;
+	if ( classes ) { domKit.class( $hint , classes ) ; }
+	domTools.empty( this.$hint ) ;
+	this.$hint.appendChild( $hint ) ;
+} ;
+
+
+
+			/* GFX */
+
+
+
 Dom.prototype.setSceneImage = function setSceneImage( data )
 {
-	var self = this , cleaned = false ;
+	var cleaned = false ;
 	
 	var $oldSceneImage = this.$sceneImage ;
 
@@ -425,7 +449,7 @@ Dom.prototype.showSprite = function showSprite( id , data )
 // internalSprite is used for internal update call
 Dom.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 {
-	var self = this , sprite , $element ;
+	var sprite , $element ;
 	
 	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
 
@@ -540,7 +564,7 @@ Dom.prototype.animateSprite = function animateSprite( spriteId , animationId )
 
 
 
-Dom.prototype.clearSprite = function clearSprite( id , data )
+Dom.prototype.clearSprite = function clearSprite( id )
 {
 	var sprite ;
 
@@ -557,6 +581,10 @@ Dom.prototype.clearSprite = function clearSprite( id , data )
 	
 	delete this.sprites[ id ] ;
 } ;
+
+
+
+			/* SFX */
 
 
 
@@ -584,10 +612,10 @@ Dom.prototype.music = function music( data )
 		{
 			if ( oldSrc !== data.url )
 			{
-				fadeOut( this.$music , function() {
+				soundFadeOut( this.$music , function() {
 					self.$music.setAttribute( 'src' , data.url ) ;
 					self.$music.play() ;
-					fadeIn( self.$music ) ;
+					soundFadeIn( self.$music ) ;
 				} ) ;
 			}
 			else if ( this.$music.ended )
@@ -602,14 +630,14 @@ Dom.prototype.music = function music( data )
 			this.$music.volume = 0 ;
 			this.$music.setAttribute( 'src' , data.url ) ;
 			this.$music.play() ;
-			fadeIn( this.$music ) ;
+			soundFadeIn( this.$music ) ;
 		}
 	}
 	else
 	{
 		if ( oldSrc )
 		{
-			fadeOut( this.$music , function() {
+			soundFadeOut( this.$music , function() {
 				self.$music.removeAttribute( 'src' ) ;
 			} ) ;
 		}
@@ -618,12 +646,12 @@ Dom.prototype.music = function music( data )
 
 
 
-var FADE_TIMEOUT = 10 ;
-var FADE_VALUE = 0.01 ;
+var SOUND_FADE_TIMEOUT = 10 ;
+var SOUND_FADE_VALUE = 0.01 ;
 
 
 
-function fadeIn( element , callback )
+function soundFadeIn( element , callback )
 {
 	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
 
@@ -633,13 +661,13 @@ function fadeIn( element , callback )
 		return ;
 	}
 
-	element.volume = Math.min( 1 , element.volume + FADE_VALUE ) ;
-	element.__fadeTimer = setTimeout( fadeIn.bind( undefined , element , callback ) , FADE_TIMEOUT ) ;
+	element.volume = Math.min( 1 , element.volume + SOUND_FADE_VALUE ) ;
+	element.__fadeTimer = setTimeout( soundFadeIn.bind( undefined , element , callback ) , SOUND_FADE_TIMEOUT ) ;
 }
 
 
 
-function fadeOut( element , callback )
+function soundFadeOut( element , callback )
 {
 	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
 
@@ -649,8 +677,8 @@ function fadeOut( element , callback )
 		return ;
 	}
 
-	element.volume = Math.max( 0 , element.volume - FADE_VALUE ) ;
-	element.__fadeTimer = setTimeout( fadeOut.bind( undefined , element , callback ) , FADE_TIMEOUT ) ;
+	element.volume = Math.max( 0 , element.volume - SOUND_FADE_VALUE ) ;
+	element.__fadeTimer = setTimeout( soundFadeOut.bind( undefined , element , callback ) , SOUND_FADE_TIMEOUT ) ;
 }
 
 
@@ -1480,7 +1508,6 @@ UI.rejoin = function rejoin() {} ;
 
 
 
-// DOM
 UI.wait = function wait( what )
 {
 	var self = this ;
@@ -1488,15 +1515,11 @@ UI.wait = function wait( what )
 	switch ( what )
 	{
 		case 'otherBranches' :
-			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="wait pulse-animation">WAITING FOR OTHER BRANCHES TO FINISH...</h2>'
-			) ;
-			this.bus.once( 'rejoin' , function() { self.$hint.innerHTML = '' ; } ) ;
+			this.dom.setBigHint( "WAITING FOR OTHER BRANCHES TO FINISH..." , { wait: true , "pulse-animation": true } ) ;
+			this.bus.once( 'rejoin' , function() { self.dom.clearHint() ; } ) ;
 			break ;
 		default :
-			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="wait pulse-animation">WAITING FOR ' + what +'</h2>'
-			) ;
+			this.dom.setBigHint( "WAITING FOR " + what , { wait: true , "pulse-animation": true } ) ;
 	}
 } ;
 
@@ -1556,9 +1579,9 @@ UI.animateSprite = function animateSprite( spriteId , animationId )
 
 
 
-UI.clearSprite = function clearSprite( id , data )
+UI.clearSprite = function clearSprite( id )
 {
-	this.dom.clearSprite( id , data ) ;
+	this.dom.clearSprite( id ) ;
 } ;
 
 
@@ -1579,31 +1602,22 @@ UI.music = function music( data )
 
 
 
-// DOM
 // Exit event
 UI.end = function end( result , data )
 {
 	switch ( result )
 	{
 		case 'end' :
-			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="end">The End.</h2>'
-			) ;
+			this.dom.setBigHint( 'The End.' , { end: true } ) ;
 			break ;
 		case 'win' :
-			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="end win">You win!</h2>'
-			) ;
+			this.dom.setBigHint( 'You Win!' , { end: true , win: true } ) ;
 			break ;
 		case 'lost' :
-			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="end lost">You lose...</h2>'
-			) ;
+			this.dom.setBigHint( 'You Lose...' , { end: true , lost: true } ) ;
 			break ;
 		case 'draw' :
-			this.$hint.insertAdjacentHTML( 'beforeend' ,
-				'<h2 class="end draw">Draw.</h2>'
-			) ;
+			this.dom.setBigHint( 'Draw.' , { end: true , draw: true } ) ;
 			break ;
 	}
 
@@ -1617,6 +1631,7 @@ UI.exit = function exit()
 	//term( "\n" ) ;
 	//term.styleReset() ;
 } ;
+
 
 },{"../Dom.js":1,"../toolkit.js":3,"dom-kit":6,"kung-fig/lib/treeOps.js":9,"path":13,"tree-kit/lib/extend.js":23}],5:[function(require,module,exports){
 
