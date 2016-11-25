@@ -32,8 +32,11 @@
 
 
 var domKit = require( 'dom-kit' ) ;
+var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
 
 function noop() {}
+
+
 
 var domTools = {
 	empty: function( $node ) {
@@ -55,6 +58,7 @@ Dom.create = function create()
 	var self = Object.create( Dom.prototype ) ;
 
 	self.$gfx = document.querySelector( '#gfx' ) ;
+	self.$sceneImage = document.querySelector( '.scene-image' ) ;
 	self.$content = document.querySelector( '#content' ) ;
 	self.$text = document.querySelector( '#text' ) ;
 	self.$chat = document.querySelector( '#chat' ) ;
@@ -68,6 +72,9 @@ Dom.create = function create()
 	self.$sound1 = document.querySelector( '#sound1' ) ;
 	self.$sound2 = document.querySelector( '#sound2' ) ;
 	self.$sound3 = document.querySelector( '#sound3' ) ;
+	
+	self.sprites = {} ;
+	self.animations = {} ;
 	
 	self.hideContentTimer = null ;
 	
@@ -304,10 +311,254 @@ Dom.prototype.disableChat = function disableChat()
 
 
 
+Dom.prototype.setSceneImage = function setSceneImage( data )
+{
+	var self = this , cleaned = false ;
+	
+	var $oldSceneImage = this.$sceneImage ;
+
+	console.warn( "setSceneImage: " , data ) ;
+	this.$sceneImage = document.createElement( 'div' ) ;
+	this.$sceneImage.classList.add( 'scene-image' ) ;
+
+	if ( data.url )
+	{
+		this.$sceneImage.style.backgroundImage = 'url("' + data.url + '")' ;
+	}
+
+	if ( data.origin && typeof data.origin === 'string' )
+	{
+		this.$sceneImage.style.backgroundPosition = data.origin ;
+	}
+
+	var cleanUp = function cleanUp() {
+		if ( cleaned ) { return ; }
+		cleaned = true ;
+		$oldSceneImage.remove() ;
+	} ;
+
+	if ( $oldSceneImage )
+	{
+		$oldSceneImage.addEventListener( 'transitionend' , cleanUp , false ) ;
+		this.$gfx.insertBefore( this.$sceneImage , $oldSceneImage ) ;
+		$oldSceneImage.classList.add( 'hidden' ) ;
+
+		// For some very obscure reason, sometime we don't get the 'transitionend' event,
+		// Maybe no transition happend at all... So we need to clean up anyway after a while...
+		setTimeout( cleanUp , 2000 ) ;
+	}
+	else
+	{
+		this.$gfx.insertBefore( this.$sceneImage , this.$gfx.firstChild || null ) ;
+	}
+
+	switch ( data.position )
+	{
+		case 'left' :
+			this.$content.setAttribute( 'data-position' , 'right' ) ;
+			break ;
+		case 'right' :	// jshint ignore:line
+		default :
+			this.$content.setAttribute( 'data-position' , 'left' ) ;
+			break ;
+	}
+} ;
 
 
 
-},{"dom-kit":6}],2:[function(require,module,exports){
+Dom.prototype.showSprite = function showSprite( id , data )
+{
+	var self = this , sprite , oldSprite ;
+
+	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+
+	oldSprite = this.sprites[ id ] ;
+
+	sprite = this.sprites[ id ] = {
+		animation: null ,
+		action: null ,
+		style: {}
+	} ;
+
+	sprite.$img = document.createElement( 'img' ) ;
+	sprite.$img.classList.add( 'sprite' ) ;
+	
+	if ( data.maskUrl )
+	{
+		console.warn( 'has mask!' ) ;
+		
+		domKit.svg.load( null , data.maskUrl , {
+				class: { spriteMask: true , clickable: true } ,
+				css: data.style ,
+				noWidthHeightAttr: true
+			} ,
+			function( error , svg ) {
+				if ( error ) { console.warn( error ) ; return ; }
+				sprite.$mask = svg ;
+				
+				// /!\ Duplicated code:
+				
+				self.updateSprite( null , data , sprite ) ;
+				
+				if ( oldSprite ) { oldSprite.$img.remove() ; }
+				
+				self.$gfx.append( sprite.$img ) ;
+				self.$gfx.append( sprite.$mask ) ;
+			}
+		) ;
+		
+		return ;
+	}
+		
+	this.updateSprite( null , data , sprite ) ;
+
+	if ( oldSprite ) { oldSprite.$img.remove() ; }
+	
+	this.$gfx.append( sprite.$img ) ;
+} ;
+
+
+
+// internalSprite is used for internal update call
+Dom.prototype.updateSprite = function updateSprite( id , data , internalSprite )
+{
+	var self = this , sprite , $element ;
+	
+	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
+
+	if ( internalSprite )
+	{
+		sprite = internalSprite ;
+	}
+	else
+	{
+		if ( ! this.sprites[ id ] )
+		{
+			console.warn( 'Unknown sprite id: ' , id ) ;
+			return ;
+		}
+
+		sprite = this.sprites[ id ] ;
+	}
+
+	delete data.style.position ;
+
+	if ( data.url )
+	{
+		sprite.$img.setAttribute( "src" , data.url ) ;
+	}
+
+	if ( data.action !== undefined )
+	{
+		$element = sprite.$mask || sprite.$img ;
+		
+		if ( data.action && ! sprite.action )
+		{
+			sprite.onClick = function( event ) {
+				console.warn( "action triggered: " , sprite.action ) ;
+				self.bus.emit( 'action' , sprite.action ) ;
+				event.stopPropagation() ;
+			} ;
+			
+			$element.classList.add( 'clickable' ) ;
+			$element.addEventListener( 'click' , sprite.onClick ) ;
+		}
+		else if ( ! data.action && sprite.action )
+		{
+			$element.classList.remove( 'clickable' ) ;
+			$element.removeEventListener( 'click' , sprite.onClick ) ;
+		}
+
+		sprite.action = data.action || null ;
+	}
+
+	//treeExtend( { deep: true } , sprite , data ) ;
+	treeExtend( null , sprite.style , data.style ) ;
+
+	// Use data.style, NOT sprite.style: we have to set only new/updated styles
+	domKit.css( sprite.$img , data.style ) ;
+	
+	// Update the mask, if any
+	if ( sprite.$mask )
+	{
+		console.warn( 'update mask!' ) ;
+		domKit.css( sprite.$mask , data.style ) ;
+	}
+} ;
+
+
+
+Dom.prototype.animateSprite = function animateSprite( spriteId , animationId )
+{
+	var self = this , sprite , animation , frame , frameIndex = 0 ;
+
+	if ( ! this.sprites[ spriteId ] )
+	{
+		console.warn( 'Unknown sprite id: ' , spriteId ) ;
+		return ;
+	}
+
+	if ( ! this.animations[ animationId ] )
+	{
+		console.warn( 'Unknown animation id: ' , animationId ) ;
+		return ;
+	}
+
+	sprite = this.sprites[ spriteId ] ;
+	animation = this.animations[ animationId ] ;
+	sprite.animation = animationId ;
+
+	// What should be done if an animation is already running???
+
+	//console.warn( "Animation: " , animation ) ;
+
+	// If there is no frames, quit now
+	if ( ! Array.isArray( animation.frames ) || ! animation.frames.length ) { return ; }
+
+	var nextFrame = function() {
+		frame = animation.frames[ frameIndex ] ;
+
+		// Update the sprite
+		self.updateSprite( null , frame , sprite ) ;
+
+		if ( ++ frameIndex < animation.frames.length )
+		{
+			setTimeout( nextFrame , frame.duration * 1000 ) ;
+		}
+		else
+		{
+			// This is the end of the animation...
+			// Restore something here?
+			sprite.animation = null ;
+		}
+	} ;
+
+	nextFrame() ;
+} ;
+
+
+
+Dom.prototype.clearSprite = function clearSprite( id , data )
+{
+	var sprite ;
+
+	if ( ! this.sprites[ id ] )
+	{
+		console.warn( 'Unknown sprite id: ' , id ) ;
+		return ;
+	}
+
+	sprite = this.sprites[ id ] ;
+
+	sprite.$img.remove() ;
+	if ( sprite.$mask ) { sprite.$mask.remove() ; }
+	
+	delete this.sprites[ id ] ;
+} ;
+
+
+
+},{"dom-kit":6,"tree-kit/lib/extend.js":23}],2:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -644,8 +895,8 @@ function UI( bus , client , self )
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
 			nextSoundChannel: { value: 0 , writable: true , enumerable: true } ,
-			sprites: { value: {} , enumerable: true } ,
-			animations: { value: {} , enumerable: true } ,
+			//sprites: { value: {} , enumerable: true } ,
+			//animations: { value: {} , enumerable: true } ,
 			dom: { value: Dom.create() } ,
 		} ) ;
 	}
@@ -694,7 +945,6 @@ UI.prototype.initInteractions = function initInteractions()
 
 	// Chat
 	this.$chatForm.onsubmit = UI.onChatSubmit.bind( this ) ;
-	
 } ;
 
 
@@ -912,20 +1162,6 @@ UI.message = function message( text , options , callback )
 		callback() ;
 	} ;
 
-	/*
-	if ( options.slowTyping )
-	{
-		term.slowTyping( text + '\n' , triggerCallback ) ;
-		return ;
-	}
-	*/
-
-	/*
-	this.$text.insertAdjacentHTML( 'beforeend' ,
-		'<p class="text">' + text + '</p>'
-	) ;
-	*/
-
 	this.dom.addMessage( text , options , triggerCallback ) ;
 } ;
 
@@ -1078,6 +1314,7 @@ UI.extErrorOutput = function extErrorOutput( output )
 
 
 
+// DOM
 // Text input field
 UI.textInput = function textInput( label , grantedRoleIds )
 {
@@ -1145,6 +1382,7 @@ UI.rejoin = function rejoin() {} ;
 
 
 
+// DOM
 UI.wait = function wait( what )
 {
 	var self = this ;
@@ -1168,54 +1406,8 @@ UI.wait = function wait( what )
 
 UI.image = function image( data )
 {
-	var self = this , cleaned = false ;
-
-	var div = document.createElement( 'div' ) ;
-	div.classList.add( 'scene-image' ) ;
-
-	if ( data.url )
-	{
-		div.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
-	}
-
-	if ( data.origin && typeof data.origin === 'string' )
-	{
-		div.style.backgroundPosition = data.origin ;
-	}
-
-	var oldImage = this.$gfx.firstElementChild || null ;
-
-	var cleanUp = function cleanUp() {
-		if ( cleaned ) { return ; }
-		cleaned = true ;
-		oldImage.remove() ;
-	} ;
-
-	if ( oldImage )
-	{
-		oldImage.addEventListener( 'transitionend' , cleanUp , false ) ;
-		this.$gfx.insertBefore( div , oldImage ) ;
-		oldImage.classList.add( 'hidden' ) ;
-
-		// For some very obscure reason, sometime we don't get the 'transitionend' event,
-		// Maybe no transition happend at all... So we need to clean up anyway after a while...
-		setTimeout( cleanUp , 2000 ) ;
-	}
-	else
-	{
-		this.$gfx.append( div ) ;
-	}
-
-	switch ( data.position )
-	{
-		case 'left' :
-			this.$content.setAttribute( 'data-position' , 'right' ) ;
-			break ;
-		case 'right' :	// jshint ignore:line
-		default :
-			this.$content.setAttribute( 'data-position' , 'left' ) ;
-			break ;
-	}
+	if ( data.url ) { data.url = this.cleanUrl( data.url ) ; }
+	this.dom.setSceneImage( data ) ;
 } ;
 
 
@@ -1227,198 +1419,51 @@ UI.defineAnimation = function defineAnimation( id , data )
 
 
 
-// Using an <img> tag
 UI.showSprite = function showSprite( id , data )
 {
-	var self = this , sprite , oldSprite ;
-
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
-
-	oldSprite = this.sprites[ id ] ;
-
-	sprite = this.sprites[ id ] = {
-		animation: null ,
-		action: null ,
-		style: {}
+	
+	data.url = this.cleanUrl( data.url ) ;
+	if ( data.maskUrl ) { data.maskUrl = this.cleanUrl( data.maskUrl ) ; }
+	
+	/*
+	data.onClick = function( event ) {
+		console.warn( "action triggered: " , sprite.action ) ;
+		self.bus.emit( 'action' , sprite.action ) ;
+		event.stopPropagation() ;
 	} ;
-
-	sprite.$img = document.createElement( 'img' ) ;
-	sprite.$img.classList.add( 'sprite' ) ;
+	*/
 	
-	if ( data.maskUrl )
-	{
-		console.warn( 'has mask!' ) ;
-		
-		dom.svg.load( null , this.cleanUrl( data.maskUrl ) , {
-				class: { spriteMask: true , clickable: true } ,
-				css: data.style ,
-				noWidthHeightAttr: true
-			} ,
-			function( error , svg ) {
-				if ( error ) { console.warn( error ) ; return ; }
-				sprite.$mask = svg ;
-				
-				// /!\ Duplicated code:
-				
-				self.updateSprite( null , data , sprite ) ;
-				
-				if ( oldSprite ) { oldSprite.$img.remove() ; }
-				
-				self.$gfx.append( sprite.$img ) ;
-				self.$gfx.append( sprite.$mask ) ;
-			}
-		) ;
-		
-		return ;
-	}
-		
-	this.updateSprite( null , data , sprite ) ;
-
-	if ( oldSprite ) { oldSprite.$img.remove() ; }
-	
-	this.$gfx.append( sprite.$img ) ;
+	this.dom.showSprite( id , data ) ;
 } ;
 
 
 
-// internalSprite is used for internal update call
-UI.prototype.updateSprite = function updateSprite( id , data , internalSprite )
+UI.prototype.updateSprite = function updateSprite( id , data )
 {
-	var self = this , sprite , $element ;
+	if ( data.url ) { data.url = this.cleanUrl( data.url ) ; }
+	if ( data.maskUrl ) { data.maskUrl = this.cleanUrl( data.maskUrl ) ; }
 	
-	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
-
-	if ( internalSprite )
-	{
-		sprite = internalSprite ;
-	}
-	else
-	{
-		if ( ! this.sprites[ id ] )
-		{
-			console.warn( 'Unknown sprite id: ' , id ) ;
-			return ;
-		}
-
-		sprite = this.sprites[ id ] ;
-	}
-
-	delete data.style.position ;
-
-	if ( data.url )
-	{
-		sprite.$img.setAttribute( "src" , this.cleanUrl( data.url ) ) ;
-	}
-
-	if ( data.action !== undefined )
-	{
-		var $element = sprite.$mask || sprite.$img ;
-		
-		if ( data.action && ! sprite.action )
-		{
-			sprite.onClick = function( event ) {
-				console.warn( "action triggered: " , sprite.action ) ;
-				self.bus.emit( 'action' , sprite.action ) ;
-				event.stopPropagation() ;
-			} ;
-			
-			$element.classList.add( 'clickable' ) ;
-			$element.addEventListener( 'click' , sprite.onClick ) ;
-		}
-		else if ( ! data.action && sprite.action )
-		{
-			$element.classList.remove( 'clickable' ) ;
-			$element.removeEventListener( 'click' , sprite.onClick ) ;
-		}
-
-		sprite.action = data.action || null ;
-	}
-
-	//treeExtend( { deep: true } , sprite , data ) ;
-	treeExtend( null , sprite.style , data.style ) ;
-
-	// Use data.style, NOT sprite.style: we have to set only new/updated styles
-	dom.css( sprite.$img , data.style ) ;
-	
-	// Update the mask, if any
-	if ( sprite.$mask )
-	{
-		console.warn( 'update mask!' ) ;
-		dom.css( sprite.$mask , data.style ) ;
-	}
+	this.dom.updateSprite( id , data ) ;
 } ;
 
 
 
 UI.animateSprite = function animateSprite( spriteId , animationId )
 {
-	var self = this , sprite , animation , frame , frameIndex = 0 ;
-
-	if ( ! this.sprites[ spriteId ] )
-	{
-		console.warn( 'Unknown sprite id: ' , spriteId ) ;
-		return ;
-	}
-
-	if ( ! this.animations[ animationId ] )
-	{
-		console.warn( 'Unknown animation id: ' , animationId ) ;
-		return ;
-	}
-
-	sprite = this.sprites[ spriteId ] ;
-	animation = this.animations[ animationId ] ;
-	sprite.animation = animationId ;
-
-	// What should be done if an animation is already running???
-
-	//console.warn( "Animation: " , animation ) ;
-
-	// If there is no frames, quit now
-	if ( ! Array.isArray( animation.frames ) || ! animation.frames.length ) { return ; }
-
-	var nextFrame = function() {
-		frame = animation.frames[ frameIndex ] ;
-
-		// Update the sprite
-		self.updateSprite( null , frame , sprite ) ;
-
-		if ( ++ frameIndex < animation.frames.length )
-		{
-			setTimeout( nextFrame , frame.duration * 1000 ) ;
-		}
-		else
-		{
-			// This is the end of the animation...
-			// Restore something here?
-			sprite.animation = null ;
-		}
-	} ;
-
-	nextFrame() ;
+	this.dom.animateSprite( spriteId , animationId ) ;
 } ;
 
 
 
 UI.clearSprite = function clearSprite( id , data )
 {
-	var sprite ;
-
-	if ( ! this.sprites[ id ] )
-	{
-		console.warn( 'Unknown sprite id: ' , id ) ;
-		return ;
-	}
-
-	sprite = this.sprites[ id ] ;
-
-	sprite.$img.remove() ;
-
-	delete this.sprites[ id ] ;
+	this.dom.clearSprite( id , data ) ;
 } ;
 
 
 
+// DOM
 UI.sound = function sound( data )	// maybe? , callback )
 {
 	var element = this[ '$sound' + this.nextSoundChannel ] ;
@@ -1432,6 +1477,7 @@ UI.sound = function sound( data )	// maybe? , callback )
 
 
 
+// DOM
 UI.music = function music( data )
 {
 	var self = this ,
@@ -1482,6 +1528,7 @@ var FADE_VALUE = 0.01 ;
 
 
 
+// DOM
 function fadeIn( element , callback )
 {
 	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
@@ -1498,6 +1545,7 @@ function fadeIn( element , callback )
 
 
 
+// DOM
 function fadeOut( element , callback )
 {
 	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
@@ -1514,6 +1562,7 @@ function fadeOut( element , callback )
 
 
 
+// DOM
 // Exit event
 UI.end = function end( result , data )
 {
