@@ -73,6 +73,8 @@ Dom.create = function create()
 	self.$sound2 = document.querySelector( '#sound2' ) ;
 	self.$sound3 = document.querySelector( '#sound3' ) ;
 	
+	self.nextSoundChannel = 0 ;
+	
 	self.sprites = {} ;
 	self.animations = {} ;
 	
@@ -375,9 +377,10 @@ Dom.prototype.showSprite = function showSprite( id , data )
 	oldSprite = this.sprites[ id ] ;
 
 	sprite = this.sprites[ id ] = {
-		animation: null ,
+		actionCallback: data.actionCallback ,
 		action: null ,
-		style: {}
+		style: {} ,
+		animation: null
 	} ;
 
 	sprite.$img = document.createElement( 'img' ) ;
@@ -455,8 +458,7 @@ Dom.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 		if ( data.action && ! sprite.action )
 		{
 			sprite.onClick = function( event ) {
-				console.warn( "action triggered: " , sprite.action ) ;
-				self.bus.emit( 'action' , sprite.action ) ;
+				sprite.actionCallback( sprite.action ) ;
 				event.stopPropagation() ;
 			} ;
 			
@@ -555,6 +557,102 @@ Dom.prototype.clearSprite = function clearSprite( id , data )
 	
 	delete this.sprites[ id ] ;
 } ;
+
+
+
+Dom.prototype.sound = function sound( data )	// maybe? , callback )
+{
+	var element = this[ '$sound' + this.nextSoundChannel ] ;
+	console.warn( '$sound' + this.nextSoundChannel , data , element ) ;
+	this.nextSoundChannel = ( this.nextSoundChannel + 1 ) % 4 ;
+
+	element.setAttribute( 'src' , data.url ) ;
+
+	element.play() ;
+} ;
+
+
+
+Dom.prototype.music = function music( data )
+{
+	var self = this ,
+		oldSrc = this.$music.getAttribute( 'src' ) ;
+
+	if ( data.url )
+	{
+		if ( oldSrc )
+		{
+			if ( oldSrc !== data.url )
+			{
+				fadeOut( this.$music , function() {
+					self.$music.setAttribute( 'src' , data.url ) ;
+					self.$music.play() ;
+					fadeIn( self.$music ) ;
+				} ) ;
+			}
+			else if ( this.$music.ended )
+			{
+				// We are receiving a music event for the same last music url,
+				// but last playback ended, so play it again.
+				this.$music.play() ;
+			}
+		}
+		else
+		{
+			this.$music.volume = 0 ;
+			this.$music.setAttribute( 'src' , data.url ) ;
+			this.$music.play() ;
+			fadeIn( this.$music ) ;
+		}
+	}
+	else
+	{
+		if ( oldSrc )
+		{
+			fadeOut( this.$music , function() {
+				self.$music.removeAttribute( 'src' ) ;
+			} ) ;
+		}
+	}
+} ;
+
+
+
+var FADE_TIMEOUT = 10 ;
+var FADE_VALUE = 0.01 ;
+
+
+
+function fadeIn( element , callback )
+{
+	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
+
+	if ( element.volume >= 1 )
+	{
+		if ( callback ) { callback() ; }
+		return ;
+	}
+
+	element.volume = Math.min( 1 , element.volume + FADE_VALUE ) ;
+	element.__fadeTimer = setTimeout( fadeIn.bind( undefined , element , callback ) , FADE_TIMEOUT ) ;
+}
+
+
+
+function fadeOut( element , callback )
+{
+	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
+
+	if ( element.volume <= 0 )
+	{
+		if ( callback ) { callback() ; }
+		return ;
+	}
+
+	element.volume = Math.max( 0 , element.volume - FADE_VALUE ) ;
+	element.__fadeTimer = setTimeout( fadeOut.bind( undefined , element , callback ) , FADE_TIMEOUT ) ;
+}
+
 
 
 
@@ -894,7 +992,7 @@ function UI( bus , client , self )
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
-			nextSoundChannel: { value: 0 , writable: true , enumerable: true } ,
+			//nextSoundChannel: { value: 0 , writable: true , enumerable: true } ,
 			//sprites: { value: {} , enumerable: true } ,
 			//animations: { value: {} , enumerable: true } ,
 			dom: { value: Dom.create() } ,
@@ -1426,15 +1524,17 @@ UI.showSprite = function showSprite( id , data )
 	data.url = this.cleanUrl( data.url ) ;
 	if ( data.maskUrl ) { data.maskUrl = this.cleanUrl( data.maskUrl ) ; }
 	
-	/*
-	data.onClick = function( event ) {
-		console.warn( "action triggered: " , sprite.action ) ;
-		self.bus.emit( 'action' , sprite.action ) ;
-		event.stopPropagation() ;
-	} ;
-	*/
+	data.actionCallback = UI.spriteActionCallback.bind( this ) ;
 	
 	this.dom.showSprite( id , data ) ;
+} ;
+
+
+
+UI.spriteActionCallback = function spriteActionCallback( action )
+{
+	console.warn( "action triggered: " , action ) ;
+	this.bus.emit( 'action' , action ) ;
 } ;
 
 
@@ -1463,102 +1563,19 @@ UI.clearSprite = function clearSprite( id , data )
 
 
 
-// DOM
 UI.sound = function sound( data )	// maybe? , callback )
 {
-	var element = this[ '$sound' + this.nextSoundChannel ] ;
-	console.warn( '$sound' + this.nextSoundChannel , data , element ) ;
-	this.nextSoundChannel = ( this.nextSoundChannel + 1 ) % 4 ;
-
-	element.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
-
-	element.play() ;
+	if ( data.url ) { data.url = this.cleanUrl( data.url ) ; }
+	this.dom.sound( data ) ;
 } ;
 
 
 
-// DOM
 UI.music = function music( data )
 {
-	var self = this ,
-		oldSrc = this.$music.getAttribute( 'src' ) ;
-
-	if ( data.url )
-	{
-		if ( oldSrc )
-		{
-			if ( oldSrc !== data.url )
-			{
-				fadeOut( this.$music , function() {
-					self.$music.setAttribute( 'src' , self.cleanUrl( data.url ) ) ;
-					self.$music.play() ;
-					fadeIn( self.$music ) ;
-				} ) ;
-			}
-			else if ( this.$music.ended )
-			{
-				// We are receiving a music event for the same last music url,
-				// but last playback ended, so play it again.
-				this.$music.play() ;
-			}
-		}
-		else
-		{
-			this.$music.volume = 0 ;
-			this.$music.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
-			this.$music.play() ;
-			fadeIn( this.$music ) ;
-		}
-	}
-	else
-	{
-		if ( oldSrc )
-		{
-			fadeOut( this.$music , function() {
-				self.$music.removeAttribute( 'src' ) ;
-			} ) ;
-		}
-	}
+	if ( data.url ) { data.url = this.cleanUrl( data.url ) ; }
+	this.dom.music( data ) ;
 } ;
-
-
-
-var FADE_TIMEOUT = 10 ;
-var FADE_VALUE = 0.01 ;
-
-
-
-// DOM
-function fadeIn( element , callback )
-{
-	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
-
-	if ( element.volume >= 1 )
-	{
-		if ( callback ) { callback() ; }
-		return ;
-	}
-
-	element.volume = Math.min( 1 , element.volume + FADE_VALUE ) ;
-	element.__fadeTimer = setTimeout( fadeIn.bind( undefined , element , callback ) , FADE_TIMEOUT ) ;
-}
-
-
-
-// DOM
-function fadeOut( element , callback )
-{
-	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
-
-	if ( element.volume <= 0 )
-	{
-		if ( callback ) { callback() ; }
-		return ;
-	}
-
-	element.volume = Math.max( 0 , element.volume - FADE_VALUE ) ;
-	element.__fadeTimer = setTimeout( fadeOut.bind( undefined , element , callback ) , FADE_TIMEOUT ) ;
-}
 
 
 
