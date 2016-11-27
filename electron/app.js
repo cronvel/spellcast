@@ -2,6 +2,7 @@
 
 
 const electron = require( 'electron' ) ;
+const querystring = require( 'querystring' ) ;
 
 // Module to control application life.
 const app = electron.app ;
@@ -13,18 +14,41 @@ const BrowserWindow = electron.BrowserWindow ;
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null ;
 
+// Manage command line arguments
+var args = require( 'minimist' )( process.argv.slice( 2 ) ) ;
+//console.log( "Args: " , args ) ;
+
 
 
 function createWindow ()
 {
+	var url ;
+	
+	if ( args.url )
+	{
+		url = args.url ;
+	}
+	else
+	{
+		var host = args.host || 'localhost' ;
+		var port = args.port || 57311 ;
+		
+		url = 'http://' + host + ':' + port + '/?' + querystring.stringify( {
+			port: port ,
+			token: args.token || 'no-token' ,
+			ui: args.ui || 'classic' ,
+			name: args.name || 'electron-client'
+		} ) ;
+	}
+	
 	// Create the browser window.
 	mainWindow = new BrowserWindow( { width: 800 , height: 600 } ) ;
 
 	// and load the index.html of the app.
-	mainWindow.loadURL( 'http://localhost:8080/?port=8080&token=a&name=Bob&ui=classic' ) ;
+	mainWindow.loadURL( url ) ;
 
 	// Open dev tools?
-	if ( process.argv.indexOf( '--dev' ) !== -1 ) { mainWindow.webContents.openDevTools() ; }
+	if ( args.dev ) { mainWindow.webContents.openDevTools() ; }
 
 	// Emitted when the window is closed.
 	mainWindow.on( 'closed' , function () {
