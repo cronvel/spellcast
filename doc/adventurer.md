@@ -142,7 +142,8 @@ Options:
 * `--ws-server [<port>]`: Create a web socket server (default to port 57311)
 * `--http`: Create a HTTP server for content, sharing the port of the web socket server
 * `--token <token>`: Add a token to server accepted token list (can be used multiple times)
-* `--browser , - B <exe>`: Open the browser <exe>, force --ws-server and --http
+* `--browser , -B <exe>`: Open a client browser <exe>, force --ws-server and --http
+* `--electron , -E`: Open Electron client, force --ws-server and --http
 * `--client-ui <name>`: Set the UI for the local client (use with --browser)
 * `--client-name <name>`: Set the name of the local client user
 * `--script-debug`: Activate debug-level logs for scripts ([debug] tag)
