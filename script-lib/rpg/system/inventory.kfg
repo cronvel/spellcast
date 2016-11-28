@@ -120,3 +120,53 @@
 						slot: $args.slot
 
 
+
+	[scene drop-grab]
+		#[debug error] $args.items
+		#[debug error] $args.performer
+		
+		[call grab-one] $args
+		[call drop-one] $args
+		
+	
+	
+	[fn grab-one]
+		
+		#[debug error] $args
+		
+		[foreach $args.stack => $local.index : $local.item]
+			[if $local.item.class != "object"]
+				[continue]
+			
+			[next]
+				[args]
+					performer: $args.performer
+					stack: $args.stack
+					item: $local.item
+				[label] $> Grab ${local.item.label//uc1}
+				[on-trigger]
+					[grab $args.performer]
+						item: $args.item
+						stack: $args.stack
+		
+	
+	
+	[fn drop-one]
+		
+		[foreach $args.performer.items => $local.index : $local.item]
+			[if $local.item.class != "object"]
+				[continue]
+			
+			[next]
+				[args]
+					performer: $args.performer
+					stack: $args.stack
+					item: $local.item
+				[label] $> Drop ${local.item.label//uc1}
+				[on-trigger]
+					[drop $args.performer]
+						item: $args.item
+						stack: $args.stack
+		
+
+

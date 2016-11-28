@@ -27,6 +27,26 @@
 			[label] Multiple foes.
 		[next first-encounter]
 			[label] One foe.
+		[next treasure]
+			[label] Treasure.
+	
+	
+	
+	[scene treasure]
+		[message]
+			$> You just found a treasure.
+		
+		[set $local.items] <Array>
+		[create-item $local.items[0]] dagger
+		[create-item $local.items[1]] axe
+		
+		[gosub inventory/drop-grab]
+			performer: $roles.hero.entity
+			stack: $local.items
+		
+		[next second-encounter]
+	
+	
 	
 	[scene goblin-camp]
 		[message]
