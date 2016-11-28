@@ -122,17 +122,32 @@
 
 
 	[scene drop-grab]
-		#[debug error] $args.items
-		#[debug error] $args.performer
+		[while ! $local.done]
+			[debugf info]
+				- -- Before -- Stack value: %Y
+				- $args.stack
+			[gosub drop-grab-one => $local.done] $args
+			[debugf info]
+				- -- After -- Stack value: %Y
+				- $args.stack
+	
+	
+	
+	[scene drop-grab-one]
+		[debug error] $args.stack
 		
+		[next]
+			[label] $> (Done)
+			[on-trigger]
+				[return] true
 		[call grab-one] $args
 		[call drop-one] $args
 		
 	
 	
 	[fn grab-one]
-		
 		#[debug error] $args
+		[set $local.stack] $args.stack
 		
 		[foreach $args.stack => $local.index : $local.item]
 			[if $local.item.class != "object"]
@@ -145,9 +160,17 @@
 					item: $local.item
 				[label] $> Grab ${local.item.label//uc1}
 				[on-trigger]
+					[debugf fatal]
+						- -- Before -- Stack are equals: %s, value: %Y
+						- $= $local.stack = $args.stack
+						- $local.stack
 					[grab $args.performer]
 						item: $args.item
 						stack: $args.stack
+					[debugf fatal]
+						- -- After -- Stack are equals: %s, value: %Y
+						- $= $local.stack = $args.stack
+						- $local.stack
 		
 	
 	
