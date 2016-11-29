@@ -29,6 +29,8 @@
 			[label] One foe.
 		[next treasure]
 			[label] Treasure.
+		[next shop]
+			[label] Shop.
 	
 	
 	
@@ -44,7 +46,25 @@
 			performer: $roles.hero.entity
 			stack: $local.items
 		
-		[next second-encounter]
+		[next goblin-camp]
+	
+	
+	
+	[scene shop]
+		[message]
+			$> You just found a shop.
+		
+		[set $local.items] <Array>
+		[create-item $local.items[0]] dagger
+		[create-item $local.items[1]] axe
+		
+		[gosub inventory/drop-grab]
+			performer: $roles.hero.entity
+			stack: $local.items
+			buy-price: 1.5
+			sell-price: 0.5
+		
+		[next goblin-camp]
 	
 	
 	

@@ -37,6 +37,8 @@
 	label: dagger
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 125
 	usages:
 		melee-fighting:
 			# When the weapon is used
@@ -62,6 +64,8 @@
 	label: axe
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 210
 	usages:
 		melee-fighting:
 			primary:
