@@ -122,19 +122,35 @@
 
 
 	[scene drop-grab]
+		[set $bob] $args.stack
+		
 		[while ! $local.done]
-			[debugf info]
+			[debugf error]
+				- A: %s
+				- $= $bob = $args.stack
+			[debugf]
 				- -- Before -- Stack value: %Y
 				- $args.stack
 			[gosub drop-grab-one => $local.done] $args
-			[debugf info]
+			#[gosub drop-grab-one => $local.done]
+			#	stack: $args.stack
+			#	performer: $args.performer
+			#	item: $args.item
+			[debugf error]
+				- B: %s
+				- $= $bob = $args.stack
+			[debugf]
 				- -- After -- Stack value: %Y
 				- $args.stack
 	
 	
 	
 	[scene drop-grab-one]
-		[debug error] $args.stack
+		[debug] $args.stack
+		
+		[debugf error]
+			- C: %s
+			- $= $bob = $args.stack
 		
 		[next]
 			[label] $> (Done)
@@ -142,6 +158,10 @@
 				[return] true
 		[call grab-one] $args
 		[call drop-one] $args
+		
+		[debugf error]
+			- D: %s
+			- $= $bob = $args.stack
 		
 	
 	
@@ -160,14 +180,20 @@
 					item: $local.item
 				[label] $> Grab ${local.item.label//uc1}
 				[on-trigger]
-					[debugf fatal]
+					[debugf error]
+						- E: %s
+						- $= $bob = $args.stack
+					[debugf]
 						- -- Before -- Stack are equals: %s, value: %Y
 						- $= $local.stack = $args.stack
 						- $local.stack
 					[grab $args.performer]
 						item: $args.item
 						stack: $args.stack
-					[debugf fatal]
+					[debugf error]
+						- F: %s
+						- $= $bob = $args.stack
+					[debugf]
 						- -- After -- Stack are equals: %s, value: %Y
 						- $= $local.stack = $args.stack
 						- $local.stack
