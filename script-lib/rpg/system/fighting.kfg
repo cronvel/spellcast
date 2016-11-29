@@ -742,10 +742,6 @@
 			[if ! $local.casted]
 				[return]
 		
-		#[debugf error]
-		#	- stats %Y
-		#	- $performer.actualUsages.battle-ability
-		
 		[call effects]
 			performer: $performer
 			target: $local.target
@@ -972,25 +968,14 @@
 			# If the target is currently attacking/pressing the current position and is not defensive,
 			# act as if its y twice as close as the spash y position, because of encirclement
 			[set $local.pressPos] $= $local.target.adhoc.fight.pressTarget.adhoc.fight.position
-			#[debugf warning]
-			#	- "Target name: %s\nSplash position: %Y\nTarget position: %Y\nPress position: %Y"
-			#	- $local.target.label
-			#	- $args.position
-			#	- $local.targetPos
-			#	- $local.pressPos
 			
 			[if $local.pressPos && ( $local.target.adhoc.fight.offensiveness >= 0 ) && ( $local.pressPos.x = $args.position.x ) && ( $local.pressPos.y = $args.position.y )]
 				# Divide the delta-y by 2
 				[set $local.targetPos.y] $= avg $local.targetPos.y $args.position.y
-				#[debugf warning]
-				#	- Target %s is included! position changed to %Y
-				#	- $local.target.label
-				#	- $local.targetPos
 			
 			[set $local.distance] $= hypot ( $local.targetPos.x - $args.position.x ) ( $local.targetPos.y - $args.position.y )
 			
 			[if $local.distance <= $args.radius]
-				
 				[append $local.entities] $local.target
 		
 		[return] $local.entities
