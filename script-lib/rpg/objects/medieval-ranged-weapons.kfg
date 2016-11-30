@@ -6,6 +6,8 @@
 	label: javelin
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 70
 	usages:
 		melee-fighting:
 			primary:
@@ -36,6 +38,8 @@
 	label: bow
 	slotType: hand
 	slotCount: 2
+	ownStats:
+		price: 160
 	usages:
 		ranged-fighting:
 			primary:
@@ -58,6 +62,8 @@
 	label: crossbow
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 230
 	usages:
 		ranged-fighting:
 			primary:

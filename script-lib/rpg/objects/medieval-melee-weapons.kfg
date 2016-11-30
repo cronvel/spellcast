@@ -6,6 +6,8 @@
 	label: sword
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 310
 	usages:
 		melee-fighting:
 			# When the weapon is used
@@ -37,6 +39,8 @@
 	label: dagger
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 85
 	usages:
 		melee-fighting:
 			# When the weapon is used
@@ -62,6 +66,8 @@
 	label: axe
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 140
 	usages:
 		melee-fighting:
 			primary:
@@ -88,6 +94,8 @@
 	label: staff
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 40
 	usages:
 		melee-fighting:
 			# When the weapon is used
@@ -120,6 +128,8 @@
 	label: spear
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 95
 	usages:
 		melee-fighting:
 			# Mostly a two-handed weapon, but can still be used with a shield
@@ -149,6 +159,8 @@
 	label: giant club
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 55
 	usages:
 		melee-fighting:
 			primary:
@@ -182,6 +194,8 @@
 	label: main gauche
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 75
 	usages:
 		melee-fighting:
 			primary:

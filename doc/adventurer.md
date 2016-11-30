@@ -22,6 +22,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 	* [Scenario Tags](#ref.scenario)
 		* [Chapter Tag](#ref.scenario.chapter)
 		* [Scene Tag](#ref.scenario.scene)
+			* [Theme Tag](#ref.scenario.scene.theme)
 			* [Image Tag](#ref.scenario.scene.image)
 			* [Music Tag](#ref.scenario.scene.music)
 			* [Chat Tag](#ref.scenario.scene.chat)
@@ -142,7 +143,8 @@ Options:
 * `--ws-server [<port>]`: Create a web socket server (default to port 57311)
 * `--http`: Create a HTTP server for content, sharing the port of the web socket server
 * `--token <token>`: Add a token to server accepted token list (can be used multiple times)
-* `--browser , - B <exe>`: Open the browser <exe>, force --ws-server and --http
+* `--browser , -B <exe>`: Open a client browser <exe>, force --ws-server and --http
+* `--electron , -E`: Open Electron client, force --ws-server and --http
 * `--client-ui <name>`: Set the UI for the local client (use with --browser)
 * `--client-name <name>`: Set the name of the local client user
 * `--script-debug`: Activate debug-level logs for scripts ([debug] tag)
@@ -266,6 +268,7 @@ The *chapter* tag is used to organize *scene* tags in groups.
 It also acts as a namespace, to ease management of big Spellcast projects.
 
 It also supports some parameter tags of the *scene* tag, if present they will act as default for all its *scene* children:
+* [theme](#ref.scenario.scene.theme)
 * [image](#ref.scenario.scene.image)
 * [music](#ref.scenario.scene.music)
 * [chat](#ref.scenario.scene.chat)
@@ -295,6 +298,22 @@ When the scene is executed, it simply runs all its inner tags.
 **Once the scene is executed, it sends all registered choices** (i.e. [*next* tags](#ref.scenerio.next)) to the client.
 
 A *scene* has the following parameters tags:
+
+
+
+<a name="ref.scenario.scene.theme"></a>
+### [theme]
+
+* types: parameter
+* attribute style: none
+* content type: string (URL) or object
+
+This paremeter configures the theme (CSS) related to the scene.
+
+The content is an object where:
+* url `string` (optional) if set this is the URL of the theme (CSS), else the client *MAY* display a default theme if any
+
+If the content is a string, it contains the *url* of the theme (CSS).
 
 
 
@@ -488,7 +507,7 @@ The label of the choice, i.e. the text used as the description.
 * content type: string
 
 This is a particular *vote style* just for this choice, see
-[the *image* tag's *vote-style* parameter tag](#ref.scenario.scene.vote-style) for details.
+[the *scene* tag's *vote-style* parameter tag](#ref.scenario.scene.vote-style) for details.
 
 
 
@@ -2084,13 +2103,15 @@ This will equip *$hero* with the *$sword*, and set it as the primary item for th
 
 * types: run
 * attribute style: var
-* content type: object
+* content type: none or object
 
 The *unequip* tag is used to unequip an item off the entity stored in the *$var*.
 
 The content is an object describing what to unequip, properties are:
 * item `ref` the variable containing the item to unequip
 * slot `string` the equipment slot ID to unequip
+
+If **no content** (or a *falsy* content) is provided, it will unequip **ALL** items.
 
 An item is unequipped using **either** the item ref itself **or** the equipment slot.
 

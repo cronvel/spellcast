@@ -1136,6 +1136,7 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'message' , UI.message.bind( this ) , { async: true } ) ;
 	this.bus.on( 'chatConfig' , UI.chatConfig.bind( this ) ) ;
 
+	this.bus.on( 'theme' , UI.theme.bind( this ) ) ;
 	this.bus.on( 'image' , UI.image.bind( this ) ) ;
 	this.bus.on( 'sound' , UI.sound.bind( this ) ) ;
 	this.bus.on( 'music' , UI.music.bind( this ) ) ;
@@ -1169,6 +1170,7 @@ UI.prototype.initBus = function initBus()
 
 UI.prototype.cleanUrl = function cleanUrl( url )
 {
+	if ( url[ 0 ] === '/' ) { return url ; }
 	return '/script/' + url ;
 } ;
 
@@ -1509,6 +1511,14 @@ UI.wait = function wait( what )
 		default :
 			this.dom.setBigHint( "WAITING FOR " + what , { wait: true , "pulse-animation": true } ) ;
 	}
+} ;
+
+
+
+UI.theme = function theme( data )
+{
+	if ( data.url ) { data.url = this.cleanUrl( data.url ) ; }
+	// TODO...
 } ;
 
 

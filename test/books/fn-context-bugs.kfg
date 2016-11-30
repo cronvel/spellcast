@@ -1,0 +1,75 @@
+
+[[doctype adventurer]]
+
+[chapter init]
+	
+	[scene minimal]
+		[set $array]
+			- one
+			- two
+			- three
+		
+		[set $object]
+			array: $array
+		
+		[set $eq] $= $object.array = $array
+		[message] $> Arrays are equal: ${eq}
+		#[debug fatal] $object
+		
+		[gosub minimal-sub] $object
+		
+	
+	
+	[scene minimal-sub]
+		[debug error] $args
+		[set $eq] $= $args = $object
+		[message] $> Objects are equal: ${eq}
+		[set $eq] $= $args.array = $array
+		[message] $> Arrays are equal: ${eq}
+	
+	
+	
+	[scene complete]
+		[set $array]
+			- one
+			- two
+			- three
+		
+		[call func]
+			array: $array
+		
+		[gosub sub]
+			array: $array
+		
+		[gosub sub2]
+			arr: $array
+	
+	[fn func]
+		[set $eq] $= $args.array = $array
+		[message] $> Arrays are equal: ${eq}
+	
+	[scene sub]
+		[debug error] $args
+		[set $eq] $= $args.array = $array
+		[message] $> Arrays are equal: ${eq}
+		[next]
+			[args]
+				array: $args.array
+			[on-trigger]
+				[set $eq] $= $args.array = $array
+				[message] $> Arrays are equal: ${eq}
+	
+	[scene sub2]
+		[set $eq] $= $args.arr = $array
+		[message] $> Arrays are equal: ${eq}
+		[call func-next]
+			ar: $args.arr
+	
+	[fn func-next]
+		[next]
+			[args]
+				ar: $args.ar
+			[on-trigger]
+				[set $eq] $= $args.ar = $array
+				[message] $> Arrays are equal: ${eq}
+			

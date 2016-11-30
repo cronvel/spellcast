@@ -11,6 +11,8 @@
 		#spellcasting: 26
 		strength: 12
 		resilience: 11
+	goods:
+		gp: 350
 	items:
 		- ice-blade
 		- nova
@@ -51,6 +53,8 @@
 	label: Excalibur
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 5500
 	usages:
 		melee-fighting:
 			# When the weapon is used
