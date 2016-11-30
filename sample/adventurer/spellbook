@@ -16,7 +16,6 @@
 		#[goto intro2]
 	
 	[scene intro2]
-		[theme] > /themes/visual-novel.css
 		#[image] > background.png
 		#[sound] > effect1.mp3
 		#[music] > theme.ogg
@@ -51,6 +50,7 @@
 			$> Dices #2: ${dices}
 	
 	[scene start]
+		[theme] > /themes/visual-novel.css
 		[emit blast] Jack
 		[message]
 			$> Select your background.
@@ -65,6 +65,7 @@
 			[label] $> You are a Mage apprentice
 
 	[scene blacksmith]
+		[theme] > /themes/visual-novel.css
 		[message]
 			$> You lived in a small village of few hundred peoples.
 			$> You started learning how to forge horseshoe since the age of 12 with your father, the local smith.
@@ -77,6 +78,7 @@
 		[include common-background]
 	
 	[scene rogue]
+		[theme] > /themes/visual-novel.css
 		[message]
 			$> You lived in the forest and becomes an highwayman.
 			$> That's really bad!
@@ -84,6 +86,7 @@
 		[lost]
 	
 	[scene common-background]
+		[theme] > /themes/visual-novel.css
 		[message]
 			$> One day, a black knight entered in your house and kill your father.
 			$> One month later, you leave the family house.
@@ -93,6 +96,7 @@
 
 
 [chapter end]
+	[theme] > /themes/visual-novel.css
 	
 	[scene master]
 		[message]
