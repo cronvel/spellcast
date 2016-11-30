@@ -128,6 +128,11 @@
 	
 	
 	[scene drop-grab-one]
+		[if ( $args.buy-price is-number? ) || ( $args.sell-price is-number? )]
+			[if $args.performer.goods.gp is-empty?]
+				[set $args.performer.goods.gp] 0
+			[message] $> You have ${args.performer.goods.gp} GP.
+		
 		[next]
 			[label] $> (Done)
 			[on-trigger]
@@ -139,17 +144,18 @@
 	
 	[fn grab-one]
 		
-		[set $local.verb] $= ( $args.buy-price is-number? ) ? "buy" "grab"
-		
 		[foreach $args.stack => $local.index : $local.item]
 			
 			[if $local.item.class != "object"]
 				[continue]
 			
 			[if ( $args.buy-price is-number? ) && ( $local.item.ownStats.price is-number? )]
+				[set $local.verb] buy
 				[set $local.price] $= ceil ( $local.item.ownStats.price * $args.buy-price )
 				[set $local.price-string] $> for ${local.price} GP
 			[else]
+				[set $local.verb] grab
+				[set $local.price] 0
 				[set $local.price-string] ""
 			
 			[next]
@@ -157,8 +163,10 @@
 					performer: $args.performer
 					stack: $args.stack
 					item: $local.item
+					price: $local.price
 				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
 				[on-trigger]
+					[sub $args.performer.goods.gp] $local.price
 					[grab $args.performer]
 						item: $args.item
 						stack: $args.stack
@@ -167,16 +175,17 @@
 	
 	[fn drop-one]
 		
-		[set $local.verb] $= ( $args.sell-price is-number? ) ? "sell" "drop"
-		
 		[foreach $args.performer.items => $local.index : $local.item]
 			[if $local.item.class != "object"]
 				[continue]
 			
 			[if ( $args.sell-price is-number? ) && ( $local.item.ownStats.price is-number? )]
+				[set $local.verb] sell
 				[set $local.price] $= floor ( $local.item.ownStats.price * $args.sell-price )
 				[set $local.price-string] $> for ${local.price} GP
 			[else]
+				[set $local.verb] drop
+				[set $local.price] 0
 				[set $local.price-string] ""
 			
 			[next]
@@ -184,8 +193,10 @@
 					performer: $args.performer
 					stack: $args.stack
 					item: $local.item
+					price: $local.price
 				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
 				[on-trigger]
+					[add $args.performer.goods.gp] $local.price
 					[drop $args.performer]
 						item: $args.item
 						stack: $args.stack

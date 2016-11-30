@@ -11,6 +11,8 @@
 		#spellcasting: 26
 		strength: 12
 		resilience: 11
+	goods:
+		gp: 350
 	items:
 		- ice-blade
 		- nova
