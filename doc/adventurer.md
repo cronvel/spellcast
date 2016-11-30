@@ -119,6 +119,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Create-item Tag](#ref.rpg.create-item)
 		* [Equip Tag](#ref.rpg.equip)
 		* [Unequip Tag](#ref.rpg.unequip)
+		* [Grab Tag](#ref.rpg.grab)
+		* [Drop Tag](#ref.rpg.drop)
 	* [Misc Tags](#ref.misc)
 		* [Module Tag](#ref.misc.module)
 		* [System Tag](#ref.misc.system)
@@ -2130,6 +2132,41 @@ This will unequip the item *$sword* in the hands of the *$hero*:
 ```
 
 **It automatically [update the entity](#ref.rpg.update-entity)**.
+
+
+
+<a name="ref.rpg.grab"></a>
+## [grab *$var*]
+
+* types: run
+* attribute style: var
+* content type: none or object
+
+The *drop* tag is used to drop an item off the entity stored in the *$var*.
+The item should not be equipped.
+
+The content is an object describing what to drop, properties are:
+* item `ref` the variable containing the item to grab
+* stack `array` (optional) if present, the item to grab should be present in the stack, and it will be removed from it
+
+
+
+<a name="ref.rpg.drop"></a>
+## [drop *$var*]
+
+* types: run
+* attribute style: var
+* content type: none or object
+
+The *drop* tag is used to drop an item off the entity stored in the *$var*.
+The item should not be equipped.
+
+The content is an object describing what to drop, properties are:
+* item `ref` the variable containing the item to drop
+* all `boolean` (optional, default: false) drop all unequipped items
+* unequip `boolean` (optional, default: false) in conjunction with the *all* option, it first unequip all items,
+  so all items will be dropped, included equiped items
+* stack `array` (optional) if present, dropped items are appended to the stack
 
 
 
