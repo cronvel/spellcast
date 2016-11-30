@@ -153,6 +153,11 @@
 			[add $local.entity.status.xp] $local.xpReward
 		
 		[message] $> You gain ${local.xpReward} xp (=${fight.allies[0].status.xp}).
+		
+		[gosub loot]
+			# Temp:
+			performer: $fight.allies[0]
+			targets: $fight.foes
 	
 	
 	
@@ -1057,7 +1062,31 @@
 			[set $target.status.hp] 0
 			[apply $fight.deadlyPush.flavour => $local.flavour] $
 			[message] $local.flavour
+	
+	
+	
+	[scene loot]
+		[message] $> Loot?
+		[next]
+			[label] $> Yes
+			[on-trigger]
+				[call drop => $local.stack] $args
+				[gosub inventory/drop-grab]
+					performer: $args.performer
+					stack: $local.stack
+		[next] $> No
+	
+	
+	
+	[fn drop]
+		[set $local.stack] <Array>
 		
+		[foreach $args.targets => $local.entity]
+			[drop $local.entity]
+				all: true
+				unequip: true
+				stack: $local.stack
 		
+		[return] $local.stack
 	
 	

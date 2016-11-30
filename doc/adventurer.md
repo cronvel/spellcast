@@ -2085,13 +2085,15 @@ This will equip *$hero* with the *$sword*, and set it as the primary item for th
 
 * types: run
 * attribute style: var
-* content type: object
+* content type: none or object
 
 The *unequip* tag is used to unequip an item off the entity stored in the *$var*.
 
 The content is an object describing what to unequip, properties are:
 * item `ref` the variable containing the item to unequip
 * slot `string` the equipment slot ID to unequip
+
+If **no content** (or a *falsy* content) is provided, it will unequip **ALL** items.
 
 An item is unequipped using **either** the item ref itself **or** the equipment slot.
 
