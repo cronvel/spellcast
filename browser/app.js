@@ -47,6 +47,7 @@ Dom.create = function create()
 {
 	var self = Object.create( Dom.prototype ) ;
 
+	self.$theme = document.querySelector('#theme') ;
 	self.$gfx = document.querySelector( '#gfx' ) ;
 	self.$sceneImage = document.querySelector( '.scene-image' ) ;
 	self.$content = document.querySelector( '#content' ) ;
@@ -62,17 +63,29 @@ Dom.create = function create()
 	self.$sound1 = document.querySelector( '#sound1' ) ;
 	self.$sound2 = document.querySelector( '#sound2' ) ;
 	self.$sound3 = document.querySelector( '#sound3' ) ;
-	
+
 	self.nextSoundChannel = 0 ;
-	
+
 	self.sprites = {} ;
 	self.animations = {} ;
-	
+
 	self.hideContentTimer = null ;
-	
+	self.onChatSubmit = null ;
+
 	self.initEvents() ;
-	
+
+	// temp
+	window.dom = self ;
+	// temp
+
 	return self ;
+} ;
+
+
+
+Dom.prototype.setTheme = function setTheme( theme )
+{
+	this.$theme.setAttribute('href' , theme.url) ;
 } ;
 
 
@@ -158,7 +171,7 @@ Dom.prototype.addMessage = function addMessage( text , options , callback )
 
 	var textElement = document.createElement( 'p' ) ;
 	textElement.classList.add( 'text' ) ;
-	
+
 	//textElement.textContent = text ;
 	// Because the text contains <span> tags
 	textElement.innerHTML = text ;
@@ -168,6 +181,12 @@ Dom.prototype.addMessage = function addMessage( text , options , callback )
 	callback() ;
 } ;
 
+
+// TODO
+Dom.prototype.messageNext = function messageNext( callback )
+{
+	callback() ;
+} ;
 
 
 Dom.prototype.clearChoices = function clearChoices( callback )
@@ -191,7 +210,7 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 		var buttonElement = document.createElement('button') ;
 		buttonElement.classList.add( 'choice' , choice.type ) ;
 		buttonElement.setAttribute( 'data-isOrdered' , choice.orderedList ) ;
-		
+
 		buttonElement.textContent = choice.label ;
 
 		if ( choice.selectedBy && choice.selectedBy.length )
@@ -289,16 +308,82 @@ Dom.prototype.choiceTimeout = function choiceTimeout( timeout )
 
 
 
-Dom.prototype.enableChat = function enableChat()
+Dom.prototype.textInputDisabled = function textInputDisabled( options )
 {
-	this.$chat.classList.remove( 'hidden' ) ;
-	this.$chatInput.removeAttribute( 'disabled' ) ;
+	var $form = document.createElement('form') ,
+		$label = document.createElement('label') ,
+		$input = document.createElement('input') ;
+
+	$label.textContent = options.label ;
+
+	$input.setAttribute('placeholder' , options.placeholder ) ;
+	$input.setAttribute('disabled' , true) ;
+	$input.setAttribute('type' , 'text') ;
+	$input.classList.add('text-input') ;
+
+	$form.appendChild( $label ) ;
+	$form.appendChild( $input ) ;
+	this.$text.appendChild( $form ) ;
+} ;
+
+
+Dom.prototype.textInput = function textInput( options , callback )
+{
+	var $form = document.createElement('form') ,
+		$label = document.createElement('label') ,
+		$input = document.createElement('input') ;
+
+	// HINT: remove this class?
+	$label.classList.add('text') ;
+	$label.textContent = options.label ;
+
+	$input.setAttribute('type' , 'text') ;
+	$input.classList.add('text-input') ;
+
+	$form.appendChild( $label ) ;
+	$form.appendChild( $input ) ;
+	this.$text.appendChild( $form ) ;
+
+	$input.focus() ;
+
+	var finalize = function finalize( event ) {
+		event.preventDefault() ;
+
+		$form.removeEventListener( 'submit' , finalize ) ;
+		$input.setAttribute( 'disabled' , true ) ;
+		callback( $input.value ) ;
+	} ;
+
+	$form.addEventListener( 'submit' , finalize ) ;
+} ;
+
+
+
+Dom.prototype.enableChat = function enableChat( callback )
+{
+	var self = this ;
+
+	if ( ! this.onChatSubmit ) {
+		this.onChatSubmit = function( event ) {
+			event.preventDefault() ;
+			callback( self.$chatInput.value ) ;
+			self.$chatInput.value = '' ;
+		} ;
+
+		this.$chatForm.addEventListener( 'submit' , this.onChatSubmit ) ;
+
+		this.$chat.classList.remove( 'hidden' ) ;
+		this.$chatInput.removeAttribute( 'disabled' ) ;
+	}
 } ;
 
 
 
 Dom.prototype.disableChat = function disableChat()
 {
+	this.$chatForm.removeEventListener( 'submit' , this.onChatSubmit ) ;
+	this.onChatSubmit = null ;
+
 	this.$chat.classList.add( 'hidden' ) ;
 	this.$chatInput.setAttribute( 'disabled' , true ) ;
 } ;
@@ -330,7 +415,7 @@ Dom.prototype.setBigHint = function setBigHint( text , classes )
 Dom.prototype.setSceneImage = function setSceneImage( data )
 {
 	var cleaned = false ;
-	
+
 	var $oldSceneImage = this.$sceneImage ;
 
 	console.warn( "setSceneImage: " , data ) ;
@@ -399,11 +484,11 @@ Dom.prototype.showSprite = function showSprite( id , data )
 
 	sprite.$img = document.createElement( 'img' ) ;
 	sprite.$img.classList.add( 'sprite' ) ;
-	
+
 	if ( data.maskUrl )
 	{
 		console.warn( 'has mask!' ) ;
-		
+
 		domKit.svg.load( null , data.maskUrl , {
 				class: { spriteMask: true , clickable: true } ,
 				css: data.style ,
@@ -412,25 +497,25 @@ Dom.prototype.showSprite = function showSprite( id , data )
 			function( error , svg ) {
 				if ( error ) { console.warn( error ) ; return ; }
 				sprite.$mask = svg ;
-				
+
 				// /!\ Duplicated code:
-				
+
 				self.updateSprite( null , data , sprite ) ;
-				
+
 				if ( oldSprite ) { oldSprite.$img.remove() ; }
-				
+
 				self.$gfx.append( sprite.$img ) ;
 				self.$gfx.append( sprite.$mask ) ;
 			}
 		) ;
-		
+
 		return ;
 	}
-		
+
 	this.updateSprite( null , data , sprite ) ;
 
 	if ( oldSprite ) { oldSprite.$img.remove() ; }
-	
+
 	this.$gfx.append( sprite.$img ) ;
 } ;
 
@@ -440,7 +525,7 @@ Dom.prototype.showSprite = function showSprite( id , data )
 Dom.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 {
 	var sprite , $element ;
-	
+
 	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
 
 	if ( internalSprite )
@@ -462,20 +547,20 @@ Dom.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 
 	if ( data.url )
 	{
-		sprite.$img.setAttribute( "src" , data.url ) ;
+		sprite.$img.setAttribute( 'src' , data.url ) ;
 	}
 
 	if ( data.action !== undefined )
 	{
 		$element = sprite.$mask || sprite.$img ;
-		
+
 		if ( data.action && ! sprite.action )
 		{
 			sprite.onClick = function( event ) {
 				sprite.actionCallback( sprite.action ) ;
 				event.stopPropagation() ;
 			} ;
-			
+
 			$element.classList.add( 'clickable' ) ;
 			$element.addEventListener( 'click' , sprite.onClick ) ;
 		}
@@ -493,7 +578,7 @@ Dom.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 
 	// Use data.style, NOT sprite.style: we have to set only new/updated styles
 	domKit.css( sprite.$img , data.style ) ;
-	
+
 	// Update the mask, if any
 	if ( sprite.$mask )
 	{
@@ -554,6 +639,13 @@ Dom.prototype.animateSprite = function animateSprite( spriteId , animationId )
 
 
 
+Dom.prototype.defineAnimation = function defineAnimation( id , data )
+{
+	this.animations[ id ] = data ;
+} ;
+
+
+
 Dom.prototype.clearSprite = function clearSprite( id )
 {
 	var sprite ;
@@ -568,7 +660,7 @@ Dom.prototype.clearSprite = function clearSprite( id )
 
 	sprite.$img.remove() ;
 	if ( sprite.$mask ) { sprite.$mask.remove() ; }
-	
+
 	delete this.sprites[ id ] ;
 } ;
 
@@ -671,10 +763,7 @@ function soundFadeOut( element , callback )
 	element.__fadeTimer = setTimeout( soundFadeOut.bind( undefined , element , callback ) , SOUND_FADE_TIMEOUT ) ;
 }
 
-
-
-
-},{"dom-kit":6,"tree-kit/lib/extend.js":23}],2:[function(require,module,exports){
+},{"dom-kit":6,"tree-kit/lib/extend.js":21}],2:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -852,7 +941,7 @@ dom.ready( function() {
 
 
 
-},{"./ui/classic.js":4,"dom-kit":6,"nextgen-events":10,"url":24}],3:[function(require,module,exports){
+},{"./ui/classic.js":4,"dom-kit":6,"nextgen-events":9,"url":22}],3:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -947,7 +1036,7 @@ toolkit.markup = function()
 } ;
 
 
-},{"string-kit/lib/escape.js":20,"string-kit/lib/format.js":21}],4:[function(require,module,exports){
+},{"string-kit/lib/escape.js":18,"string-kit/lib/format.js":19}],4:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -980,12 +1069,9 @@ toolkit.markup = function()
 
 /* global alert */
 
-var path = require( 'path' ) ;
-
 var Dom = require( '../Dom.js' ) ;
-var dom = require( 'dom-kit' ) ;	// tmp...
-var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
-var treeOps = require( 'kung-fig/lib/treeOps.js' ) ;
+// var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
+// var treeOps = require( 'kung-fig/lib/treeOps.js' ) ;
 var toolkit = require( '../toolkit.js' ) ;
 
 
@@ -1006,42 +1092,22 @@ function UI( bus , client , self )
 			config: { value: null , writable: true , enumerable: true } ,
 			chatConfig: { value: null , writable: true , enumerable: true } ,
 			inGame: { value: false , writable: true , enumerable: true } ,
-			redirectChat: { value: null , writable: true , enumerable: true } ,
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
-			//nextSoundChannel: { value: 0 , writable: true , enumerable: true } ,
-			//sprites: { value: {} , enumerable: true } ,
-			//animations: { value: {} , enumerable: true } ,
 			dom: { value: Dom.create() } ,
 		} ) ;
 	}
-
-
-	// ------------ TEMP!!! ------------------------------------------------
-	self.$gfx = document.querySelector( '#gfx' ) ;
-	self.$content = document.querySelector( '#content' ) ;
-	self.$text = document.querySelector( '#text' ) ;
-	self.$chat = document.querySelector( '#chat' ) ;
-	self.$chatForm = document.querySelector( '#chat-form' ) ;
-	self.$chatInput = document.querySelector( '#chat-input' ) ;
-	self.$next = document.querySelector( '#next' ) ;
-	self.$hint = document.querySelector( '#hint' ) ;
-	self.$connection = document.querySelector( '#connection' ) ;
-	self.$music = document.querySelector( '#music' ) ;
-	self.$sound0 = document.querySelector( '#sound0' ) ;
-	self.$sound1 = document.querySelector( '#sound1' ) ;
-	self.$sound2 = document.querySelector( '#sound2' ) ;
-	self.$sound3 = document.querySelector( '#sound3' ) ;
-	// ------------ TEMP!!! ------------------------------------------------
-
-
-	self.initInteractions() ;
 
 	self.client.once( 'connecting' , UI.clientConnecting.bind( self ) ) ;
 	self.client.once( 'open' , UI.clientOpen.bind( self ) ) ;
 	self.client.once( 'close' , UI.clientClose.bind( self ) ) ;
 	self.client.on( 'error' , UI.clientError.bind( self ) ) ;
+
+
+	self.dom.enableChat( function( message ) {
+		self.bus.emit( 'chat' , message ) ;
+	} ) ;
 
 	return self ;
 }
@@ -1051,17 +1117,6 @@ module.exports = UI ;
 
 
 function arrayGetById( id ) { return this.find( function( e ) { return e.id === id ; } ) ; }	// jshint ignore:line
-
-
-
-// DOM
-UI.prototype.initInteractions = function initInteractions()
-{
-	var self = this , fullScreenImageTimer = null ;
-
-	// Chat
-	this.$chatForm.onsubmit = UI.onChatSubmit.bind( this ) ;
-} ;
 
 
 
@@ -1160,6 +1215,12 @@ UI.clientConfig = function clientConfig( config )
 {
 	console.warn( 'Client config received: ' , config ) ;
 	this.config = config ;
+
+	if ( this.config.theme ) {
+		this.config.theme.url = this.cleanUrl( this.config.theme.url ) ;
+
+		this.dom.setTheme( this.config.theme ) ;
+	}
 } ;
 
 
@@ -1185,8 +1246,7 @@ UI.userList = function userList( users )
 
 UI.roleList = function roleList( roles , unassignedUsers , assigned )
 {
-	var self = this , $roles , userName , choices = [] , undecidedNames ,
-		max = 0x61 + roles.length - 1 ;
+	var self = this , choices = [] , undecidedNames ;
 
 	// Add the get method to the array
 	roles.get = arrayGetById ;
@@ -1221,7 +1281,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 	}
 
 	var onSelect = function( index ) {
-		
+
 		if ( roles[ index ].clientId === self.user.id )
 		{
 			// Here we want to unassign
@@ -1237,9 +1297,9 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 			self.bus.emit( 'selectRole' , index ) ;
 		}
 	} ;
-	
+
 	this.dom.setChoices( choices , undecidedNames , null , onSelect ) ;
-	
+
 	if ( assigned )
 	{
 		roles.find( function( e , i ) {
@@ -1283,51 +1343,31 @@ UI.message = function message( text , options , callback )
 
 
 
-// DOM
 UI.prototype.messageNext = function messageNext( callback )
 {
-	callback() ;
+	this.dom.messageNext( callback ) ;
 } ;
 
 
 
 UI.chatConfig = function chatConfig( data )
 {
+	var self = this ;
+
 	this.chatConfig = data ;
 	console.warn( 'chatConfig:' , this.chatConfig ) ;
 
 	if ( this.roleId && this.chatConfig[ this.roleId ].write )
 	{
-		this.dom.enableChat() ;
+		this.dom.enableChat( function( message ) {
+			self.bus.emit( 'chat' , message ) ;
+		} ) ;
 	}
 	else
 	{
 		this.dom.disableChat() ;
 	}
 } ;
-
-
-
-// Dom event
-// DOM
-UI.onChatSubmit = function onChatSubmit( event )
-{
-	event.preventDefault() ;
-
-	if ( this.$chatInput.getAttribute( 'disabled' ) ) { return ; }
-
-	if ( this.redirectChat )
-	{
-		this.redirectChat( this.$chatInput.value ) ;
-	}
-	else
-	{
-		this.bus.emit( 'chat' , this.$chatInput.value ) ;
-	}
-
-	this.$chatInput.value = '' ;
-} ;
-
 
 
 // 'enterScene' event
@@ -1368,9 +1408,7 @@ UI.nextTriggered = function nextTriggered()
 
 UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
 {
-	var self = this , $nexts , choices = [] , undecidedNames ,
-		startTime , timer , $timer ,
-		max = 0x61 + nexts.length - 1 ;
+	var self = this , choices = [] , undecidedNames ;
 
 	this.nexts = nexts ;
 	this.afterNext = true ;
@@ -1395,7 +1433,7 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , tim
 	{
 		undecidedNames = undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ) ;
 	}
-	
+
 	var onSelect = function( index ) {
 		if ( nexts[ index ].roleIds.indexOf( self.roleId ) !== -1 )
 		{
@@ -1406,7 +1444,7 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , tim
 			self.bus.emit( 'selectNext' , index ) ;
 		}
 	} ;
-	
+
 	this.dom.setChoices( choices , undecidedNames , timeout , onSelect ) ;
 } ;
 
@@ -1430,65 +1468,25 @@ UI.extErrorOutput = function extErrorOutput( output )
 
 
 
-// DOM
 // Text input field
 UI.textInput = function textInput( label , grantedRoleIds )
 {
-	var self = this , $form , $input , finalized = false ;
-
-	//alert( 'textInput is not coded ATM!' ) ;
+	var self = this ,
+		options = {
+			label: label
+		} ;
 
 	if ( grantedRoleIds.indexOf( this.roleId ) === -1 )
 	{
-		// Not granted!
-		this.$text.insertAdjacentHTML( 'beforeend' ,
-			'<p class="text">' + label +
-			'<input type="text" id="textInput" class="text-input" placeholder="YOU CAN\'T RESPOND - WAIT..." disabled /></p>'
-		) ;
-		return ;
+		options.placeholder = 'YOU CAN\'T RESPOND - WAIT...' ;
+		this.dom.textInputDisabled( options ) ;
 	}
-
-	this.$text.insertAdjacentHTML( 'beforeend' ,
-		'<form class="form-text-input"><p class="text">' + label +
-		'<input type="text" class="text-input" /></p></form>'
-	) ;
-
-	$form = document.querySelector( '.form-text-input' ) ;
-	$input = $form.querySelector( '.text-input' ) ;
-
-	$input.value = this.$chatInput.value ;
-
-	$input.focus() ;
-
-	var finalize = function finalize( text ) {
-		if ( finalized ) { return ; }
-		finalized = true ;
-
-		self.redirectChat = null ;
-		$form.onsubmit = function() {} ;
-		$input.oninput = null ;
-		self.$chatInput.oninput = null ;
-		$input.setAttribute( 'disabled' , true ) ;
-
-		self.bus.emit( 'textSubmit' , text ) ;
-	} ;
-
-	this.redirectChat = function redirectChat( text ) {
-		finalize( text ) ;
-	} ;
-
-	$form.onsubmit = function onSubmit( event ) {
-		event.preventDefault() ;
-		finalize( $input.value ) ;
-	} ;
-
-	$input.oninput = function onInput() {
-		self.$chatInput.value = $input.value ;
-	} ;
-
-	this.$chatInput.oninput = function onChatInput() {
-		$input.value = self.$chatInput.value ;
-	} ;
+	else
+	{
+		this.dom.textInput( options , function( text ) {
+			self.bus.emit( 'textSubmit' , text ) ;
+		} ) ;
+	}
 } ;
 
 
@@ -1525,7 +1523,7 @@ UI.image = function image( data )
 
 UI.defineAnimation = function defineAnimation( id , data )
 {
-	this.animations[ id ] = data ;
+	this.dom.defineAnimation( id , data ) ;
 } ;
 
 
@@ -1533,12 +1531,12 @@ UI.defineAnimation = function defineAnimation( id , data )
 UI.showSprite = function showSprite( id , data )
 {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
-	
+
 	data.url = this.cleanUrl( data.url ) ;
 	if ( data.maskUrl ) { data.maskUrl = this.cleanUrl( data.maskUrl ) ; }
-	
+
 	data.actionCallback = UI.spriteActionCallback.bind( this ) ;
-	
+
 	this.dom.showSprite( id , data ) ;
 } ;
 
@@ -1556,7 +1554,7 @@ UI.prototype.updateSprite = function updateSprite( id , data )
 {
 	if ( data.url ) { data.url = this.cleanUrl( data.url ) ; }
 	if ( data.maskUrl ) { data.maskUrl = this.cleanUrl( data.maskUrl ) ; }
-	
+
 	this.dom.updateSprite( id , data ) ;
 } ;
 
@@ -1622,8 +1620,7 @@ UI.exit = function exit()
 	//term.styleReset() ;
 } ;
 
-
-},{"../Dom.js":1,"../toolkit.js":3,"dom-kit":6,"kung-fig/lib/treeOps.js":9,"path":13,"tree-kit/lib/extend.js":23}],5:[function(require,module,exports){
+},{"../Dom.js":1,"../toolkit.js":3}],5:[function(require,module,exports){
 
 },{}],6:[function(require,module,exports){
 /*
@@ -2093,7 +2090,7 @@ domSvg.ajax.ajaxStatus = function ajaxStatus( callback )
 
 
 }).call(this,require('_process'))
-},{"./dom.js":6,"_process":14,"fs":5}],8:[function(require,module,exports){
+},{"./dom.js":6,"_process":12,"fs":5}],8:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -2117,845 +2114,6 @@ function isSlowBuffer (obj) {
 }
 
 },{}],9:[function(require,module,exports){
-/*
-	Kung Fig
-	
-	Copyright (c) 2015 - 2016 Cédric Ronvel
-	
-	The MIT License (MIT)
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-// Load modules
-//var tree = require( 'tree-kit' ) ;
-
-
-
-// Create and export the module
-var treeOps = {} ;
-module.exports = treeOps ;
-
-
-
-// Reduce then transform to object
-treeOps.reduceToObject = function reduceToObject( object )
-{
-	return treeOps.toObject( treeOps.reduce.apply( this , arguments ) ) ;
-} ;
-
-
-
-// Remove all treeOps mark and operators, transform to a regular object with values
-treeOps.toObject = function toObject( object )
-{
-	if ( ! isPlainObject( object ) ) { return object ; }
-	
-	var i , iMax , parts , value ,
-		output = {} ,
-		keys = Object.keys( object ) ;
-	
-	for ( i = 0 , iMax = keys.length ; i < iMax ; i ++ )
-	{
-		parts = this.splitOpKey( keys[ i ] ) ;
-		
-		// Skip operators
-		if ( parts.operator ) { continue ; }
-		
-		value = object[ keys[ i ] ] ;
-		
-		if ( isPlainObject( value ) ) { value = treeOps.toObject( value ) ; }
-		
-		output[ parts.baseKey ] = value ;
-	}
-	
-	return output ;
-} ;
-
-
-
-// Stack multiple object structure into one new object, do not apply operators
-treeOps.stack = function stack()
-{
-	var i , iMax = arguments.length ,  stacked = {} ;
-	
-	for ( i = 0 ; i < iMax ; i ++ )
-	{
-		//if ( ! arguments[ i ] || typeof arguments[ i ] !== 'object' || Array.isArray( arguments[ i ] ) ) { continue ; }
-		if ( ! isPlainObject( arguments[ i ] ) ) { continue ; }
-		this.stackInto( arguments[ i ] , stacked ) ;
-	}
-	
-	return stacked ;
-} ;
-
-
-
-// Stack multiple object structure into the first object, do not apply operators
-treeOps.autoStack = function autoStack( stacked )
-{
-	//if ( ! stacked || typeof stacked !== 'object' || Array.isArray( stacked ) ) { return stacked ; }
-	if ( ! isPlainObject( stacked ) ) { return stacked ; }
-	
-	var i , iMax = arguments.length ;
-	
-	for ( i = 1 ; i < iMax ; i ++ )
-	{
-		//if ( ! arguments[ i ] || typeof arguments[ i ] !== 'object' || Array.isArray( arguments[ i ] ) ) { continue ; }
-		if ( ! isPlainObject( arguments[ i ] ) ) { continue ; }
-		this.stackInto( arguments[ i ] , stacked ) ;
-	}
-	
-	return stacked ;
-} ;
-
-
-
-// Stack the source into the target, do not apply operators
-treeOps.stackInto = function stackInto( source , target )
-{
-	var i , iMax , parts , foreachKey , nonForeachKey , key , keys = Object.keys( source ) ;
-	
-	iMax = keys.length ;
-	
-	for ( i = 0 ; i < iMax ; i ++ )
-	{
-		key = keys[ i ] ;
-		
-		// Skip empty keys, avoid infinite recursions, also the empty operator is not allowed on the root object
-		if ( ! key ) { continue ; }
-		
-		parts = this.splitOpKey( key ) ;
-		
-		if ( parts.foreach )
-		{
-			if ( Array.isArray( source[ key ] ) )
-			{
-				nonForeachKey = key[ 0 ] === '(' ?
-					'(' + key.slice( 2 ) :
-					key.slice( 1 ) ;
-				
-				//console.log( "source is array, operator:" , parts.operator , nonForeachKey , target[ nonForeachKey ] ) ;
-				if ( target[ nonForeachKey ] !== undefined )
-				{
-					//console.log( "target non-foreach operator exist" ) ;
-					if ( Array.isArray( target[ key ] ) ) { target[ key ].push( target[ nonForeachKey ] ) ; }
-					else { target[ key ] = [ target[ nonForeachKey ] ] ; }
-					delete target[ nonForeachKey ] ;
-				}
-				
-				if ( Array.isArray( target[ key ] ) ) { target[ key ] = target[ key ].concat( source[ key ] ) ; }
-				else { target[ key ] = source[ key ] ; }
-			}
-			
-			continue ;
-		}
-		
-		foreachKey = key[ 0 ] === '(' ?
-			'(#' + key.slice( 1 ) :
-			'#' + key ;
-		
-		if ( Array.isArray( target[ foreachKey ] ) )
-		{
-			if ( target[ key ] === undefined )
-			{
-				target[ foreachKey ].push( source[ key ] ) ;
-			}
-			else
-			{
-				target[ foreachKey ] = target[ foreachKey ].concat( [ target[ key ] , source[ key ] ] ) ;
-			}
-			
-			delete target[ key ] ;
-		}
-		else if ( target[ key ] === undefined )
-		{
-			target[ key ] = source[ key ] ;
-		}
-		else
-		{
-			target[ foreachKey ] = [ target[ key ] , source[ key ] ] ;
-			delete target[ key ] ;
-		}
-	}
-} ;
-
-
-
-// Reduce a previously stacked (or not) object by applying operators.
-// Do not modify the original object, create a brand new one.
-// In case of multiple arguments, they are first “stacked” into a recipient object.
-// Applied operators are removed.
-treeOps.reduce = function reduce( object )
-{
-	//if ( ! object || typeof object !== 'object' || Array.isArray( object ) ) { return object ; }
-	if ( ! isPlainObject( object ) ) { return object ; }
-	
-	object = this.stack.apply( this , arguments ) ;
-	
-	//console.log( "reduce after autoStack():" , require('string-kit').inspect( {style:'color',depth:10},object ) ) ;
-	return this.reduceObject( object , [ object ] ) ;
-} ;
-
-
-
-// Reduce a previously stacked (or not) object by applying operators.
-// In case of multiple arguments, they are first “autoStacked” into the first one before the first one is reduced.
-// Applied operators are removed.
-treeOps.autoReduce = function autoReduce( object )
-{
-	//if ( ! object || typeof object !== 'object' || Array.isArray( object ) ) { return object ; }
-	if ( ! isPlainObject( object ) ) { return object ; }
-	
-	if ( arguments.length > 1 ) { this.autoStack.apply( this , arguments ) ; }
-	
-	//console.log( "autoReduce after autoStack():" , require('string-kit').inspect( {style:'color',depth:10},object ) ) ;
-	return this.reduceObject( object , [ object ] ) ;
-} ;
-
-
-
-// Reduce one object
-treeOps.reduceObject = function reduceObject( object , antiCircularObjectList )
-{
-	var i , iMax , parts , ops = [] , operands , baseKey , key , keys = Object.keys( object ) ;
-	
-	iMax = keys.length ;
-	
-	// First, list all operations
-	for ( i = 0 ; i < iMax ; i ++ )
-	{
-		// Skip empty keys, avoid infinite recursions, also the empty operator is not allowed on the root object.
-		// Also skip property with undefined value, undefined is the same as no property in the treeOps world.
-		if ( ! keys[ i ] || object[ keys[ i ] ] === undefined ) { delete object[ keys[ i ] ] ; continue ; }
-		
-		parts = this.splitOpKey( keys[ i ] ) ;
-		//console.log( "'" + parts.operator + "'" ) ;
-		parts.rank = this.operators[ parts.operator ].rank ;
-		ops.push( parts ) ;
-	}
-	
-	// Sort all operations, so they will be applied in the correct order
-	ops.sort( sortOperations ) ;
-	
-	// Apply anything
-	for ( i = 0 , iMax = ops.length ; i < iMax ; i ++ )
-	{
-		baseKey = ops[ i ].baseKey ;
-		key = ops[ i ].key ;
-		
-		if ( ! baseKey )
-		{
-			// We want to combine with the root object, create a temporary clone
-			
-			//console.log( ">>> no basekey!" ) ;
-			object[''] = {} ;
-			this.assignObject( object[''] , object ) ;
-			
-			// Delete the operator about to be applied to from the clone, delete self-reference
-			delete object[''][ key ] ;
-			delete object[''][''] ;
-		}
-		
-		if ( ops[ i ].foreach )
-		{
-			if ( ! Array.isArray( object[ key ] ) )
-			{
-				// This is a bad foreach key, due to a userland bad entry: remove that key and move forward.
-				delete object[ key ] ;
-				continue ;
-			}
-			
-			object[ baseKey ] = this.operators[ ops[ i ].operator ].reduce.call(
-				this ,
-				object[ baseKey ] ,
-				object[ key ]
-			) ;
-			
-			if ( object[ baseKey ] === undefined ) { delete object[ baseKey ] ; }
-			
-			if ( object[ key ].length === 0 ) { delete object[ key ] ; }
-			else if ( object[ key ].length === 1 ) { object[ key.slice( 1 ) ] = object[ key ][ 0 ] ; delete object[ key ] ; }
-		}
-		else if ( ops[ i ].operator )
-		{
-			operands = [ object[ key ] ] ;
-			
-			//console.log( ">>> before" ) ;
-			//console.log( ">>> " , ops[ i ].operator ) ;
-			object[ baseKey ] = this.operators[ ops[ i ].operator ].reduce.call(
-				this ,
-				object[ baseKey ] ,
-				operands
-			) ;
-			//console.log( ">>> after" ) ;
-
-			if ( object[ baseKey ] === undefined ) { delete object[ baseKey ] ; }
-			
-			if ( operands.length === 0 ) { delete object[ key ] ; }
-		}
-		
-		if (
-			//object[ baseKey ] && typeof object[ baseKey ] === 'object' && ! Array.isArray( object[ baseKey ] ) &&
-			isPlainObject( object[ baseKey ] ) &&
-			antiCircularObjectList.indexOf( object[ baseKey ] ) === -1
-		)
-		{
-			antiCircularObjectList.push( object[ baseKey ] ) ;
-			this.reduceObject( object[ baseKey ] , antiCircularObjectList ) ;
-		}
-		
-		if ( ! baseKey )
-		{
-			// We have combined with the root object, assign the clone to the root
-			
-			//if ( object[''] && typeof object[''] === 'object' && ! Array.isArray( object[''] ) )
-			if ( isPlainObject( object[''] ) )
-			{
-				// The object ref has changed, but we cannot blindly assign object=object['']
-				// because the parent object will still refer to the old one
-				this.assignObject( object , object[''] ) ;
-			}
-			
-			delete object[''] ;
-			
-			// Operations on the root object are typically unsafe: some remaining operations may had gone
-			// and some new one should be created.
-			// We have to run again reduceObject() for the whole newly assigned object.
-			
-			return this.reduceObject( object , antiCircularObjectList ) ;
-		}
-	}
-	
-	return object ;
-} ;
-
-
-
-function sortOperations( a , b )
-{
-	// First, the operator rank is checked,
-	// then root object operations come last,
-	// and finally 'foreach' operations come first
-	return ( a.rank - b.rank ) ||
-		( ( a.baseKey ? 0 : 1 ) - ( b.baseKey ? 0 : 1 ) ) ||
-		( ( a.foreach ? 0 : 1 ) - ( b.foreach ? 0 : 1 ) ) ;
-}
-
-
-
-function isPlainObject( value )
-{
-	var proto ;
-	
-	return value &&
-		typeof value === 'object' &&
-		( ( proto = Object.getPrototypeOf( value ) ) === Object.prototype || proto === null ) ;
-}
-
-
-
-// Those operators do not need to be inside ()
-treeOps.reservedOperators = {
-//	'@': true ,	// needed?
-	'+': true ,
-	'-': true ,
-	'*': true ,
-	'/': true ,
-	'*>': true ,
-	'<*': true ,
-	'*>>': true ,
-	'<<*': true ,
-	'+>': true ,
-	'<+': true
-} ;
-
-// Expand them all with the 'foreach' prefix (#)
-Object.keys( treeOps.reservedOperators ).forEach( function( k ) {
-	treeOps.reservedOperators[ '#' + k ] = true ;
-} ) ;
-
-
-
-treeOps.reservedKeyStart = {
-//	'@': true ,	// needed?
-	'#': true ,
-	'(': true ,
-	'+': true ,
-	'-': true ,
-	'*': true ,
-	'/': true ,
-	'<' : true ,
-	'?': true ,
-	'!': true ,
-	'^': true ,
-} ;
-
-
-
-// NOTE: it MUST be efficient, hence the strange switch-case hell
-
-treeOps.splitOpKey = function splitOpKey( key )
-{
-	var i , iMax , opkey = key , splitted , foreach = false ;
-	
-	if ( opkey[ 0 ] === '(' )
-	{
-		opkey = key.slice( 1 ) ;
-		
-		if ( opkey[ 0 ] === '#' )
-		{
-			foreach = true ;
-			opkey = opkey.slice( 1 ) ;
-		}
-		
-		for ( i = 0 , iMax = opkey.length ; i < iMax && opkey[ i ] !== ')' ; i ++ ) {} // jshint ignore:line
-		
-		splitted = { operator: opkey.slice( 0 , i ) , baseKey: opkey.slice( i + 1 ) , key: key } ;
-	}
-	else
-	{
-		if ( opkey[ 0 ] === '#' )
-		{
-			foreach = true ;
-			opkey = opkey.slice( 1 ) ;
-		}
-		
-		switch ( opkey[ 0 ] )
-		{
-			/*
-			case '$' :
-				splitted = { operator: '$' , baseKey: opkey.slice( 1 ) , key: key } ;
-				break ;
-			*/
-			case '+' :
-				switch ( opkey[ 1 ] )
-				{
-					case '>' :
-						splitted = { operator: '+>' , baseKey: opkey.slice( 2 ) , key: key } ;
-						break ;
-					default :
-						splitted = { operator: '+' , baseKey: opkey.slice( 1 ) , key: key } ;
-				}
-				break ;
-			case '-' :
-				splitted = { operator: '-' , baseKey: opkey.slice( 1 ) , key: key } ;
-				break ;
-			case '*' :
-				switch ( opkey[ 1 ] )
-				{
-					case '>' :
-						switch ( opkey[ 2 ] )
-						{
-							case '>' :
-								splitted = { operator: '*>>' , baseKey: opkey.slice( 3 ) , key: key } ;
-								break ;
-							default :
-								splitted = { operator: '*>' , baseKey: opkey.slice( 2 ) , key: key } ;
-						}
-						break ;
-					default :
-						splitted = { operator: '*' , baseKey: opkey.slice( 1 ) , key: key } ;
-				}
-				break ;
-			case '/' :
-				splitted = { operator: '/' , baseKey: opkey.slice( 1 ) , key: key } ;
-				break ;
-			case '<' :
-				switch ( opkey[ 1 ] )
-				{
-					case '<' :
-						switch ( opkey[ 2 ] )
-						{
-							case '*' :
-								splitted = { operator: '<<*' , baseKey: opkey.slice( 3 ) , key: key } ;
-								break ;
-							default :
-								splitted = { operator: '' , baseKey: opkey , key: key } ;
-						}
-						break ;
-					case '*' :
-						splitted = { operator: '<*' , baseKey: opkey.slice( 2 ) , key: key } ;
-						break ;
-					case '+' :
-						splitted = { operator: '<+' , baseKey: opkey.slice( 2 ) , key: key } ;
-						break ;
-					case '^' :
-						splitted = { operator: '<^' , baseKey: opkey.slice( 2 ) , key: key } ;
-						break ;
-					default :
-						splitted = { operator: '' , baseKey: opkey , key: key } ;
-				}
-				break ;
-			case '^' :
-				splitted = { operator: '^' , baseKey: opkey.slice( 1 ) , key: key } ;
-				break ;
-			//case '@' :
-			//	/!\ Typically, this should never been encountered here, but solved at file loading
-			//	splitted = { operator: '@' , baseKey: opkey.slice( 1 ) , key: key } ;
-			default:
-				splitted = { operator: '' , baseKey: opkey , key: key } ;
-		}
-	}
-	
-	splitted.foreach = foreach ;
-	splitted.fullOperator = foreach ? '#' + splitted.operator : splitted.operator ;
-	
-	return splitted ;
-} ;
-
-
-
-treeOps.assignObject = function assignObject( target , source )
-{
-	var k ;
-	
-	for ( k in target ) { delete target[ k ] ; }
-	for ( k in source ) { target[ k ] = source[ k ] ; }
-} ;
-
-
-
-/*
-ASCII: &~#{}()[]-|`\_^°+=$%><*?,;.:/!
-ASCII 8bits: §«»
-
-# foreach prefix: the operand is an array, the operator should be applied to each element
-
-+ add
-- substract
-* multiply
-/ divide
-+> append (string, array)
-<+ prepend (string, array)
-*> merge after (object), i.e. overwrite
-<* merge before (object), i.e. do not overwrite
-*>> merge after, lesser priority
-<<* merge before, lesser priority
-
-Not implemented yet / not specified:
-*+> merge after (object), i.e. overwrite, use concat after when possible
-<+* merge before (object), i.e. do not overwrite, use concat before when possible
-$ global reference/link
-?: set if it does not exist (define)?
-!: set if it exists (rewrite)?
-! delete?
-_ gettext?
-^ pow
-<^ exp (the arg is the base, the existing key is the exponent)
-*/
-
-treeOps.operators = {} ;
-
-var rank = 0 ;
-
-// The order matter: it is sorted from the highest to the lowest priority
-
-// key: the full key, prepended by the operator
-// baseKey: the key without the operator
-
-// Assign operator (aka empty operator)
-treeOps.operators[''] = {
-	rank: rank ++ ,
-	reduce: function( existing , operands ) {
-		var i , iMax = operands.length ;
-		
-		for ( i = 0 ; i < iMax ; i ++ )
-		{
-			if (
-				//existing && typeof existing === 'object' && ! Array.isArray( existing ) &&
-				//operands[ i ] && typeof operands[ i ] === 'object' && ! Array.isArray( operands[ i ] )
-				isPlainObject( existing ) && isPlainObject( operands[ i ] )
-			)
-			{
-				// Both are object: autoReduce
-				this.autoReduce( existing , operands[ i ] ) ;
-			}
-			else
-			{
-				// One of them is not an object: assign
-				existing = operands[ i ] ;
-			}
-		}
-		
-		operands.length = 0 ;
-		return existing ;
-	}
-} ;
-
-// Combine (subtree) before
-treeOps.operators['<*'] = {
-	rank: rank ++ ,
-	reduce: function( existing , operands ) {
-		//if ( ! existing || typeof existing !== 'object' || Array.isArray( existing ) )
-		if ( ! isPlainObject( existing ) )
-		{
-			// Do nothing...
-			return existing ;
-		}
-		
-		// We have to reverse things before calling autoReduce()
-		var rcpt = {} ;
-		var args = [ existing ].concat( operands ).concat( rcpt ).reverse() ;
-		
-		this.autoReduce.apply( this , args ) ;
-		operands.length = 0 ;
-		
-		return rcpt ;
-		
-		// Or:
-		// this.assignObject( existing , rcpt ) ;
-		// return existing ;
-	}
-} ;
-
-// Combine (subtree) after
-treeOps.operators['*>'] = {
-	rank: rank ++ ,
-	reduce: function( existing , operands ) {
-		//if ( ! existing || typeof existing !== 'object' || Array.isArray( existing ) )
-		if ( ! isPlainObject( existing ) )
-		{
-			// Do nothing...
-			return existing ;
-		}
-		
-		//console.log( "calling autoReduce with:" , require('string-kit').inspect( {style:'color',depth:10},[ existing ].concat( operands ) ) ) ;
-		this.autoReduce.apply( this , [ existing ].concat( operands ) ) ;
-		operands.length = 0 ;
-		return existing ;
-	}
-} ;
-
-// Combine (subtree) before, lower priority
-treeOps.operators['<<*'] = {
-	rank: rank ++ ,
-	reduce: treeOps.operators['<*'].reduce
-} ;
-
-// Combine (subtree) after, lower priority
-treeOps.operators['*>>'] = {
-	rank: rank ++ ,
-	reduce: treeOps.operators['*>'].reduce
-} ;
-
-// Concat before / prepend
-treeOps.operators['<+'] = {
-	rank: rank ++ ,
-	reduce: function( existing , operands ) {
-		var i , iMax = operands.length , operand = [] ;
-		
-		for ( i = 0 ; i < iMax ; i ++ )
-		{
-			if ( Array.isArray( operands[ i ] ) )
-			{
-				operand = operands[ i ].concat( operand ) ;
-			}
-		}
-		
-		if ( Array.isArray( existing ) )
-		{
-			existing = operand.concat( existing ) ;
-			operands.length = 0 ;
-			return existing ;
-		}
-		else
-		{
-			operands[ 0 ] = operand ;
-			operands.length = 1 ;
-			return existing ;
-		}
-	}
-} ;
-
-// Concat after / append
-treeOps.operators['+>'] = {
-	rank: rank ++ ,
-	reduce: function( existing , operands ) {
-		var i , iMax = operands.length , operand = [] ;
-		
-		for ( i = 0 ; i < iMax ; i ++ )
-		{
-			if ( Array.isArray( operands[ i ] ) )
-			{
-				operand = operand.concat( operands[ i ] ) ;
-			}
-		}
-		
-		if ( Array.isArray( existing ) )
-		{
-			existing = existing.concat( operand ) ;
-			operands.length = 0 ;
-			return existing ;
-		}
-		else
-		{
-			operands[ 0 ] = operand ;
-			operands.length = 1 ;
-			return existing ;
-		}
-	}
-} ;
-
-treeOps.operators['/'] = {
-	rank: rank ++ ,
-	reduce: function( existing , operands ) {
-		var i , iMax = operands.length , operand = 1 ;
-		
-		for ( i = 0 ; i < iMax ; i ++ )
-		{
-			if ( ! isNaN( operands[ i ] ) )
-			{
-				operand *= + operands[ i ] ;
-			}
-		}
-		
-		if ( ! isNaN( existing ) )
-		{
-			existing = + existing / operand ;
-			operands.length = 0 ;
-			return existing ;
-		}
-		else
-		{
-			operands[ 0 ] = operand ;
-			operands.length = 1 ;
-			return existing ;
-		}
-	}
-} ;
-
-treeOps.operators['*'] = {
-	rank: rank ++ ,
-	reduce: function( existing , operands ) {
-		var i , iMax = operands.length , operand = 1 ;
-		
-		for ( i = 0 ; i < iMax ; i ++ )
-		{
-			if ( ! isNaN( operands[ i ] ) )
-			{
-				operand *= + operands[ i ] ;
-			}
-		}
-		
-		if ( ! isNaN( existing ) )
-		{
-			existing = + existing * operand ;
-			operands.length = 0 ;
-			return existing ;
-		}
-		else
-		{
-			operands[ 0 ] = operand ;
-			operands.length = 1 ;
-			return existing ;
-		}
-	}
-} ;
-
-treeOps.operators['-'] = {
-	rank: rank ++ ,
-	reduce: function( existing , operands ) {
-		var i , iMax = operands.length , operand = 0 ;
-		
-		for ( i = 0 ; i < iMax ; i ++ )
-		{
-			if ( ! isNaN( operands[ i ] ) )
-			{
-				operand += + operands[ i ] ;
-			}
-		}
-		
-		if ( ! isNaN( existing ) )
-		{
-			existing = + existing - operand ;
-			operands.length = 0 ;
-			return existing ;
-		}
-		else
-		{
-			operands[ 0 ] = operand ;
-			operands.length = 1 ;
-			return existing ;
-		}
-	}
-} ;
-
-treeOps.operators['+'] = {
-	rank: rank ++ ,
-	reduce: function( existing , operands ) {
-		var i , iMax = operands.length , operand = 0 ;
-		
-		for ( i = 0 ; i < iMax ; i ++ )
-		{
-			if ( ! isNaN( operands[ i ] ) )
-			{
-				operand += + operands[ i ] ;
-			}
-		}
-		
-		if ( ! isNaN( existing ) )
-		{
-			existing = + existing + operand ;
-			operands.length = 0 ;
-			return existing ;
-		}
-		else
-		{
-			operands[ 0 ] = operand ;
-			operands.length = 1 ;
-			return existing ;
-		}
-	}
-} ;
-
-
-
-/*
-The link mechanism is more complicated: it needs multipass at whole-tree level
-
-treeOps.operators['$'] = {
-	rank: rank ++ ,
-	multipass: true ,
-	reduce: function( target , key , baseKey , root ) {
-		
-		var parts , source = root ;
-		
-		if ( target[ key ] ) { source = tree.path.get( root , target[ key ] ) ; }
-		
-		target[ baseKey ] = source ;
-		delete target[ key ] ;
-		
-		// Multipass
-		parts = this.splitOpKey( baseKey ) ;
-		parts.rank = this.operators[ parts.operator ].rank ;
-		
-		return parts ;
-	}
-} ;
-*/
-
-},{}],10:[function(require,module,exports){
 (function (global){
 /*
 	Next Gen Events
@@ -4020,7 +3178,7 @@ NextGenEvents.Proxy = require( './Proxy.js' ) ;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../package.json":12,"./Proxy.js":11}],11:[function(require,module,exports){
+},{"../package.json":11,"./Proxy.js":10}],10:[function(require,module,exports){
 /*
 	Next Gen Events
 	
@@ -4623,16 +3781,72 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message )
 
 
 
-},{"./NextGenEvents.js":10}],12:[function(require,module,exports){
+},{"./NextGenEvents.js":9}],11:[function(require,module,exports){
 module.exports={
-  "name": "nextgen-events",
-  "version": "0.9.8",
-  "description": "The next generation of events handling for javascript! New: abstract away the network!",
-  "main": "lib/NextGenEvents.js",
-  "directories": {
-    "test": "test"
+  "_args": [
+    [
+      {
+        "raw": "nextgen-events@^0.9.8",
+        "scope": null,
+        "escapedName": "nextgen-events",
+        "name": "nextgen-events",
+        "rawSpec": "^0.9.8",
+        "spec": ">=0.9.8 <0.10.0",
+        "type": "range"
+      },
+      "/srv/soulserv/spellcast"
+    ]
+  ],
+  "_from": "nextgen-events@>=0.9.8 <0.10.0",
+  "_id": "nextgen-events@0.9.8",
+  "_inCache": true,
+  "_location": "/nextgen-events",
+  "_nodeVersion": "4.5.0",
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/nextgen-events-0.9.8.tgz_1473951316005_0.2686476525850594"
+  },
+  "_npmUser": {
+    "name": "cronvel",
+    "email": "cedric.ronvel@gmail.com"
+  },
+  "_npmVersion": "2.15.9",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "nextgen-events@^0.9.8",
+    "scope": null,
+    "escapedName": "nextgen-events",
+    "name": "nextgen-events",
+    "rawSpec": "^0.9.8",
+    "spec": ">=0.9.8 <0.10.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/",
+    "/async-kit",
+    "/terminal-kit"
+  ],
+  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.9.8.tgz",
+  "_shasum": "ed1712c2b37dad55407b3e941672d1568c3a4630",
+  "_shrinkwrap": null,
+  "_spec": "nextgen-events@^0.9.8",
+  "_where": "/srv/soulserv/spellcast",
+  "author": {
+    "name": "Cédric Ronvel"
+  },
+  "bugs": {
+    "url": "https://github.com/cronvel/nextgen-events/issues"
+  },
+  "copyright": {
+    "title": "Next-Gen Events",
+    "years": [
+      2015,
+      2016
+    ],
+    "owner": "Cédric Ronvel"
   },
   "dependencies": {},
+  "description": "The next generation of events handling for javascript! New: abstract away the network!",
   "devDependencies": {
     "browserify": "^13.0.1",
     "expect.js": "^0.3.1",
@@ -4641,13 +3855,15 @@ module.exports={
     "uglify-js": "^2.6.2",
     "ws": "^1.1.1"
   },
-  "scripts": {
-    "test": "mocha -R dot"
+  "directories": {
+    "test": "test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cronvel/nextgen-events.git"
+  "dist": {
+    "shasum": "ed1712c2b37dad55407b3e941672d1568c3a4630",
+    "tarball": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.9.8.tgz"
   },
+  "gitHead": "e91559128a1653ed3b58dcadefcac62aa7056207",
+  "homepage": "https://github.com/cronvel/nextgen-events#readme",
   "keywords": [
     "events",
     "async",
@@ -4660,259 +3876,28 @@ module.exports={
     "proxy",
     "network"
   ],
-  "author": {
-    "name": "Cédric Ronvel"
-  },
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cronvel/nextgen-events/issues"
+  "main": "lib/NextGenEvents.js",
+  "maintainers": [
+    {
+      "name": "cronvel",
+      "email": "cedric.ronvel@gmail.com"
+    }
+  ],
+  "name": "nextgen-events",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cronvel/nextgen-events.git"
   },
-  "copyright": {
-    "title": "Next-Gen Events",
-    "years": [
-      2015,
-      2016
-    ],
-    "owner": "Cédric Ronvel"
+  "scripts": {
+    "test": "mocha -R dot"
   },
-  "readme": "\n\n# NextGen Events\n\nNext generation of events handling for node.js\n\n* License: MIT\n* Current status: close to release\n* Platform: Node.js and browsers\n\n*NextGen Events* solves common trouble that one may encounter when dealing with events and listeners.\n\n## Feature highlights:\n\n* Standard event-handling almost compatible with Node.js built-in events\n* .emit() support a completion callback\n* Support for asynchronous event-handling\n* Multiple listeners can be tied to a single context\n* A context can be temporarly *disabled*\n* A context can be in *queue* mode: events for its listeners are stored, they will be *resumed* when the context is enabled again\n* Context serialization: async listeners can be run one after the other is fully completed\n* **NEW: proxy services!** Abstract away your network: emit and listen to emitter on the other side of the plug!\n\nEmitting events asynchronously or registering a listener that will be triggered asynchronously because it performs\nnon-critical tasks has some virtues: it gives some breath to the event-loop, so important I/O can be processed as soon as possible.\n\nContexts are really useful, it handles a collection of listeners.\nAt first glance, it looks like a sort of namespace for listeners.\nBut it can do more than that: you can turn a context off, so every listener tied to this context will not be triggered anymore,\nthen turn it on and they will be available again. \n\nYou can even switch a context into queue mode: the listeners tied to it will not be triggered, but events for those\nlisteners will be stored in the context. When the context is resumed, all retained events will trigger their listeners.\nThis allow one to postpone some operations, while performing some other high priority tasks, but be careful:\ndepending on your application nature, the queue may grow fast and consumes a lot of memory very quickly.\n\nOne of the top feature of this lib is the context serialization: it greatly eases the flow of the code!\nWhen differents events can fire at the same time, there are use cases when one does not want that async listener run concurrently.\nThe context serialization feature will ensure you that no concurrency will happen for listeners tied to it.\nYou do not have to code fancy or complicated tests to cover all cases anymore: just let *NextGen Events* do it for you!\n\n**Proxy services are awesome.** They abstract away the network so we can emit and listen to emitter on the other side of the plug!\nBoth side of the channel create a Proxy, and add to it local and remote *services*, i.e. event emitters, and that's all.\nA remote service looks like a normal (i.e. local) emitter, and share the same API (with few limitations).\nIt's totally protocol agnostic, you just define two methods for your proxy: one to read from the network and one to send to it\n(e.g. for Web Socket, this is a one-liner).\n\n\n\n# Install\n\nUse npm:\n\n```\nnpm install nextgen-events\n```\n\n\n# Getting started\n\nBy the way you can create an event emitter simply by creating a new object, this way:\n\n```js\nvar NGEmitter = require( 'nextgen-events' ) ;\nvar emitter = new NGEmitter() ;\n```\n\nYou can use `var emitter = Object.create( NGEmitter.prototype )` as well, the object does not need the constructor.\n\nBut in real life, you would make your own objects inherit it:\n\n```js\nvar NGEmitter = require( 'nextgen-events' ) ;\n\nfunction myClass()\n{\n\t// myClass constructor code here\n}\n\nmyClass.prototype = Object.create( NGEmitter.prototype ) ;\nmyClass.prototype.constructor = myClass ;\t// restore the constructor\n\n// define other methods for myClass...\n```\n\nThe basis of the event emitter works like Node.js built-in events:\n\n```js\nvar NGEmitter = require( 'nextgen-events' ) ;\nvar emitter = new NGEmitter() ;\n\n// Normal listener\nemitter.on( 'message' , function( message ) {\n\tconsole.log( 'Message received: ' , message ) ;\n} ) ;\n\n// One time listener:\nemitter.once( 'close' , function() {\n\tconsole.log( 'Connection closed!' ) ;\n} ) ;\n\n// The error listener: if it is not defined, the error event will throw an exception\nemitter.on( 'error' , function( error ) {\n\tconsole.log( 'Shit happens: ' , error ) ;\n} ) ;\n\nemitter.emit( 'message' , 'Hello world!' ) ;\n// ...\n```\n\n\n\n# References\n\nNode.js documentation:\n\n> When an EventEmitter instance experiences an error, the typical action is to emit an 'error' event.\n> Error events are treated as a special case in node. If there is no listener for it,\n> then the default action is to print a stack trace and exit the program.\n\n> All EventEmitters emit the event 'newListener' when new listeners are added and 'removeListener' when a listener is removed. \n\nFor the 'newListener' and 'removeListener' events, see the section about [incompatibilities](#incompatibilities), since there\nare few differences with the built-in Node.js EventEmitter.\n\n\n\n## Table of Content\n\n* [Events](#ref.events)\n\t* [.addListener() / .on()](#ref.events.addListener)\n\t* [.once()](#ref.events.once)\n\t* [.removeListener() / .off()](#ref.events.removeListener)\n\t* [.removeAllListeners()](#ref.events.removeAllListeners)\n\t* [.setMaxListeners()](#ref.events.setMaxListeners)\n\t* [.listeners()](#ref.events.listeners)\n\t* [.listenerCount()](#ref.events.listenerCount)\n\t* [.setNice()](#ref.events.setNice)\n\t* [.emit()](#ref.events.emit)\n\t* [.addListenerContext()](#ref.events.addListenerContext)\n\t* [.disableListenerContext()](#ref.events.disableListenerContext)\n\t* [.queueListenerContext()](#ref.events.queueListenerContext)\n\t* [.enableListenerContext()](#ref.events.enableListenerContext)\n\t* [.setListenerContextNice()](#ref.events.setListenerContextNice)\n\t* [.serializeListenerContext()](#ref.events.serializeListenerContext)\n\t* [.destroyListenerContext()](#ref.events.destroyListenerContext)\n\t* [the *nice feature*](#ref.note.nice)\n\t* [incompatibilities](#incompatibilities)\n* [Proxy Services](#ref.proxy)\n\n\n\n<a name=\"ref.events\"></a>\n## Events\n\n<a name=\"ref.events.addListener\"></a>\n### .addListener( eventName , [fn] , [options] )   *or*   .on( eventName , [fn] , [options] )\n\n* eventName `string` the name of the event to bind to\n* fn `Function` the callback function for this event, this argument is optional: it can be passed to the `fn` property of `options`\n* options `Object` where:\n\t* fn `Function` (mandatory if no `fn` argument provided) the listener function\n\t* id `any type` (default to the provided *fn* function) the identifier of the listener, useful if we have to remove it later\n\t* once `boolean` (default: false) *true* if this is a one-time-listener\n\t* context `string` (default: undefined - no context) a non-empty string identifying a context, if defined the listener\n\t  will be tied to this context, if this context is unexistant, it will be implicitly defined with default behaviour\n\t* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\t* async `boolean` (default: false) set it to *true* if the listener is async by nature and a context serialization is wanted,\n\t  when *async* is set for a listener, it **MUST** accept a completion callback as its last argument.\n\t* eventObject `boolean` (default: false) if set, the listener will be passed an unique argument: the very same event object\n\t  that is returned by `.emit()`, if the listener is async, a second argument is passed as the callback\n\nNode.js documentation:\n\n> Adds a listener to the end of the listeners array for the specified event.\n> No checks are made to see if the listener has already been added.\n> Multiple calls passing the same combination of event and listener will result in the listener being added multiple times.\n\n```js\nserver.on( 'connection' , function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ) ;\n```\n\n> Returns emitter, so calls can be chained.\n\nExample, creating implicitly a context the listeners will be tied to:\n\n```js\nserver.on( 'connection' , {\n\tcontext: 'ctx' ,\n\tfn: function( stream ) {\n\t\tconsole.log( 'someone connected!' ) ;\n\t}\n} ) ;\n\nserver.on( 'close' , {\n\tcontext: 'ctx' ,\n\tfn: function() {\n\t\tconsole.log( 'connection closed!' ) ;\n\t\t\n\t\t// Destroy the context and all listeners tied to it:\n\t\tserver.destroyListenerContext( 'ctx' ) ;\n\t}\n} ) ;\n\nserver.on( 'error' , {\n\tcontext: 'ctx' ,\n\tfn: function() {\n\t\t// some error handling code\n\t\t\n\t\t// Destroy the context and all listeners tied to it:\n\t\tserver.destroyListenerContext( 'ctx' ) ;\n\t}\n} ) ;\n```\n\nWhen an async listener is defined, the completion callback is automatically added at the end of the arguments \nsupplied to [.emit()](#ref.events.emit) for any listeners with *async = true*.\n\n\n\n<a name=\"ref.events.once\"></a>\n### .once( eventName , listener )\n\n* eventName `string` the name of the event to bind to\n* listener `Function` or `Object` the listener that will listen to this event, it can be a function or an object where:\n\t* fn `Function` (mandatory) the listener function\n\t* id `any type` (default to the provided *fn* function) the identifier of the listener, useful if we have to remove it later\n\t* context `string` (default: undefined - no context) a non-empty string identifying a context, if defined the listener\n\t  will be tied to this context, if this context is unexistant, it will be implicitly defined with default behaviour\n\t* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\t* async `boolean` (default: false) set it to *true* if the listener is async by nature and a context serialization is wanted\n\nNode.js documentation:\n\n> Adds a **one time** listener for the event.\n> This listener is invoked only the next time the event is fired, after which it is removed. \n\n```js\nserver.once( 'connection' , function( stream ) {\n\tconsole.log( 'Ah, we have our first user!' ) ;\n} ) ;\n```\n\n> Returns emitter, so calls can be chained.\n\nNote that using `.once()` in *NextGen Events* lib is just a syntactic sugar (and it's also there for compatibility),\nthe previous example can be rewritten using `.on()`:\n\n```js\nserver.on( 'connection' , {\n\tfn: function( stream ) {\n\t\tconsole.log( 'Ah, we have our first user!' ) ;\n\t} ,\n\tonce: true\n} ) ;\n```\n\n\n\n<a name=\"ref.events.removeListener\"></a>\n### .removeListener( eventName , listenerID )   *or*   .off( eventName , listenerID )\n\n* eventName `string` the name of the event the listener to remove is binded to\n* listenerID `any type` the identifier of the listener to remove\n\nNode.js documentation:\n\n> Remove a listener from the listener array for the specified event.\n> **Caution**: changes array indices in the listener array behind the listener. \n\n```js\nvar callback = function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ;\n\nserver.on( 'connection' , callback ) ;\n// ...\nserver.removeListener( 'connection' , callback ) ;\n```\n\n**CAUTION: Unlike the built-in Node.js emitter**, `.removeListener()` will remove **ALL** listeners whose ID is matching\nthe given *listenerID*.\nIf any single listener has been added multiple times to the listener array for the specified event, then only one\ncall to `.removeListener()` will remove them all.\n\n> Returns emitter, so calls can be chained.\n\nExample using user-defined ID:\n\n```js\nvar callback = function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ;\n\nserver.on( 'connection' , { id: 'foo' , fn: callback } ) ;\nserver.on( 'connection' , { id: 'bar' , fn: callback } ) ;\n\n// ...\n\n// Does nothing! we have used custom IDs!\nserver.removeListener( 'connection' , callback ) ;\n\n// Remove the first listener only, despite the fact they are sharing the same function\nserver.removeListener( 'connection' , 'foo' ) ;\n```\n\nDon't forget that by default, the ID is the callback function itself.\n\n\n\n<a name=\"ref.events.removeAllListeners\"></a>\n### .removeAllListeners( [eventName] )\n\n* eventName `string` (optional) the name of the event the listeners to remove are binded to\n\nNode.js documentation:\n\n> Removes all listeners, or those of the specified event.\n> It's not a good idea to remove listeners that were added elsewhere in the code, especially when it's on an emitter\n> that you didn't create (e.g. sockets or file streams).\n\n> Returns emitter, so calls can be chained.\n\n\n\n<a name=\"ref.events.setMaxListeners\"></a>\n### .setMaxListeners()\n\nOnly available for compatibility with the built-in Node.js emitter, so it does not break the code for people that want\nto make the switch.\n\nBut please note that **there is no such concept of max listener in NextGen Events**, this method does nothing\n(it's an empty function).\n\n\n\n<a name=\"ref.events.listeners\"></a>\n### .listeners( eventName )\n\n* eventName `string` (optional) the name of the event the listeners to list are binded to\n\nNode.js documentation:\n\n> Returns an array of listeners for the specified event.\n\n```js\nserver.on( 'connection' , function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ) ;\n\nconsole.log( util.inspect( server.listeners( 'connection' ) ) ) ;\n// output:\n// [ { id: [Function], fn: [Function], nice: -Infinity, event: 'connection' } ]\n```\n\n\n\n<a name=\"ref.events.listenerCount\"></a>\n### .listenerCount( eventName )\n\n* eventName `string` the name of the event\n\nNode.js documentation:\n\n> Returns the number of listeners listening to the type of event.\n\n\n\n<a name=\"ref.events.setNice\"></a>\n### .setNice( nice )\n\n* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\nSet the default *nice value* of the current emitter.\n\n\n\n<a name=\"ref.events.emit\"></a>\n### .emit( [nice] , eventName , [arg1] , [arg2] , [...] , [callback] )\n\n* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n* eventName `string` (optional) the name of the event to emit\n* arg1 `any type` (optional) first argument to transmit\n* arg2 `any type` (optional) second argument to transmit\n* ...\n* callback `function` (optional) a completion callback triggered when all listener have done, accepting arguments:\n\t* interruption `any type` if truthy, then emit was interrupted with this interrupt value (provided by userland)\n\t* event `Object` representing the current event\n\nIt returns an object representing the current event.\n\nNode.js documentation:\n\n> Execute each of the listeners in order with the supplied arguments.\n\n**It does not returns the emitter!**\n\n\n\n\n<a name=\"ref.note.nice\"></a>\n### A note about the *nice feature*\n\nThe *nice value* represent the *niceness* of the event-emitting processing.\nThis concept is inspired by the UNIX *nice* concept for processus (see the man page for the *nice* and *renice* command).\n\nIn this lib, this represents the asyncness of the event-emitting processing.\n\nThe constant `require( 'nextgen-events' ).SYNC` can be used to have synchronous event emitting, its value is `-Infinity`\nand it's the default value.\n\n* any nice value *N* greater than or equals to 0 will be emitted asynchronously using setTimeout() with a *N* ms timeout\n  to call the listeners\n* any nice value *N* lesser than 0 will emit event synchronously until *-N* recursion is reached, after that, setImmediate()\n  will be used to call the listeners, the first event count as 1 recursion, so if nice=-1, all events will be asynchronously emitted,\n  if nice=-2 the initial event will call the listener synchronously, but if the listener emits events on the same emitter object,\n  the sub-listener will be called through setImmediate(), breaking the recursion... and so on...\n\nThey are many elements that can define their own *nice value*.\n\nHere is how this is resolved:\n\n* First the *emit nice value* will be the one passed to the `.emit()` method if given, or the default *emitter nice value*\n  defined with [.setNice()](#ref.events.setNice).\n* For each listener to be called, the real *nice value* for the current listener will be the **HIGHEST** *nice value* of\n  the *emit nice value* (see above), the listener *nice value* (defined with [.addListener()](#ref.events.addListener)), and\n  if the listener is tied to a context, the context *nice value* (defined with [.addListenerContext()](#ref.events.addListenerContext)\n  or [.setListenerContextNice](#ref.events.setListenerContextNice))\n\n\n\n<a name=\"ref.events.addListenerContext\"></a>\n### .addListenerContext( contextName , options )\n\n* contextName `string` a non-empty string identifying the context to be created\n* options `Object` an object of options, where:\n\t* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\t* serial `boolean` (default: false) if true, the async listeners tied to this context will run sequentially,\n\t  one after the other is fully completed\n\nCreate a context using the given *contextName*.\n\nListeners can be tied to a context, enabling some grouping features like turning them on or off just by enabling/disabling\nthe context, queuing them, resuming them, or forcing serialization of all async listeners.\n\n\n\n<a name=\"ref.events.disableListenerContext\"></a>\n### .disableListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nIt disables a context: any listeners tied to it will not be triggered anymore.\n\nThe context is not destroyed, the listeners are not removed, they are just inactive.\nThey can be enabled again using [.enableListenerContext()](#ref.events.enableListenerContext).\n\n\n\n<a name=\"ref.events.queueListenerContext\"></a>\n### .queueListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nIt switchs a context into *queue mode*: any listeners tied to it will not be triggered anymore, but every listener's call\nwill be queued.\n\nWhen the context will be enabled again using [.enableListenerContext()](#ref.events.enableListenerContext), any queued listener's call\nwill be processed.\n\n\n\n<a name=\"ref.events.enableListenerContext\"></a>\n### .enableListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nThis enables a context previously disabled using [.disableListenerContext()](#ref.events.disableListenerContext) or queued\nusing [.disableListenerContext()](#ref.events.disableListenerContext).\n\nIf the context was queued, any queued listener's call will be processed right now for synchronous emitter, or a bit later\ndepending on the *nice value*. E.g. if a listener would have been called with a timeout of 50 ms (nice value = 5),\nand the call has been queued, the timeout will apply at resume time.\n\n\n\n<a name=\"ref.events.setListenerContextNice\"></a>\n### .setListenerContextNice( contextName , nice )\n\n* contextName `string` a non-empty string identifying the context to be created\n* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\nSet the *nice* value for the current context.\n\n\n\n<a name=\"ref.events.serializeListenerContext\"></a>\n### .serializeListenerContext( contextName , [value] )\n\n* contextName `string` a non-empty string identifying the context to be created\n* value `boolean` (optional, default is true) if *true* the context will enable serialization for async listeners.\n\nThis is one of the top feature of this lib.\n\nIf set to *true* it enables the context serialization.\n\nIt has no effect on listeners defined without the *async* option (see [.addListener()](#ref.events.addListener)).\nListeners defined with the async option will postpone any other listener's calls part of the same context.\nThose calls will be queued until the completion callback of the listener is triggered.\n\nExample:\n\n```js\napp.on( 'maintenance' , {\n\tcontext: 'maintenanceHandlers' ,\n\tasync: true ,\n\tfn: function( type , done ) {\n\t\tperformSomeCriticalAsyncStuff( function() {\n\t\t\tconsole.log( 'Critical maintenance stuff finished' ) ;\n\t\t\tdone() ;\n\t\t} ) ;\n\t}\n} ) ;\n\napp.serializeListenerContext( maintenanceHandlers ) ;\n\n// ...\n\napp.emit( 'maintenance' , 'doBackup' ) ;\n\n// Despite the fact we emit synchronously, the listener will not be called now,\n// it will be queued and called later when the previous call will be finished\napp.emit( 'maintenance' , 'doUpgrade' ) ;\n```\n\nBy the way, there is only one listener here that will queue itself, and only one event type is fired.\nBut this would work the same with multiple listener and event type, if they share the same context.\n\nSame code with two listeners and two event type:\n\n```js\napp.on( 'doBackup' , {\n\tcontext: 'maintenanceHandlers' ,\n\tasync: true ,\n\tfn: function( done ) {\n\t\tperformBackup( function() {\n\t\t\tconsole.log( 'Backup finished' ) ;\n\t\t\tdone() ;\n\t\t} ) ;\n\t}\n} ) ;\n\napp.on( 'doUpgrade' , {\n\tcontext: 'maintenanceHandlers' ,\n\tasync: true ,\n\tfn: function( done ) {\n\t\tperformUpgrade( function() {\n\t\t\tconsole.log( 'Upgrade finished' ) ;\n\t\t\tdone() ;\n\t\t} ) ;\n\t}\n} ) ;\n\napp.on( 'whatever' , function() {\n\t// Some actions...\n} ) ;\n\napp.serializeListenerContext( maintenanceHandlers ) ;\n\n// ...\n\napp.emit( 'doBackup' ) ;\n\n// Despite the fact we emit synchronously, the second listener will not be called now,\n// it will be queued and called later when the first listener will have finished its job\napp.emit( 'doUpgrade' ) ;\n\n// The third listener is not part of the 'maintenanceHandlers' context, so it will be called\n// right now, before the first listener finished, and before the second listener ever start\napp.emit( 'whatever' ) ;\n```\n\n\n\n<a name=\"ref.events.destroyListenerContext\"></a>\n### .destroyListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nThis destroy a context and remove all listeners tied to it.\n\nAny queued listener's calls will be lost.\n\n\n\n<a name=\"incompatibilities\"></a>\n## Incompatibilities with the built-in Node.js EventEmitter\n\nNextGen Events is almost compatible with Node.js' EventEmitter, except for few things:\n\n* .emit() does not return the emitter, but an object representing the current event.\n\n* If the last argument passed to .emit() is a function, it is not passed to listeners, instead it is a completion callback\n  triggered when all listeners have done their job. If one want to pass function to listeners as the final argument, it is easy\n  to add an extra `null` or `undefined` argument to .emit().\n\n* There is more reserved event name: 'interrupt', 'emitted'.\n\n* There is no such concept of *max listener* in NextGen Events, .setMaxListeners() function exists only to not break compatibility\n  for people that want to make the switch, but it does nothing (it's an empty function).\n\n* .removeListener() will remove all matching listener, not only the first listener found.\n\n* 'newListener'/'removeListener' event listener will receive an array of new/removed *listener object*, instead of only one\n  *listener function*.\n  E.g: it will be fired only once by when .removeListener() or .removeAllListener() is invoked and multiple listeners are deleted.\n  A *listener object* contains a property called 'fn' that hold the actual *listener function*.\n\n* `.removeAllListeners()` without any argument does not trigger 'removeListener' listener, because there are actually removed too.\n  The same apply to `.removeAllListeners( 'removeListener' )`.\n\n* .listeners() same here: rather than providing an array of *listener function* an array of *listener object* is provided.\n\n\n\n<a name=\"ref.proxy\"></a>\n## Proxy Services\n\n**This part of the doc is still a work in progress!**\n\n**Proxy services are awesome.** They abstract away the network so we can emit and listen to emitter on the other side of the plug!\nBoth side of the channel create a Proxy, and add to it local and remote *services*, i.e. event emitters, and that's all.\nA remote service looks like a normal (i.e. local) emitter, and share the same API (with few limitations).\n\nIt's totally protocol agnostic, you just define two methods for your proxy: one to read from the network and one to send to it\n(e.g. for Web Socket, this is a one-liner).\n\n\n\n#### Example, using the Web Socket *ws* node module\n\nThe code below set up a server and a client written in Node.js.\nThe server expose the *heartBeatService* which simply emit an *heartBeat* event once in a while with the beat count as data.\nMost of this code is websocket boiler-plate, the actual proxy code involves only few lines.\nThe client code could be easily rewritten for the browser.\n\n**Server:**\n\n```js\nvar NGEvents = require( 'nextgen-events' ) ;\n\n// Create our service/emitter\nvar heartBeatEmitter = new NGEvents() ;\nvar nextBeat = 1 ;\n\n// Emit one 'heartBeat' event every few seconds\nsetInterval( function() {\n  var beat = nextBeat ++ ;\n  heartBeatEmitter.emit( 'heartBeat' , beat ) ;\n} , 2000 ) ;\n\n// Create our server\nvar WebSocket = require( 'ws' ) ;\nvar server = new WebSocket.Server( { port: 12345 } ) ;\n\n// On new connection... \nserver.on( 'connection' , function connection( ws ) {\n  \n  // Create a proxy for this client\n  var proxy = new NGEvents.Proxy() ;\n  \n  // Add the local service exposed to this client and grant it all right\n  proxy.addLocalService( 'heartBeatService' , heartBeatEmitter ,\n    { listen: true , emit: true , ack: true } ) ;\n  \n  // message received: just hook to proxy.receive()\n  ws.on( 'message' , function incoming( message ) {\n    proxy.receive( message ) ;\n  } ) ;\n  \n  // Define the receive method: should call proxy.push()\n  // after decoding the raw message\n  proxy.receive = function receive( raw ) {\n    try { proxy.push( JSON.parse( raw ) ) ; } catch ( error ) {}\n  } ;\n  \n  // Define the send method\n  proxy.send = function send( message ) {\n    ws.send( JSON.stringify( message ) ) ;\n  } ;\n  \n  // Clean up after everything is done\n  ws.on( 'close' , function close() {\n    proxy.destroy() ;\n  } ) ;\n} ) ;\n```\n\n**Client:**\n\n```js\nvar NGEvents = require( 'nextgen-events' ) ;\nvar WebSocket = require( 'ws' ) ;\nvar ws = new WebSocket( 'ws://127.0.0.1:12345' ) ;\n\n// Create a proxy\nvar proxy = new NGEvents.Proxy() ;\n\n// Once the connection is established...\nws.on( 'open' , function open() {\n  \n  // Add the remote service we want to access\n  proxy.addRemoteService( 'heartBeatService' ) ;\n  \n  // Listen to the event 'heartBeat' on this service\n  proxy.remoteServices.heartBeatService.on( 'heartBeat' , function( beat ) {\n    console.log( '>>> Heart Beat (%d) received!' , beat ) ;\n  } ) ;\n} ) ;\n\n// message received: just hook to proxy.receive()\nws.on( 'message' , function( message ) {\n  proxy.receive( message ) ;\n} ) ;\n\n// Define the receive method: should call proxy.push()\n// after decoding the raw message\nproxy.receive = function receive( raw ) {\n  try { proxy.push( JSON.parse( raw ) ) ; } catch ( error ) {}\n} ;\n\n// Define the send method\nproxy.send = function send( message ) {\n  ws.send( JSON.stringify( message ) ) ;\n} ;\n\n// Clean up after everything is done\nws.on( 'close' , function close() {\n  proxy.destroy() ;\n} ) ;\n```\n\n\n\nOptions passed to `.addLocalService()`:\n\n* listen `boolean` if set, the remote client can listen (addListener()/on()) to the local emitter\n* emit `boolean` if set, the remote client can emit on the local emitter\n* ack `boolean` if set, the remote client can acknowledge or ask for acknowledgement, enabling **async listeners**\n  and .emit()'s **completion callback**\n\n\n\nNextGen Events features available in proxy services:\n\n* All the basic API is supported (the node-compatible API)\n* Emit completion callback supported\n* Async listeners supported\n\n\n\nFeatures that could be supported in the future:\n\n* Emit interruption and retrieving the interruption value\n\n\n\nFeatures that are unlikely to be supported:\n\n* Remote emit with a nice value (does not make sense at all through a network)\n* Contexts cannot be shared across different proxies/client, think of it as if they were namespaced behind their proxy\n\n\n",
-  "readmeFilename": "README.md",
-  "gitHead": "e91559128a1653ed3b58dcadefcac62aa7056207",
-  "homepage": "https://github.com/cronvel/nextgen-events#readme",
-  "_id": "nextgen-events@0.9.8",
-  "_shasum": "ed1712c2b37dad55407b3e941672d1568c3a4630",
-  "_from": "nextgen-events@>=0.9.8 <0.10.0"
+  "version": "0.9.8"
 }
 
-},{}],13:[function(require,module,exports){
-(function (process){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// resolves . and .. elements in a path array with directory names there
-// must be no slashes, empty elements, or device names (c:\) in the array
-// (so also no leading and trailing slashes - it does not distinguish
-// relative and absolute paths)
-function normalizeArray(parts, allowAboveRoot) {
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = parts.length - 1; i >= 0; i--) {
-    var last = parts[i];
-    if (last === '.') {
-      parts.splice(i, 1);
-    } else if (last === '..') {
-      parts.splice(i, 1);
-      up++;
-    } else if (up) {
-      parts.splice(i, 1);
-      up--;
-    }
-  }
-
-  // if the path is allowed to go above the root, restore leading ..s
-  if (allowAboveRoot) {
-    for (; up--; up) {
-      parts.unshift('..');
-    }
-  }
-
-  return parts;
-}
-
-// Split a filename into [root, dir, basename, ext], unix version
-// 'root' is just a slash, or nothing.
-var splitPathRe =
-    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
-var splitPath = function(filename) {
-  return splitPathRe.exec(filename).slice(1);
-};
-
-// path.resolve([from ...], to)
-// posix version
-exports.resolve = function() {
-  var resolvedPath = '',
-      resolvedAbsolute = false;
-
-  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-    var path = (i >= 0) ? arguments[i] : process.cwd();
-
-    // Skip empty and invalid entries
-    if (typeof path !== 'string') {
-      throw new TypeError('Arguments to path.resolve must be strings');
-    } else if (!path) {
-      continue;
-    }
-
-    resolvedPath = path + '/' + resolvedPath;
-    resolvedAbsolute = path.charAt(0) === '/';
-  }
-
-  // At this point the path should be resolved to a full absolute path, but
-  // handle relative paths to be safe (might happen when process.cwd() fails)
-
-  // Normalize the path
-  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
-    return !!p;
-  }), !resolvedAbsolute).join('/');
-
-  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-};
-
-// path.normalize(path)
-// posix version
-exports.normalize = function(path) {
-  var isAbsolute = exports.isAbsolute(path),
-      trailingSlash = substr(path, -1) === '/';
-
-  // Normalize the path
-  path = normalizeArray(filter(path.split('/'), function(p) {
-    return !!p;
-  }), !isAbsolute).join('/');
-
-  if (!path && !isAbsolute) {
-    path = '.';
-  }
-  if (path && trailingSlash) {
-    path += '/';
-  }
-
-  return (isAbsolute ? '/' : '') + path;
-};
-
-// posix version
-exports.isAbsolute = function(path) {
-  return path.charAt(0) === '/';
-};
-
-// posix version
-exports.join = function() {
-  var paths = Array.prototype.slice.call(arguments, 0);
-  return exports.normalize(filter(paths, function(p, index) {
-    if (typeof p !== 'string') {
-      throw new TypeError('Arguments to path.join must be strings');
-    }
-    return p;
-  }).join('/'));
-};
-
-
-// path.relative(from, to)
-// posix version
-exports.relative = function(from, to) {
-  from = exports.resolve(from).substr(1);
-  to = exports.resolve(to).substr(1);
-
-  function trim(arr) {
-    var start = 0;
-    for (; start < arr.length; start++) {
-      if (arr[start] !== '') break;
-    }
-
-    var end = arr.length - 1;
-    for (; end >= 0; end--) {
-      if (arr[end] !== '') break;
-    }
-
-    if (start > end) return [];
-    return arr.slice(start, end - start + 1);
-  }
-
-  var fromParts = trim(from.split('/'));
-  var toParts = trim(to.split('/'));
-
-  var length = Math.min(fromParts.length, toParts.length);
-  var samePartsLength = length;
-  for (var i = 0; i < length; i++) {
-    if (fromParts[i] !== toParts[i]) {
-      samePartsLength = i;
-      break;
-    }
-  }
-
-  var outputParts = [];
-  for (var i = samePartsLength; i < fromParts.length; i++) {
-    outputParts.push('..');
-  }
-
-  outputParts = outputParts.concat(toParts.slice(samePartsLength));
-
-  return outputParts.join('/');
-};
-
-exports.sep = '/';
-exports.delimiter = ':';
-
-exports.dirname = function(path) {
-  var result = splitPath(path),
-      root = result[0],
-      dir = result[1];
-
-  if (!root && !dir) {
-    // No dirname whatsoever
-    return '.';
-  }
-
-  if (dir) {
-    // It has a dirname, strip trailing slash
-    dir = dir.substr(0, dir.length - 1);
-  }
-
-  return root + dir;
-};
-
-
-exports.basename = function(path, ext) {
-  var f = splitPath(path)[2];
-  // TODO: make this comparison case-insensitive on windows?
-  if (ext && f.substr(-1 * ext.length) === ext) {
-    f = f.substr(0, f.length - ext.length);
-  }
-  return f;
-};
-
-
-exports.extname = function(path) {
-  return splitPath(path)[3];
-};
-
-function filter (xs, f) {
-    if (xs.filter) return xs.filter(f);
-    var res = [];
-    for (var i = 0; i < xs.length; i++) {
-        if (f(xs[i], i, xs)) res.push(xs[i]);
-    }
-    return res;
-}
-
-// String.prototype.substr - negative index don't work in IE8
-var substr = 'ab'.substr(-1) === 'b'
-    ? function (str, start, len) { return str.substr(start, len) }
-    : function (str, start, len) {
-        if (start < 0) start = str.length + start;
-        return str.substr(start, len);
-    }
-;
-
-}).call(this,require('_process'))
-},{"_process":14}],14:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -5094,7 +4079,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],15:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -5631,7 +4616,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],16:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5717,7 +4702,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],17:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5804,13 +4789,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],18:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":16,"./encode":17}],19:[function(require,module,exports){
+},{"./decode":14,"./encode":15}],17:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -5870,7 +4855,7 @@ module.exports = {
 
 
 
-},{}],20:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -5969,7 +4954,7 @@ exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
 
 
 
-},{}],21:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -6387,7 +5372,7 @@ exports.format.hasFormatting = function hasFormatting( str )
 
 
 
-},{"./ansi.js":19,"./inspect.js":22}],22:[function(require,module,exports){
+},{"./ansi.js":17,"./inspect.js":20}],20:[function(require,module,exports){
 (function (Buffer,process){
 /*
 	String Kit
@@ -6951,7 +5936,7 @@ inspectStyle.html = treeExtend( null , {} , inspectStyle.none , {
 
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")},require('_process'))
-},{"../../is-buffer/index.js":8,"./ansi.js":19,"./escape.js":20,"_process":14,"tree-kit/lib/extend.js":23}],23:[function(require,module,exports){
+},{"../../is-buffer/index.js":8,"./ansi.js":17,"./escape.js":18,"_process":12,"tree-kit/lib/extend.js":21}],21:[function(require,module,exports){
 /*
 	Tree Kit
 	
@@ -7292,7 +6277,7 @@ function extendOne( runtime , options , target , source )
 }
 
 
-},{}],24:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8026,7 +7011,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":25,"punycode":15,"querystring":18}],25:[function(require,module,exports){
+},{"./util":23,"punycode":13,"querystring":16}],23:[function(require,module,exports){
 'use strict';
 
 module.exports = {
