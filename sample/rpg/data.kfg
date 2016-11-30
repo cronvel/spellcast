@@ -53,6 +53,8 @@
 	label: Excalibur
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 5500
 	usages:
 		melee-fighting:
 			# When the weapon is used

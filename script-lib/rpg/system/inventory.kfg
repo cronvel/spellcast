@@ -131,7 +131,7 @@
 		[if ( $args.buy-price is-number? ) || ( $args.sell-price is-number? )]
 			[if $args.performer.goods.gp is-empty?]
 				[set $args.performer.goods.gp] 0
-			[message] $> You have ${args.performer.goods.gp} GP.
+			[message] $> You have ^Y${args.performer.goods.gp}^ GP.
 		
 		[next]
 			[label] $> (Done)
@@ -152,7 +152,7 @@
 			[if ( $args.buy-price is-number? ) && ( $local.item.ownStats.price is-number? )]
 				[set $local.verb] buy
 				[set $local.price] $= ceil ( $local.item.ownStats.price * $args.buy-price )
-				[set $local.price-string] $> for ${local.price} GP
+				[set $local.price-string] $> (${local.price} GP)
 			[else]
 				[set $local.verb] grab
 				[set $local.price] 0
@@ -166,10 +166,13 @@
 					price: $local.price
 				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
 				[on-trigger]
-					[sub $args.performer.goods.gp] $local.price
-					[grab $args.performer]
-						item: $args.item
-						stack: $args.stack
+					[if $args.performer.goods.gp >= $args.price]
+						[sub $args.performer.goods.gp] $args.price
+						[grab $args.performer]
+							item: $args.item
+							stack: $args.stack
+					[else]
+						[message] $> Not enough GP!
 		
 	
 	
@@ -182,7 +185,7 @@
 			[if ( $args.sell-price is-number? ) && ( $local.item.ownStats.price is-number? )]
 				[set $local.verb] sell
 				[set $local.price] $= floor ( $local.item.ownStats.price * $args.sell-price )
-				[set $local.price-string] $> for ${local.price} GP
+				[set $local.price-string] $> (${local.price} GP)
 			[else]
 				[set $local.verb] drop
 				[set $local.price] 0
@@ -196,7 +199,7 @@
 					price: $local.price
 				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
 				[on-trigger]
-					[add $args.performer.goods.gp] $local.price
+					[add $args.performer.goods.gp] $args.price
 					[drop $args.performer]
 						item: $args.item
 						stack: $args.stack

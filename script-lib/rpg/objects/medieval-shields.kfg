@@ -6,6 +6,8 @@
 	label: shield
 	slotType: hand
 	slotCount: 1
+	ownStats:
+		price: 210
 	usages:
 		melee-fighting:
 			support:

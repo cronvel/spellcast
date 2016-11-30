@@ -6,6 +6,8 @@
 	label: ring of fighting spirit
 	slotType: ring
 	slotCount: 1
+	ownStats:
+		price: 210
 	compound:
 		attack: (+) 1
 
