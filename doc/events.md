@@ -104,6 +104,11 @@
   This event is sent only once at the begining of the execution.
   Argument `data` is an object, where:
 	* assetBaseUrl `string` (optional) the root URL for all assets
+	* theme `object` (optional) the default theme, see the *theme* event data
+
+* theme (data): instructs the client (if it is capable) to set a theme (CSS) as the scene theme. Argument `data`
+  is an object, where:
+	* url `string` (optional) if set this is the URL of the theme (CSS), else the client *MAY* use a default theme if any
 
 * image (data): instructs the client (if it is capable) to set an image as the scene image. Argument `data` is an object, where:
 	* url `string` (optional) if set this is the URL of the image, else the client *MAY* display a default image if any

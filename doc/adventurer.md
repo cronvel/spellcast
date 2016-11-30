@@ -22,6 +22,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 	* [Scenario Tags](#ref.scenario)
 		* [Chapter Tag](#ref.scenario.chapter)
 		* [Scene Tag](#ref.scenario.scene)
+			* [Theme Tag](#ref.scenario.scene.theme)
 			* [Image Tag](#ref.scenario.scene.image)
 			* [Music Tag](#ref.scenario.scene.music)
 			* [Chat Tag](#ref.scenario.scene.chat)
@@ -267,6 +268,7 @@ The *chapter* tag is used to organize *scene* tags in groups.
 It also acts as a namespace, to ease management of big Spellcast projects.
 
 It also supports some parameter tags of the *scene* tag, if present they will act as default for all its *scene* children:
+* [theme](#ref.scenario.scene.theme)
 * [image](#ref.scenario.scene.image)
 * [music](#ref.scenario.scene.music)
 * [chat](#ref.scenario.scene.chat)
@@ -296,6 +298,22 @@ When the scene is executed, it simply runs all its inner tags.
 **Once the scene is executed, it sends all registered choices** (i.e. [*next* tags](#ref.scenerio.next)) to the client.
 
 A *scene* has the following parameters tags:
+
+
+
+<a name="ref.scenario.scene.theme"></a>
+### [theme]
+
+* types: parameter
+* attribute style: none
+* content type: string (URL) or object
+
+This paremeter configures the theme (CSS) related to the scene.
+
+The content is an object where:
+* url `string` (optional) if set this is the URL of the theme (CSS), else the client *MAY* display a default theme if any
+
+If the content is a string, it contains the *url* of the theme (CSS).
 
 
 
@@ -489,7 +507,7 @@ The label of the choice, i.e. the text used as the description.
 * content type: string
 
 This is a particular *vote style* just for this choice, see
-[the *image* tag's *vote-style* parameter tag](#ref.scenario.scene.vote-style) for details.
+[the *scene* tag's *vote-style* parameter tag](#ref.scenario.scene.vote-style) for details.
 
 
 
