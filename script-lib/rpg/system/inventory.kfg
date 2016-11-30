@@ -139,18 +139,25 @@
 	
 	[fn grab-one]
 		
-		[set $local.verb] $= $args.buy-price ? "buy" "grab"
+		[set $local.verb] $= ( $args.buy-price is-number? ) ? "buy" "grab"
 		
 		[foreach $args.stack => $local.index : $local.item]
+			
 			[if $local.item.class != "object"]
 				[continue]
+			
+			[if ( $args.buy-price is-number? ) && ( $local.item.ownStats.price is-number? )]
+				[set $local.price] $= ceil ( $local.item.ownStats.price * $args.buy-price )
+				[set $local.price-string] $> for ${local.price} GP
+			[else]
+				[set $local.price-string] ""
 			
 			[next]
 				[args]
 					performer: $args.performer
 					stack: $args.stack
 					item: $local.item
-				[label] $> ${local.verb//uc1} ${local.item.label//uc1}
+				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
 				[on-trigger]
 					[grab $args.performer]
 						item: $args.item
@@ -160,18 +167,24 @@
 	
 	[fn drop-one]
 		
-		[set $local.verb] $= $args.sell-price ? "sell" "drop"
+		[set $local.verb] $= ( $args.sell-price is-number? ) ? "sell" "drop"
 		
 		[foreach $args.performer.items => $local.index : $local.item]
 			[if $local.item.class != "object"]
 				[continue]
+			
+			[if ( $args.sell-price is-number? ) && ( $local.item.ownStats.price is-number? )]
+				[set $local.price] $= floor ( $local.item.ownStats.price * $args.sell-price )
+				[set $local.price-string] $> for ${local.price} GP
+			[else]
+				[set $local.price-string] ""
 			
 			[next]
 				[args]
 					performer: $args.performer
 					stack: $args.stack
 					item: $local.item
-				[label] $> ${local.verb//uc1} ${local.item.label//uc1}
+				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
 				[on-trigger]
 					[drop $args.performer]
 						item: $args.item
