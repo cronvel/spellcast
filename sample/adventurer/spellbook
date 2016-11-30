@@ -16,6 +16,7 @@
 		#[goto intro2]
 	
 	[scene intro2]
+		[theme] > /themes/visual-novel.css
 		#[image] > background.png
 		#[sound] > effect1.mp3
 		#[music] > theme.ogg
