@@ -1,0 +1,23 @@
+.messages , .choices {
+	width:50%;
+	box-sizing: border-box;
+	margin:auto;
+}
+
+	/* MESSAGES */
+
+.messages {
+	order:2;
+	border:5px solid #000;
+	padding:10px;
+}
+.messages:empty {
+	display:none;
+}
+
+.messages .text {}
+
+.messages input[type=text].text-input {
+	display: inline;
+	width: 50%;
+}

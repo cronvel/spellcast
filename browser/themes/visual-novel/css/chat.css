@@ -1,0 +1,17 @@
+#chat { display:none; }
+
+#chat {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	z-index: 2;
+	padding: 0.2em 1em;
+	box-sizing: border-box;
+	background-color: rgba(200,200,220,0.6);
+	opacity: 1;
+	transition: opacity 0.5s;
+}
+
+#chat-input {
+	width: 85%;
+}

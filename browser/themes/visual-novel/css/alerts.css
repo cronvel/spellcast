@@ -1,0 +1,29 @@
+.alerts .end {
+	background-color: #fce94f;
+	margin: 2em 30%;
+	border-radius: 10px;
+	padding: 10px 20px;
+	text-align: center;
+	text-shadow: 1px 1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff, -1px -1px 1px #fff;
+}
+
+.alerts .win {
+	background-color: #34e2e2;
+}
+
+.alerts .lost {
+	background-color: #ef2929;
+}
+
+.alerts .draw {
+	background-color: #8ae234;
+}
+
+.alerts .wait {
+	background-color: #75507b;
+	margin: 2em 20%;
+	border-radius: 10px;
+	padding: 10px 20px;
+	text-align: center;
+	text-shadow: 1px 1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff, -1px -1px 1px #fff;
+}

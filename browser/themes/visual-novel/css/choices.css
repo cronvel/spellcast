@@ -1,0 +1,77 @@
+
+	/* CHOICES */
+
+.choices {
+	order:1;
+}
+
+.choices:empty {
+	display:none;
+}
+
+.choices button,
+.choice {
+	font-family:inherit;
+	font-size:inherit;
+	color:white;
+	display:block;
+	width:auto;
+	padding:10px;
+	background:#333;
+	border:none;
+	margin:2px;
+	width:100%;
+	box-sizing: border-box;
+}
+
+.choices button:hover,
+.choice:hover {
+	color:red;
+	cursor:pointer;
+}
+.choices p { display: block; }
+
+.choices button:active,
+.choice:active {
+}
+
+
+
+.choices button.next {
+}
+
+.choices button.next:hover {
+}
+
+.choices button.next:active {
+}
+
+
+.choices button.role {
+}
+
+.choices button.role:hover {
+}
+
+.choices button.role:active {
+}
+
+
+
+.choices p.unassigned-users {
+	color: #555753;
+}
+
+.choices span.unassigned-users {
+	color: #555753;
+	font-style: italic;
+}
+
+.choices p.waiting-roles {
+	color: #555753;
+}
+
+.choices span.waiting-roles {
+	color: #555753;
+	font-style: italic;
+}

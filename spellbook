@@ -37,8 +37,8 @@
 		- browser/app.html
 		- browser/app.min.js
 		- browser/common.css
-		- browser/themes/default.css
-		- browser/themes/visual-novel.css
+		- browser/themes/default/main.css
+		- browser/themes/visual-novel/main.css
 
 [summoning browser/app.html]
 	[summon]
@@ -52,17 +52,17 @@
 	[scroll]
 		- > cp lib/clients/web/common.css browser/common.css
 
-[summoning browser/themes/default.css]
+[summoning browser/themes/default/main.css]
 	[summon]
-		- lib/clients/web/themes/default.css
+		- lib/clients/web/themes/default/main.css
 	[scroll]
-		- > cp lib/clients/web/themes/default.css browser/themes/default.css
+		- > cp -r lib/clients/web/themes/default/ browser/themes/
 
-[summoning browser/themes/visual-novel.css]
+[summoning browser/themes/visual-novel/main.css]
 	[summon]
-		- lib/clients/web/themes/visual-novel.css
+		- lib/clients/web/themes/visual-novel/main.css
 	[scroll]
-		- > cp lib/clients/web/themes/visual-novel.css browser/themes/visual-novel.css
+		- > cp -r lib/clients/web/themes/visual-novel/ browser/themes/
 
 [summoning browser/app.js]
 	[summon]
@@ -90,7 +90,7 @@
 		$>
 		$> ^M^/The Book of the Books
 		$>
-		
+
 	[fortune]
 		-
 			$> ^K^/“He drew his dagger, that was sae sharp,
@@ -114,7 +114,7 @@
 			$>   So far above their own degree.
 			$> Once in my life I’ll take a view;
 			$>   For I’ll have a new cloak about me.”
-			$> 
+			$>
 			$>     -- Anonymous, “The Old Cloak”. 16th Century.
 			$>
 
@@ -123,4 +123,3 @@
 		$>
 		$> ^M^/That's all folks!
 		$>
-
