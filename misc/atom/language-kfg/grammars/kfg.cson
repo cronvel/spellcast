@@ -1,0 +1,77 @@
+
+'scopeName': 'source.kfg'
+'name': 'KFG'
+'fileTypes': ['kfg','spellbook']
+'patterns': [
+	{
+		# Whole line
+		'match': '^([\\t ]*)(\\S.*)$'
+		'name': 'meta.line.kfg'
+		'captures':
+			# Indentation
+			'1':
+				'name': 'punctuation.whitespace.indentation.kfg'
+				'patterns': [
+					{
+						# Incorrect indentation: mixing tabs and spaces
+						'match': '\\t+ +[\\t ]+| +\\t+[\\t ]+'
+						'name': 'invalid.illegal.whitespace.kfg'
+					}
+					{
+						# Incorrect space indentation: not a 4-spaces indentation
+						'match': '^(    )*( |  |   )$'
+						'name': 'invalid.illegal.whitespace.kfg'
+					}
+				]
+			
+			# Line content
+			'2':
+				'patterns': [
+					{
+						# Comment
+						'match': '^#.*$'
+						'name': 'comment.line.number-sign.kfg'
+					}
+					{
+						# Tag
+						'match': '^\\[ *([^ ]+) *(?: +([^ \\]](?:[^\\]]*[^ \\]])?) *)?\\]\\s*(.*)$'
+						'name': 'meta.tag.any.kfg'
+						'captures':
+							'1':
+								'name': 'entity.name.tag.kfg'
+							'2':
+								'name': 'entity.other.attribute-name.kfg'
+							'3':
+								'patterns': [
+									{
+										'include': '#value'
+									}
+								]
+					}
+				]
+					
+	}
+]
+
+'repository':
+	'value':
+		'name': 'meta.value.kfg'
+		'patterns': [
+			{
+				'match': '^> .*$'
+				'name': 'string.unquoted.introduced.kfg'
+			}
+			{
+				'match': '^\\$> .*$'
+				'name': 'string.unquoted.introduced.template.kfg'
+			}
+			{
+				'match': '^\\$= .*$'
+				'name': 'entity.expression.kfg'
+			}
+			{
+				'match': '^\\$[a-zA-Z0-9.\\[\\]_-]*$'
+				'name': 'entity.ref.kfg'
+			}
+		]
+	
