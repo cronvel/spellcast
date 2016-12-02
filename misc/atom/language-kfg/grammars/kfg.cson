@@ -23,7 +23,7 @@
 						'name': 'invalid.illegal.whitespace.kfg'
 					}
 				]
-			
+
 			# Line content
 			'2':
 				'patterns': [
@@ -34,14 +34,17 @@
 					}
 					{
 						# Tag
-						'match': '^\\[ *([^ ]+) *(?: +([^ \\]](?:[^\\]]*[^ \\]])?) *)?\\]\\s*(.*)$'
-						'name': 'meta.tag.any.kfg'
+						'match': '^(\\[) *([^ ]+) *(?: +([^ \\]](?:[^\\]]*[^ \\]])?) *)?(\\])\\s*(.*)$'
 						'captures':
 							'1':
-								'name': 'entity.name.tag.kfg'
+								'name': 'punctuation.definition.tag.kfg'
 							'2':
-								'name': 'entity.other.attribute-name.kfg'
+								'name': 'entity.name.tag.kfg'
 							'3':
+								'name': 'entity.other.attribute-name.kfg'
+							'4':
+								'name': 'punctuation.definition.tag.kfg'
+							'5':
 								'patterns': [
 									{
 										'include': '#value'
@@ -49,7 +52,7 @@
 								]
 					}
 				]
-					
+
 	}
 ]
 
@@ -58,20 +61,35 @@
 		'name': 'meta.value.kfg'
 		'patterns': [
 			{
-				'match': '^> .*$'
-				'name': 'string.unquoted.introduced.kfg'
+				'match': '^(>) (.*)$'
+				'captures':
+					'1':
+						'name': 'punctuation.definition.string.introduced.kfg'
+					'2':
+						'name': 'string.unquoted.introduced.kfg'
 			}
 			{
-				'match': '^\\$> .*$'
-				'name': 'string.unquoted.introduced.template.kfg'
+				'match': '^(\\$>) (.*)$'
+				'captures':
+					'1':
+						'name': 'punctuation.definition.string.introduced.template.kfg'
+					'2':
+						'name': 'string.unquoted.introduced.template.kfg'
 			}
 			{
-				'match': '^\\$= .*$'
-				'name': 'entity.expression.kfg'
+				'match': '^(\\$=) (.*$)'
+				'captures':
+					'1':
+						'name': 'punctuation.definition.expression.kfg'
+					'2':
+						'name': 'meta.expression.kfg'
 			}
 			{
-				'match': '^\\$[a-zA-Z0-9.\\[\\]_-]*$'
-				'name': 'entity.ref.kfg'
+				'match': '^(\\$)([a-zA-Z0-9.\\[\\]_-]*)$'
+				'captures':
+					'1':
+						'name': 'punctuation.definition.variable.kfg'
+					'2':
+						'name': 'variable.other.kfg'
 			}
 		]
-	
