@@ -51,12 +51,59 @@
 									}
 								]
 					}
+					{
+						# Unquoted property
+						'match': '^([^"](?:.*\\S)?)\\s*(:)\\s*(.*)$'
+						'captures':
+							'1':
+								'name': 'variable.other.object.property.kfg'
+							'2':
+								'name': 'punctuation.separator.key-value.kfg'
+							'3':
+								'patterns': [
+									{
+										'include': '#value-part'
+									}
+								]
+					}
+					{
+						# List entry
+						'match': '^(-)\\s*(.*)$'
+						'captures':
+							'1':
+								'name': 'punctuation.definition.entry.kfg'
+							'2':
+								'patterns': [
+									{
+										'include': '#value'
+									}
+								]
+					}
+					{
+						'include': '#value'
+					}
 				]
 
 	}
 ]
 
 'repository':
+	'value-part':
+		'patterns': [
+			{
+# ------------------------------------------here-------------------
+				'match': '^(?:(<[a-zA-Z0-9_-]>)\\s*)?(.*)$'
+				'captures':
+					'1':
+						'name': 'storage.type.class.kfg'
+					'2':
+						'patterns': [
+							{
+								'include': '#value'
+							}
+						]
+			}
+		]
 	'value':
 		'name': 'meta.value.kfg'
 		'patterns': [
@@ -91,5 +138,12 @@
 						'name': 'punctuation.definition.variable.kfg'
 					'2':
 						'name': 'variable.other.kfg'
+			}
+			{
+				# Nothing found? so this is an implicit string
+				'match': '^(.*\\S)\\s*$'
+				'captures':
+					'1':
+						'name': 'string.unquoted.kfg'
 			}
 		]
