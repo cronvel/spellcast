@@ -99,7 +99,8 @@ variable
 	language
 	other
 		object
-			property
+			property (property which is an object)
+		property (property with random type)
 
 punctuation
 	definition

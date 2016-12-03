@@ -4,6 +4,25 @@
 'fileTypes': ['kfg','spellbook']
 'patterns': [
 	{
+		# Meta-Tag
+		'match': '^(\\[\\[) *([^ \\]]+) *(?: +([^ \\]](?:[^\\]]*[^ \\]])?) *)?(\\]\\])\\s*(.*)$'
+		'captures':
+			'1':
+				'name': 'punctuation.definition.tag.meta-tag.kfg'
+			'2':
+				'name': 'entity.name.tag.meta-tag.kfg'
+			'3':
+				'name': 'entity.other.attribute-name.meta-tag.kfg'
+			'4':
+				'name': 'punctuation.definition.tag.meta-tag.kfg'
+			'5':
+				'patterns': [
+					{
+						'include': '#value-definition'
+					}
+				]
+	}
+	{
 		# Whole line
 		'match': '^([\\t ]*)(\\S.*)$'
 		'name': 'meta.line.kfg'
@@ -34,7 +53,7 @@
 					}
 					{
 						# Tag
-						'match': '^(\\[) *([^ ]+) *(?: +([^ \\]](?:[^\\]]*[^ \\]])?) *)?(\\])\\s*(.*)$'
+						'match': '^(\\[) *([^ \\]]+) *(?: +([^ \\]](?:[^\\]]*[^ \\]])?) *)?(\\])\\s*(.*)$'
 						'captures':
 							'1':
 								'name': 'punctuation.definition.tag.kfg'
@@ -56,7 +75,7 @@
 						'match': '^([^"](?:.*\\S)?)\\s*(:)\\s*(.*)$'
 						'captures':
 							'1':
-								'name': 'variable.other.object.property.kfg'
+								'name': 'variable.other.property.kfg'
 							'2':
 								'name': 'punctuation.separator.key-value.kfg'
 							'3':
@@ -80,6 +99,7 @@
 								]
 					}
 					{
+						# Nothing found? this is direct value.
 						'include': '#value-definition'
 					}
 				]
@@ -87,18 +107,21 @@
 	}
 ]
 
+
+
 'repository':
+
 	'after-key':
 		'patterns': [
 			{
 				'match': '^(?:(\\()([^\\)]*)(\\))\\s*)?(.*)$'
 				'captures':
 					'1':
-						'name': 'punctuation.definition.operator'
+						'name': 'punctuation.definition.operator.kfg'
 					'2':
 						'name': 'entity.name.type.operator.kfg'
 					'3':
-						'name': 'punctuation.definition.operator'
+						'name': 'punctuation.definition.operator.kfg'
 					'4':
 						'patterns': [
 							{
@@ -107,17 +130,18 @@
 						]
 			}
 		]
+
 	'value-definition':
 		'patterns': [
 			{
 				'match': '^(?:(<)([a-zA-Z0-9_-]+)(>)\\s*)?(.*)$'
 				'captures':
 					'1':
-						'name': 'punctuation.definition.class'
+						'name': 'punctuation.definition.class.kfg'
 					'2':
 						'name': 'entity.name.type.class.kfg'
 					'3':
-						'name': 'punctuation.definition.class'
+						'name': 'punctuation.definition.class.kfg'
 					'4':
 						'patterns': [
 							{
@@ -129,25 +153,78 @@
 						]
 			}
 		]
+
 	'include':
 		'match': '^(@@?)(.*)$'
 		'captures':
 			'1':
-				'name': 'punctuation.definition.include'
+				'name': 'punctuation.definition.include.kfg'
 			'2':
-				'name': 'entity.name.include'
+				'name': 'entity.name.include.kfg'
+
 	'value':
 		'name': 'meta.value.kfg'
 		'patterns': [
 			{
-				'match': '^(null|true|false|on|off|yes|no|NaN|Infinity|-Infinity)$'
-				'name': 'constant.language'
+				# constants
+				'match': '^(null|true|false|on|off|yes|no|NaN|Infinity|-Infinity)\\s*$'
+				'name': 'constant.language.kfg'
 			}
 			{
+				# numbers
 				'match': '^(-?[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?)\\s*$'
-				'name': 'constant.numeric'
+				'name': 'constant.numeric.kfg'
 			}
 			{
+				# quoted string
+				'match': '^(")((?:\\\\.|[^"\\\\])*)(")\\s*$'
+				'captures':
+					'1':
+						'name': 'punctuation.string.begin.kfg'
+					'2':
+						'name': 'string.quoted.double.kfg'
+						'patterns': [
+							{
+								'include': '#escape'
+							}
+						]
+					'3':
+						'name': 'punctuation.string.end.kfg'
+			}
+			{
+				# quoted template
+				'match': '^(\\$\\$?")((?:\\\\.|[^"\\\\])*)(")\\s*$'
+				'captures':
+					'1':
+						'name': 'punctuation.string.begin.template.kfg'
+					'2':
+						'name': 'string.quoted.double.template.kfg'
+						'patterns': [
+							{
+								'include': '#escape'
+							}
+						]
+					'3':
+						'name': 'punctuation.string.end.template.kfg'
+			}
+			{
+				# quoted template element
+				'match': '^(\\$\\$?%")((?:\\\\.|[^"\\\\])*)(")\\s*$'
+				'captures':
+					'1':
+						'name': 'punctuation.string.begin.template.kfg'
+					'2':
+						'name': 'string.quoted.double.template.kfg'
+						'patterns': [
+							{
+								'include': '#escape'
+							}
+						]
+					'3':
+						'name': 'punctuation.string.end.template.kfg'
+			}
+			{
+				# introduced string
 				'match': '^(>) (.*)$'
 				'captures':
 					'1':
@@ -156,7 +233,8 @@
 						'name': 'string.unquoted.introduced.kfg'
 			}
 			{
-				'match': '^(\\$>) (.*)$'
+				# introduced template
+				'match': '^(\\$\\$?>) (.*)$'
 				'captures':
 					'1':
 						'name': 'punctuation.definition.string.introduced.template.kfg'
@@ -164,7 +242,17 @@
 						'name': 'string.unquoted.introduced.template.kfg'
 			}
 			{
-				'match': '^(\\$=) (.*$)'
+				# introduced template element
+				'match': '^(\\$\\$?%>) (.*)$'
+				'captures':
+					'1':
+						'name': 'punctuation.definition.string.introduced.template.kfg'
+					'2':
+						'name': 'string.unquoted.introduced.template.kfg'
+			}
+			{
+				# expression
+				'match': '^(\\$\\$?=) (.*$)'
 				'captures':
 					'1':
 						'name': 'punctuation.definition.expression.kfg'
@@ -172,7 +260,8 @@
 						'name': 'meta.expression.kfg'
 			}
 			{
-				'match': '^(\\$)([a-zA-Z0-9.\\[\\]_-]*)$'
+				# ref/variable
+				'match': '^(\\$\\$?)([a-zA-Z0-9.\\[\\]_-]*)$'
 				'captures':
 					'1':
 						'name': 'punctuation.definition.variable.kfg'
@@ -187,3 +276,7 @@
 						'name': 'string.unquoted.kfg'
 			}
 		]
+
+	'escape':
+		'match': '\\\\.'
+		'name': 'constant.character.escape.kfg'
