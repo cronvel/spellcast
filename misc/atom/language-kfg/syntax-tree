@@ -27,6 +27,7 @@ entity
 	name
 		function
 		type
+			class
 			instance
 		tag
 			inline
@@ -105,6 +106,7 @@ punctuation
 		comment
 			begin
 			end
+		variable
 		string
 			begin
 			end
@@ -121,5 +123,12 @@ punctuation
 		entry
 		terminator
 			statement
-
+		separator
+			delimiter
+	
+	???:
+	terminator
+		statement
+	separator
+		delimiter
 

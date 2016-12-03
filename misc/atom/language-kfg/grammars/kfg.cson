@@ -47,7 +47,7 @@
 							'5':
 								'patterns': [
 									{
-										'include': '#value'
+										'include': '#value-definition'
 									}
 								]
 					}
@@ -62,7 +62,7 @@
 							'3':
 								'patterns': [
 									{
-										'include': '#value-part'
+										'include': '#after-key'
 									}
 								]
 					}
@@ -75,12 +75,12 @@
 							'2':
 								'patterns': [
 									{
-										'include': '#value'
+										'include': '#value-definition'
 									}
 								]
 					}
 					{
-						'include': '#value'
+						'include': '#value-definition'
 					}
 				]
 
@@ -88,25 +88,65 @@
 ]
 
 'repository':
-	'value-part':
+	'after-key':
 		'patterns': [
 			{
-# ------------------------------------------here-------------------
-				'match': '^(?:(<[a-zA-Z0-9_-]>)\\s*)?(.*)$'
+				'match': '^(?:(\\()([^\\)]*)(\\))\\s*)?(.*)$'
 				'captures':
 					'1':
-						'name': 'storage.type.class.kfg'
+						'name': 'punctuation.definition.operator'
 					'2':
+						'name': 'entity.name.type.operator.kfg'
+					'3':
+						'name': 'punctuation.definition.operator'
+					'4':
 						'patterns': [
+							{
+								'include': '#value-definition'
+							}
+						]
+			}
+		]
+	'value-definition':
+		'patterns': [
+			{
+				'match': '^(?:(<)([a-zA-Z0-9_-]+)(>)\\s*)?(.*)$'
+				'captures':
+					'1':
+						'name': 'punctuation.definition.class'
+					'2':
+						'name': 'entity.name.type.class.kfg'
+					'3':
+						'name': 'punctuation.definition.class'
+					'4':
+						'patterns': [
+							{
+								'include': '#include'
+							}
 							{
 								'include': '#value'
 							}
 						]
 			}
 		]
+	'include':
+		'match': '^(@@?)(.*)$'
+		'captures':
+			'1':
+				'name': 'punctuation.definition.include'
+			'2':
+				'name': 'entity.name.include'
 	'value':
 		'name': 'meta.value.kfg'
 		'patterns': [
+			{
+				'match': '^(null|true|false|on|off|yes|no|NaN|Infinity|-Infinity)$'
+				'name': 'constant.language'
+			}
+			{
+				'match': '^(-?[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?)\\s*$'
+				'name': 'constant.numeric'
+			}
 			{
 				'match': '^(>) (.*)$'
 				'captures':
