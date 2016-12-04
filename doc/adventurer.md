@@ -220,6 +220,12 @@ So here we have:
 * The `[message]` tag contains text to be displayed to user.
 * The `[win]` and `[lost]` tags causes the game to exit, either with a game win or a game lost.
 
+You may want syntax highlighting to develop in Spellcast Scripting more easily.
+There are two official packages for the [Atom editor](https://atom.io):
+* [KFG and Spellcast! language package](https://atom.io/packages/language-kfg)
+* [Syntax theme dedicated to KFG and Spellcast!](https://atom.io/packages/kfg-dark-syntax) (more suitable colors, and it colorizes
+  specific KFG *scopes*)
+
 
 
 <a name="kfg"></a>
