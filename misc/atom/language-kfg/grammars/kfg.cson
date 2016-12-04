@@ -4,24 +4,25 @@
 'fileTypes': ['kfg','spellbook']
 'patterns': [
 	{
-		# Meta-Tag
-		# Get it from regular tag
-		'match': '^(\\[\\[) *([^ \\[\\]]+)(?: +((?:\\[[^\\[\\]]*\\]|[^\\[\\]])*))? *(\\]\\])\\s*(.*)$'
+		# meta-Tag
+		# get it from regular tag
+		'match': '^(\\[\\[) *([^ \\[\\]]+)(?: +([a-z-A-Z0-9._/\\*-]+)|( +(?:\\[[^\\[\\]]*\\]|[^\\[\\]])*))? *(\\]\\])\\s*(.*)$'
 		'captures':
 			'1':
 				'name': 'punctuation.definition.tag.meta-tag.kfg'
 			'2':
 				'name': 'entity.name.tag.meta-tag.kfg'
 			'3':
-				#'name': 'entity.other.attribute-name.meta-tag.kfg'
+				'name': 'entity.other.attribute-name.label.kfg'
+			'4':
 				'patterns': [
 					{
-						'include': '#attributes'
+						'include': '#expression'
 					}
 				]
-			'4':
-				'name': 'punctuation.definition.tag.meta-tag.kfg'
 			'5':
+				'name': 'punctuation.definition.tag.meta-tag.kfg'
+			'6':
 				'patterns': [
 					{
 						'include': '#value-definition'
@@ -29,39 +30,39 @@
 				]
 	}
 	{
-		# Whole line
+		# whole line
 		'match': '^([\\t ]*)(\\S.*)$'
 		'name': 'meta.line.kfg'
 		'captures':
-			# Indentation
+			# indentation
 			'1':
 				'name': 'punctuation.whitespace.indentation.kfg'
 				'patterns': [
 					{
-						# Incorrect indentation: mixing tabs and spaces
+						# incorrect indentation: mixing tabs and spaces
 						'match': '\\t+ +[\\t ]+| +\\t+[\\t ]+'
 						'name': 'invalid.illegal.whitespace.kfg'
 					}
 					{
-						# Incorrect space indentation: not a 4-spaces indentation
+						# incorrect space indentation: not a 4-spaces indentation
 						'match': '^(    )*( |  |   )$'
 						'name': 'invalid.illegal.whitespace.kfg'
 					}
 				]
 
-			# Line content
+			# line content
 			'2':
 				'patterns': [
 					{
-						# Comment
+						# comment
 						'match': '^#.*$'
 						'name': 'comment.line.number-sign.kfg'
 					}
 					{
-						# Tag
+						# tag
 						#'match': '^(\\[) *([^ \\]]+)(?: +([^ \\]](?:[^\\]]*[^ \\]])?))? *(\\])\\s*(.*)$'
 						# attributes v0: (?:\\[[^\\[\\]]*\\]|[^\\[\\]])*
-						'match': '^(\\[) *([^ \\[\\]]+)(?: +([a-z-A-Z0-9/._-]+)|( +(?:\\[[^\\[\\]]*\\]|[^\\[\\]])*))? *(\\])\\s*(.*)$'
+						'match': '^(\\[) *([^ \\[\\]]+)(?: +([a-z-A-Z0-9._/\\*-]+)|( +(?:\\[[^\\[\\]]*\\]|[^\\[\\]])*))? *(\\])\\s*(.*)$'
 						'captures':
 							'1':
 								'name': 'punctuation.definition.tag.kfg'
@@ -72,7 +73,7 @@
 							'4':
 								'patterns': [
 									{
-										'include': '#attributes'
+										'include': '#expression'
 									}
 								]
 							'5':
@@ -85,7 +86,7 @@
 								]
 					}
 					{
-						# Unquoted property
+						# unquoted property
 						'match': '^([^"](?:.*\\S)?)\\s*(:)\\s*(.*)$'
 						'captures':
 							'1':
@@ -100,7 +101,31 @@
 								]
 					}
 					{
-						# List entry
+						# quoted property
+						'match': '^(")((?:\\\\.|[^"\\\\])*)(")\\s*(:)\\s*(.*)$'
+						'captures':
+							'1':
+								'name': 'punctuation.string.begin.kfg'
+							'2':
+								'name': 'variable.other.property.kfg'
+								'patterns': [
+									{
+										'include': '#escape'
+									}
+								]
+							'3':
+								'name': 'punctuation.string.end.kfg'
+							'4':
+								'name': 'punctuation.separator.key-value.kfg'
+							'5':
+								'patterns': [
+									{
+										'include': '#after-key'
+									}
+								]
+					}
+					{
+						# list entry
 						'match': '^(-)\\s*(.*)$'
 						'captures':
 							'1':
@@ -113,7 +138,7 @@
 								]
 					}
 					{
-						# Nothing found? this is direct value.
+						# nothing found? this is direct value.
 						'include': '#value-definition'
 					}
 				]
@@ -256,6 +281,11 @@
 				'captures':
 					'1':
 						'name': 'punctuation.definition.string.introduced.template.kfg'
+						'patterns': [
+							{
+								'include': '#template-var'
+							}
+						]
 					'2':
 						'name': 'string.unquoted.introduced.template.kfg'
 			}
@@ -270,16 +300,22 @@
 			}
 			{
 				# expression
-				'match': '^(\\$\\$?=) (.*)$'
+				# do NOT eat the whitespaces
+				'match': '^(\\$\\$?=)( .*)$'
 				'captures':
 					'1':
 						'name': 'punctuation.definition.expression.kfg'
 					'2':
 						'name': 'meta.expression.kfg'
+						'patterns': [
+							{
+								'include': '#expression'
+							}
+						]
 			}
 			{
 				# ref/variable
-				'match': '^(\\$\\$?)([a-zA-Z0-9.\\[\\]_-]*)\\s*$'
+				'match': '^(\\$\\$?)([a-zA-Z0-9.\\$\\[\\]_-]*)\\s*$'
 				'captures':
 					'1':
 						'name': 'punctuation.definition.variable.kfg'
@@ -287,7 +323,7 @@
 						'name': 'variable.other.kfg'
 			}
 			{
-				# Nothing found? so this is an implicit string
+				# nothing found? so this is an implicit string
 				'match': '^(.*\\S)\\s*$'
 				'captures':
 					'1':
@@ -299,18 +335,23 @@
 		'match': '\\\\.'
 		'name': 'constant.character.escape.kfg'
 
-	# Tag attributes
-	'attributes':
-		'name': 'entity.other.attribute-name.kfg'
+	# expression or tag attributes
+	'expression':
+		#'name': 'entity.other.attribute-name.kfg'
 		'patterns': [
 			{
-				# ref/variable
-				'match': ' +(\\$)([a-zA-Z0-9.\\[\\]_-]*)'
+				# constants
+				'match': ' +(null|true|false|on|off|yes|no|NaN|Infinity|-Infinity)'
 				'captures':
 					'1':
-						'name': 'punctuation.definition.variable.kfg'
-					'2':
-						'name': 'variable.other.kfg'
+						'name': 'constant.language.kfg'
+			}
+			{
+				# numbers
+				'match': ' +(-?[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?)'
+				'captures':
+					'1':
+						'name': 'constant.numeric.kfg'
 			}
 			{
 				# quoted string
@@ -329,11 +370,17 @@
 						'name': 'punctuation.string.end.kfg'
 			}
 			{
-				# expression operator
-				# WTF? this stupid regexp engine don't understand [^\]]
-				# 'match': ' +([^ $\\[\\]]+)'
-				# ... so I have to white-list instead of black-list... :/
-				'match': ' +([a-z-A-Z0-9=<>().:,?!&|\\\\/*%^+-]+)'
+				# ref/variable
+				'match': ' +(\\$)([a-zA-Z0-9.\\$\\[\\]_-]*)'
+				'captures':
+					'1':
+						'name': 'punctuation.definition.variable.kfg'
+					'2':
+						'name': 'variable.other.kfg'
+			}
+			{
+				# expression built-in operator
+				'match': ' +(\\(|\\)|,|:|add|\\+|sub|-|mul|\\*|div|/|intdiv|\\\\|modulo|%|\\\\\\\\|%\\+|>|=>|<|<=|=|==|===|!=|!==|not|!|and|or|xor|&&|\\|\\||\\?|\\?\\?\\?|round|floor|ceil|trunc|sign|abs|max|min|pow|\\^|exp|log|log2|log10|sqrt|cos|sin|tan|acos|asin|atan|atan2|hypot|avg|array|concat|is-set\\?|is-boolean\\?|is-number\\?|is-string\\?|is-array\\?|is-object\\?|is-real\\?|is-empty\\?|has|->|=>)(?= |\\]|$)'
 				'captures':
 					'1':
 						'name': 'keyword.operator.kfg'
@@ -346,7 +393,7 @@
 				'match': ' +([a-z-A-Z0-9=<>().:,?!&|\\\\/*%^+-]+)'
 				'captures':
 					'1':
-						'name': 'keyword.operator.kfg'
+						'name': 'entity.name.function.kfg'
 			}
 			{
 				# spaces
@@ -354,3 +401,20 @@
 				'name': 'entity.other.attribute-name.kfg'
 			}
 		]
+
+	# variable inside template
+	'template-var':
+		'match': '(\\$\\{)([^\\}]+)(\\})(?:(\\[)[^\\]]+(\\]))?'
+		'captures':
+			'1':
+				'name': 'punctuation.section.embedded.kfg'
+			'2':
+				'name': 'variable.other.embedded.kfg'
+			'3':
+				'name': 'punctuation.section.embedded.kfg'
+			'4':
+				'name': 'punctuation.section.embedded.kfg'
+			'5':
+				'name': 'entity.name.type.operator.embedded.kfg'
+			'6':
+				'name': 'punctuation.section.embedded.kfg'
