@@ -87,7 +87,7 @@
 					}
 					{
 						# unquoted property
-						'match': '^([^"](?:.*\\S)?)\\s*(:)\\s*(.*)$'
+						'match': '^([^":](?:[^:]*[^:\\s])?)\\s*(:)\\s*(.*)$'
 						'captures':
 							'1':
 								'name': 'variable.other.property.kfg'
@@ -239,32 +239,32 @@
 				'match': '^(\\$\\$?")((?:\\\\.|[^"\\\\])*)(")\\s*$'
 				'captures':
 					'1':
-						'name': 'punctuation.string.begin.template.kfg'
+						'name': 'punctuation.string.begin.interpolated.kfg'
 					'2':
-						'name': 'string.quoted.double.template.kfg'
+						'name': 'string.quoted.double.interpolated.kfg'
 						'patterns': [
 							{
 								'include': '#escape'
 							}
 						]
 					'3':
-						'name': 'punctuation.string.end.template.kfg'
+						'name': 'punctuation.string.end.interpolated.kfg'
 			}
 			{
 				# quoted template element
 				'match': '^(\\$\\$?%")((?:\\\\.|[^"\\\\])*)(")\\s*$'
 				'captures':
 					'1':
-						'name': 'punctuation.string.begin.template.kfg'
+						'name': 'punctuation.string.begin.interpolated.kfg'
 					'2':
-						'name': 'string.quoted.double.template.kfg'
+						'name': 'string.quoted.double.interpolated.kfg'
 						'patterns': [
 							{
 								'include': '#escape'
 							}
 						]
 					'3':
-						'name': 'punctuation.string.end.template.kfg'
+						'name': 'punctuation.string.end.interpolated.kfg'
 			}
 			{
 				# introduced string
@@ -280,23 +280,26 @@
 				'match': '^(\\$\\$?>) (.*)$'
 				'captures':
 					'1':
-						'name': 'punctuation.definition.string.introduced.template.kfg'
+						'name': 'punctuation.definition.string.introduced.interpolated.kfg'
+					'2':
+						'name': 'string.unquoted.introduced.interpolated.kfg'
 						'patterns': [
+							{
+								'include': '#style-markup'
+							}
 							{
 								'include': '#template-var'
 							}
 						]
-					'2':
-						'name': 'string.unquoted.introduced.template.kfg'
 			}
 			{
 				# introduced template element
 				'match': '^(\\$\\$?%>) (.*)$'
 				'captures':
 					'1':
-						'name': 'punctuation.definition.string.introduced.template.kfg'
+						'name': 'punctuation.definition.string.introduced.interpolated.kfg'
 					'2':
-						'name': 'string.unquoted.introduced.template.kfg'
+						'name': 'string.unquoted.introduced.interpolated.kfg'
 			}
 			{
 				# expression
@@ -404,17 +407,110 @@
 
 	# variable inside template
 	'template-var':
-		'match': '(\\$\\{)([^\\}]+)(\\})(?:(\\[)[^\\]]+(\\]))?'
+		'match': '(\\$\\{)([^\\}/]+)(//[^\\}]*)?(\\})(?:(\\[)([^\\]]+)(\\]))?'
 		'captures':
 			'1':
 				'name': 'punctuation.section.embedded.kfg'
 			'2':
 				'name': 'variable.other.embedded.kfg'
 			'3':
-				'name': 'punctuation.section.embedded.kfg'
+				'name': 'entity.name.type.operator.embedded.kfg'
 			'4':
 				'name': 'punctuation.section.embedded.kfg'
 			'5':
-				'name': 'entity.name.type.operator.embedded.kfg'
-			'6':
 				'name': 'punctuation.section.embedded.kfg'
+			'6':
+				'name': 'entity.name.type.operator.embedded.kfg'
+			'7':
+				'name': 'punctuation.section.embedded.kfg'
+
+	# style markup inside template
+	'style-markup':
+		'match': '\\^(.)'
+		'name': 'markup.kfg'
+		'captures':
+			'1':
+				'patterns': [
+					{
+						'match': 'k'
+						'name': 'markup.black.kfg'
+					}
+					{
+						'match': 'K'
+						'name': 'markup.dark-gray.kfg'
+					}
+					{
+						'match': 'w'
+						'name': 'markup.white.kfg'
+					}
+					{
+						'match': 'W'
+						'name': 'markup.light-white.kfg'
+					}
+					{
+						'match': 'r'
+						'name': 'markup.red.kfg'
+					}
+					{
+						'match': 'R'
+						'name': 'markup.light-red.kfg'
+					}
+					{
+						'match': 'g'
+						'name': 'markup.green.kfg'
+					}
+					{
+						'match': 'G'
+						'name': 'markup.light-green.kfg'
+					}
+					{
+						'match': 'y'
+						'name': 'markup.yellow.kfg'
+					}
+
+					{
+						'match': 'Y'
+						'name': 'markup.light-yellow.kfg'
+					}
+
+					{
+						'match': 'b'
+						'name': 'markup.blue.kfg'
+					}
+					{
+						'match': 'B'
+						'name': 'markup.light-blue.kfg'
+					}
+					{
+						'match': 'm'
+						'name': 'markup.violet.kfg'
+					}
+					{
+						'match': 'M'
+						'name': 'markup.light-violet.kfg'
+					}
+					{
+						'match': 'c'
+						'name': 'markup.cyan.kfg'
+					}
+					{
+						'match': 'C'
+						'name': 'markup.light-cyan.kfg'
+					}
+					{
+						'match': '/'
+						'name': 'markup.italic.kfg'
+					}
+					{
+						'match': '\\+'
+						'name': 'markup.bold.kfg'
+					}
+					{
+						'match': '-'
+						'name': 'markup.dim.kfg'
+					}
+					{
+						'match': '_'
+						'name': 'markup.underline.kfg'
+					}
+				]
