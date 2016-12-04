@@ -5,14 +5,20 @@
 'patterns': [
 	{
 		# Meta-Tag
-		'match': '^(\\[\\[) *([^ \\]]+) *(?: +([^ \\]](?:[^\\]]*[^ \\]])?) *)?(\\]\\])\\s*(.*)$'
+		# Get it from regular tag
+		'match': '^(\\[\\[) *([^ \\[\\]]+)(?: +((?:\\[[^\\[\\]]*\\]|[^\\[\\]])*))? *(\\]\\])\\s*(.*)$'
 		'captures':
 			'1':
 				'name': 'punctuation.definition.tag.meta-tag.kfg'
 			'2':
 				'name': 'entity.name.tag.meta-tag.kfg'
 			'3':
-				'name': 'entity.other.attribute-name.meta-tag.kfg'
+				#'name': 'entity.other.attribute-name.meta-tag.kfg'
+				'patterns': [
+					{
+						'include': '#attributes'
+					}
+				]
 			'4':
 				'name': 'punctuation.definition.tag.meta-tag.kfg'
 			'5':
@@ -53,17 +59,25 @@
 					}
 					{
 						# Tag
-						'match': '^(\\[) *([^ \\]]+) *(?: +([^ \\]](?:[^\\]]*[^ \\]])?) *)?(\\])\\s*(.*)$'
+						#'match': '^(\\[) *([^ \\]]+)(?: +([^ \\]](?:[^\\]]*[^ \\]])?))? *(\\])\\s*(.*)$'
+						# attributes v0: (?:\\[[^\\[\\]]*\\]|[^\\[\\]])*
+						'match': '^(\\[) *([^ \\[\\]]+)(?: +([a-z-A-Z0-9/._-]+)|( +(?:\\[[^\\[\\]]*\\]|[^\\[\\]])*))? *(\\])\\s*(.*)$'
 						'captures':
 							'1':
 								'name': 'punctuation.definition.tag.kfg'
 							'2':
 								'name': 'entity.name.tag.kfg'
 							'3':
-								'name': 'entity.other.attribute-name.kfg'
+								'name': 'entity.other.attribute-name.label.kfg'
 							'4':
-								'name': 'punctuation.definition.tag.kfg'
+								'patterns': [
+									{
+										'include': '#attributes'
+									}
+								]
 							'5':
+								'name': 'punctuation.definition.tag.kfg'
+							'6':
 								'patterns': [
 									{
 										'include': '#value-definition'
@@ -168,12 +182,16 @@
 			{
 				# constants
 				'match': '^(null|true|false|on|off|yes|no|NaN|Infinity|-Infinity)\\s*$'
-				'name': 'constant.language.kfg'
+				'captures':
+					'1':
+						'name': 'constant.language.kfg'
 			}
 			{
 				# numbers
 				'match': '^(-?[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?)\\s*$'
-				'name': 'constant.numeric.kfg'
+				'captures':
+					'1':
+						'name': 'constant.numeric.kfg'
 			}
 			{
 				# quoted string
@@ -252,7 +270,7 @@
 			}
 			{
 				# expression
-				'match': '^(\\$\\$?=) (.*$)'
+				'match': '^(\\$\\$?=) (.*)$'
 				'captures':
 					'1':
 						'name': 'punctuation.definition.expression.kfg'
@@ -261,7 +279,7 @@
 			}
 			{
 				# ref/variable
-				'match': '^(\\$\\$?)([a-zA-Z0-9.\\[\\]_-]*)$'
+				'match': '^(\\$\\$?)([a-zA-Z0-9.\\[\\]_-]*)\\s*$'
 				'captures':
 					'1':
 						'name': 'punctuation.definition.variable.kfg'
@@ -280,3 +298,59 @@
 	'escape':
 		'match': '\\\\.'
 		'name': 'constant.character.escape.kfg'
+
+	# Tag attributes
+	'attributes':
+		'name': 'entity.other.attribute-name.kfg'
+		'patterns': [
+			{
+				# ref/variable
+				'match': ' +(\\$)([a-zA-Z0-9.\\[\\]_-]*)'
+				'captures':
+					'1':
+						'name': 'punctuation.definition.variable.kfg'
+					'2':
+						'name': 'variable.other.kfg'
+			}
+			{
+				# quoted string
+				'match': ' +(")((?:\\\\.|[^"\\\\])*)(")'
+				'captures':
+					'1':
+						'name': 'punctuation.string.begin.kfg'
+					'2':
+						'name': 'string.quoted.double.kfg'
+						'patterns': [
+							{
+								'include': '#escape'
+							}
+						]
+					'3':
+						'name': 'punctuation.string.end.kfg'
+			}
+			{
+				# expression operator
+				# WTF? this stupid regexp engine don't understand [^\]]
+				# 'match': ' +([^ $\\[\\]]+)'
+				# ... so I have to white-list instead of black-list... :/
+				'match': ' +([a-z-A-Z0-9=<>().:,?!&|\\\\/*%^+-]+)'
+				'captures':
+					'1':
+						'name': 'keyword.operator.kfg'
+			}
+			{
+				# expression operator
+				# WTF? this stupid regexp engine don't understand [^\]]
+				# 'match': ' +([^ $\\[\\]]+)'
+				# ... so I have to white-list instead of black-list... :/
+				'match': ' +([a-z-A-Z0-9=<>().:,?!&|\\\\/*%^+-]+)'
+				'captures':
+					'1':
+						'name': 'keyword.operator.kfg'
+			}
+			{
+				# spaces
+				'match': ' +'
+				'name': 'entity.other.attribute-name.kfg'
+			}
+		]
