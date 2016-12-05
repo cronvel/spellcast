@@ -1,0 +1,13 @@
+
+[[doctype spellcaster]]
+
+[spell define]
+	
+	[define $var] 5
+	[message] $> value: ${var}
+	[define $var] 7
+	[message] $> value: ${var}
+	[unset $var]
+	[define $var] 8
+	[message] $> value: ${var}
+

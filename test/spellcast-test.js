@@ -527,6 +527,49 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[define] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/define.kfg' , { type: 'cast' , target: 'define' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'value: 5' ] ,
+					[ 'value: 5' ] ,
+					[ 'value: 8' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[unset] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/unset.kfg' , { type: 'cast' , target: 'unset' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'value: 5' ] ,
+					[ 'value: (undefined)' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "[swap] tag should swap the values of two Ref" , function( done ) {
 		
 		var messages = [] ;

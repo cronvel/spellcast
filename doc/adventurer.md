@@ -77,6 +77,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 	* [Operation Tags](#ref.ops)
 		* [Set Tag](#ref.ops.set)
 		* [Define Tag](#ref.ops.define)
+		* [Unset Tag](#ref.ops.unset)
 		* [Inc Tag](#ref.ops.inc)
 		* [Dec Tag](#ref.ops.dec)
 		* [Add Tag](#ref.ops.add)
@@ -1244,6 +1245,18 @@ Hello Joe Doe!
 
 The *define* tag works like the [*set* tag](#ref.ops.set), except that it only set if the *$var* variable does not exist yet
 **OR** if its value is `undefined`.
+
+
+
+<a name="ref.ops.unset"></a>
+## [unset *$var*]
+
+* types: run
+* attribute style: var
+* content type: anything
+
+The *unset* tag delete the *$var* variable.
+If it is part of an object, the property itself is destroyed.
 
 
 
