@@ -1,0 +1,10 @@
+
+[[doctype spellcaster]]
+
+[fn myfn]
+	[define $static.bob] 5
+
+[spell static-var]
+	
+	[call myfn]
+

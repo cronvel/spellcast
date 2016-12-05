@@ -1782,7 +1782,29 @@ describe( "Basic adventurer tags and features" , function() {
 	
 	it( "Special var $local" ) ;
 	it( "Special var $global" ) ;
-	it( "Special var $static (TODO, should contains persistent data from the scene)" ) ;
+	
+	it( "Special var $static into [fn] tags" , function( done ) {
+		var messages = [] , ends = [] ;
+		
+		runBook( __dirname + '/books/args-stack.kfg' , { type: 'adventure' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'sub args before: 1 2' ] ,
+					[ 'subsub args.a: 5 7' ] ,
+					[ 'sub args after: 1 2' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "Special var $static into [scene] tags" ) ;
 	
 	it( "Special var $args" , function( done ) {
 		
