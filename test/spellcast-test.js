@@ -1786,7 +1786,7 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "Special var $static into [fn] tags" , function( done ) {
 		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/args-stack.kfg' , { type: 'adventure' } ,
+		runBook( __dirname + '/books/static-var.kfg' , { type: 'cast' , target: 'static-var' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1794,9 +1794,9 @@ describe( "Basic adventurer tags and features" , function() {
 			} ,
 			function() {
 				doormen.equals( messages , [
-					[ 'sub args before: 1 2' ] ,
-					[ 'subsub args.a: 5 7' ] ,
-					[ 'sub args after: 1 2' ]
+					[ 'static.bob: 6 -- local.bob: 6' ] ,
+					[ 'static.bob: 7 -- local.bob: 6' ] ,
+					[ 'static.bob: 8 -- local.bob: 6' ]
 				] ) ;
 				
 				done() ;

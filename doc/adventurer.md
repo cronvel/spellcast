@@ -76,6 +76,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Return Tag](#ref.flow.return)
 	* [Operation Tags](#ref.ops)
 		* [Set Tag](#ref.ops.set)
+		* [Define Tag](#ref.ops.define)
 		* [Inc Tag](#ref.ops.inc)
 		* [Dec Tag](#ref.ops.dec)
 		* [Add Tag](#ref.ops.add)
@@ -1231,6 +1232,18 @@ a: something
 b: something
 Hello Joe Doe!
 ```
+
+
+
+<a name="ref.ops.define"></a>
+## [define *$var*]
+
+* types: run
+* attribute style: var
+* content type: anything
+
+The *define* tag works like the [*set* tag](#ref.ops.set), except that it only set if the *$var* variable does not exist yet
+**OR** if its value is `undefined`.
 
 
 
