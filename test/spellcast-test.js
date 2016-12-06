@@ -1847,7 +1847,27 @@ describe( "Basic adventurer tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "Special var $static into [scene] tags" ) ;
+	it( "Special var $static into [scene] tags" , function( done ) {
+		var messages = [] , ends = [] ;
+		
+		runBook( __dirname + '/books/scene-static-var.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'static.bob: 6 -- local.bob: 6' ] ,
+					[ 'static.bob: 7 -- local.bob: 6' ] ,
+					[ 'static.bob: 8 -- local.bob: 6' ] ,
+					[ 'static.bob: 9 -- local.bob: 6' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
 	
 	it( "Special var $args" , function( done ) {
 		

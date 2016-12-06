@@ -1,0 +1,20 @@
+
+[[doctype adventurer]]
+
+[chapter test]
+	[scene scene1]
+		[gosub scene3]
+		[gosub scene3]
+		[gosub scene3]
+		[next scene2]
+
+	[scene scene2]
+		[goto scene3]
+	
+	[scene scene3]
+		[define $static.bob] 5
+		[inc $static.bob]
+		[define $local.bob] 5
+		[inc $local.bob]
+		[message] $> static.bob: ${static.bob} -- local.bob: ${local.bob}
+
