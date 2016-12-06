@@ -1,0 +1,10 @@
+
+[[doctype spellcaster]]
+
+[spell unset]
+	
+	[set $var] 5
+	[message] $> value: ${var}
+	[unset $var]
+	[message] $> value: ${var}
+

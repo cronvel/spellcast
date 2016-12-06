@@ -76,6 +76,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Return Tag](#ref.flow.return)
 	* [Operation Tags](#ref.ops)
 		* [Set Tag](#ref.ops.set)
+		* [Define Tag](#ref.ops.define)
+		* [Unset Tag](#ref.ops.unset)
 		* [Inc Tag](#ref.ops.inc)
 		* [Dec Tag](#ref.ops.dec)
 		* [Add Tag](#ref.ops.add)
@@ -119,6 +121,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Create-item Tag](#ref.rpg.create-item)
 		* [Equip Tag](#ref.rpg.equip)
 		* [Unequip Tag](#ref.rpg.unequip)
+		* [Grab Tag](#ref.rpg.grab)
+		* [Drop Tag](#ref.rpg.drop)
 	* [Misc Tags](#ref.misc)
 		* [Module Tag](#ref.misc.module)
 		* [System Tag](#ref.misc.system)
@@ -217,6 +221,12 @@ So here we have:
 * The `[label]` tag is simply the text displayed to the user for this choice.
 * The `[message]` tag contains text to be displayed to user.
 * The `[win]` and `[lost]` tags causes the game to exit, either with a game win or a game lost.
+
+You may want syntax highlighting to develop in Spellcast Scripting more easily.
+There are two official packages for the [Atom editor](https://atom.io):
+* [KFG and Spellcast! language package](https://atom.io/packages/language-kfg)
+* [Syntax theme dedicated to KFG and Spellcast!](https://atom.io/packages/kfg-dark-syntax) (more suitable colors, and it colorizes
+  specific KFG *scopes*)
 
 
 
@@ -1226,6 +1236,30 @@ Hello Joe Doe!
 
 
 
+<a name="ref.ops.define"></a>
+## [define *$var*]
+
+* types: run
+* attribute style: var
+* content type: anything
+
+The *define* tag works like the [*set* tag](#ref.ops.set), except that it only set if the *$var* variable does not exist yet
+**OR** if its value is `undefined`.
+
+
+
+<a name="ref.ops.unset"></a>
+## [unset *$var*]
+
+* types: run
+* attribute style: var
+* content type: anything
+
+The *unset* tag delete the *$var* variable.
+If it is part of an object, the property itself is destroyed.
+
+
+
 <a name="ref.ops.inc"></a>
 ## [inc *$var*]
 
@@ -2130,6 +2164,41 @@ This will unequip the item *$sword* in the hands of the *$hero*:
 ```
 
 **It automatically [update the entity](#ref.rpg.update-entity)**.
+
+
+
+<a name="ref.rpg.grab"></a>
+## [grab *$var*]
+
+* types: run
+* attribute style: var
+* content type: none or object
+
+The *drop* tag is used to drop an item off the entity stored in the *$var*.
+The item should not be equipped.
+
+The content is an object describing what to drop, properties are:
+* item `ref` the variable containing the item to grab
+* stack `array` (optional) if present, the item to grab should be present in the stack, and it will be removed from it
+
+
+
+<a name="ref.rpg.drop"></a>
+## [drop *$var*]
+
+* types: run
+* attribute style: var
+* content type: none or object
+
+The *drop* tag is used to drop an item off the entity stored in the *$var*.
+The item should not be equipped.
+
+The content is an object describing what to drop, properties are:
+* item `ref` the variable containing the item to drop
+* all `boolean` (optional, default: false) drop all unequipped items
+* unequip `boolean` (optional, default: false) in conjunction with the *all* option, it first unequip all items,
+  so all items will be dropped, included equiped items
+* stack `array` (optional) if present, dropped items are appended to the stack
 
 
 

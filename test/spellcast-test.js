@@ -527,6 +527,49 @@ describe( "Operations tags" , function() {
 		) ;
 	} ) ;
 	
+	it( "[define] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/define.kfg' , { type: 'cast' , target: 'define' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'value: 5' ] ,
+					[ 'value: 5' ] ,
+					[ 'value: 8' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "[unset] tag" , function( done ) {
+		
+		var messages = [] ;
+		
+		runBook( __dirname + '/books/unset.kfg' , { type: 'cast' , target: 'unset' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'value: 5' ] ,
+					[ 'value: (undefined)' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 	it( "[swap] tag should swap the values of two Ref" , function( done ) {
 		
 		var messages = [] ;
@@ -1782,7 +1825,49 @@ describe( "Basic adventurer tags and features" , function() {
 	
 	it( "Special var $local" ) ;
 	it( "Special var $global" ) ;
-	it( "Special var $static (TODO, should contains persistent data from the scene)" ) ;
+	
+	it( "Special var $static into [fn] tags" , function( done ) {
+		var messages = [] , ends = [] ;
+		
+		runBook( __dirname + '/books/static-var.kfg' , { type: 'cast' , target: 'static-var' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'static.bob: 6 -- local.bob: 6' ] ,
+					[ 'static.bob: 7 -- local.bob: 6' ] ,
+					[ 'static.bob: 8 -- local.bob: 6' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "Special var $static into [scene] tags" , function( done ) {
+		var messages = [] , ends = [] ;
+		
+		runBook( __dirname + '/books/scene-static-var.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'static.bob: 6 -- local.bob: 6' ] ,
+					[ 'static.bob: 7 -- local.bob: 6' ] ,
+					[ 'static.bob: 8 -- local.bob: 6' ] ,
+					[ 'static.bob: 9 -- local.bob: 6' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
 	
 	it( "Special var $args" , function( done ) {
 		

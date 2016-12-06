@@ -1,0 +1,16 @@
+
+[[doctype spellcaster]]
+
+[fn myfn]
+	[define $static.bob] 5
+	[inc $static.bob]
+	[define $local.bob] 5
+	[inc $local.bob]
+	[message] $> static.bob: ${static.bob} -- local.bob: ${local.bob}
+
+[spell static-var]
+	
+	[call myfn]
+	[call myfn]
+	[call myfn]
+
