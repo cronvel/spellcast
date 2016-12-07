@@ -172,7 +172,8 @@
 			[call pressure] $local.entity
 
 	[fn pressure]
-		[reduce $fight.aliveEntities , 0 => $args.adhoc.fight.pressure] $= $this.previous + ( ( $this.current.adhoc.fight.pressTarget = $args ) ? $this.current.adhoc.fight.pressValue 0 )
+		[reduce $fight.aliveEntities , 0 => $args.adhoc.fight.pressure]
+			$= $this.previous + ( ( $this.current.adhoc.fight.pressTarget = $args ) ? $this.current.adhoc.fight.pressValue 0 )
 		# Pressure has a max level, because when the target is saturated,
 		# extra opponents are not able to reach the target properly:
 		# both the target and its opponents get some malus, therefore the pressure is capped to 18 (4 charging opponents)
@@ -205,7 +206,9 @@
 				y: $= $index + $offset
 
 		#[sort $fight.aliveFoes] $= $this.adhoc.fight.position.y + ( $this.adhoc.fight.position.x / 1000 )
-		[sort $fight.aliveFoes] $= ( $this.left.adhoc.fight.position.y + ( $this.left.adhoc.fight.position.x / 1000 ) ) - ( $this.right.adhoc.fight.position.y + ( $this.right.adhoc.fight.position.x / 1000 ) )
+		[sort $fight.aliveFoes]
+			$= ( $this.left.adhoc.fight.position.y + ( $this.left.adhoc.fight.position.x / 1000 ) )
+			$= - ( $this.right.adhoc.fight.position.y + ( $this.right.adhoc.fight.position.x / 1000 ) )
 
 		#[map $fight.aliveFoes => $tmp] $this.adhoc.fight
 		#[debug info] $tmp
@@ -235,7 +238,9 @@
 				y: $= $index + $offset
 
 		#[sort $fight.aliveAllies] $= $this.adhoc.fight.position.y + ( $this.adhoc.fight.position.x / 1000 )
-		[sort $fight.aliveAllies] $= ( $this.left.adhoc.fight.position.y + ( $this.left.adhoc.fight.position.x / 1000 ) ) - ( $this.right.adhoc.fight.position.y + ( $this.right.adhoc.fight.position.x / 1000 ) )
+		[sort $fight.aliveAllies]
+			$= ( $this.left.adhoc.fight.position.y + ( $this.left.adhoc.fight.position.x / 1000 ) )
+			$= - ( $this.right.adhoc.fight.position.y + ( $this.right.adhoc.fight.position.x / 1000 ) )
 		[set $fight.aliveEntities] $= concat $fight.aliveFoes $fight.aliveAllies
 
 
@@ -1036,9 +1041,12 @@
 
 
 	[fn deadly-push]
-		[set $local.attackScore] $= ( ( max $performer.actual.stats.strength ( $performer.actual.stats.fighting - 3 ) ) + $fight.deadlyPush.bonus ) + ( 2 D 6 )
+		[set $local.attackScore]
+			$= ( ( max $performer.actual.stats.strength ( $performer.actual.stats.fighting - 3 ) )
+			$= + $fight.deadlyPush.bonus )
+			$= + ( 2 D 6 )
 		[set $local.defenseScore] $= $target.actual.stats.strength + ( 2 D 6 )
-
+		
 		[sub $local.attackScore] $= $performer.adhoc.fight.pressure / 4
 		[sub $local.defenseScore] $= $target.adhoc.fight.pressure / 4
 

@@ -16,8 +16,11 @@
 		[else]
 			[set $local.abortLabel] $> (Abort)
 		
-		[filter $performer.equippedItemList => $local.items] $= ( $this.usages[$usage] is-set? ) && ( $this != $performer.primary[$usage] )
-		[filter $performer.items => $local.moreItems] $= ( $this.class = "ability" ) && ( $this.usages[$usage] is-set? )
+		[filter $performer.equippedItemList => $local.items]
+			$= ( $this.usages[$usage] is-set? ) && ( $this != $performer.primary[$usage] )
+		
+		[filter $performer.items => $local.moreItems]
+			$= ( $this.class = "ability" ) && ( $this.usages[$usage] is-set? )
 		
 		[concat $local.items] $local.moreItems
 		
