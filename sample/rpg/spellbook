@@ -15,16 +15,11 @@
 	[label] You
 	[entity] player
 
-[debug warning] > Bob!!!!!
+
 
 [chapter intro]
 	[starting-scene init]
-		#[set $cash-unit] $$%> medieval money[uv:144|12|1/uf:$# gold coin$#[n?|s]|$# silver coin$#[n?|s]|$# copper coin$#[n?|s]/um:N+/uenum:0|$#|, $#| and $#]
 		
-		[debugf warning]
-			- cash-unit: %Y
-			- $cash-unit
-
 		#[debug info] $roles.hero.entity.equippedItems.hand
 		#[debug info] $roles.hero.entity.actual
 		#[debug info] $roles.hero.entity

@@ -1824,6 +1824,8 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "[action] tag" ) ;
 	
 	it( "Special var $local" ) ;
+	
+	// /!\ Works???
 	it( "Special var $global" ) ;
 	
 	it( "Special var $static into [fn] tags" , function( done ) {

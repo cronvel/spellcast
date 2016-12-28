@@ -134,7 +134,6 @@
 		[if ( $args.buy-price is-number? ) || ( $args.sell-price is-number? )]
 			[if $args.performer.goods.cash is-empty?]
 				[set $args.performer.goods.cash] 0
-			[debug warning] $cash-unit
 			[message] $> You have ^Y${args.performer.goods.cash}[$:cash-unit]^:.
 		
 		[next]
