@@ -1825,8 +1825,27 @@ describe( "Basic adventurer tags and features" , function() {
 	
 	it( "Special var $local" ) ;
 	
-	// /!\ Works???
-	it( "Special var $global" ) ;
+	it( "Special var $global" , function( done ) {
+		var messages = [] , ends = [] ;
+		
+		runBook( __dirname + '/books/global-var.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'bob: 15 -- global.bob: 6' ] ,
+					[ 'bob: 16 -- global.bob: 7' ] ,
+					[ 'bob: 17 -- global.bob: 8' ] ,
+					[ 'bob: 19 -- global.bob: 19' ]	// because we return on the global scope
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
 	
 	it( "Special var $static into [fn] tags" , function( done ) {
 		var messages = [] , ends = [] ;
@@ -1893,6 +1912,7 @@ describe( "Basic adventurer tags and features" , function() {
 		) ;
 	} ) ;
 	
+	// Deprecated?
 	it( "Special var $this" ) ;
 } ) ;
 
