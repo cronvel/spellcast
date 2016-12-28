@@ -1823,7 +1823,27 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "[include] tag" ) ;
 	it( "[action] tag" ) ;
 	
-	it( "Special var $local" ) ;
+	it( "Special var $local" , function( done ) {
+		var messages = [] , ends = [] ;
+		
+		runBook( __dirname + '/books/local-var.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'bob: 15 -- local.bob: 1' ] ,
+					[ 'bob: 15 -- local.bob: 1' ] ,
+					[ 'bob: 15 -- local.bob: 1' ] ,
+					[ 'bob: 15 -- local.bob: 1' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
 	
 	it( "Special var $global" , function( done ) {
 		var messages = [] , ends = [] ;

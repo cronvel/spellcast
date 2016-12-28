@@ -1,0 +1,20 @@
+
+[[doctype adventurer]]
+
+[set $bob] 5
+
+[chapter test]
+	[scene scene1]
+		[gosub scene3]
+		[gosub scene3]
+		[gosub scene3]
+		[next scene2]
+
+	[scene scene2]
+		[goto scene3]
+	
+	[scene scene3]
+		[add $bob] 10
+		[set $local.bob] 1
+		[message] $> bob: ${bob} -- local.bob: ${local.bob}
+
