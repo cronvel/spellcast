@@ -8,7 +8,7 @@
 		[set $performer] $args.performer
 		[set $usage] $= ( $args.usage is-set? ) ? $args.usage true
 		
-		[message] Use what?
+		[message] $> Use what?
 		
 		[if $performer.primary[$usage]]
 			[set $local.currentPrimary] $performer.primary[$usage]
@@ -49,7 +49,7 @@
 	[scene select-ability-choose-primary]
 		[set $performer] $args.performer
 		
-		[message] Which usage?
+		[message] $> Which usage?
 		
 		[next] $> (Abort)
 		
@@ -70,7 +70,7 @@
 		[set $performer] $args.performer
 		[set $slot] $= ( $args.slot is-set? ) ? $args.slot "hand"
 		
-		[message] Equip / unequip what?
+		[message] $> Equip / unequip what?
 		
 		[set $local.unequippedItems] $performer.equippedItems[$slot]
 		[filter $performer.items => $local.equippedItems] $= ( $this.class = "object" ) && ( $this.slotType = $slot )
@@ -108,7 +108,7 @@
 	[scene equip-object-choose-slot]
 		[set $performer] $args.performer
 		
-		[message] Which slot?
+		[message] $> Which slot?
 		
 		[next] $> (Abort)
 		
@@ -132,9 +132,10 @@
 	
 	[scene drop-grab-one]
 		[if ( $args.buy-price is-number? ) || ( $args.sell-price is-number? )]
-			[if $args.performer.goods.gp is-empty?]
-				[set $args.performer.goods.gp] 0
-			[message] $> You have ^Y${args.performer.goods.gp}^ GP.
+			[if $args.performer.goods.cash is-empty?]
+				[set $args.performer.goods.cash] 0
+			[debug warning] $cash-unit
+			[message] $> You have ^Y${args.performer.goods.cash}[$:cash-unit]^:.
 		
 		[next]
 			[label] $> (Done)
@@ -155,7 +156,7 @@
 			[if ( $args.buy-price is-number? ) && ( $local.item.ownStats.price is-number? )]
 				[set $local.verb] buy
 				[set $local.price] $= ceil ( $local.item.ownStats.price * $args.buy-price )
-				[set $local.price-string] $> (${local.price} GP)
+				[set $local.price-string] $> (${local.price}[$:cash-unit])
 			[else]
 				[set $local.verb] grab
 				[set $local.price] 0
@@ -169,13 +170,13 @@
 					price: $local.price
 				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
 				[on-trigger]
-					[if $args.performer.goods.gp >= $args.price]
-						[sub $args.performer.goods.gp] $args.price
+					[if $args.performer.goods.cash >= $args.price]
+						[sub $args.performer.goods.cash] $args.price
 						[grab $args.performer]
 							item: $args.item
 							stack: $args.stack
 					[else]
-						[message] $> Not enough GP!
+						[message] $> Not enough cash!
 		
 	
 	
@@ -188,7 +189,7 @@
 			[if ( $args.sell-price is-number? ) && ( $local.item.ownStats.price is-number? )]
 				[set $local.verb] sell
 				[set $local.price] $= floor ( $local.item.ownStats.price * $args.sell-price )
-				[set $local.price-string] $> (${local.price} GP)
+				[set $local.price-string] $> (${local.price}[$:cash-unit])
 			[else]
 				[set $local.verb] drop
 				[set $local.price] 0
@@ -202,7 +203,7 @@
 					price: $local.price
 				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
 				[on-trigger]
-					[add $args.performer.goods.gp] $args.price
+					[add $args.performer.goods.cash] $args.price
 					[drop $args.performer]
 						item: $args.item
 						stack: $args.stack

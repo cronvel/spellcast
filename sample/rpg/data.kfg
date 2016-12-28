@@ -12,7 +12,7 @@
 		strength: 12
 		resilience: 11
 	goods:
-		gp: 350
+		cash: 350
 	items:
 		- ice-blade
 		- nova
