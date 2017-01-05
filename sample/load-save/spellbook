@@ -9,18 +9,23 @@
 		[message]
 			$> Choose your background:
 		
+		[set $character] <Object>
+		
 		[next intro2]
 			[label] $> Warrior
 			[on-trigger]
 				[set $global.class] warrior
+				[set $character.class] warrior
 		[next intro2]
 			[label] $> Rogue
 			[on-trigger]
 				[set $global.class] rogue
+				[set $character.class] rogue
 		[next intro2]
 			[label] $> Mage
 			[on-trigger]
 				[set $global.class] mage
+				[set $character.class] mage
 	
 	[scene intro2]
 		[message]
@@ -31,7 +36,7 @@
 
 	[scene var-check]
 		[message]
-			$> You are a ${global.class}.
+			$> You are a ${global.class}(global) ${character.class}(var).
 
 
 
