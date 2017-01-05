@@ -1,0 +1,37 @@
+
+[[doctype adventurer]]
+
+
+
+[chapter intro]
+	
+	[scene intro1]
+		[message]
+			$> Choose your background:
+		
+		[next intro2]
+			[label] $> Warrior
+			[on-trigger]
+				[set $global.class] warrior
+		[next intro2]
+			[label] $> Rogue
+			[on-trigger]
+				[set $global.class] rogue
+		[next intro2]
+			[label] $> Mage
+			[on-trigger]
+				[set $global.class] mage
+	
+	[scene intro2]
+		[message]
+			$> Load/save scenario:
+
+		[next var-check] $> Var check
+		[next pause] $> Pause
+
+	[scene var-check]
+		[message]
+			$> You are a ${global.class}.
+
+
+
