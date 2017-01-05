@@ -24,7 +24,7 @@
     "electron": "^1.4.13",
     "glob": "^7.1.1",
     "jsbindat": "^0.5.1",
-    "kung-fig": "^0.36.0",
+    "kung-fig": "^0.36.1",
     "logfella": "^0.3.47",
     "math-kit": "^0.3.8",
     "minimist": "^1.2.0",
