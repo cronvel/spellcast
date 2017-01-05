@@ -72,7 +72,7 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 	var ui , uiId = 0 , triggered = false , book , options = {} ;
 	
 	if ( action.maxTicks ) { options.maxTicks = action.maxTicks ; }
-	if ( action.jsTag !== undefined ) { options.jsTag = action.jsTag ; }
+	if ( action.allowJsTag !== undefined ) { options.allowJsTag = action.allowJsTag ; }
 	
 	book = Book.load( bookPath , options ) ;
 	
@@ -2071,7 +2071,7 @@ describe( "Embedded Javascript code" , function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' , jsTag: false } ,
+		runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' , allowJsTag: false } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
