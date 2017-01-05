@@ -5,38 +5,60 @@
 
 [chapter intro]
 	
-	[scene intro1]
+	[scene menu]
+		[message]
+			$> Load/save scenario:
+		
+		[next var-check] $> Check
+		[next var] $> Set var
+		[next static] $> Static counter
+		[next pause] $> Pause
+
+	[scene var]
 		[message]
 			$> Choose your background:
 		
 		[set $character] <Object>
 		
-		[next intro2]
+		[next menu]
 			[label] $> Warrior
 			[on-trigger]
 				[set $global.class] warrior
 				[set $character.class] warrior
-		[next intro2]
+		[next menu]
 			[label] $> Rogue
 			[on-trigger]
 				[set $global.class] rogue
 				[set $character.class] rogue
-		[next intro2]
+		[next menu]
 			[label] $> Mage
 			[on-trigger]
 				[set $global.class] mage
 				[set $character.class] mage
 	
-	[scene intro2]
+	[scene static]
+		[define $static.count] 0
+		[inc $static.count]
 		[message]
-			$> Load/save scenario:
-
-		[next var-check] $> Var check
-		[next pause] $> Pause
-
+			$> Count: ${static.count}.
+		[next menu]
+	
 	[scene var-check]
 		[message]
 			$> You are a ${global.class}(global) ${character.class}(var).
+		[next menu]
+
+	[scene pause]
+		[message]
+			$> After that, a 5 seconds pause...
+		[pause] 5
+		[message]
+			$> First pause finished.
+			$> Here another 5 seconds pause...
+		[pause] 5
+		[message]
+			$> Second pause finished.
+		[next menu]
 
 
 

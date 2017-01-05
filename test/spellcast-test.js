@@ -1860,7 +1860,7 @@ describe( "Basic adventurer tags and features" , function() {
 					[ 'bob: 16 -- global.bob: 7' ] ,
 					[ 'bob: 17 -- global.bob: 8' ] ,
 					//[ 'bob: 19 -- global.bob: 19' ]	// because we return on the global scope
-					[ 'bob: 18 -- global.bob: 9' ] // behavior changed
+					[ 'bob: 18 -- global.bob: 9' ] // behavior changed: only the top-level/init-time run is global
 				] ) ;
 				
 				done() ;
