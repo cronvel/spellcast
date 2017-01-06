@@ -6,17 +6,16 @@
 [chapter intro]
 	
 	[scene menu]
-		[message]
-			$> Load/save scenario:
+		[message] $> Load/save scenario:
 		
 		[next var-check] $> Check
 		[next var] $> Set var
 		[next static] $> Static counter
 		[next pause] $> Pause
+		[next pause-in-loop] $> Pause in loop
 
 	[scene var]
-		[message]
-			$> Choose your background:
+		[message] $> Choose your background:
 		
 		[set $character] <Object>
 		
@@ -39,25 +38,42 @@
 	[scene static]
 		[define $static.count] 0
 		[inc $static.count]
-		[message]
-			$> Count: ${static.count}.
+		[message] $> Count: ${static.count}.
 		[next menu]
 	
 	[scene var-check]
-		[message]
-			$> You are a ${global.class}(global) ${character.class}(var).
+		[message] $> You are a ${global.class}(global) ${character.class}(var).
 		[next menu]
 
 	[scene pause]
-		[message]
-			$> After that, a 5 seconds pause...
+		[message] $> After that, a 5 seconds pause...
 		[pause] 5
 		[message]
 			$> First pause finished.
 			$> Here another 5 seconds pause...
 		[pause] 5
-		[message]
-			$> Second pause finished.
+		[message] $> Second pause finished.
+		[next menu]
+
+	[scene pause-in-loop]
+		
+		[set $local.count] 10
+		[message] $> Countdown:
+		
+		[while $local.count >= 0]
+			[message] $> A ${local.count}...
+			[dec $local.count]
+			[pause] 1
+			[message] $> B ${local.count}...
+			[dec $local.count]
+			[pause] 1
+			[message] $> C ${local.count}...
+			[dec $local.count]
+			[pause] 1
+			[message] $> D ${local.count}...
+			[dec $local.count]
+			[pause] 1
+		
 		[next menu]
 
 
