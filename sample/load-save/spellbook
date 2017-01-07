@@ -104,6 +104,7 @@
 	[scene if-elsif-else]
 		
 		[if $global.class = "warrior"]
+			[set $global.class = null]
 			[message] $> Warrior A
 			[pause] 1
 			[message] $> Warrior B
@@ -113,6 +114,7 @@
 			[message] $> Warrior D
 			[pause] 1
 		[elseif $global.class = "rogue"]
+			[set $global.class = null]
 			[message] $> Rogue A
 			[pause] 1
 			[message] $> Rogue B
@@ -122,6 +124,7 @@
 			[message] $> Rogue D
 			[pause] 1
 		[elseif $global.class = "mage"]
+			[set $global.class = null]
 			[message] $> Mage A
 			[pause] 1
 			[message] $> Mage B
@@ -131,6 +134,7 @@
 			[message] $> Mage D
 			[pause] 1
 		[else]
+			[set $global.class = null]
 			[message] $> Unknown A
 			[pause] 1
 			[message] $> Unknown B
