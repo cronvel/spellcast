@@ -14,6 +14,7 @@
 		[next pause] $> Pause
 		[next while-loop] $> While loop
 		[next foreach-loop] $> Foreach loop
+		[next if-elsif-else] $> If/elsif/else
 
 	[scene var]
 		[message] $> Choose your background:
@@ -96,6 +97,47 @@
 			[message] $> C ${local.key}: ${local.value}
 			[pause] 1
 			[message] $> D ${local.key}: ${local.value}
+			[pause] 1
+		
+		[next menu]
+
+	[scene if-elsif-else]
+		
+		[if $global.class = "warrior"]
+			[message] $> Warrior A
+			[pause] 1
+			[message] $> Warrior B
+			[pause] 1
+			[message] $> Warrior C
+			[pause] 1
+			[message] $> Warrior D
+			[pause] 1
+		[elseif $global.class = "rogue"]
+			[message] $> Rogue A
+			[pause] 1
+			[message] $> Rogue B
+			[pause] 1
+			[message] $> Rogue C
+			[pause] 1
+			[message] $> Rogue D
+			[pause] 1
+		[elseif $global.class = "mage"]
+			[message] $> Mage A
+			[pause] 1
+			[message] $> Mage B
+			[pause] 1
+			[message] $> Mage C
+			[pause] 1
+			[message] $> Mage D
+			[pause] 1
+		[else]
+			[message] $> Unknown A
+			[pause] 1
+			[message] $> Unknown B
+			[pause] 1
+			[message] $> Unknown C
+			[pause] 1
+			[message] $> Unknown D
 			[pause] 1
 		
 		[next menu]
