@@ -15,6 +15,7 @@
 		[next while-loop] $> While loop
 		[next foreach-loop] $> Foreach loop
 		[next if-elsif-else] $> If/elsif/else
+		[next call-fn] $> Call/fn
 
 	[scene var]
 		[message] $> Choose your background:
@@ -146,5 +147,30 @@
 		
 		[next menu]
 
+	[scene call-fn]
+		[call myfn]
+		[next menu]
+
+	[fn myfn]
+		[message] > A
+		[pause] 1
+		[message] > B
+		[pause] 1
+		[message] > C
+		[pause] 1
+		[call subfn]
+		[message] > D
+		[pause] 1
+		[message] > E
+		[pause] 1
+		
+	[fn subfn]
+		[message] > alpha
+		[pause] 1
+		[message] > beta
+		[pause] 1
+		[message] > gamma
+		[pause] 1
+		
 
 
