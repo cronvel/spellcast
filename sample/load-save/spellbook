@@ -16,6 +16,7 @@
 		[next foreach-loop] $> Foreach loop
 		[next if-elsif-else] $> If/elsif/else
 		[next call-fn] $> Call/fn
+		[next gosub] $> Gosub
 
 	[scene var]
 		[message] $> Choose your background:
@@ -172,5 +173,22 @@
 		[message] > gamma
 		[pause] 1
 		
+	[scene gosub]
+		[message] > 1...
+		[pause] 1
+		[message] > 2...
+		[pause] 1
+		[gosub subscene]
+		[message] > 3...
+		[pause] 1
+		[message] > 4...
+		[pause] 1
+		[next menu]
 
-
+	[scene subscene]
+		[message] > Sub 1...
+		[pause] 1
+		[message] > Sub 2...
+		[pause] 1
+		[message] > Sub 3...
+		[pause] 1
