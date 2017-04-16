@@ -1,0 +1,62 @@
+
+[[doctype adventurer]]
+
+
+
+[item-model cloak-of-darkness]
+	class: object
+	label: Cloak of Darkness
+	slotType: cloak
+	slotCount: 1
+
+
+[entity-model player]
+	class: character
+	label: the hero
+	equippedItems:
+		cloak:
+			- cloak-of-darkness
+
+[role hero]
+	[label] You
+	[entity] player
+
+
+[chapter game]
+	
+	[scene intro1]
+		[message]
+			>> It's night, and you have been chased relentlessly by goblin hunters,
+			>> through the street of this abandonned once great town.
+			>>
+			>> Now you have found refuge into an abandonned opera house.
+		
+		[next intro2]
+	
+	[scene intro2]
+		[message] You secured the entrance of the opera house.
+		[next foyer]
+	
+	[scene foyer]
+		[message]
+			> The hall is spacious. Someone lighted few chandeliers.
+			> There are doorways south and west.
+		
+		[next bar] Go south
+		[next cloakroom] Go west
+
+	[scene cloakroom]
+		[message]
+			> This is the cloakroom. There is a small brass hook fixed on the wall
+		
+		[next foyer] Go back to the foyer (east)
+
+	[scene bar]
+		[message]
+			> The bar is very dark. You can't even see your feet!
+			> There is a dim light coming from the foyer.
+		
+		[next foyer] Go back to the foyer (north)
+
+
+

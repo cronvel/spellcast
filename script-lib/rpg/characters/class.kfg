@@ -14,6 +14,7 @@
 		ability: Infinity
 		hand: 2
 		armor: 1
+		cloak: 1
 		ring: 2
 	stats:
 		fighting: 0
