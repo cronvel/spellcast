@@ -1815,6 +1815,7 @@ describe( "Basic adventurer tags and features" , function() {
 	
 	it( "[next] tag instances ([next] into loop)" ) ;
 	it( "[next]'s [on-trigger] tag" ) ;
+	it( "[fake-next] tag" ) ;
 	
 	it( "[end]/[win]/[lost]/[draw] tags" ) ;
 	it( "[goto] tag" ) ;
@@ -2120,6 +2121,12 @@ describe( "Prevent from infinite loop in user-script, using the 'maxTicks' optio
 			}
 		) ;
 	} ) ;
+} ) ;
+
+
+
+describe( "Spellcast operators" , function() {
+	it( "operators" ) ;
 } ) ;
 
 

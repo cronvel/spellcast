@@ -595,7 +595,7 @@ In fact, the *args* tag here works just like *args* tag of *gosub* and *call* ta
 
 
 <a name="ref.scenario.fake-next"></a>
-## [fake-next]
+## [fake-next] / [fake-next *mode*]
 
 * types: run, exec
 * attribute style: none or specific: the mode
@@ -2156,7 +2156,7 @@ This will equip *$hero* with the *$sword*, and set it as the primary item for th
 
 * types: run
 * attribute style: var
-* content type: none or object
+* content type: object
 
 The *unequip* tag is used to unequip an item off the entity stored in the *$var*.
 
@@ -2191,10 +2191,10 @@ This will unequip the item *$sword* in the hands of the *$hero*:
 
 * types: run
 * attribute style: var
-* content type: none or object
+* content type: object
 
-The *drop* tag is used to drop an item off the entity stored in the *$var*.
-The item should not be equipped.
+The *grab* tag is used to grab an item: the entity stored in the *$var* collect the item in its inventory.
+The item is not equipped.
 
 The content is an object describing what to drop, properties are:
 * item `ref` the variable containing the item to grab
@@ -2207,7 +2207,7 @@ The content is an object describing what to drop, properties are:
 
 * types: run
 * attribute style: var
-* content type: none or object
+* content type: object
 
 The *drop* tag is used to drop an item off the entity stored in the *$var*.
 The item should not be equipped.
