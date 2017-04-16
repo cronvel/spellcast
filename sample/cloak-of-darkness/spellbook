@@ -42,21 +42,51 @@
 			> The hall is spacious. Someone lighted few chandeliers.
 			> There are doorways south and west.
 		
-		[next bar] Go south
-		[next cloakroom] Go west
+		[next bar] $= ( $bar is-set? ) ? "Go to the bar (south)" "Go south"
+		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"
 
 	[scene cloakroom]
+		[define $cloakroom] true
 		[message]
 			> This is the cloakroom. There is a small brass hook fixed on the wall
 		
 		[next foyer] Go back to the foyer (east)
 
 	[scene bar]
+		[define $bar] true
+		[define $damage] 0
 		[message]
 			> The bar is very dark. You can't even see your feet!
 			> There is a dim light coming from the foyer.
 		
-		[next foyer] Go back to the foyer (north)
+		[next foyer] Go back to the foyer (north, light)
+		
+		[fake-next once]
+			[label] Go east (dark)
+			[on-trigger]
+				[message] Ouch! You bump against a wall
+				[inc $damage]
+		[fake-next once]
+			[label] Go west (dark)
+			[on-trigger]
+				[message] Ouch! You hurt yourself against a furniture
+				[inc $damage]
+		[fake-next once]
+			[label] Go south (dark)
+			[on-trigger]
+				[message] Ouch! You hurt yourself against a table
+				[inc $damage]
+
+	[scene ouch]
+		[define $bar] true
+		[message]
+			> The bar is very dark. You can't even see your feet!
+			> There is a dim light coming from the foyer.
+		
+		[next foyer] Go back to the foyer (north, light)
+		[next ouch] Go east (dark)
+		[next ouch] Go west (dark)
+		[next ouch] Go south (dark)
 
 
 

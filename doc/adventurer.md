@@ -39,6 +39,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [On-trigger Tag](#ref.scenario.next.on-trigger)
 			* [Args Tag](#ref.scenario.next.args)
 			* [This Tag](#ref.scenario.next.this)
+		* [Fake Next Tag](#ref.scenario.fake-next)
 		* [End Tag](#ref.scenario.end)
 		* [Win Tag](#ref.scenario.win)
 		* [Lost Tag](#ref.scenario.lost)
@@ -590,6 +591,24 @@ In fact, the *args* tag here works just like *args* tag of *gosub* and *call* ta
 ### [this]
 
 **DEPRECATED.**
+
+
+
+<a name="ref.scenario.fake-next"></a>
+## [fake-next]
+
+* types: run, exec
+* attribute style: none or specific: the mode
+* content type: tags or string/template (the label)
+
+The *fake-next* tag works like a [*next*](ref.scenario.next) tag, except it does not switch to another scene.
+
+Typically, a *fake-next* tag has a *on-trigger* tag that display some text and eventually adjust few variables,
+but the scene remain the same, and is not rendered again.
+
+If present, the mode can be:
+* normal: nothing special (the default)
+* once: the *fake-next* option is removed once selected, but would be enabled if the scene is rendered again
 
 
 
