@@ -9,14 +9,18 @@
 [item-model cloak-of-darkness]
 	class: object
 	label: Cloak of Darkness
-	description: A black velvet cloak, that seems to be light-absorbent.
+	description: A black velvet cloak.
+	params:
+		examine: The cloak seems to be light-absorbent!
 	slotType: cloak
 	slotCount: 1
 
 [item-model sword-of-slashing]
 	class: object
 	label: Sword of Slashing
-	description: A mighty sword that get a +999 bonus at slashing goblins!
+	description: A mighty sword.
+	params:
+		examine: Oh my gawd! That mighty sword get a +999 bonus at slashing goblins!
 	slotType: hand
 	slotCount: 1
 

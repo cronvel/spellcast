@@ -3,6 +3,91 @@
 
 [system inventory]
 	
+	# Full inventory menu
+	[scene inventory]
+		[while ! $local.done]
+			[gosub inventory-menu => $local.done] $args
+	
+	
+	
+	[scene inventory-menu]
+		[set $performer] $args.performer
+		[set $stack] $args.stack
+		
+		[message] $> Inventory
+		
+		[filter $performer.equippedItemList => $local.equippedItems] $= $this.class = "object"
+		[filter $performer.items => $local.unequippedItems] $= $this.class = "object"
+		
+		[next]
+			[label] $> (Done)
+			[on-trigger]
+				[return] true
+		
+		[foreach $local.equippedItems => $local.index : $local.item]
+			[next inventory-object]
+				[args]
+					index: $local.index
+				[label] $> ${local.item.label} (${local.item.slotType})
+				[on-trigger]
+					[set $item] $local.equippedItems[$args.index]
+					[set $equipped] true
+		
+		[foreach $local.unequippedItems => $local.index : $local.item]
+			[next inventory-object]
+				[args]
+					index: $local.index
+				[label] $> ${local.item.label}
+				[on-trigger]
+					[set $item] $local.unequippedItems[$args.index]
+					[set $equipped] false
+	
+	
+	
+	# Called by inventory-menu
+	[scene inventory-object]
+		
+		[next] $> (Done)
+		
+		[if $equipped]
+			[message]
+				$> ^_${item.label//uc1}^ (equipped: ${item.slotType})
+			[next inventory-object]
+				[label] $> Unequip ${item.label}
+				[on-trigger]
+					[unequip $performer]
+						item: $item
+		[else]
+			[message]
+				$> ^_${item.label//uc1} (inventory)
+			[next inventory-object]
+				[label] $> Equip ${item.label}
+				[on-trigger]
+					[equip $performer]
+						item: $item
+			[if $stack]
+				[next]
+					[label] $> Drop ${item.label}
+					[on-trigger]
+						[drop $performer]
+							item: $item
+							stack: $stack
+	
+		[fake-next]
+			[label] $> Examine
+			[on-trigger]
+				[if $item.params.examine]
+					[message] $item.params.examine
+				[else]
+					[message] $> There is nothing special.
+		
+		
+		[message]
+			$>
+			$> ${item.description//uc1/dash2space}
+		
+	
+	
 	# Equip an ability as primary, or make any equipped item (ability or not) a primary
 	[scene select-ability-primary]
 		[set $performer] $args.performer
@@ -63,82 +148,6 @@
 						performer: $performer
 						usage: $args.usage
 
-	
-	
-	# Full inventory menu
-	[scene inventory]
-		[while ! $local.done]
-			[gosub inventory-menu => $local.done] $args
-	
-	
-	
-	[scene inventory-menu]
-		[set $performer] $args.performer
-		[set $stack] $args.stack
-		
-		[message] $> Inventory
-		
-		[filter $performer.equippedItemList => $local.equippedItems] $= $this.class = "object"
-		[filter $performer.items => $local.unequippedItems] $= $this.class = "object"
-		
-		[next]
-			[label] $> (Done)
-			[on-trigger]
-				[return] true
-		
-		[foreach $local.equippedItems => $local.index : $local.item]
-			[next inventory-object]
-				[args]
-					index: $local.index
-				[label] $> ${local.item.label} (${local.item.slotType})
-				[on-trigger]
-					[set $item] $local.equippedItems[$args.index]
-					[set $equipped] true
-		
-		[foreach $local.unequippedItems => $local.index : $local.item]
-			[next inventory-object]
-				[args]
-					index: $local.index
-				[label] $> ${local.item.label}
-				[on-trigger]
-					[set $item] $local.unequippedItems[$args.index]
-					[set $equipped] false
-	
-	
-	
-	# Called by inventory-menu
-	[scene inventory-object]
-		[message]
-			$> ${item.label//uc1}
-			$>
-			$> Description:
-			$>
-			$> ${item.description//uc1/dash2space}
-			$>
-		
-		[next] $> (Done)
-		
-		[if $equipped]
-			[message] $> Equipped (${item.slotType})
-			[next]
-				[label] $> Unequip ${item.label}
-				[on-trigger]
-					[unequip $performer]
-						item: $item
-		[else]
-			[next]
-				[label] $> Equip ${item.label}
-				[on-trigger]
-					[equip $performer]
-						item: $item
-			[if $stack]
-				[next]
-					[label] $> Drop ${item.label}
-					[on-trigger]
-						[drop $performer]
-							item: $item
-							stack: $stack
-		
 	
 	
 	# Equip an object
