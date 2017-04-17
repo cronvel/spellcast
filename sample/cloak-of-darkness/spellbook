@@ -1,30 +1,51 @@
 
 [[doctype adventurer]]
 
+#[module] @@../../script-lib/rpg/rpg.kfg
+[module] @@../../script-lib/rpg/system/inventory.kfg
+
 
 
 [item-model cloak-of-darkness]
 	class: object
 	label: Cloak of Darkness
+	description: A black velvet cloak, that seems to be light-absorbent.
 	slotType: cloak
 	slotCount: 1
 
+[item-model sword-of-slashing]
+	class: object
+	label: Sword of Slashing
+	description: A mighty sword that get a +999 bonus at slashing goblins!
+	slotType: hand
+	slotCount: 1
 
-[entity-model player]
+[entity-model hero]
 	class: character
 	label: the hero
+	slots:
+		cloak: 1
+		hand: 2
 	equippedItems:
 		cloak:
 			- cloak-of-darkness
+		hand:
+			- sword-of-slashing
 
-[role hero]
-	[label] You
-	[entity] player
 
 
 [chapter game]
 	
-	[scene intro1]
+	[starting-scene intro1]
+		# Create the hero character, using the "hero" model
+		[create-entity $hero]
+			model: hero
+			npc: false
+		
+		[debug] $hero
+		[debug] $hero.equippedItems
+		[debug] $= $hero has-item-matching "model" "cloak-of-darkness"
+		
 		[message]
 			>> It's night, and you have been chased relentlessly by goblin hunters,
 			>> through the street of this abandonned once great town.
@@ -33,60 +54,92 @@
 		
 		[next intro2]
 	
+	
+	
 	[scene intro2]
 		[message] You secured the entrance of the opera house.
 		[next foyer]
 	
+	
+	
 	[scene foyer]
+		[define $static.stack] <Array>
+		
 		[message]
 			> The hall is spacious. Someone lighted few chandeliers.
 			> There are doorways south and west.
 		
 		[next bar] $= ( $bar is-set? ) ? "Go to the bar (south)" "Go south"
 		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"
+		[fake-next]
+			[label] Inventory
+			[on-trigger]
+				[gosub inventory/inventory]
+					performer: $hero
+					stack: $static.stack
 
+	
+	
 	[scene cloakroom]
 		[define $cloakroom] true
+		[define $static.stack] <Array>
+		
 		[message]
-			> This is the cloakroom. There is a small brass hook fixed on the wall
+			> This is the cloakroom.
+			> There is a small brass hook fixed on the wall.
 		
 		[next foyer] Go back to the foyer (east)
+		[fake-next]
+			[label] Inventory
+			[on-trigger]
+				[gosub inventory/inventory]
+					performer: $hero
+					stack: $static.stack
 
+	
+	
 	[scene bar]
 		[define $bar] true
 		[define $damage] 0
-		[message]
-			> The bar is very dark. You can't even see your feet!
-			> There is a dim light coming from the foyer.
 		
-		[next foyer] Go back to the foyer (north, light)
-		
-		[fake-next once]
-			[label] Go east (dark)
-			[on-trigger]
-				[message] Ouch! You bump against a wall
-				[inc $damage]
-		[fake-next once]
-			[label] Go west (dark)
-			[on-trigger]
-				[message] Ouch! You hurt yourself against a furniture
-				[inc $damage]
-		[fake-next once]
-			[label] Go south (dark)
-			[on-trigger]
-				[message] Ouch! You hurt yourself against a table
-				[inc $damage]
+		[if $hero has-equipped-item-matching "model" "cloak-of-darkness"]
+			[message]
+				> The bar is very dark. You can't even see your feet!
+				> There is a dim light coming from the foyer.
+			
+			[next foyer] Go back to the foyer (north, light)
+			
+			[fake-next once]
+				[label] Go east (dark)
+				[on-trigger]
+					[message] Ouch! You bump against a wall
+					[inc $damage]
+			[fake-next once]
+				[label] Go west (dark)
+				[on-trigger]
+					[message] Ouch! You hurt yourself against a furniture
+					[inc $damage]
+			[fake-next once]
+				[label] Go south (dark)
+				[on-trigger]
+					[message] Ouch! You hurt yourself against a table
+					[inc $damage]
+		[else]
+			[message]
+				> The bar is a bit dark, but you can see faint magical light around you.
+				> There is a scroll on the floor.
+			
+			[next foyer] Go back to the foyer (north, light)
+			[next scroll] Read the scroll
 
-	[scene ouch]
-		[define $bar] true
-		[message]
-			> The bar is very dark. You can't even see your feet!
-			> There is a dim light coming from the foyer.
-		
-		[next foyer] Go back to the foyer (north, light)
-		[next ouch] Go east (dark)
-		[next ouch] Go west (dark)
-		[next ouch] Go south (dark)
-
-
+	
+	
+	[scene scroll]
+		[if $damage < 2]
+			[message] > The message reads: “You win!”
+			[win]
+		[else]
+			[message] > The message reads: “You lose...”
+			[win]
+	
 

@@ -13,7 +13,8 @@
 		innate: Infinity
 		ability: Infinity
 		hand: 2
-		armor: 1
+		body: 1
+		head: 1
 		cloak: 1
 		ring: 2
 	stats:

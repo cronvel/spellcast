@@ -65,6 +65,82 @@
 
 	
 	
+	# Full inventory menu
+	[scene inventory]
+		[while ! $local.done]
+			[gosub inventory-menu => $local.done] $args
+	
+	
+	
+	[scene inventory-menu]
+		[set $performer] $args.performer
+		[set $stack] $args.stack
+		
+		[message] $> Inventory
+		
+		[filter $performer.equippedItemList => $local.equippedItems] $= $this.class = "object"
+		[filter $performer.items => $local.unequippedItems] $= $this.class = "object"
+		
+		[next]
+			[label] $> (Done)
+			[on-trigger]
+				[return] true
+		
+		[foreach $local.equippedItems => $local.index : $local.item]
+			[next inventory-object]
+				[args]
+					index: $local.index
+				[label] $> ${local.item.label} (${local.item.slotType})
+				[on-trigger]
+					[set $item] $local.equippedItems[$args.index]
+					[set $equipped] true
+		
+		[foreach $local.unequippedItems => $local.index : $local.item]
+			[next inventory-object]
+				[args]
+					index: $local.index
+				[label] $> ${local.item.label}
+				[on-trigger]
+					[set $item] $local.unequippedItems[$args.index]
+					[set $equipped] false
+	
+	
+	
+	# Called by inventory-menu
+	[scene inventory-object]
+		[message]
+			$> ${item.label//uc1}
+			$>
+			$> Description:
+			$>
+			$> ${item.description//uc1/dash2space}
+			$>
+		
+		[next] $> (Done)
+		
+		[if $equipped]
+			[message] $> Equipped (${item.slotType})
+			[next]
+				[label] $> Unequip ${item.label}
+				[on-trigger]
+					[unequip $performer]
+						item: $item
+		[else]
+			[next]
+				[label] $> Equip ${item.label}
+				[on-trigger]
+					[equip $performer]
+						item: $item
+			[if $stack]
+				[next]
+					[label] $> Drop ${item.label}
+					[on-trigger]
+						[drop $performer]
+							item: $item
+							stack: $stack
+		
+	
+	
 	# Equip an object
 	[scene equip-object]
 		[set $performer] $args.performer
@@ -72,8 +148,8 @@
 		
 		[message] $> Equip / unequip what?
 		
-		[set $local.unequippedItems] $performer.equippedItems[$slot]
-		[filter $performer.items => $local.equippedItems] $= ( $this.class = "object" ) && ( $this.slotType = $slot )
+		[set $local.equippedItems] $performer.equippedItems[$slot]
+		[filter $performer.items => $local.unequippedItems] $= ( $this.class = "object" ) && ( $this.slotType = $slot )
 		
 		#[debug info] $performer.equippedItemList
 		#[debug info] $performer.items
@@ -81,24 +157,24 @@
 		
 		[next] $> (Abort)
 		
-		[foreach $local.unequippedItems => $local.index : $local.item]
+		[foreach $local.equippedItems => $local.index : $local.item]
 			[next]
 				[args]
 					index: $local.index
 				[label] $> Unequip ${local.item.label} (${local.item.class})
 				[on-trigger]
-					[set $local.item] $local.unequippedItems[$args.index]
+					[set $local.item] $local.equippedItems[$args.index]
 					[unequip $performer]
 						item: $local.item
 					[return] true
 		
-		[foreach $local.equippedItems => $local.index : $local.item]
+		[foreach $local.unequippedItems => $local.index : $local.item]
 			[next]
 				[args]
 					index: $local.index
 				[label] $> Equip ${local.item.label} (${local.item.class})
 				[on-trigger]
-					[set $local.item] $local.equippedItems[$args.index]
+					[set $local.item] $local.unequippedItems[$args.index]
 					[equip $performer]
 						item: $local.item
 					[return] true
