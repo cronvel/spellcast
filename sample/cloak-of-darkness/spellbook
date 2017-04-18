@@ -42,13 +42,11 @@
 	
 	[starting-scene intro1]
 		# Create the hero character, using the "hero" model
-		[create-entity $hero]
-			model: hero
-			npc: false
+		[create-main-entity] hero
 		
-		[debug] $hero
-		[debug] $hero.equippedItems
-		[debug] $= $hero has-item-matching "model" "cloak-of-darkness"
+		[debug] $player
+		[debug] $player.equippedItems
+		[debug] $= $player has-item-matching "model" "cloak-of-darkness"
 		
 		[message]
 			>> It's night, and you have been chased relentlessly by goblin hunters,
@@ -79,7 +77,7 @@
 			[label] Inventory
 			[on-trigger]
 				[gosub inventory/inventory]
-					performer: $hero
+					performer: $player
 					stack: $static.stack
 
 	
@@ -97,7 +95,7 @@
 			[label] Inventory
 			[on-trigger]
 				[gosub inventory/inventory]
-					performer: $hero
+					performer: $player
 					stack: $static.stack
 
 	
@@ -106,7 +104,7 @@
 		[define $bar] true
 		[define $damage] 0
 		
-		[if $hero has-equipped-item-matching "model" "cloak-of-darkness"]
+		[if $player has-equipped-item-matching "model" "cloak-of-darkness"]
 			[message]
 				> The bar is very dark. You can't even see your feet!
 				> There is a dim light coming from the foyer.

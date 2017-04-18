@@ -115,6 +115,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Entity-class Tag](#ref.rpg.entity-class)
 		* [Entity-model Tag](#ref.rpg.entity-model)
 		* [Create-entity Tag](#ref.rpg.create-entity)
+		* [Create-main-entity Tag](#ref.rpg.create-main-entity)
 		* [Update-entity Tag](#ref.rpg.update-entity)
 		* [Entity-compound-stats Tag](#ref.rpg.entity-compound-stats)
 		* [Usage-compound-stats Tag](#ref.rpg.usage-compound-stats)
@@ -2001,6 +2002,24 @@ The *create-entity* tag is used to create an entity and store it into a variable
 
 Its content content can be either a simple string containing the model ID to create, or a whole object containing
 some or all of the *Entity* properties, that may inherit from an entity model.
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.create-main-entity"></a>
+## [create-main-entity]
+
+* types: run
+* attribute style: none
+* content type: string (the model to create) or object
+
+The *create-main-entity* tag is used to create the main entity.
+
+It works like the [*create-entity* tag](#ref.rpg.create-entity), except that the entity is stored inside
+the first role and inside the $player global variable.
+
+Using this tag is the recommended way to create the main character in single player book.
 
 TODO: documentation
 
