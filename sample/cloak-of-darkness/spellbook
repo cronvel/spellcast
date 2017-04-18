@@ -1,8 +1,8 @@
 
 [[doctype adventurer]]
 
-#[module] @@../../script-lib/rpg/rpg.kfg
-[module] @@../../script-lib/rpg/system/inventory.kfg
+#[module] @@{core}/rpg/rpg.kfg
+[module] @@{core}/rpg/system/inventory.kfg
 
 
 

@@ -55,6 +55,7 @@
 			[next inventory-object]
 				[label] $> Unequip ${item.label}
 				[on-trigger]
+					[set $equipped] false
 					[unequip $performer]
 						item: $item
 		[else]
@@ -63,6 +64,7 @@
 			[next inventory-object]
 				[label] $> Equip ${item.label}
 				[on-trigger]
+					[set $equipped] true
 					[equip $performer]
 						item: $item
 			[if $stack]
@@ -80,7 +82,6 @@
 					[message] $item.params.examine
 				[else]
 					[message] $> There is nothing special.
-		
 		
 		[message]
 			$>
