@@ -24,7 +24,8 @@
 	slotType: hand
 	slotCount: 1
 
-[entity-model hero]
+# Create the main character
+[create-main-entity]
 	class: character
 	label: the hero
 	slots:
@@ -41,12 +42,11 @@
 [chapter game]
 	
 	[starting-scene intro1]
-		# Create the hero character, using the "hero" model
-		[create-main-entity] hero
 		
-		[debug] $player
-		[debug] $player.equippedItems
-		[debug] $= $player has-item-matching "model" "cloak-of-darkness"
+		[here]
+			bob: hello
+			bill: bye
+		[debug] $here
 		
 		[message]
 			>> It's night, and you have been chased relentlessly by goblin hunters,

@@ -51,6 +51,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Roles Tag](#ref.scenario.gosub.roles)
 		* [Include Tag](#ref.scenario.include)
 		* [Action Tag](#ref.scenario.action)
+		* [Here Tag](#ref.scenario.here)
 	* [Input/Output Tags](#ref.io)
 		* [Message Tag](#ref.io.message)
 		* [Fortune Tag](#ref.io.fortune)
@@ -753,6 +754,13 @@ Its content is an array of *role ID*: the role list that will go to the *sub-sce
 
 <a name="ref.scenario.action"></a>
 ## [action]
+
+TODO.
+
+
+
+<a name="ref.scenario.here"></a>
+## [here]
 
 TODO.
 
@@ -2017,9 +2025,11 @@ TODO: documentation
 The *create-main-entity* tag is used to create the main entity.
 
 It works like the [*create-entity* tag](#ref.rpg.create-entity), except that the entity is stored inside
-the first role and inside the $player global variable.
+the first role (created if unexistant) and inside the $player global variable.
 
-Using this tag is the recommended way to create the main character in single player book.
+Using this tag is the **recommended** way to create the main character in **single player book**.
+
+Since it creates a default role if none exist when executed, this is **not recommended** to use this tag in **multiplayer book**.
 
 TODO: documentation
 
