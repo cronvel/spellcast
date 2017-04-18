@@ -52,6 +52,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Include Tag](#ref.scenario.include)
 		* [Action Tag](#ref.scenario.action)
 		* [Here Tag](#ref.scenario.here)
+		* [Auto-here Tag](#ref.scenario.here)
 	* [Input/Output Tags](#ref.io)
 		* [Message Tag](#ref.io.message)
 		* [Fortune Tag](#ref.io.fortune)
@@ -745,10 +746,17 @@ Its content is an array of *role ID*: the role list that will go to the *sub-sce
 
 
 
-<a name="ref.scenario.include"></a>
-## [include]
+<a name="ref.scenario.here"></a>
+## [here]
 
-**DEPRECATED.**
+TODO.
+
+
+
+<a name="ref.scenario.auto-here"></a>
+## [auto-here]
+
+TODO.
 
 
 
@@ -759,10 +767,10 @@ TODO.
 
 
 
-<a name="ref.scenario.here"></a>
-## [here]
+<a name="ref.scenario.include"></a>
+## [include]
 
-TODO.
+**DEPRECATED.**
 
 
 

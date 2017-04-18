@@ -4,6 +4,17 @@
 [system inventory]
 	
 	# Full inventory menu
+	[fn auto-inventory]
+		[if ! $here]
+			[return]
+		[fake-next]
+			[label] $> Inventory
+			[on-trigger]
+				[gosub inventory/inventory]
+					performer: $here.performer
+					stack: $here.items
+
+	
 	[scene inventory]
 		[while ! $local.done]
 			[gosub inventory-menu => $local.done] $args

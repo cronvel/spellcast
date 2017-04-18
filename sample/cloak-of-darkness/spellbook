@@ -1,7 +1,6 @@
 
 [[doctype adventurer]]
 
-#[module] @@{core}/rpg/rpg.kfg
 [module] @@{core}/rpg/system/inventory.kfg
 
 
@@ -43,11 +42,6 @@
 	
 	[starting-scene intro1]
 		
-		[here]
-			bob: hello
-			bill: bye
-		[debug] $here
-		
 		[message]
 			>> It's night, and you have been chased relentlessly by goblin hunters,
 			>> through the street of this abandonned once great town.
@@ -65,6 +59,8 @@
 	
 	
 	[scene foyer]
+		[here]
+			items: <Array>
 		[define $static.stack] <Array>
 		
 		[message]
@@ -73,16 +69,13 @@
 		
 		[next bar] $= ( $bar is-set? ) ? "Go to the bar (south)" "Go south"
 		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"
-		[fake-next]
-			[label] Inventory
-			[on-trigger]
-				[gosub inventory/inventory]
-					performer: $player
-					stack: $static.stack
+		[call inventory/auto-inventory]
 
 	
 	
 	[scene cloakroom]
+		[here]
+			items: <Array>
 		[define $cloakroom] true
 		[define $static.stack] <Array>
 		
@@ -91,12 +84,7 @@
 			> There is a small brass hook fixed on the wall.
 		
 		[next foyer] Go back to the foyer (east)
-		[fake-next]
-			[label] Inventory
-			[on-trigger]
-				[gosub inventory/inventory]
-					performer: $player
-					stack: $static.stack
+		[call inventory/auto-inventory]
 
 	
 	
