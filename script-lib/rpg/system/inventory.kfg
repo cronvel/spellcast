@@ -40,10 +40,14 @@
 		[set $performer] $args.performer
 		[set $stack] $args.stack
 		
-		[message] $> Inventory
-		
 		[filter $performer.equippedItemList => $local.equippedItems] $= $this.class = "object"
 		[filter $performer.items => $local.unequippedItems] $= $this.class = "object"
+		
+		[if ( ! $local.equippedItems.length ) && ( ! $local.unequippedItems.length )]
+			[message] $> Empty inventory
+			[return] true
+		
+		[message] $> Inventory
 		
 		[next]
 			[label] $> (Done)
@@ -75,6 +79,14 @@
 		
 		[next] $> (Done)
 		
+		[fake-next]
+			[label] $> Examine
+			[on-trigger]
+				[if $item.params.examine]
+					[message] $item.params.examine
+				[else]
+					[message] $> There is nothing special.
+		
 		[if $equipped]
 			[message]
 				$> ^_${item.label//uc1}^ (equipped: ${item.slotType})
@@ -84,6 +96,16 @@
 					[set $equipped] false
 					[unequip $performer]
 						item: $item
+			[if $stack]
+				[next]
+					[label] $> Unequip and drop ${item.label}
+					[on-trigger]
+						[set $equipped] false
+						[unequip $performer]
+							item: $item
+						[drop $performer]
+							item: $item
+							stack: $stack
 		[else]
 			[message]
 				$> ^_${item.label//uc1} (inventory)
@@ -101,14 +123,6 @@
 							item: $item
 							stack: $stack
 	
-		[fake-next]
-			[label] $> Examine
-			[on-trigger]
-				[if $item.params.examine]
-					[message] $item.params.examine
-				[else]
-					[message] $> There is nothing special.
-		
 		[message]
 			$>
 			$> ${item.description//uc1/dash2space}
@@ -162,20 +176,20 @@
 			$>
 			$> ${item.description//uc1/dash2space}
 		
-		[next]
-			[label] $> Grab ${item.label}
-			[on-trigger]
-				[grab $performer]
-					item: $item
-					stack: $stack
-		
-		[fake-next]
+		[fake-next once]
 			[label] $> Examine
 			[on-trigger]
 				[if $item.params.examine]
 					[message] $item.params.examine
 				[else]
 					[message] $> There is nothing special.
+		
+		[next]
+			[label] $> Grab ${item.label}
+			[on-trigger]
+				[grab $performer]
+					item: $item
+					stack: $stack
 		
 	
 	

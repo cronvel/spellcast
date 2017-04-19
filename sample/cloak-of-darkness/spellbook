@@ -75,7 +75,7 @@
 		
 		[create-item $local.coin] coin
 		
-		[here]
+		[here persistent]
 			#items: <Array>
 			items:
 				- $local.coin
@@ -90,7 +90,7 @@
 	
 	
 	[scene cloakroom]
-		[here]
+		[here persistent]
 			items: <Array>
 		
 		[define $cloakroom] true
