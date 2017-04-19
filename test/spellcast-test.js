@@ -1823,6 +1823,8 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "[gosub] tag with return Ref" ) ;
 	it( "[include] tag" ) ;
 	it( "[action] tag" ) ;
+	it( "[here] tag" ) ;
+	it( "[here-actions] tag" ) ;
 	
 	it( "Special var $local" , function( done ) {
 		var messages = [] , ends = [] ;
@@ -1933,6 +1935,8 @@ describe( "Basic adventurer tags and features" , function() {
 			}
 		) ;
 	} ) ;
+	
+	it( "Special var $here" ) ;
 	
 	// Deprecated?
 	it( "Special var $this" ) ;
