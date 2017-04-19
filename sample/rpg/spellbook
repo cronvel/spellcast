@@ -132,7 +132,7 @@
 				- guardian
 			deadlyPush:
 				bonus: 0
-				flavour:
+				flavor:
 					$$> ^R${performer.label//uc1} pushes ${target.label} and ${target.label} falls off the cliff!
 		
 		[next second-encounter]
@@ -152,7 +152,7 @@
 				- guardian
 			deadlyPush:
 				bonus: 6
-				flavour:
+				flavor:
 					$$> ^RAs ${performer.label} charges, ${target.label} slips from the wooden beam!
 					$$> ${target.label//uc1} falls into the chasm!
 

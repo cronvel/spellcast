@@ -252,10 +252,10 @@
 		[set $performer] $fight.entityTurn
 
 		[if $performer.params.battleCry && ( ( random ) <= $performer.params.battleCry )]
-			[if $performer.params.battleCryFlavour]
-				[set $local.battleCry] $= random-element $performer.params.battleCryFlavour
-				[apply $local.battleCry => $local.flavour] $
-				[message] $local.flavour
+			[if $performer.params.battleCryFlavor]
+				[set $local.battleCry] $= random-element $performer.params.battleCryFlavor
+				[apply $local.battleCry => $local.flavor] $
+				[message] $local.flavor
 			[else]
 				[message] $> ${performer.label//uc1} shouts!
 
@@ -668,9 +668,9 @@
 		[add $local.guardScore] $target.actualUsages.ranged-fighting.compound.guard
 
 		[if $local.aimingScore < $local.guardScore]
-			[if $target.actualUsages.ranged-fighting.params.guardFlavour is-set?]
-				[apply $target.actualUsages.ranged-fighting.params.guardFlavour => $local.flavour] $
-				[message] $local.flavour
+			[if $target.actualUsages.ranged-fighting.params.guardFlavor is-set?]
+				[apply $target.actualUsages.ranged-fighting.params.guardFlavor => $local.flavor] $
+				[message] $local.flavor
 			[else]
 				[message] $> ${performer.label//uc1} misses ${target.label}.
 			[return]
@@ -815,40 +815,40 @@
 		[call common/update-malus] $target
 
 		[if $damages >= 100]
-			[if $args.fatalHitFlavour is-set?]
-				[apply $args.fatalHitFlavour => $local.flavour] $
-			[elseif $args.criticalHitFlavour is-set?]
-				[apply $args.criticalHitFlavour => $local.flavour] $
-			[elseif $args.hitFlavour is-set?]
-				[apply $args.hitFlavour => $local.flavour] $
-			[elseif $args.usage.params.fatalHitFlavour is-set?]
-				[apply $args.usage.params.fatalHitFlavour => $local.flavour] $
-			[elseif $args.usage.params.criticalHitFlavour is-set?]
-				[apply $args.usage.params.criticalHitFlavour => $local.flavour] $
-			[elseif $args.usage.params.hitFlavour is-set?]
-				[apply $args.usage.params.hitFlavour => $local.flavour] $
+			[if $args.fatalHitFlavor is-set?]
+				[apply $args.fatalHitFlavor => $local.flavor] $
+			[elseif $args.criticalHitFlavor is-set?]
+				[apply $args.criticalHitFlavor => $local.flavor] $
+			[elseif $args.hitFlavor is-set?]
+				[apply $args.hitFlavor => $local.flavor] $
+			[elseif $args.usage.params.fatalHitFlavor is-set?]
+				[apply $args.usage.params.fatalHitFlavor => $local.flavor] $
+			[elseif $args.usage.params.criticalHitFlavor is-set?]
+				[apply $args.usage.params.criticalHitFlavor => $local.flavor] $
+			[elseif $args.usage.params.hitFlavor is-set?]
+				[apply $args.usage.params.hitFlavor => $local.flavor] $
 			[else]
-				[set $local.flavour] $> ^r${performer.label//uc1} deadly hits ${target.label} for ${damages} hp.
+				[set $local.flavor] $> ^r${performer.label//uc1} deadly hits ${target.label} for ${damages} hp.
 		[elseif $damages >= 25]
-			[if $args.criticalHitFlavour is-set?]
-				[apply $args.criticalHitFlavour => $local.flavour] $
-			[elseif $args.hitFlavour is-set?]
-				[apply $args.hitFlavour => $local.flavour] $
-			[elseif $args.usage.params.criticalHitFlavour is-set?]
-				[apply $args.usage.params.criticalHitFlavour => $local.flavour] $
-			[elseif $args.usage.params.hitFlavour is-set?]
-				[apply $args.usage.params.hitFlavour => $local.flavour] $
+			[if $args.criticalHitFlavor is-set?]
+				[apply $args.criticalHitFlavor => $local.flavor] $
+			[elseif $args.hitFlavor is-set?]
+				[apply $args.hitFlavor => $local.flavor] $
+			[elseif $args.usage.params.criticalHitFlavor is-set?]
+				[apply $args.usage.params.criticalHitFlavor => $local.flavor] $
+			[elseif $args.usage.params.hitFlavor is-set?]
+				[apply $args.usage.params.hitFlavor => $local.flavor] $
 			[else]
-				[set $local.flavour] $> ^r${performer.label//uc1} critically hits ${target.label} for ${damages} hp.
+				[set $local.flavor] $> ^r${performer.label//uc1} critically hits ${target.label} for ${damages} hp.
 		[else]
-			[if $args.hitFlavour is-set?]
-				[apply $args.hitFlavour => $local.flavour] $
-			[elseif $args.usage.params.hitFlavour is-set?]
-				[apply $args.usage.params.hitFlavour => $local.flavour] $
+			[if $args.hitFlavor is-set?]
+				[apply $args.hitFlavor => $local.flavor] $
+			[elseif $args.usage.params.hitFlavor is-set?]
+				[apply $args.usage.params.hitFlavor => $local.flavor] $
 			[else]
-				[set $local.flavour] $> ^r${performer.label//uc1} hits ${target.label} for ${damages} hp.
+				[set $local.flavor] $> ^r${performer.label//uc1} hits ${target.label} for ${damages} hp.
 
-		[message] $local.flavour
+		[message] $local.flavor
 
 		[if $target.status.hp <= 0]
 			[message] $> ^R^+${target.label//uc1} is dead.
@@ -903,14 +903,14 @@
 
 		[call common/update-malus] $target
 
-		[if $args.flavour is-set?]
-			[apply $args.flavour => $local.flavour] $
-		[elseif $args.usage.params.flavour is-set?]
-			[apply $args.usage.params.flavour => $local.flavour] $
+		[if $args.flavor is-set?]
+			[apply $args.flavor => $local.flavor] $
+		[elseif $args.usage.params.flavor is-set?]
+			[apply $args.usage.params.flavor => $local.flavor] $
 		[else]
-			[set $local.flavour] $> ^r${performer.label//uc1} heals ${target.label} for ${healing} hp.
+			[set $local.flavor] $> ^r${performer.label//uc1} heals ${target.label} for ${healing} hp.
 
-		[message] $local.flavour
+		[message] $local.flavor
 
 
 
@@ -949,15 +949,15 @@
 					attack: $= $local.effectCompound.attack
 					damages: $= $local.effectCompound.damages
 					defenseType: $local.effect.defenseType
-					missFlavour: $local.effect.missFlavour
-					hitFlavour: $local.effect.hitFlavour
-					criticalHitFlavour: $local.effect.criticalHitFlavour
-					fatalHitFlavour: $local.effect.fatalHitFlavour
+					missFlavor: $local.effect.missFlavor
+					hitFlavor: $local.effect.hitFlavor
+					criticalHitFlavor: $local.effect.criticalHitFlavor
+					fatalHitFlavor: $local.effect.fatalHitFlavor
 			[elseif $local.effect.type = "healing"]
 				[call healing-effect]
 					entities: $local.entities
 					healing: $= $local.effectCompound.healing
-					flavour: $local.effect.flavour
+					flavor: $local.effect.flavor
 
 
 
@@ -1017,15 +1017,15 @@
 			[if $local.attackScore > $local.defenseScore]
 				[call deal-damages]
 					target: $target
-					hitFlavour: $args.hitFlavour
-					criticalHitFlavour: $args.criticalHitFlavour
-					fatalHitFlavour: $args.fatalHitFlavour
+					hitFlavor: $args.hitFlavor
+					criticalHitFlavor: $args.criticalHitFlavor
+					fatalHitFlavor: $args.fatalHitFlavor
 					damages: $args.damages
 
 			[else]
-				[if $args.missFlavour]
-					[apply $args.missFlavour => $local.flavour] $
-					[message] $local.flavour
+				[if $args.missFlavor]
+					[apply $args.missFlavor => $local.flavor] $
+					[message] $local.flavor
 
 
 
@@ -1035,7 +1035,7 @@
 
 			[call heal-damages]
 				target: $target
-				flavour: $args.flavour
+				flavor: $args.flavor
 				healing: $args.healing
 
 
@@ -1068,8 +1068,8 @@
 
 		[if $local.attackScore > $local.defenseScore]
 			[set $target.status.hp] 0
-			[apply $fight.deadlyPush.flavour => $local.flavour] $
-			[message] $local.flavour
+			[apply $fight.deadlyPush.flavor => $local.flavor] $
+			[message] $local.flavor
 
 
 

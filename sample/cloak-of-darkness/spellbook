@@ -5,19 +5,12 @@
 
 
 
-[item-model coin]
-	class: object
-	label: coin
-	description: A coin.
-	params:
-		examine: A silver coin.
-
 [item-model cloak-of-darkness]
 	class: object
 	label: Cloak of Darkness
 	description: A black velvet cloak.
 	params:
-		examine: The cloak seems to be light-absorbent!
+		examineFlavor: The cloak seems to be light-absorbent!
 	slotType: cloak
 	slotCount: 1
 
@@ -26,9 +19,16 @@
 	label: Sword of Slashing
 	description: A mighty sword.
 	params:
-		examine: Oh my gawd! That mighty sword get a +999 bonus at slashing goblins!
+		examineFlavor: Oh my gawd! That mighty sword get a +999 bonus at slashing goblins!
 	slotType: hand
 	slotCount: 1
+
+[item-model coin]
+	class: object
+	label: coin
+	description: A coin.
+	params:
+		examineFlavor: A silver coin.
 
 # Create the main character
 [create-main-entity]
@@ -76,7 +76,6 @@
 		[create-item $local.coin] coin
 		
 		[here persistent]
-			#items: <Array>
 			items:
 				- $local.coin
 		
@@ -84,6 +83,12 @@
 			> The hall is spacious. Someone lighted few chandeliers.
 			> There are doorways south and west.
 		
+		[on drop]
+			[if $args.data.model = "cloak-of-darkness"]
+				[message] $> Hey! Don't drop such a classy cloak on the ground!
+		
+		[emit drop]
+			label: peepok
 		[next bar] $= ( $bar is-set? ) ? "Go to the bar (south)" "Go south"
 		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"
 
@@ -107,7 +112,8 @@
 		[define $bar] true
 		[define $damage] 0
 		
-		[if $player has-equipped-item-matching "model" "cloak-of-darkness"]
+		#[if $player has-equipped-item-matching "model" "cloak-of-darkness"]
+		[if $player has-item-matching "model" "cloak-of-darkness"]
 			[message]
 				> The bar is very dark. You can't even see your feet!
 				> There is a dim light coming from the foyer.

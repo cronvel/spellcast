@@ -8,7 +8,8 @@
 		[fake-next]
 			[label] $> Inventory
 			[on-trigger]
-				[gosub inventory/inventory]
+				[reset-here-actions]
+				[gosub inventory/inventory-menu]
 					performer: $here.performer
 					stack: $here.items
 
@@ -20,39 +21,35 @@
 		
 		[map $here.items => $local.items] $= $this.label
 		
+		[if $local.items.length > 4]
+			[set $local.items.length] 4
+			[append $local.items] $> more
+		
 		[fake-next]
 			[label] $> Grab items (${local.items}[enum:|$#|, $#| and $#])
 			[on-trigger]
 				[reset-here-actions]
-				[gosub inventory/grab]
+				[gosub inventory/grab-menu]
 					performer: $here.performer
 					stack: $here.items
 	
 	
 	
-	[scene inventory]
-		[while ! $local.done]
-			[gosub inventory-menu => $local.done] $args
-	
-	
-	
 	[scene inventory-menu]
-		[set $performer] $args.performer
-		[set $stack] $args.stack
+		[init-sub]
+			[set $performer] $args.performer
+			[set $stack] $args.stack
 		
 		[filter $performer.equippedItemList => $local.equippedItems] $= $this.class = "object"
 		[filter $performer.items => $local.unequippedItems] $= $this.class = "object"
 		
 		[if ( ! $local.equippedItems.length ) && ( ! $local.unequippedItems.length )]
 			[message] $> Empty inventory
-			[return] true
+			[return]
 		
 		[message] $> Inventory
 		
-		[next]
-			[label] $> (Done)
-			[on-trigger]
-				[return] true
+		[next] $> (Done)
 		
 		[foreach $local.equippedItems => $local.index : $local.item]
 			[next inventory-object]
@@ -77,13 +74,13 @@
 	# Called by inventory-menu
 	[scene inventory-object]
 		
-		[next] $> (Done)
+		[next inventory-menu] $> (Done)
 		
 		[fake-next]
 			[label] $> Examine
 			[on-trigger]
-				[if $item.params.examine]
-					[message] $item.params.examine
+				[if $item.params.examineFlavor]
+					[message] $item.params.examineFlavor
 				[else]
 					[message] $> There is nothing special.
 		
@@ -97,9 +94,10 @@
 					[unequip $performer]
 						item: $item
 			[if $stack]
-				[next]
+				[next inventory-menu]
 					[label] $> Unequip and drop ${item.label}
 					[on-trigger]
+						[emit drop] $item
 						[set $equipped] false
 						[unequip $performer]
 							item: $item
@@ -108,7 +106,7 @@
 							stack: $stack
 		[else]
 			[message]
-				$> ^_${item.label//uc1} (inventory)
+				$> ^_${item.label//uc1}^ (inventory)
 			[next inventory-object]
 				[label] $> Equip ${item.label}
 				[on-trigger]
@@ -116,60 +114,54 @@
 					[equip $performer]
 						item: $item
 			[if $stack]
-				[next]
+				[next inventory-menu]
 					[label] $> Drop ${item.label}
 					[on-trigger]
+						[emit drop] $item
 						[drop $performer]
 							item: $item
 							stack: $stack
-	
+		
 		[message]
 			$>
 			$> ${item.description//uc1/dash2space}
 		
 	
 	
-	[scene grab]
-		[if ! ( $args.stack is-array? )]
-			[return]
-		[if $args.stack.length = 1]
+	[scene grab-menu]
+		[init-sub]
 			[set $performer] $args.performer
 			[set $stack] $args.stack
-			[set $item] $args.stack[0]
-			[gosub grab-object] $args
+		
+		#[filter $args.stack => $local.items] $= $this.class = "object"
+		
+		[if $stack.length = 0]
+			# Immediately exit
 			[return]
-		[while ( ! $local.done ) && ( $args.stack is-not-empty? )]
-			[gosub grab-menu => $local.done] $args
-	
-	
-	
-	[scene grab-menu]
-		[set $performer] $args.performer
-		[set $stack] $args.stack
+		
+		[if $stack.length = 1]
+			# Immediately go to grab-object
+			[set $item] $stack[0]
+			[goto grab-object]
 		
 		[message] $> Grab what?
 		
-		[filter $args.stack => $local.items] $= $this.class = "object"
+		[next] $> (Done)
 		
-		[next]
-			[label] $> (Done)
-			[on-trigger]
-				[return] true
-		
-		[foreach $local.items => $local.index : $local.item]
+		[foreach $stack => $local.index : $local.item]
 			[next grab-object]
 				[args]
 					index: $local.index
 				[label] $> ${local.item.label}
 				[on-trigger]
-					[set $item] $local.items[$args.index]
+					[set $item] $stack[$args.index]
 		
 	
 	
 	# Called by grab-menu
 	[scene grab-object]
 		
-		[next] $> (Done)
+		[next grab-menu] $> (Done)
 		
 		[message]
 			$> ^_${item.label//uc1}^:
@@ -179,12 +171,12 @@
 		[fake-next once]
 			[label] $> Examine
 			[on-trigger]
-				[if $item.params.examine]
-					[message] $item.params.examine
+				[if $item.params.examineFlavor]
+					[message] $item.params.examineFlavor
 				[else]
 					[message] $> There is nothing special.
 		
-		[next]
+		[next grab-menu]
 			[label] $> Grab ${item.label}
 			[on-trigger]
 				[grab $performer]

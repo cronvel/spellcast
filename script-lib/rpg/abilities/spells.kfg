@@ -13,9 +13,9 @@
 					spellLevel: 10
 					manaLevel: 6
 					menuLabel: $> cast firebolt
-					hitFlavour: $$> ^rThe firebolt hits ${target.label} for ${damages} hp.^:
-					criticalHitFlavour: $$> ^rThe firebolt burns ${target.label} for ${damages} hp.^:
-					fatalHitFlavour: $$> ^rThe firebolt burns ${target.label} to death for ${damages} hp.^:
+					hitFlavor: $$> ^rThe firebolt hits ${target.label} for ${damages} hp.^:
+					criticalHitFlavor: $$> ^rThe firebolt burns ${target.label} for ${damages} hp.^:
+					fatalHitFlavor: $$> ^rThe firebolt burns ${target.label} to death for ${damages} hp.^:
 				compoundVariation: spell
 				compound:
 					close-ranged: (+) 10
@@ -37,9 +37,9 @@
 					spellLevel: 9
 					manaLevel: 5
 					menuLabel: $> cast electric arc
-					hitFlavour: $$> ^rThe electric arc hits ${target.label} for ${damages} hp.^:
-					criticalHitFlavour: $$> ^rThe electric arc electrocutes ${target.label} for ${damages} hp.^:
-					fatalHitFlavour: $$> ^rThe electric arc blasts ${target.label} for ${damages} hp.^:
+					hitFlavor: $$> ^rThe electric arc hits ${target.label} for ${damages} hp.^:
+					criticalHitFlavor: $$> ^rThe electric arc electrocutes ${target.label} for ${damages} hp.^:
+					fatalHitFlavor: $$> ^rThe electric arc blasts ${target.label} for ${damages} hp.^:
 				compoundVariation: spell
 				compound:
 					close-ranged: (+) 12
@@ -66,10 +66,10 @@
 					effects:
 						-	type: attack
 							defenseType: ranged-fighting
-							missFlavour: $$> ^y${target.label//uc1} evades the raw energy explosion.
-							hitFlavour: $$> ^rThe raw energy explosion hits ${target.label} for ${damages} hp.^:
-							criticalHitFlavour: $$> ^rThe raw energy explosion blows ${target.label} for ${damages} hp.^:
-							fatalHitFlavour: $$> ^rThe raw energy explosion blasts ${target.label} for ${damages} hp.^:
+							missFlavor: $$> ^y${target.label//uc1} evades the raw energy explosion.
+							hitFlavor: $$> ^rThe raw energy explosion hits ${target.label} for ${damages} hp.^:
+							criticalHitFlavor: $$> ^rThe raw energy explosion blows ${target.label} for ${damages} hp.^:
+							fatalHitFlavor: $$> ^rThe raw energy explosion blasts ${target.label} for ${damages} hp.^:
 							filter:
 								type: radius
 								excludeSelf: true
@@ -93,13 +93,13 @@
 					spellLevel: 12
 					manaLevel: 14
 					menuLabel: $> cast fireball
-					hitFlavour:
+					hitFlavor:
 						$$> ^rThe fireball hits ${target.label} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
-					criticalHitFlavour:
+					criticalHitFlavor:
 						$$> ^rThe fireball engulfs ${target.label} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
-					fatalHitFlavour:
+					fatalHitFlavor:
 						$$> ^rThe fireball burns ${target.label} to death for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
 					effects:
@@ -110,10 +110,10 @@
 								attack: (-) 2
 								# Damage modifier applied over the regular damage value
 								damages: (-) 8
-							missFlavour: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
-							hitFlavour: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
-							criticalHitFlavour: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
-							fatalHitFlavour: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
+							missFlavor: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
+							hitFlavor: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
+							criticalHitFlavor: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
+							fatalHitFlavor: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
 							filter:
 								type: radius
 								excludeSelf: true
@@ -140,9 +140,9 @@
 					spellLevel: 10
 					manaLevel: 6
 					menuLabel: $> cast ice blade
-					hitFlavour: $$> ^rThe ice blade hits ${target.label} for ${damages} hp.^:
-					criticalHitFlavour: $$> ^rThe ice blade freezes and slashes ${target.label} for ${damages} hp.^:
-					fatalHitFlavour: $$> ^rThe ice blade freezes and cuts ${target.label} in half for ${damages} hp.^:
+					hitFlavor: $$> ^rThe ice blade hits ${target.label} for ${damages} hp.^:
+					criticalHitFlavor: $$> ^rThe ice blade freezes and slashes ${target.label} for ${damages} hp.^:
+					fatalHitFlavor: $$> ^rThe ice blade freezes and cuts ${target.label} in half for ${damages} hp.^:
 				compoundVariation: battle-damage-spell
 				compound:
 					attack: (+) 6
@@ -168,7 +168,7 @@
 					targetAllies: true
 					effects:
 						-	type: healing
-							flavour: $$> ^g${performer.label//uc1} heals ${target.label} for ${healing} hp.^:
+							flavor: $$> ^g${performer.label//uc1} heals ${target.label} for ${healing} hp.^:
 				compoundVariation: spell
 				compound:
 					healing: (+) 10

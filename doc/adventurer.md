@@ -31,6 +31,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Vote-style Tag](#ref.scenario.scene.vote-style)
 			* [Hurry-time Tag](#ref.scenario.scene.hurry-time)
 			* [Show-timer Tag](#ref.scenario.scene.show-timer)
+			* [Init-sub Tag](#ref.scenario.scene.init-sub)
 		* [Starting Scene Tag](#ref.scenario.starting-scene)
 		* [Next Tag](#ref.scenario.next)
 			* [Label Tag](#ref.scenario.next.label)
@@ -453,6 +454,20 @@ Once the first player made a choice, the vote timeout is reduced to this time.
 * content type: boolean
 
 Whether the vote timer should be displayed or be held secret.
+
+
+
+<a name="ref.scenario.scene.init-sub"></a>
+## [init-sub]
+
+* types: parameter
+* attribute style: none
+* content type: tags
+
+If present, the *init-sub* contents is executed immediately at the beginning of the scene before any other tags,
+**and only if the scene was reached using a [[gosub] tag](ref.scenario.gosub).**
+
+It is recommended to use this tag only for arguments management.
 
 
 

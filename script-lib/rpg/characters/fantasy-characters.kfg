@@ -34,7 +34,7 @@
 		xpReward: 2
 		charge: 0.2
 		battleCry: 0.05
-		battleCryFlavour:
+		battleCryFlavor:
 			- $$> ^+${performer.label//uc1} shouts “Bleed him to death!”
 			- $$> ^+${performer.label//uc1} shouts “Catch him!”
 			- $$> ^+${performer.label//uc1} cries “I don't want do die!”
