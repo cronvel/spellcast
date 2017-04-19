@@ -37,6 +37,11 @@
 			- sword-of-slashing
 
 
+# ------------------------------------------------ TODO ----------------------------------------------------------------------
+[here-actions]
+	[call inventory/auto-inventory]
+# ------------------------------------------------ TODO ----------------------------------------------------------------------
+
 
 [chapter game]
 	
@@ -69,7 +74,7 @@
 		
 		[next bar] $= ( $bar is-set? ) ? "Go to the bar (south)" "Go south"
 		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"
-		[call inventory/auto-inventory]
+		#[call inventory/auto-inventory]
 
 	
 	

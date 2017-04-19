@@ -52,7 +52,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Include Tag](#ref.scenario.include)
 		* [Action Tag](#ref.scenario.action)
 		* [Here Tag](#ref.scenario.here)
-		* [Auto-here Tag](#ref.scenario.here)
+		* [Here-actions Tag](#ref.scenario.here-actions)
 	* [Input/Output Tags](#ref.io)
 		* [Message Tag](#ref.io.message)
 		* [Fortune Tag](#ref.io.fortune)
@@ -753,8 +753,8 @@ TODO.
 
 
 
-<a name="ref.scenario.auto-here"></a>
-## [auto-here]
+<a name="ref.scenario.here-actions"></a>
+## [here-actions]
 
 TODO.
 
