@@ -37,10 +37,10 @@
 			- sword-of-slashing
 
 
-# ------------------------------------------------ TODO ----------------------------------------------------------------------
+
 [here-actions]
 	[call inventory/auto-inventory]
-# ------------------------------------------------ TODO ----------------------------------------------------------------------
+
 
 
 [chapter game]
@@ -74,7 +74,6 @@
 		
 		[next bar] $= ( $bar is-set? ) ? "Go to the bar (south)" "Go south"
 		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"
-		#[call inventory/auto-inventory]
 
 	
 	
@@ -89,7 +88,6 @@
 			> There is a small brass hook fixed on the wall.
 		
 		[next foyer] Go back to the foyer (east)
-		[call inventory/auto-inventory]
 
 	
 	
@@ -107,17 +105,17 @@
 			[fake-next once]
 				[label] Go east (dark)
 				[on-trigger]
-					[message] Ouch! You bump against a wall
+					[message] Ouch! You bump against a wall.
 					[inc $damage]
 			[fake-next once]
 				[label] Go west (dark)
 				[on-trigger]
-					[message] Ouch! You hurt yourself against a furniture
+					[message] Ouch! You hurt yourself against a furniture.
 					[inc $damage]
 			[fake-next once]
 				[label] Go south (dark)
 				[on-trigger]
-					[message] Ouch! You hurt yourself against a table
+					[message] Ouch! You hurt yourself against a table.
 					[inc $damage]
 		[else]
 			[message]
