@@ -5,6 +5,13 @@
 
 
 
+[item-model coin]
+	class: object
+	label: coin
+	description: A coin.
+	params:
+		examine: A silver coin.
+
 [item-model cloak-of-darkness]
 	class: object
 	label: Cloak of Darkness
@@ -39,7 +46,8 @@
 
 
 [here-actions]
-	[call inventory/auto-inventory]
+	[call inventory/here-grab]
+	[call inventory/here-inventory]
 
 
 
@@ -64,8 +72,13 @@
 	
 	
 	[scene foyer]
+		
+		[create-item $local.coin] coin
+		
 		[here]
-			items: <Array>
+			#items: <Array>
+			items:
+				- $local.coin
 		
 		[message]
 			> The hall is spacious. Someone lighted few chandeliers.

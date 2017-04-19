@@ -14,4 +14,7 @@ Reserved global variables:
 * $roles: an array of roles
 * $player: the main entity *if it cas created using the [create-main-entity] tag*
 
+Misc reserved variables:
+* $static.here
+
 

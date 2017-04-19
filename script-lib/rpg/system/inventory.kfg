@@ -4,7 +4,7 @@
 [system inventory]
 	
 	# Full inventory menu
-	[fn auto-inventory]
+	[fn here-inventory]
 		[fake-next]
 			[label] $> Inventory
 			[on-trigger]
@@ -12,6 +12,23 @@
 					performer: $here.performer
 					stack: $here.items
 
+
+	
+	[fn here-grab]
+		[if $here.items is-empty?]
+			[return]
+		
+		[map $here.items => $local.items] $= $this.label
+		
+		[fake-next]
+			[label] $> Grab items (${local.items}[enum:|$#|, $#| and $#])
+			[on-trigger]
+				[reset-here-actions]
+				[gosub inventory/grab]
+					performer: $here.performer
+					stack: $here.items
+	
+	
 	
 	[scene inventory]
 		[while ! $local.done]
@@ -95,6 +112,70 @@
 		[message]
 			$>
 			$> ${item.description//uc1/dash2space}
+		
+	
+	
+	[scene grab]
+		[if ! ( $args.stack is-array? )]
+			[return]
+		[if $args.stack.length = 1]
+			[set $performer] $args.performer
+			[set $stack] $args.stack
+			[set $item] $args.stack[0]
+			[gosub grab-object] $args
+			[return]
+		[while ( ! $local.done ) && ( $args.stack is-not-empty? )]
+			[gosub grab-menu => $local.done] $args
+	
+	
+	
+	[scene grab-menu]
+		[set $performer] $args.performer
+		[set $stack] $args.stack
+		
+		[message] $> Grab what?
+		
+		[filter $args.stack => $local.items] $= $this.class = "object"
+		
+		[next]
+			[label] $> (Done)
+			[on-trigger]
+				[return] true
+		
+		[foreach $local.items => $local.index : $local.item]
+			[next grab-object]
+				[args]
+					index: $local.index
+				[label] $> ${local.item.label}
+				[on-trigger]
+					[set $item] $local.items[$args.index]
+		
+	
+	
+	# Called by grab-menu
+	[scene grab-object]
+		
+		[next] $> (Done)
+		
+		[message]
+			$> ^_${item.label//uc1}^:
+			$>
+			$> ${item.description//uc1/dash2space}
+		
+		[next]
+			[label] $> Grab ${item.label}
+			[on-trigger]
+				[grab $performer]
+					item: $item
+					stack: $stack
+		
+		[fake-next]
+			[label] $> Examine
+			[on-trigger]
+				[if $item.params.examine]
+					[message] $item.params.examine
+				[else]
+					[message] $> There is nothing special.
 		
 	
 	
@@ -218,6 +299,13 @@
 						slot: $args.slot
 
 
+	
+	
+	
+	
+	# Deprecated (used by the fighting system)
+	
+	
 
 	[scene drop-grab]
 		[while ! $local.done]
