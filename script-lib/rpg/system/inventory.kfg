@@ -97,7 +97,7 @@
 				[next inventory-menu]
 					[label] $> Unequip and drop ${item.label}
 					[on-trigger]
-						[emit drop] $item
+						[emit core/drop-item] $item
 						[set $equipped] false
 						[unequip $performer]
 							item: $item
@@ -117,7 +117,7 @@
 				[next inventory-menu]
 					[label] $> Drop ${item.label}
 					[on-trigger]
-						[emit drop] $item
+						[emit core/drop-item] $item
 						[drop $performer]
 							item: $item
 							stack: $stack
@@ -132,6 +132,7 @@
 		[init-sub]
 			[set $performer] $args.performer
 			[set $stack] $args.stack
+			[set $first] true
 		
 		#[filter $args.stack => $local.items] $= $this.class = "object"
 		
@@ -139,10 +140,12 @@
 			# Immediately exit
 			[return]
 		
-		[if $stack.length = 1]
+		[if ( $stack.length = 1 ) && $first]
 			# Immediately go to grab-object
 			[set $item] $stack[0]
 			[goto grab-object]
+		
+		[set $first] false
 		
 		[message] $> Grab what?
 		

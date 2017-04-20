@@ -66,7 +66,7 @@
 	
 	
 	[scene intro2]
-		[message] You secured the entrance of the opera house.
+		[message] You just secured the entrance of the opera house.
 		[next foyer]
 	
 	
@@ -83,14 +83,16 @@
 			> The hall is spacious. Someone lighted few chandeliers.
 			> There are doorways south and west.
 		
-		[on drop]
+		[on core/drop-item]
 			[if $args.data.model = "cloak-of-darkness"]
-				[message] $> Hey! Don't drop such a classy cloak on the ground!
+				[message]
+					> Hey! Don't drop such a classy cloak on the ground!
+					>
 		
-		[emit drop]
-			label: peepok
 		[next bar] $= ( $bar is-set? ) ? "Go to the bar (south)" "Go south"
 		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"
+		[next street] > Return to the street
+			#[confirm] > Are you sure? This could be dangerous with all those goblins!
 
 	
 	
@@ -100,9 +102,18 @@
 		
 		[define $cloakroom] true
 		
-		[message]
-			> This is the cloakroom.
-			> There is a small brass hook fixed on the wall.
+		[on core/drop-item]
+			[if $args.data.model = "cloak-of-darkness"]
+				[message]
+					> You put the Cloak of Darkness on the brass hook.
+					>
+		
+		[message] > This is the cloakroom.
+		
+		[if $here.items has-item-matching "model" "cloak-of-darkness"]
+			[message] > There is a fine black velvet cloak hanged on a brass hook.
+		[else]
+			[message] > There is a small brass hook fixed on the wall.
 		
 		[next foyer] Go back to the foyer (east)
 
@@ -137,7 +148,7 @@
 					[inc $damage]
 		[else]
 			[message]
-				> The bar is a bit dark, but you can see faint magical light around you.
+				> The bar is a bit dark, but you can see faint magical light dancing around you.
 				> There is a scroll on the floor.
 			
 			[next foyer] Go back to the foyer (north, light)
@@ -151,6 +162,43 @@
 			[win]
 		[else]
 			[message] > The message reads: “You lose...”
-			[win]
+			[lose]
 	
+
+	
+	[scene street]
+		[message] > A dozen of goblin hunters notice you, then suddenly rush you with a grin.
+		
+		[if $player has-equipped-item-matching "model" "sword-of-slashing"]
+			[message]
+				> The battle was epic, and your mighty Sword of Slashing helped you to carry the day.
+				> You definitively slash'em all...
+				> ... but you know that more hunters will come on you in a minute.
+		[elseif $player has-item-matching "model" "sword-of-slashing"]
+			[message]
+				> You were not ready to fight!
+				> You quickly reach the hilt of your Sword of Slashing, but a spear pierces one of your arm.
+				> The wound is not deep enough to stop you, but it will penalize you in the fight.
+				> The battle was fierce and intense, but your Sword of Slashing helped you to carry the day.
+				> You are exhausted and you know that more hunters will come on you in a minute.
+			[add $damages] 2
+			[equip $player]
+				item: $= get-item-matching $player "model" "sword-of-slashing"
+		[else]
+			[message]
+				> You try to quickly reach the hilt of your sword only to realize that you have abandonned
+				> it inside the opera house... ^+You are empty handed!^:
+				> The goblins rejoyce and charge you with their spears.
+				> You heroically defended your life, punching and kicking goblins with all you have.
+				> You eventually knock out three of them with few powerful blows...
+				> ... but that was not enough.
+				> Cut after cut, you are losing your blood and your strength...
+				> Exhausted, you kneel down...
+				> ... ... ...
+			[lost]
+		
+		[message] > You retreat yourself back in the opera house and secure the door again.
+		
+		[next foyer]
+
 
