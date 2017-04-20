@@ -1900,6 +1900,25 @@ The *once-global* tag works just like the [*on* tag](#ref.event.on), except that
 
 
 
+<a name="ref.flow.cancel"></a>
+## [cancel]
+
+* types: run
+* attribute style: none
+* content type: anything
+
+The *cancel* tag exit from the current *on*-family tag immediately (*on, once, on-global, once-global* tags).
+**Furthermore it aborts the event propagation:** listeners that haven't been triggered yet will never receive the event.
+
+If inside the *emit* tag used the `[emit event => $cancelReason]` syntax was used,
+the content of the *cancel* tag is solved **at run time** and stored into the *$cancelReason* variable.
+
+The emitter is responsible for actually cancel the action it is about to perform, or undo it.
+
+If the content value is *falsy*, it will be replaced by `true`.
+
+
+
 <a name="ref.multiplayer"></a>
 # Multiplayer Tags
 

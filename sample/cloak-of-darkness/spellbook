@@ -86,12 +86,13 @@
 		[on core/drop-item]
 			[if $args.data.model = "cloak-of-darkness"]
 				[message]
-					> Hey! Don't drop such a classy cloak on the ground!
+					> Hey! You can't drop such a classy cloak on the ground!
 					>
+				[cancel]
 		
 		[next bar] $= ( $bar is-set? ) ? "Go to the bar (south)" "Go south"
 		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"
-		[next street] > Return to the street
+		[next street] > Go back to the street
 			#[confirm] > Are you sure? This could be dangerous with all those goblins!
 
 	
@@ -181,7 +182,7 @@
 				> The wound is not deep enough to stop you, but it will penalize you in the fight.
 				> The battle was fierce and intense, but your Sword of Slashing helped you to carry the day.
 				> You are exhausted and you know that more hunters will come on you in a minute.
-			[add $damages] 2
+			[add $damage] 2
 			[equip $player]
 				item: $= get-item-matching $player "model" "sword-of-slashing"
 		[else]

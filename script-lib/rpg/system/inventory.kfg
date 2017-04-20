@@ -97,13 +97,14 @@
 				[next inventory-menu]
 					[label] $> Unequip and drop ${item.label}
 					[on-trigger]
-						[emit core/drop-item] $item
-						[set $equipped] false
-						[unequip $performer]
-							item: $item
-						[drop $performer]
-							item: $item
-							stack: $stack
+						[emit core/drop-item => $local.cancel] $item
+						[if ! $local.cancel]
+							[set $equipped] false
+							[unequip $performer]
+								item: $item
+							[drop $performer]
+								item: $item
+								stack: $stack
 		[else]
 			[message]
 				$> ^_${item.label//uc1}^ (inventory)
@@ -117,10 +118,11 @@
 				[next inventory-menu]
 					[label] $> Drop ${item.label}
 					[on-trigger]
-						[emit core/drop-item] $item
-						[drop $performer]
-							item: $item
-							stack: $stack
+						[emit core/drop-item => $local.cancel] $item
+						[if ! $local.cancel]
+							[drop $performer]
+								item: $item
+								stack: $stack
 		
 		[message]
 			$>
@@ -136,12 +138,14 @@
 		
 		#[filter $args.stack => $local.items] $= $this.class = "object"
 		
-		[if $stack.length = 0]
+		[if ( $stack.length = 0 ) || $onlyOne]
 			# Immediately exit
 			[return]
 		
 		[if ( $stack.length = 1 ) && $first]
 			# Immediately go to grab-object
+			[set $first] false
+			[set $onlyOne] true
 			[set $item] $stack[0]
 			[goto grab-object]
 		
