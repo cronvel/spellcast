@@ -90,7 +90,7 @@
 					>
 				[cancel]
 		
-		[next bar] $= ( $bar is-set? ) ? "Go to the bar (south)" "Go south"
+		[next taverne] $= ( $taverne is-set? ) ? "Go to the taverne (south)" "Go south"
 		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"
 		[next street] > Go back to the street
 			#[confirm] > Are you sure? This could be dangerous with all those goblins!
@@ -120,14 +120,14 @@
 
 	
 	
-	[scene bar]
-		[define $bar] true
+	[scene taverne]
+		[define $taverne] true
 		[define $damage] 0
 		
 		#[if $player has-equipped-item-matching "model" "cloak-of-darkness"]
 		[if $player has-item-matching "model" "cloak-of-darkness"]
 			[message]
-				> The bar is very dark. You can't even see your feet!
+				> The taverne is very dark. You can't even see your feet!
 				> There is a dim light coming from the foyer.
 			
 			[next foyer] Go back to the foyer (north, light)
@@ -149,7 +149,7 @@
 					[inc $damage]
 		[else]
 			[message]
-				> The bar is a bit dark, but you can see faint magical light dancing around you.
+				> The taverne is a bit dark, but you can see faint magical light dancing around you.
 				> There is a scroll on the floor.
 			
 			[next foyer] Go back to the foyer (north, light)
@@ -159,11 +159,20 @@
 	
 	[scene scroll]
 		[if $damage < 2]
-			[message] > The message reads: “You win!”
+			[message]
+				> The scroll is full of luminous magical symbols: ^M^+this is a scroll of teleportation!^:
+				> As your surrounding fades away, you can see in the middle of the scroll in fine calligraphy:
+				>
+				> “You win!”
 			[win]
 		[else]
-			[message] > The message reads: “You lose...”
-			[lose]
+			[message]
+				> The scroll is blood-spattered.
+				> It's a magical scroll but its magic has been dramatically altered by the blood.
+				> It glows red for a moment, and a word appears in the middle:
+				>
+				> “You lose...”
+			[lost]
 	
 
 	
