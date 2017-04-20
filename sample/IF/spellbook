@@ -1,0 +1,31 @@
+
+[[doctype adventurer]]
+
+[module] @@{core}/utils.kfg
+#[module] @@{rpg}/system/inventory.kfg
+
+
+
+[create-main-entity]
+	class: character
+	label: the hero
+	slots:
+		hand: 2
+
+
+
+#[here-actions]
+
+
+
+[chapter game]
+	
+	[starting-scene intro1]
+		
+		[message]
+			> Some well written texts.
+		
+		[input $text]
+		
+		[message] $> Well: ${text}
+
