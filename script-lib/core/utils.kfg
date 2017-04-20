@@ -1,0 +1,33 @@
+
+[[doctype adventurer]]
+
+[system core.utils]
+	
+	[fn confirm]
+		[if $args is-string?]
+			[set $args]
+				message: $args
+		[gosub core.utils/confirm-menu => $confirmed] $args
+		[if ! $confirmed]
+			[cancel]
+	
+	[scene confirm-menu]
+		[if ! $args.message]
+			[set $args.message] $> Are you sure?
+		[if ! $args.yes]
+			[set $args.yes] $> Yes
+		[if ! $args.no]
+			[set $args.no] $> No
+		
+		[message] $args.message
+		
+		[next]
+			[label] $args.yes
+			[on-trigger]
+				[return] true
+		
+		[next]
+			[label] $args.no
+			[on-trigger]
+				[return] false
+

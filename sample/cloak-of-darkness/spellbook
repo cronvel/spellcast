@@ -1,7 +1,8 @@
 
 [[doctype adventurer]]
 
-[module] @@{core}/rpg/system/inventory.kfg
+[module] @@{core}/utils.kfg
+[module] @@{rpg}/system/inventory.kfg
 
 
 
@@ -46,8 +47,8 @@
 
 
 [here-actions]
-	[call inventory/here-grab]
-	[call inventory/here-inventory]
+	[call rpg.inventory/here-grab]
+	[call rpg.inventory/here-inventory]
 
 
 
@@ -57,7 +58,7 @@
 		
 		[message]
 			>> It's night, and you have been chased relentlessly by goblin hunters,
-			>> through the street of this abandonned once great town.
+			>> through the street of this once great town.
 			>>
 			>> Now you have found refuge into an abandonned opera house.
 		
@@ -83,7 +84,7 @@
 			> The hall is spacious. Someone lighted few chandeliers.
 			> There are doorways south and west.
 		
-		[on core/drop-item]
+		[on rpg.drop-item]
 			[if $args.data.model = "cloak-of-darkness"]
 				[message]
 					> Hey! You can't drop such a classy cloak on the ground!
@@ -92,8 +93,10 @@
 		
 		[next taverne] $= ( $taverne is-set? ) ? "Go to the taverne (south)" "Go south"
 		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"
-		[next street] > Go back to the street
-			#[confirm] > Are you sure? This could be dangerous with all those goblins!
+		[next street]
+			[label] > Go back to the street
+			[on-trigger]
+				[call core.utils/confirm] > Are you sure? This could be dangerous with all those goblins hunting you!
 
 	
 	
@@ -103,7 +106,7 @@
 		
 		[define $cloakroom] true
 		
-		[on core/drop-item]
+		[on rpg.drop-item]
 			[if $args.data.model = "cloak-of-darkness"]
 				[message]
 					> You put the Cloak of Darkness on the brass hook.
@@ -122,7 +125,7 @@
 	
 	[scene taverne]
 		[define $taverne] true
-		[define $damage] 0
+		[define $damages] 0
 		
 		#[if $player has-equipped-item-matching "model" "cloak-of-darkness"]
 		[if $player has-item-matching "model" "cloak-of-darkness"]
@@ -136,17 +139,17 @@
 				[label] Go east (dark)
 				[on-trigger]
 					[message] Ouch! You bump against a wall.
-					[inc $damage]
+					[inc $damages]
 			[fake-next once]
 				[label] Go west (dark)
 				[on-trigger]
 					[message] Ouch! You hurt yourself against a furniture.
-					[inc $damage]
+					[inc $damages]
 			[fake-next once]
 				[label] Go south (dark)
 				[on-trigger]
 					[message] Ouch! You hurt yourself against a table.
-					[inc $damage]
+					[inc $damages]
 		[else]
 			[message]
 				> The taverne is a bit dark, but you can see faint magical light dancing around you.
@@ -158,7 +161,7 @@
 	
 	
 	[scene scroll]
-		[if $damage < 2]
+		[if $damages < 2]
 			[message]
 				> The scroll is full of luminous magical symbols: ^M^+this is a scroll of teleportation!^:
 				> As your surrounding fades away, you can see in the middle of the scroll in fine calligraphy:
@@ -182,8 +185,9 @@
 		[if $player has-equipped-item-matching "model" "sword-of-slashing"]
 			[message]
 				> The battle was epic, and your mighty Sword of Slashing helped you to carry the day.
-				> You definitively slash'em all...
+				> You only got few scratches and you've definitively slash'em all...
 				> ... but you know that more hunters will come on you in a minute.
+			[add $damages] 1
 		[elseif $player has-item-matching "model" "sword-of-slashing"]
 			[message]
 				> You were not ready to fight!
@@ -191,7 +195,7 @@
 				> The wound is not deep enough to stop you, but it will penalize you in the fight.
 				> The battle was fierce and intense, but your Sword of Slashing helped you to carry the day.
 				> You are exhausted and you know that more hunters will come on you in a minute.
-			[add $damage] 2
+			[add $damages] 2
 			[equip $player]
 				item: $= get-item-matching $player "model" "sword-of-slashing"
 		[else]

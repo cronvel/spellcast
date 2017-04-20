@@ -1,7 +1,7 @@
 
 [[doctype adventurer]]
 
-[system inventory]
+[system rpg.inventory]
 	
 	# Full inventory menu
 	[fn here-inventory]
@@ -9,7 +9,7 @@
 			[label] $> Inventory
 			[on-trigger]
 				[reset-here-actions]
-				[gosub inventory/inventory-menu]
+				[gosub rpg.inventory/inventory-menu]
 					performer: $here.performer
 					stack: $here.items
 
@@ -29,7 +29,7 @@
 			[label] $> Grab items (${local.items}[enum:|$#|, $#| and $#])
 			[on-trigger]
 				[reset-here-actions]
-				[gosub inventory/grab-menu]
+				[gosub rpg.inventory/grab-menu]
 					performer: $here.performer
 					stack: $here.items
 	
@@ -97,7 +97,7 @@
 				[next inventory-menu]
 					[label] $> Unequip and drop ${item.label}
 					[on-trigger]
-						[emit core/drop-item => $local.cancel] $item
+						[emit rpg.drop-item => $local.cancel] $item
 						[if ! $local.cancel]
 							[set $equipped] false
 							[unequip $performer]
@@ -118,7 +118,7 @@
 				[next inventory-menu]
 					[label] $> Drop ${item.label}
 					[on-trigger]
-						[emit core/drop-item => $local.cancel] $item
+						[emit rpg.drop-item => $local.cancel] $item
 						[if ! $local.cancel]
 							[drop $performer]
 								item: $item
@@ -248,7 +248,7 @@
 					usage: $local.usage
 				[label] $> ${local.usage//uc1/dash2space}
 				[on-trigger]
-					[gosub inventory/select-ability-primary]
+					[gosub rpg.inventory/select-ability-primary]
 						performer: $performer
 						usage: $args.usage
 
@@ -307,7 +307,7 @@
 					slot: $local.slot
 				[label] $> ${local.slot//uc1/dash2space}
 				[on-trigger]
-					[gosub inventory/equip-object]
+					[gosub rpg.inventory/equip-object]
 						performer: $performer
 						slot: $args.slot
 
@@ -403,5 +403,4 @@
 						item: $args.item
 						stack: $args.stack
 		
-
 

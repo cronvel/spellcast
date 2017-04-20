@@ -38,8 +38,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Vote-style Tag](#ref.scenario.next.vote-style)
 			* [Auto Tag](#ref.scenario.next.auto)
 			* [On-trigger Tag](#ref.scenario.next.on-trigger)
+				* [Cancel Tag](#ref.scenario.next.on-trigger.cancel)
 			* [Args Tag](#ref.scenario.next.args)
-			* [This Tag](#ref.scenario.next.this)
 		* [Fake Next Tag](#ref.scenario.fake-next)
 		* [End Tag](#ref.scenario.end)
 		* [Win Tag](#ref.scenario.win)
@@ -48,7 +48,6 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Goto Tag](#ref.scenario.goto)
 		* [Gosub Tag](#ref.scenario.gosub)
 			* [Args Tag](#ref.scenario.gosub.args)
-			* [This Tag](#ref.scenario.gosub.this)
 			* [Roles Tag](#ref.scenario.gosub.roles)
 		* [Include Tag](#ref.scenario.include)
 		* [Action Tag](#ref.scenario.action)
@@ -112,6 +111,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Once Tag](#ref.event.once)
 		* [On-global Tag](#ref.event.on-global)
 		* [Once-global Tag](#ref.event.once-global)
+		* [Cancel Tag](#ref.event.cancel)
 	* [Multiplayer Tags](#ref.multiplayer)
 		* [Role Tag](#ref.multiplayer.role)
 		* [Split Tag](#ref.multiplayer.split)
@@ -570,6 +570,15 @@ has its own scope).
 
 
 
+<a name="ref.scenario.next.on-trigger.cancel"></a>
+#### [cancel]
+
+It interrupts a *next* tag validation sequence, e.g. placed inside a *on-trigger* tag, or inside a function called by
+the *on-trigger* tag.
+See [*[cancel]*](#ref.event.cancel) (event) for details.
+
+
+
 <a name="ref.scenario.next.args"></a>
 ### [args]
 
@@ -603,13 +612,6 @@ The *on-trigger* tag receives an argument **$args** variable solved during the l
 All other variable have the same values since the *on-trigger* content is always run *after* the loop.
 
 In fact, the *args* tag here works just like *args* tag of *gosub* and *call* tags, but target the *on-trigger* tag.
-
-
-
-<a name="ref.scenario.next.this"></a>
-### [this]
-
-**DEPRECATED.**
 
 
 
@@ -787,13 +789,6 @@ TODO.
 ## [action]
 
 TODO.
-
-
-
-<a name="ref.scenario.include"></a>
-## [include]
-
-**DEPRECATED.**
 
 
 
@@ -1834,15 +1829,19 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 
 <a name="ref.event.emit"></a>
-## [emit *event-label*]
+## [emit *event-label*] / [emit *event-label* => $cancelReason]
 
 * types: run
-* attribute style: label
+* attribute style: label or emit syntax
 * content type: anything
 
 The *emit* tag emits the *event-label* event.
 
 The event is emitted with the whole solved content as its data.
+
+If the syntax `[emit *event-label* => $cancelReason]` is used, the variable `$cancelReason` will receive a truthy
+value if one of its listener has aborted the event propagation.
+The value can be of any type, and is produced by the listener.
 
 
 
@@ -1900,22 +1899,28 @@ The *once-global* tag works just like the [*on* tag](#ref.event.on), except that
 
 
 
-<a name="ref.flow.cancel"></a>
+<a name="ref.event.cancel"></a>
 ## [cancel]
 
 * types: run
 * attribute style: none
 * content type: anything
 
-The *cancel* tag exit from the current *on*-family tag immediately (*on, once, on-global, once-global* tags).
+The *cancel* tag is meant to cancel something in progress.
+
+When used inside a *on*-family tag (*on, once, on-global, once-global* tags), it immediately exit (like *return*).
 **Furthermore it aborts the event propagation:** listeners that haven't been triggered yet will never receive the event.
 
-If inside the *emit* tag used the `[emit event => $cancelReason]` syntax was used,
+If the *emit* tag has used the `[emit event => $cancelReason]` syntax,
 the content of the *cancel* tag is solved **at run time** and stored into the *$cancelReason* variable.
 
-The emitter is responsible for actually cancel the action it is about to perform, or undo it.
+The emitter is responsible for actually cancelling the action it is about to perform, or undo it.
 
-If the content value is *falsy*, it will be replaced by `true`.
+If the content value is any *falsy* value, it will be replaced by `true`.
+
+It can be used to aborts the *next* tag validation sequence, e.g. placed inside a *on-trigger* tag,
+or inside a function called by the *on-trigger* tag.
+Doing so abort the *next* tag execution: the scene remains the same, just as if a the *[next]* tag was a *[fake-next]* tag.
 
 
 
