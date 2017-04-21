@@ -1,0 +1,194 @@
+
+[[doctype adventurer]]
+
+
+
+[chapter intro]
+	
+	[scene menu]
+		[message] $> Load/save scenario:
+		
+		[next var-check] $> Check
+		[next var] $> Set var
+		[next static] $> Static counter
+		[next pause] $> Pause
+		[next while-loop] $> While loop
+		[next foreach-loop] $> Foreach loop
+		[next if-elsif-else] $> If/elsif/else
+		[next call-fn] $> Call/fn
+		[next gosub] $> Gosub
+
+	[scene var]
+		[message] $> Choose your background:
+		
+		[set $character] <Object>
+		
+		[next menu]
+			[label] $> Warrior
+			[on-trigger]
+				[set $global.class] warrior
+				[set $character.class] warrior
+		[next menu]
+			[label] $> Rogue
+			[on-trigger]
+				[set $global.class] rogue
+				[set $character.class] rogue
+		[next menu]
+			[label] $> Mage
+			[on-trigger]
+				[set $global.class] mage
+				[set $character.class] mage
+	
+	[scene static]
+		[define $static.count] 0
+		[inc $static.count]
+		[message] $> Count: ${static.count}.
+		[next menu]
+	
+	[scene var-check]
+		[message] $> You are a ${global.class}(global) ${character.class}(var).
+		[next menu]
+
+	[scene pause]
+		[message] $> After that, a 2 seconds pause...
+		[pause] 2
+		[message]
+			$> First pause finished.
+			$> Here another 2 seconds pause...
+		[pause] 2
+		[message] $> Second pause finished.
+		[next menu]
+
+	[scene while-loop]
+		
+		[set $local.count] 10
+		[message] $> Countdown:
+		
+		[while $local.count >= 0]
+			[message] $> A ${local.count}...
+			[dec $local.count]
+			[pause] 1
+			[message] $> B ${local.count}...
+			[dec $local.count]
+			[pause] 1
+			[message] $> C ${local.count}...
+			[dec $local.count]
+			[pause] 1
+			[message] $> D ${local.count}...
+			[dec $local.count]
+			[pause] 1
+		
+		[next menu]
+
+	[scene foreach-loop]
+		
+		[set $local.obj]
+			a: 1
+			b: 2
+			c: 3
+			d: 4
+			e: 5
+			f: 6
+			g: 7
+		
+		[foreach $local.obj => $local.key : $local.value]
+			[message] $> A ${local.key}: ${local.value}
+			[pause] 1
+			[message] $> B ${local.key}: ${local.value}
+			[pause] 1
+			[message] $> C ${local.key}: ${local.value}
+			[pause] 1
+			[message] $> D ${local.key}: ${local.value}
+			[pause] 1
+		
+		[next menu]
+
+	[scene if-elsif-else]
+		
+		[if $global.class = "warrior"]
+			[set $global.class = null]
+			[message] $> Warrior A
+			[pause] 1
+			[message] $> Warrior B
+			[pause] 1
+			[message] $> Warrior C
+			[pause] 1
+			[message] $> Warrior D
+			[pause] 1
+		[elseif $global.class = "rogue"]
+			[set $global.class = null]
+			[message] $> Rogue A
+			[pause] 1
+			[message] $> Rogue B
+			[pause] 1
+			[message] $> Rogue C
+			[pause] 1
+			[message] $> Rogue D
+			[pause] 1
+		[elseif $global.class = "mage"]
+			[set $global.class = null]
+			[message] $> Mage A
+			[pause] 1
+			[message] $> Mage B
+			[pause] 1
+			[message] $> Mage C
+			[pause] 1
+			[message] $> Mage D
+			[pause] 1
+		[else]
+			[set $global.class = null]
+			[message] $> Unknown A
+			[pause] 1
+			[message] $> Unknown B
+			[pause] 1
+			[message] $> Unknown C
+			[pause] 1
+			[message] $> Unknown D
+			[pause] 1
+		
+		[next menu]
+
+	[scene call-fn]
+		[call myfn]
+		[next menu]
+
+	[fn myfn]
+		[message] > A
+		[pause] 1
+		[message] > B
+		[pause] 1
+		[message] > C
+		[pause] 1
+		[call subfn]
+		[message] > D
+		[pause] 1
+		[message] > E
+		[pause] 1
+		
+	[fn subfn]
+		[message] > alpha
+		[pause] 1
+		[message] > beta
+		[pause] 1
+		[message] > gamma
+		[pause] 1
+		
+	[scene gosub]
+		[message] > 1...
+		[pause] 1
+		[message] > 2...
+		[pause] 1
+		[gosub subscene]
+		[message] > 3...
+		[pause] 1
+		[message] > 4...
+		[pause] 1
+		[next menu]
+
+	[scene subscene]
+		[message] > Sub 1...
+		[pause] 1
+		[message] > Sub 2...
+		[pause] 1
+		[message] > Sub 3...
+		[pause] 1

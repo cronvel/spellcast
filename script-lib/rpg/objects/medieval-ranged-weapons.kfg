@@ -12,8 +12,8 @@
 		melee-fighting:
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 2
 					defense: (+) 2
@@ -23,8 +23,8 @@
 				params:
 					menuLabel: $> throw a javelin
 					projectileLabel: $> javelin
-					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
 					#close-ranged: (+) 1
 					attack: (+) 5
@@ -46,8 +46,8 @@
 				params:
 					projectileLabel: $> arrow
 					menuLabel: $> shoot an arrow
-					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compoundVariation: firearm
 				compound:
 					close-ranged: (+) -6
@@ -71,8 +71,8 @@
 					reload: true
 					projectileLabel: $> bolt
 					menuLabel: $> shoot a bolt
-					criticalHitFlavour: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compoundVariation: firearm
 				compound:
 					close-ranged: (+) 6

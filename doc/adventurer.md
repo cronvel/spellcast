@@ -31,14 +31,16 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Vote-style Tag](#ref.scenario.scene.vote-style)
 			* [Hurry-time Tag](#ref.scenario.scene.hurry-time)
 			* [Show-timer Tag](#ref.scenario.scene.show-timer)
+			* [Init-sub Tag](#ref.scenario.scene.init-sub)
 		* [Starting Scene Tag](#ref.scenario.starting-scene)
 		* [Next Tag](#ref.scenario.next)
 			* [Label Tag](#ref.scenario.next.label)
 			* [Vote-style Tag](#ref.scenario.next.vote-style)
 			* [Auto Tag](#ref.scenario.next.auto)
 			* [On-trigger Tag](#ref.scenario.next.on-trigger)
+				* [Cancel Tag](#ref.scenario.next.on-trigger.cancel)
 			* [Args Tag](#ref.scenario.next.args)
-			* [This Tag](#ref.scenario.next.this)
+		* [Fake Next Tag](#ref.scenario.fake-next)
 		* [End Tag](#ref.scenario.end)
 		* [Win Tag](#ref.scenario.win)
 		* [Lost Tag](#ref.scenario.lost)
@@ -46,10 +48,12 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Goto Tag](#ref.scenario.goto)
 		* [Gosub Tag](#ref.scenario.gosub)
 			* [Args Tag](#ref.scenario.gosub.args)
-			* [This Tag](#ref.scenario.gosub.this)
 			* [Roles Tag](#ref.scenario.gosub.roles)
 		* [Include Tag](#ref.scenario.include)
 		* [Action Tag](#ref.scenario.action)
+		* [Here Tag](#ref.scenario.here)
+		* [Here-actions Tag](#ref.scenario.here-actions)
+		* [Reset-here-actions Tag](#ref.scenario.reset-here-actions)
 	* [Input/Output Tags](#ref.io)
 		* [Message Tag](#ref.io.message)
 		* [Fortune Tag](#ref.io.fortune)
@@ -107,6 +111,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Once Tag](#ref.event.once)
 		* [On-global Tag](#ref.event.on-global)
 		* [Once-global Tag](#ref.event.once-global)
+		* [Cancel Tag](#ref.event.cancel)
 	* [Multiplayer Tags](#ref.multiplayer)
 		* [Role Tag](#ref.multiplayer.role)
 		* [Split Tag](#ref.multiplayer.split)
@@ -114,6 +119,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Entity-class Tag](#ref.rpg.entity-class)
 		* [Entity-model Tag](#ref.rpg.entity-model)
 		* [Create-entity Tag](#ref.rpg.create-entity)
+		* [Create-main-entity Tag](#ref.rpg.create-main-entity)
 		* [Update-entity Tag](#ref.rpg.update-entity)
 		* [Entity-compound-stats Tag](#ref.rpg.entity-compound-stats)
 		* [Usage-compound-stats Tag](#ref.rpg.usage-compound-stats)
@@ -451,6 +457,20 @@ Whether the vote timer should be displayed or be held secret.
 
 
 
+<a name="ref.scenario.scene.init-sub"></a>
+## [init-sub]
+
+* types: parameter
+* attribute style: none
+* content type: tags
+
+If present, the *init-sub* contents is executed immediately at the beginning of the scene before any other tags,
+**and only if the scene was reached using a [[gosub] tag](ref.scenario.gosub).**
+
+It is recommended to use this tag only for arguments management.
+
+
+
 <a name="ref.scenario.starting-scene"></a>
 ## [starting-scene *label*]
 
@@ -550,6 +570,15 @@ has its own scope).
 
 
 
+<a name="ref.scenario.next.on-trigger.cancel"></a>
+#### [cancel]
+
+It interrupts a *next* tag validation sequence, e.g. placed inside a *on-trigger* tag, or inside a function called by
+the *on-trigger* tag.
+See [*[cancel]*](#ref.event.cancel) (event) for details.
+
+
+
 <a name="ref.scenario.next.args"></a>
 ### [args]
 
@@ -586,10 +615,21 @@ In fact, the *args* tag here works just like *args* tag of *gosub* and *call* ta
 
 
 
-<a name="ref.scenario.next.this"></a>
-### [this]
+<a name="ref.scenario.fake-next"></a>
+## [fake-next] / [fake-next *mode*]
 
-**DEPRECATED.**
+* types: run, exec
+* attribute style: none or specific: the mode
+* content type: tags or string/template (the label)
+
+The *fake-next* tag works like a [*next*](ref.scenario.next) tag, except it does not switch to another scene.
+
+Typically, a *fake-next* tag has a *on-trigger* tag that display some text and eventually adjust few variables,
+but the scene remain the same, and is not rendered again.
+
+If present, the mode can be:
+* normal: nothing special (the default)
+* once: the *fake-next* option is removed once selected, but would be enabled if the scene is rendered again
 
 
 
@@ -724,10 +764,24 @@ Its content is an array of *role ID*: the role list that will go to the *sub-sce
 
 
 
-<a name="ref.scenario.include"></a>
-## [include]
+<a name="ref.scenario.here"></a>
+## [here]
 
-**DEPRECATED.**
+TODO.
+
+
+
+<a name="ref.scenario.here-actions"></a>
+## [here-actions]
+
+TODO.
+
+
+
+<a name="ref.scenario.reset-here-actions"></a>
+## [reset-here-actions]
+
+TODO.
 
 
 
@@ -1775,15 +1829,19 @@ See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 
 <a name="ref.event.emit"></a>
-## [emit *event-label*]
+## [emit *event-label*] / [emit *event-label* => $cancelReason]
 
 * types: run
-* attribute style: label
+* attribute style: label or emit syntax
 * content type: anything
 
 The *emit* tag emits the *event-label* event.
 
 The event is emitted with the whole solved content as its data.
+
+If the syntax `[emit *event-label* => $cancelReason]` is used, the variable `$cancelReason` will receive a truthy
+value if one of its listener has aborted the event propagation.
+The value can be of any type, and is produced by the listener.
 
 
 
@@ -1838,6 +1896,31 @@ at the end of the current scene, instead it continues to be active even after th
 The *once-global* tag works just like the [*on* tag](#ref.event.on), except that:
 * it listens for that event only once (i.e. it triggers at most only once)
 * it is **NOT** destroyed at the end of the current scene, instead it continues to be active even after the execution leaves it
+
+
+
+<a name="ref.event.cancel"></a>
+## [cancel]
+
+* types: run
+* attribute style: none
+* content type: anything
+
+The *cancel* tag is meant to cancel something in progress.
+
+When used inside a *on*-family tag (*on, once, on-global, once-global* tags), it immediately exit (like *return*).
+**Furthermore it aborts the event propagation:** listeners that haven't been triggered yet will never receive the event.
+
+If the *emit* tag has used the `[emit event => $cancelReason]` syntax,
+the content of the *cancel* tag is solved **at run time** and stored into the *$cancelReason* variable.
+
+The emitter is responsible for actually cancelling the action it is about to perform, or undo it.
+
+If the content value is any *falsy* value, it will be replaced by `true`.
+
+It can be used to aborts the *next* tag validation sequence, e.g. placed inside a *on-trigger* tag,
+or inside a function called by the *on-trigger* tag.
+Doing so abort the *next* tag execution: the scene remains the same, just as if a the *[next]* tag was a *[fake-next]* tag.
 
 
 
@@ -1982,6 +2065,26 @@ The *create-entity* tag is used to create an entity and store it into a variable
 
 Its content content can be either a simple string containing the model ID to create, or a whole object containing
 some or all of the *Entity* properties, that may inherit from an entity model.
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.create-main-entity"></a>
+## [create-main-entity]
+
+* types: run
+* attribute style: none
+* content type: string (the model to create) or object
+
+The *create-main-entity* tag is used to create the main entity.
+
+It works like the [*create-entity* tag](#ref.rpg.create-entity), except that the entity is stored inside
+the first role (created if unexistant) and inside the $player global variable.
+
+Using this tag is the **recommended** way to create the main character in **single player book**.
+
+Since it creates a default role if none exist when executed, this is **not recommended** to use this tag in **multiplayer book**.
 
 TODO: documentation
 
@@ -2137,7 +2240,7 @@ This will equip *$hero* with the *$sword*, and set it as the primary item for th
 
 * types: run
 * attribute style: var
-* content type: none or object
+* content type: object
 
 The *unequip* tag is used to unequip an item off the entity stored in the *$var*.
 
@@ -2172,10 +2275,10 @@ This will unequip the item *$sword* in the hands of the *$hero*:
 
 * types: run
 * attribute style: var
-* content type: none or object
+* content type: object
 
-The *drop* tag is used to drop an item off the entity stored in the *$var*.
-The item should not be equipped.
+The *grab* tag is used to grab an item: the entity stored in the *$var* collect the item in its inventory.
+The item is not equipped.
 
 The content is an object describing what to drop, properties are:
 * item `ref` the variable containing the item to grab
@@ -2188,7 +2291,7 @@ The content is an object describing what to drop, properties are:
 
 * types: run
 * attribute style: var
-* content type: none or object
+* content type: object
 
 The *drop* tag is used to drop an item off the entity stored in the *$var*.
 The item should not be equipped.

@@ -1,14 +1,203 @@
 
 [[doctype adventurer]]
 
-[system inventory]
+[system rpg.inventory]
+	
+	# Full inventory menu
+	[fn here-inventory]
+		[fake-next]
+			[label] $> Inventory
+			[on-trigger]
+				[reset-here-actions]
+				[gosub rpg.inventory/inventory-menu]
+					performer: $here.performer
+					stack: $here.items
+
+
+	
+	[fn here-grab]
+		[if $here.items is-empty?]
+			[return]
+		
+		[map $here.items => $local.items] $= $this.label
+		
+		[if $local.items.length > 4]
+			[set $local.items.length] 4
+			[append $local.items] $> more
+		
+		[fake-next]
+			[label] $> Grab items (${local.items}[enum:|$#|, $#| and $#])
+			[on-trigger]
+				[reset-here-actions]
+				[gosub rpg.inventory/grab-menu]
+					performer: $here.performer
+					stack: $here.items
+	
+	
+	
+	[scene inventory-menu]
+		[init-sub]
+			[set $performer] $args.performer
+			[set $stack] $args.stack
+		
+		[filter $performer.equippedItemList => $local.equippedItems] $= $this.class = "object"
+		[filter $performer.items => $local.unequippedItems] $= $this.class = "object"
+		
+		[if ( ! $local.equippedItems.length ) && ( ! $local.unequippedItems.length )]
+			[message] $> Empty inventory
+			[return]
+		
+		[message] $> Inventory
+		
+		[next] $> (Done)
+		
+		[foreach $local.equippedItems => $local.index : $local.item]
+			[next inventory-object]
+				[args]
+					index: $local.index
+				[label] $> ${local.item.label} (${local.item.slotType})
+				[on-trigger]
+					[set $item] $local.equippedItems[$args.index]
+					[set $equipped] true
+		
+		[foreach $local.unequippedItems => $local.index : $local.item]
+			[next inventory-object]
+				[args]
+					index: $local.index
+				[label] $> ${local.item.label}
+				[on-trigger]
+					[set $item] $local.unequippedItems[$args.index]
+					[set $equipped] false
+	
+	
+	
+	# Called by inventory-menu
+	[scene inventory-object]
+		
+		[next inventory-menu] $> (Done)
+		
+		[fake-next]
+			[label] $> Examine
+			[on-trigger]
+				[if $item.params.examineFlavor]
+					[message] $item.params.examineFlavor
+				[else]
+					[message] $> There is nothing special.
+		
+		[if $equipped]
+			[message]
+				$> ^_${item.label//uc1}^ (equipped: ${item.slotType})
+			[next inventory-object]
+				[label] $> Unequip ${item.label}
+				[on-trigger]
+					[set $equipped] false
+					[unequip $performer]
+						item: $item
+			[if $stack]
+				[next inventory-menu]
+					[label] $> Unequip and drop ${item.label}
+					[on-trigger]
+						[emit rpg.drop-item => $local.cancel] $item
+						[if ! $local.cancel]
+							[set $equipped] false
+							[unequip $performer]
+								item: $item
+							[drop $performer]
+								item: $item
+								stack: $stack
+		[else]
+			[message]
+				$> ^_${item.label//uc1}^ (inventory)
+			[next inventory-object]
+				[label] $> Equip ${item.label}
+				[on-trigger]
+					[set $equipped] true
+					[equip $performer]
+						item: $item
+			[if $stack]
+				[next inventory-menu]
+					[label] $> Drop ${item.label}
+					[on-trigger]
+						[emit rpg.drop-item => $local.cancel] $item
+						[if ! $local.cancel]
+							[drop $performer]
+								item: $item
+								stack: $stack
+		
+		[message]
+			$>
+			$> ${item.description//uc1/dash2space}
+		
+	
+	
+	[scene grab-menu]
+		[init-sub]
+			[set $performer] $args.performer
+			[set $stack] $args.stack
+			[set $first] true
+		
+		#[filter $args.stack => $local.items] $= $this.class = "object"
+		
+		[if ( $stack.length = 0 ) || $onlyOne]
+			# Immediately exit
+			[return]
+		
+		[if ( $stack.length = 1 ) && $first]
+			# Immediately go to grab-object
+			[set $first] false
+			[set $onlyOne] true
+			[set $item] $stack[0]
+			[goto grab-object]
+		
+		[set $first] false
+		
+		[message] $> Grab what?
+		
+		[next] $> (Done)
+		
+		[foreach $stack => $local.index : $local.item]
+			[next grab-object]
+				[args]
+					index: $local.index
+				[label] $> ${local.item.label}
+				[on-trigger]
+					[set $item] $stack[$args.index]
+		
+	
+	
+	# Called by grab-menu
+	[scene grab-object]
+		
+		[next grab-menu] $> (Done)
+		
+		[message]
+			$> ^_${item.label//uc1}^:
+			$>
+			$> ${item.description//uc1/dash2space}
+		
+		[fake-next once]
+			[label] $> Examine
+			[on-trigger]
+				[if $item.params.examineFlavor]
+					[message] $item.params.examineFlavor
+				[else]
+					[message] $> There is nothing special.
+		
+		[next grab-menu]
+			[label] $> Grab ${item.label}
+			[on-trigger]
+				[grab $performer]
+					item: $item
+					stack: $stack
+		
+	
 	
 	# Equip an ability as primary, or make any equipped item (ability or not) a primary
 	[scene select-ability-primary]
 		[set $performer] $args.performer
 		[set $usage] $= ( $args.usage is-set? ) ? $args.usage true
 		
-		[message] Use what?
+		[message] $> Use what?
 		
 		[if $performer.primary[$usage]]
 			[set $local.currentPrimary] $performer.primary[$usage]
@@ -16,8 +205,11 @@
 		[else]
 			[set $local.abortLabel] $> (Abort)
 		
-		[filter $performer.equippedItemList => $local.items] $= ( $this.usages[$usage] is-set? ) && ( $this != $performer.primary[$usage] )
-		[filter $performer.items => $local.moreItems] $= ( $this.class = "ability" ) && ( $this.usages[$usage] is-set? )
+		[filter $performer.equippedItemList => $local.items]
+			$= ( $this.usages[$usage] is-set? ) && ( $this != $performer.primary[$usage] )
+		
+		[filter $performer.items => $local.moreItems]
+			$= ( $this.class = "ability" ) && ( $this.usages[$usage] is-set? )
 		
 		[concat $local.items] $local.moreItems
 		
@@ -46,7 +238,7 @@
 	[scene select-ability-choose-primary]
 		[set $performer] $args.performer
 		
-		[message] Which usage?
+		[message] $> Which usage?
 		
 		[next] $> (Abort)
 		
@@ -56,7 +248,7 @@
 					usage: $local.usage
 				[label] $> ${local.usage//uc1/dash2space}
 				[on-trigger]
-					[gosub inventory/select-ability-primary]
+					[gosub rpg.inventory/select-ability-primary]
 						performer: $performer
 						usage: $args.usage
 
@@ -67,10 +259,10 @@
 		[set $performer] $args.performer
 		[set $slot] $= ( $args.slot is-set? ) ? $args.slot "hand"
 		
-		[message] Equip / unequip what?
+		[message] $> Equip / unequip what?
 		
-		[set $local.unequippedItems] $performer.equippedItems[$slot]
-		[filter $performer.items => $local.equippedItems] $= ( $this.class = "object" ) && ( $this.slotType = $slot )
+		[set $local.equippedItems] $performer.equippedItems[$slot]
+		[filter $performer.items => $local.unequippedItems] $= ( $this.class = "object" ) && ( $this.slotType = $slot )
 		
 		#[debug info] $performer.equippedItemList
 		#[debug info] $performer.items
@@ -78,24 +270,24 @@
 		
 		[next] $> (Abort)
 		
-		[foreach $local.unequippedItems => $local.index : $local.item]
+		[foreach $local.equippedItems => $local.index : $local.item]
 			[next]
 				[args]
 					index: $local.index
 				[label] $> Unequip ${local.item.label} (${local.item.class})
 				[on-trigger]
-					[set $local.item] $local.unequippedItems[$args.index]
+					[set $local.item] $local.equippedItems[$args.index]
 					[unequip $performer]
 						item: $local.item
 					[return] true
 		
-		[foreach $local.equippedItems => $local.index : $local.item]
+		[foreach $local.unequippedItems => $local.index : $local.item]
 			[next]
 				[args]
 					index: $local.index
 				[label] $> Equip ${local.item.label} (${local.item.class})
 				[on-trigger]
-					[set $local.item] $local.equippedItems[$args.index]
+					[set $local.item] $local.unequippedItems[$args.index]
 					[equip $performer]
 						item: $local.item
 					[return] true
@@ -105,7 +297,7 @@
 	[scene equip-object-choose-slot]
 		[set $performer] $args.performer
 		
-		[message] Which slot?
+		[message] $> Which slot?
 		
 		[next] $> (Abort)
 		
@@ -115,11 +307,18 @@
 					slot: $local.slot
 				[label] $> ${local.slot//uc1/dash2space}
 				[on-trigger]
-					[gosub inventory/equip-object]
+					[gosub rpg.inventory/equip-object]
 						performer: $performer
 						slot: $args.slot
 
 
+	
+	
+	
+	
+	# Deprecated (used by the fighting system)
+	
+	
 
 	[scene drop-grab]
 		[while ! $local.done]
@@ -129,9 +328,9 @@
 	
 	[scene drop-grab-one]
 		[if ( $args.buy-price is-number? ) || ( $args.sell-price is-number? )]
-			[if $args.performer.goods.gp is-empty?]
-				[set $args.performer.goods.gp] 0
-			[message] $> You have ^Y${args.performer.goods.gp}^ GP.
+			[if $args.performer.goods.cash is-empty?]
+				[set $args.performer.goods.cash] 0
+			[message] $> You have ^Y${args.performer.goods.cash}[$:cash-unit]^:.
 		
 		[next]
 			[label] $> (Done)
@@ -152,7 +351,7 @@
 			[if ( $args.buy-price is-number? ) && ( $local.item.ownStats.price is-number? )]
 				[set $local.verb] buy
 				[set $local.price] $= ceil ( $local.item.ownStats.price * $args.buy-price )
-				[set $local.price-string] $> (${local.price} GP)
+				[set $local.price-string] $> (${local.price}[$:cash-unit])
 			[else]
 				[set $local.verb] grab
 				[set $local.price] 0
@@ -166,13 +365,13 @@
 					price: $local.price
 				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
 				[on-trigger]
-					[if $args.performer.goods.gp >= $args.price]
-						[sub $args.performer.goods.gp] $args.price
+					[if $args.performer.goods.cash >= $args.price]
+						[sub $args.performer.goods.cash] $args.price
 						[grab $args.performer]
 							item: $args.item
 							stack: $args.stack
 					[else]
-						[message] $> Not enough GP!
+						[message] $> Not enough cash!
 		
 	
 	
@@ -185,7 +384,7 @@
 			[if ( $args.sell-price is-number? ) && ( $local.item.ownStats.price is-number? )]
 				[set $local.verb] sell
 				[set $local.price] $= floor ( $local.item.ownStats.price * $args.sell-price )
-				[set $local.price-string] $> (${local.price} GP)
+				[set $local.price-string] $> (${local.price}[$:cash-unit])
 			[else]
 				[set $local.verb] drop
 				[set $local.price] 0
@@ -199,10 +398,9 @@
 					price: $local.price
 				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
 				[on-trigger]
-					[add $args.performer.goods.gp] $args.price
+					[add $args.performer.goods.cash] $args.price
 					[drop $args.performer]
 						item: $args.item
 						stack: $args.stack
 		
-
 

@@ -1,10 +1,10 @@
 {
   "name": "spellcast",
-  "version": "0.30.22",
+  "version": "0.32.0",
   "description": "Make: your own adventure!",
   "main": "lib/Book.js",
   "engines": {
-    "node": ">=4.5.0"
+    "node": ">=6.0.0"
   },
   "directories": {
     "test": "test"
@@ -16,34 +16,34 @@
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
     "async-kit": "^2.2.3",
-    "babel-tower": "^0.12.0",
-    "browserify": "^13.1.1",
+    "babel-tower": "^0.12.2",
     "chokidar": "^1.6.1",
     "dom-kit": "^0.1.2",
     "doormen": "^0.6.7",
-    "electron": "^1.4.10",
+    "electron": "^1.6.7",
+    "fs-kit": "^0.2.2",
     "glob": "^7.1.1",
-    "kung-fig": "^0.34.16",
-    "logfella": "^0.3.45",
-    "math-kit": "^0.3.5",
+    "jsbindat": "^0.5.1",
+    "kung-fig": "^0.38.2",
+    "logfella": "^0.3.51",
+    "math-kit": "^0.11.9",
     "minimist": "^1.2.0",
-    "nextgen-events": "^0.9.8",
+    "nextgen-events": "^0.9.9",
     "semver": "^5.3.0",
-    "server-kit": "^0.4.0",
-    "string-kit": "^0.5.12",
-    "terminal-kit": "^0.25.4",
+    "server-kit": "^0.4.2",
+    "string-kit": "^0.5.19",
+    "terminal-kit": "^1.4.2",
     "tif-parser": "^0.3.3",
-    "tree-kit": "^0.5.26",
-    "uglify-js": "^2.7.5"
+    "tree-kit": "^0.5.26"
   },
   "devDependencies": {
-    "browserify": "^13.1.0",
+    "browserify": "^14.3.0",
     "electron": "^1.4.8",
     "expect.js": "^0.3.1",
     "fs-kit": "^0.1.5",
     "jshint": "^2.9.2",
     "mocha": "^3.2.0",
-    "uglify-js": "^2.7.0"
+    "uglify-js": "^2.8.22"
   },
   "scripts": {
     "test": "tea-time -R dot -O"
@@ -71,6 +71,13 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/cronvel/spellcast/issues"
+  },
+  "config": {
+    "tea-time": {
+      "coverDir": [
+        "lib"
+      ]
+    }
   },
   "copyright": {
     "title": "Spellcast",

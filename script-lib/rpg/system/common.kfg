@@ -1,7 +1,7 @@
 
 [[doctype adventurer]]
 
-[system common]
+[system rpg.common]
 	
 	[fn update-malus]
 		#[set $args.target.status.bodyMalus] 0

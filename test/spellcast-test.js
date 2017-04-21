@@ -72,7 +72,7 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 	var ui , uiId = 0 , triggered = false , book , options = {} ;
 	
 	if ( action.maxTicks ) { options.maxTicks = action.maxTicks ; }
-	if ( action.jsTag !== undefined ) { options.jsTag = action.jsTag ; }
+	if ( action.allowJsTag !== undefined ) { options.allowJsTag = action.allowJsTag ; }
 	
 	book = Book.load( bookPath , options ) ;
 	
@@ -1815,6 +1815,7 @@ describe( "Basic adventurer tags and features" , function() {
 	
 	it( "[next] tag instances ([next] into loop)" ) ;
 	it( "[next]'s [on-trigger] tag" ) ;
+	it( "[fake-next] tag" ) ;
 	
 	it( "[end]/[win]/[lost]/[draw] tags" ) ;
 	it( "[goto] tag" ) ;
@@ -1822,9 +1823,53 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "[gosub] tag with return Ref" ) ;
 	it( "[include] tag" ) ;
 	it( "[action] tag" ) ;
+	it( "[here] tag" ) ;
+	it( "[here-actions] tag" ) ;
 	
-	it( "Special var $local" ) ;
-	it( "Special var $global" ) ;
+	it( "Special var $local" , function( done ) {
+		var messages = [] , ends = [] ;
+		
+		runBook( __dirname + '/books/local-var.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'bob: 15 -- local.bob: 1' ] ,
+					[ 'bob: 15 -- local.bob: 1' ] ,
+					[ 'bob: 15 -- local.bob: 1' ] ,
+					[ 'bob: 15 -- local.bob: 1' ]
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "Special var $global" , function( done ) {
+		var messages = [] , ends = [] ;
+		
+		runBook( __dirname + '/books/global-var.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'bob: 15 -- global.bob: 6' ] ,
+					[ 'bob: 16 -- global.bob: 7' ] ,
+					[ 'bob: 17 -- global.bob: 8' ] ,
+					[ 'bob: 19 -- global.bob: 19' ]	// because we return on the global scope
+					//[ 'bob: 18 -- global.bob: 9' ] // behavior changed: only the top-level/init-time run is global
+				] ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
 	
 	it( "Special var $static into [fn] tags" , function( done ) {
 		var messages = [] , ends = [] ;
@@ -1891,6 +1936,9 @@ describe( "Basic adventurer tags and features" , function() {
 		) ;
 	} ) ;
 	
+	it( "Special var $here" ) ;
+	
+	// Deprecated?
 	it( "Special var $this" ) ;
 } ) ;
 
@@ -2029,7 +2077,7 @@ describe( "Embedded Javascript code" , function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' , jsTag: false } ,
+		runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' , allowJsTag: false } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -2077,6 +2125,12 @@ describe( "Prevent from infinite loop in user-script, using the 'maxTicks' optio
 			}
 		) ;
 	} ) ;
+} ) ;
+
+
+
+describe( "Spellcast operators" , function() {
+	it( "operators" ) ;
 } ) ;
 
 

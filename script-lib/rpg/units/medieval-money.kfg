@@ -1,0 +1,5 @@
+
+[[doctype adventurer]]
+
+[set $cash-unit]
+	$$%> medieval money[uv:144|12|1/uf:$# gold coin$#[n?|s]|$# silver coin$#[n?|s]|$# copper coin$#[n?|s]/um:N+/uenum:0|$#|, $#| and $#]

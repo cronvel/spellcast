@@ -3,7 +3,7 @@
 [[locales locales/*]]
 [[assets ../]]
 
-[module] @@../../script-lib/rpg/rpg.kfg
+[module] @@{rpg}/rpg.kfg
 [module] @@data.kfg
 
 [action drink]
@@ -19,6 +19,7 @@
 
 [chapter intro]
 	[starting-scene init]
+		
 		#[debug info] $roles.hero.entity.equippedItems.hand
 		#[debug info] $roles.hero.entity.actual
 		#[debug info] $roles.hero.entity
@@ -42,7 +43,7 @@
 		[create-item $local.items[0]] dagger
 		[create-item $local.items[1]] axe
 		
-		[gosub inventory/drop-grab]
+		[gosub rpg.inventory/drop-grab]
 			performer: $roles.hero.entity
 			stack: $local.items
 		
@@ -58,7 +59,7 @@
 		[create-item $local.items[0]] dagger
 		[create-item $local.items[1]] axe
 		
-		[gosub inventory/drop-grab]
+		[gosub rpg.inventory/drop-grab]
 			performer: $roles.hero.entity
 			stack: $local.items
 			buy-price: 1.2
@@ -95,7 +96,7 @@
 					- spear
 					- shield
 		
-		[gosub fighting/fight]
+		[gosub rpg.fighting/fight]
 			distance: 16
 			allies:
 				- $roles.hero.entity
@@ -123,7 +124,7 @@
 			$> Suddenly, a big and tough guy appears.
 			$> He does not say much except grumbling something like “I'm the guardian”, then he starts rushing you with a giant club.
 		
-		[gosub fighting/fight]
+		[gosub rpg.fighting/fight]
 			distance: 10
 			allies:
 				- $roles.hero.entity
@@ -131,7 +132,7 @@
 				- guardian
 			deadlyPush:
 				bonus: 0
-				flavour:
+				flavor:
 					$$> ^R${performer.label//uc1} pushes ${target.label} and ${target.label} falls off the cliff!
 		
 		[next second-encounter]
@@ -143,7 +144,7 @@
 			$> Instead of waiting for you, he starts walking on the beam toward you.
 			$> He swings the air with its giant club as he taunts you, inviting you to go ahead fighting him.
 		
-		[gosub fighting/fight]
+		[gosub rpg.fighting/fight]
 			distance: 10
 			allies:
 				- $roles.hero.entity
@@ -151,7 +152,7 @@
 				- guardian
 			deadlyPush:
 				bonus: 6
-				flavour:
+				flavor:
 					$$> ^RAs ${performer.label} charges, ${target.label} slips from the wooden beam!
 					$$> ${target.label//uc1} falls into the chasm!
 

@@ -13,8 +13,8 @@
 			# When the weapon is used
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${performer.label//uc1} cuts ${target.label} in half for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} cuts ${target.label} in half for ${damages} hp.
 				compound:
 					attack: (+) 4
 					defense: (+) 4
@@ -46,8 +46,8 @@
 			# When the weapon is used
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${performer.label//uc1} stabs ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${performer.label//uc1} deadly stabs ${target.label} for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} stabs ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} deadly stabs ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 2
 					defense: (+) 1
@@ -72,7 +72,7 @@
 		melee-fighting:
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${performer.label//uc1} chops ${target.label} for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} chops ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 4
 					defense: (+) 2
@@ -101,8 +101,8 @@
 			# When the weapon is used
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${performer.label//uc1} thumps ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${performer.label//uc1} deadly thumps ${target.label} for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} thumps ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} deadly thumps ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 1
 					defense: (+) 1
@@ -135,7 +135,7 @@
 			# Mostly a two-handed weapon, but can still be used with a shield
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${performer.label//uc1} punctures ${target.label} for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} punctures ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 1
 					defense: (+) 3
@@ -166,8 +166,8 @@
 			primary:
 				params:
 					menuLabel: $> crush
-					criticalHitFlavour: $$> ^r${performer.label//uc1} pounds ${target.label} for ${damages} hp.
-					fatalHitFlavour: $$> ^r${performer.label//uc1} crushes ${target.label} for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} pounds ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} crushes ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 2
 					defense: (+) 2
@@ -200,7 +200,7 @@
 		melee-fighting:
 			primary:
 				params:
-					criticalHitFlavour: $$> ^r${performer.label//uc1} cut ${target.label} for ${damages} hp.
+					criticalHitFlavor: $$> ^r${performer.label//uc1} cut ${target.label} for ${damages} hp.
 				compound:
 					attack: (+) 2
 					defense: (+) 2
