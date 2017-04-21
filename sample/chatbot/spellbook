@@ -1,0 +1,24 @@
+
+[[doctype chatbot]]
+
+
+
+[unit]
+	[pattern] $> do you know that *
+	
+	# AIML <that> and <topic>
+	[context-pattern]
+		lastResponse: blah
+		topic: general
+		mood: happy
+	
+	
+	[output]
+		- I know that: 
+		-	sr: $star1
+	
+	[output] $> I know that: {${star1}}
+	
+
+
+
