@@ -25,13 +25,44 @@
 	[reply] > Hello!
 	
 [query]
+	[pattern] > I like you
+	[reply] > Me too!
+	
+[query]
 	[pattern] > my name is *
+	[pattern] > I'm *
 	[reply] $> Hello ${args.stars[0]}
 	
 [query]
-	[pattern] > my tailor is rich
-	[reply] $> What?
+	[pattern] > my name is Bob
+	[pattern] > I'm Bob
+	[reply] $> There are so much people named Bob...
 	
+[query]
+	[pattern] > my name is * wallace
+	[pattern] > I'm * wallace
+	[reply] $> I'm Mia Wallace.
+	
+[query]
+	[pattern] > ** dawg
+	[reply]
+		$> Yo dawg, I herd yo and yo dawg like yo yos,
+		$> so we put yo dawg in a yo yo,
+		$> so yo can yo yo yo dawg while yo dawg yo yos,
+		$> dawg.
+	
+[query]
+	[pattern] > * 1 2 3
+	[reply] $> * 1 2 3
+	
+[query]
+	[pattern] > * a b c
+	[reply] $> * a b c
+	
+[query]
+	[pattern] > *
+	[reply] $> Universal fallback
+
 
 
 [system chat]
