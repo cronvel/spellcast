@@ -20,6 +20,18 @@
 	[pattern] > hello
 	[reply] > Hi!
 	
+[query]
+	[pattern] > hi
+	[reply] > Hello!
+	
+[query]
+	[pattern] > my name is *
+	[reply] $> Hello ${star1}
+	
+[query]
+	[pattern] > my tailor is rich
+	[reply] $> What?
+	
 
 
 [system chat]
@@ -27,4 +39,5 @@
 		[input $input]
 		[request $reply] $input
 		[message] $> ${reply}
+		[goto start]
 
