@@ -1,24 +1,30 @@
 
-[[doctype chatbot]]
+[[doctype adventurer]]
 
 
 
-[unit]
-	[pattern] $> do you know that *
+# Also [query domain]?
+# or create a group tag like [query-domain domain]?
+[query]
+	[pattern] > do you know that *
 	
 	# AIML <that> and <topic>
-	[context-pattern]
-		lastResponse: blah
-		topic: general
-		mood: happy
+	[pattern replied] blah
+	[pattern topic] general
+	[pattern mood] happy
 	
+	# <something> is like an AIML <srai>something</srai>: it performs a sub-query
+	[reply] $> I know that: <${star1}>
 	
-	[output]
-		- I know that: 
-		-	sr: $star1
-	
-	[output] $> I know that: {${star1}}
+[query]
+	[pattern] > hello
+	[reply] > Hi!
 	
 
 
+[system chat]
+	[starting-scene start]
+		[input $input]
+		[request $reply] $input
+		[message] $> ${reply}
 
