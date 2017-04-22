@@ -47,8 +47,8 @@
 
 
 [here-actions]
-	[call rpg.inventory/here-grab]
-	[call rpg.inventory/here-inventory]
+	[call rpg:inventory/here-grab]
+	[call rpg:inventory/here-inventory]
 
 
 
@@ -56,6 +56,7 @@
 	
 	[starting-scene intro1]
 		
+		[define $damages] 0
 		[message]
 			>> It's night, and you have been chased relentlessly by goblin hunters,
 			>> through the street of this once great town.
@@ -84,7 +85,7 @@
 			> The hall is spacious. Someone lighted few chandeliers.
 			> There are doorways south and west.
 		
-		[on rpg.drop-item]
+		[on rpg:drop-item]
 			[if $args.data.model = "cloak-of-darkness"]
 				[message]
 					> Hey! You can't drop such a classy cloak on the ground!
@@ -96,7 +97,7 @@
 		[next street]
 			[label] > Go back to the street
 			[on-trigger]
-				[call core.utils/confirm] > Are you sure? This could be dangerous with all those goblins hunting you!
+				[call core:utils/confirm] > Are you sure? This could be dangerous with all those goblins hunting you!
 
 	
 	
@@ -106,7 +107,7 @@
 		
 		[define $cloakroom] true
 		
-		[on rpg.drop-item]
+		[on rpg:drop-item]
 			[if $args.data.model = "cloak-of-darkness"]
 				[message]
 					> You put the Cloak of Darkness on the brass hook.
@@ -125,7 +126,6 @@
 	
 	[scene taverne]
 		[define $taverne] true
-		[define $damages] 0
 		
 		#[if $player has-equipped-item-matching "model" "cloak-of-darkness"]
 		[if $player has-item-matching "model" "cloak-of-darkness"]
@@ -164,7 +164,7 @@
 		[if $damages < 2]
 			[message]
 				> The scroll is full of luminous magical symbols: ^M^+this is a scroll of teleportation!^:
-				> As your surrounding fades away, you can see in the middle of the scroll in fine calligraphy:
+				> As your surrounding fades away, you can see in the middle of the scroll, written in fine calligraphy:
 				>
 				> “You win!”
 			[win]

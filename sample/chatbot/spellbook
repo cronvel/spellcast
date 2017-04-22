@@ -1,13 +1,15 @@
 
 [[doctype adventurer]]
 
-
+# TODO
+# - srai
+# - random replies
 
 [interpreter bot]
 	
-	[pattern-order]
-		- topic
+	[pattern-list]
 		- input
+		- topic
 	
 	[query]
 		[pattern] > do you know that *
@@ -18,7 +20,7 @@
 		[pattern mood] happy
 		
 		# <something> is like an AIML <srai>something</srai>: it performs a sub-query
-		[reply] $> I know that: <${args.star[0]}>
+		[reply] $> I know that: <${args.stars.input[0]}>
 		
 	[query]
 		[pattern] > hello
@@ -35,7 +37,7 @@
 	[query]
 		[pattern] > my name is *
 		[pattern] > I'm *
-		[reply] $> Hello ${args.stars[0]}
+		[reply] $> Hello ${args.stars.input[0]}
 		
 	[query]
 		[pattern] > my name is Bob
@@ -49,11 +51,18 @@
 		
 	[query]
 		[pattern] > ** dawg
+		[set $args.topic] lulz
 		[reply]
 			$> Yo dawg, I herd yo and yo dawg like yo yos,
 			$> so we put yo dawg in a yo yo,
 			$> so yo can yo yo yo dawg while yo dawg yo yos,
 			$> dawg.
+		
+	[query]
+		[pattern] > *
+		[pattern topic] > lulz
+		[unset $args.topic]
+		[reply] $> Very funny!
 		
 	[query]
 		[pattern] > * 1 2 3
@@ -65,7 +74,7 @@
 		
 	[query]
 		[pattern] > * = *
-		[reply] $> So "${args.stars[0]}" is the same than "${args.stars[1]}"?
+		[reply] $> So "${args.stars.input[0]}" is the same than "${args.stars.input[1]}"?
 		
 	[query]
 		[pattern] > *
@@ -91,8 +100,8 @@
 	[starting-scene advanced]
 		[define $state]
 			input: ""
-		[input $input]
-		[request bot => $reply] $input
+		[input $state.input]
+		[request bot => $reply] $state
 		[message] $> ${reply}
 		[goto advanced]
 	

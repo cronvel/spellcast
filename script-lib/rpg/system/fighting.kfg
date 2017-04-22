@@ -2,7 +2,7 @@
 [[doctype adventurer]]
 [[locales locales/*]]
 
-[system rpg.fighting]
+[system rpg:fighting]
 
 	# We have to gosub to that scene, not call to a fn, because we need a fresh scope
 	[scene fight]
@@ -353,13 +353,13 @@
 		[next pc-turn]
 			[label] $> Select primary ability or object
 			[on-trigger]
-				[gosub rpg.inventory/select-ability-choose-primary]
+				[gosub rpg:inventory/select-ability-choose-primary]
 					performer: $fight.entityTurn
 
 		[next pc-turn]
 			[label] $> Equip object in hand
 			[on-trigger]
-				[gosub rpg.inventory/equip-object => $local.changed]
+				[gosub rpg:inventory/equip-object => $local.changed]
 					performer: $fight.entityTurn
 					slot: hand
 				[if $local.changed]
@@ -471,7 +471,7 @@
 		[call pressure] $target
 
 		[if $performer.actualUsages.melee-fighting.params.spellLevel is-set?]
-			[call rpg.spellcasting/cast => $local.casted]
+			[call rpg:spellcasting/cast => $local.casted]
 				performer: $performer
 				item: $item
 				usage: $performer.actualUsages.melee-fighting
@@ -612,7 +612,7 @@
 		[call pressure] $target
 
 		[if $performer.actualUsages.ranged-fighting.params.spellLevel is-set?]
-			[call rpg.spellcasting/cast => $local.casted]
+			[call rpg:spellcasting/cast => $local.casted]
 				performer: $performer
 				item: $item
 				usage: $performer.actualUsages.ranged-fighting
@@ -744,7 +744,7 @@
 		[call pressure] $performer
 
 		[if $local.usage.params.spellLevel is-set?]
-			[call rpg.spellcasting/cast => $local.casted]
+			[call rpg:spellcasting/cast => $local.casted]
 				performer: $performer
 				item: $item
 				usage: $local.usage
@@ -812,7 +812,7 @@
 
 		[sub $target.status.hp] $damages
 
-		[call rpg.common/update-malus] $target
+		[call rpg:common/update-malus] $target
 
 		[if $damages >= 100]
 			[if $args.fatalHitFlavor is-set?]
@@ -901,7 +901,7 @@
 
 		[add $target.status.hp] $healing
 
-		[call rpg.common/update-malus] $target
+		[call rpg:common/update-malus] $target
 
 		[if $args.flavor is-set?]
 			[apply $args.flavor => $local.flavor] $
@@ -1079,7 +1079,7 @@
 			[label] $> Yes
 			[on-trigger]
 				[call drop => $local.stack] $args
-				[gosub rpg.inventory/drop-grab]
+				[gosub rpg:inventory/drop-grab]
 					performer: $args.performer
 					stack: $local.stack
 		[next] $> No
