@@ -32,7 +32,7 @@
     "semver": "^5.3.0",
     "server-kit": "^0.4.2",
     "string-kit": "^0.5.19",
-    "terminal-kit": "^1.4.2",
+    "terminal-kit": "^1.4.3",
     "tif-parser": "^0.3.3",
     "tree-kit": "^0.5.26"
   },
