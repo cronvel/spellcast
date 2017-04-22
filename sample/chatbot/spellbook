@@ -78,9 +78,17 @@
 
 
 [system chat]
-	[starting-scene start]
+	[scene simple]
 		[input $input]
 		[request bot => $reply] $input
 		[message] $> ${reply}
-		[goto start]
+		[goto simple]
 
+	[starting-scene advanced]
+		[define $state]
+			input: ""
+		[input $input]
+		[request bot => $reply] $input
+		[message] $> ${reply}
+		[goto advanced]
+	
