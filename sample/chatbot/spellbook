@@ -4,6 +4,7 @@
 # TODO
 # - srai
 # - random replies
+# - person substitution
 
 [interpreter bot]
 	
@@ -15,9 +16,9 @@
 		[pattern] > do you know that *
 		
 		# AIML <that> and <topic>
-		[pattern replied] blah
-		[pattern topic] general
-		[pattern mood] happy
+		#[pattern replied] blah
+		#[pattern topic] general
+		#[pattern mood] happy
 		
 		# <something> is like an AIML <srai>something</srai>: it performs a sub-query
 		[reply] $> I know that: <${args.stars.input[0]}>
