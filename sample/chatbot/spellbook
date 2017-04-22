@@ -3,72 +3,84 @@
 
 
 
-# Also [query domain]?
-# or create a group tag like [query-domain domain]?
-[query]
-	[pattern] > do you know that *
+[interpreter bot]
 	
-	# AIML <that> and <topic>
-	[pattern replied] blah
-	[pattern topic] general
-	[pattern mood] happy
+	[pattern-order]
+		- topic
+		- input
 	
-	# <something> is like an AIML <srai>something</srai>: it performs a sub-query
-	[reply] $> I know that: <${star1}>
-	
-[query]
-	[pattern] > hello
-	[reply] > Hi!
-	
-[query]
-	[pattern] > hi
-	[reply] > Hello!
-	
-[query]
-	[pattern] > I like you
-	[reply] > Me too!
-	
-[query]
-	[pattern] > my name is *
-	[pattern] > I'm *
-	[reply] $> Hello ${args.stars[0]}
-	
-[query]
-	[pattern] > my name is Bob
-	[pattern] > I'm Bob
-	[reply] $> There are so much people named Bob...
-	
-[query]
-	[pattern] > my name is * wallace
-	[pattern] > I'm * wallace
-	[reply] $> I'm Mia Wallace.
-	
-[query]
-	[pattern] > ** dawg
-	[reply]
-		$> Yo dawg, I herd yo and yo dawg like yo yos,
-		$> so we put yo dawg in a yo yo,
-		$> so yo can yo yo yo dawg while yo dawg yo yos,
-		$> dawg.
-	
-[query]
-	[pattern] > * 1 2 3
-	[reply] $> * 1 2 3
-	
-[query]
-	[pattern] > * a b c
-	[reply] $> * a b c
-	
-[query]
-	[pattern] > *
-	[reply] $> Universal fallback
+	[query]
+		[pattern] > do you know that *
+		
+		# AIML <that> and <topic>
+		[pattern replied] blah
+		[pattern topic] general
+		[pattern mood] happy
+		
+		# <something> is like an AIML <srai>something</srai>: it performs a sub-query
+		[reply] $> I know that: <${args.star[0]}>
+		
+	[query]
+		[pattern] > hello
+		[reply] > Hi!
+		
+	[query]
+		[pattern] > hi
+		[reply] > Hello!
+		
+	[query]
+		[pattern] > I like you
+		[reply] > Me too!
+		
+	[query]
+		[pattern] > my name is *
+		[pattern] > I'm *
+		[reply] $> Hello ${args.stars[0]}
+		
+	[query]
+		[pattern] > my name is Bob
+		[pattern] > I'm Bob
+		[reply] $> There are so much people named Bob...
+		
+	[query]
+		[pattern] > my name is * wallace
+		[pattern] > I'm * wallace
+		[reply] $> I'm Mia Wallace.
+		
+	[query]
+		[pattern] > ** dawg
+		[reply]
+			$> Yo dawg, I herd yo and yo dawg like yo yos,
+			$> so we put yo dawg in a yo yo,
+			$> so yo can yo yo yo dawg while yo dawg yo yos,
+			$> dawg.
+		
+	[query]
+		[pattern] > * 1 2 3
+		[reply] $> * 1 2 3
+		
+	[query]
+		[pattern] > * a b c
+		[reply] $> * a b c
+		
+	[query]
+		[pattern] > *
+		[reply] $> Universal fallback
 
+
+
+[interpreter hello]
+	[query]
+		[pattern] > hello
+		[pattern] > hi
+		[reply] > Hello World!
+		
 
 
 [system chat]
 	[starting-scene start]
 		[input $input]
-		[request $reply] $input
+		[request bot => $reply] $input
 		[message] $> ${reply}
 		[goto start]
 
