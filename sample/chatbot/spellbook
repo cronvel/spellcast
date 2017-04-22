@@ -64,6 +64,10 @@
 		[reply] $> * a b c
 		
 	[query]
+		[pattern] > * = *
+		[reply] $> So "${args.stars[0]}" is the same than "${args.stars[1]}"?
+		
+	[query]
 		[pattern] > *
 		[reply] $> Universal fallback
 
