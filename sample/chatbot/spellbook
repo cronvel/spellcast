@@ -24,6 +24,17 @@
 		[reply] $> I know that: <${args.stars.input[0]}>
 		
 	[query]
+		[pattern] > do you know that * and that *
+		
+		# AIML <that> and <topic>
+		#[pattern replied] blah
+		#[pattern topic] general
+		#[pattern mood] happy
+		
+		# <something> is like an AIML <srai>something</srai>: it performs a sub-query
+		[reply] $> I know that <${args.stars.input[0]}>. I hear about <${args.stars.input[1]}>
+		
+	[query]
 		[pattern] > hello
 		[reply] > Hi!
 		
@@ -72,6 +83,11 @@
 	[query]
 		[pattern] > * a b c
 		[reply] $> * a b c
+		
+	[query]
+		[pattern] > pause
+		[pause] 3
+		[reply] $> paused
 		
 	[query]
 		[pattern] > * = *
