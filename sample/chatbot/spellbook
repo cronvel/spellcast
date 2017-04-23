@@ -86,7 +86,7 @@
 		
 	[query]
 		[pattern] > pause
-		[pause] 3
+		[pause] 1
 		[reply] $> paused
 		
 	[query]
