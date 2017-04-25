@@ -148,12 +148,13 @@ describe( "Interpreter" , function() {
 	describe( "Preprocessing" , function() {
 		
 		it( "Splitting basic sentence into words" , function() {
-			doormen.isEqual( chatBot.splitIntoWords( 'One two three' ) , ['One','two','three'] ) ;
-			doormen.isEqual( chatBot.splitIntoWords( 'Éâï ôùæÆ ÆØ' ) , ['Éâï','ôùæÆ','ÆØ'] ) ;
+			doormen.equals( chatBot.splitIntoWords( 'One two three' ) , ['One','two','three'] ) ;
+			doormen.equals( chatBot.splitIntoWords( 'One 2 thr33' ) , ['One','2','thr33'] ) ;
+			doormen.equals( chatBot.splitIntoWords( 'Éâï ôùæÆ ÆØ' ) , ['Éâï','ôùæÆ','ÆØ'] ) ;
 		} ) ;
 		
 		it( "Splitting sentence with punctuation into words" , function() {
-			doormen.isEqual( chatBot.splitIntoWords( 'One, two,three' ) , ['One','two','three'] ) ;
+			doormen.equals( chatBot.splitIntoWords( 'One, two,three' ) , ['One','two','three'] ) ;
 		} ) ;
 	} ) ;
 } ) ;
