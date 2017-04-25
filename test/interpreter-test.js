@@ -147,14 +147,25 @@ describe( "Interpreter" , function() {
 	
 	describe( "Preprocessing" , function() {
 		
-		it( "Splitting basic sentence into words" , function() {
-			doormen.equals( chatBot.splitIntoWords( 'One two three' ) , ['One','two','three'] ) ;
-			doormen.equals( chatBot.splitIntoWords( 'One 2 thr33' ) , ['One','2','thr33'] ) ;
-			doormen.equals( chatBot.splitIntoWords( 'Éâï ôùæÆ ÆØ' ) , ['Éâï','ôùæÆ','ÆØ'] ) ;
+		it( "Splitting basic sentence into tokens" , function() {
+			doormen.equals( chatBot.tokenize( 'One two three' ) , ['One','two','three'] ) ;
+			doormen.equals( chatBot.tokenize( 'One 2 thr33' ) , ['One','2','thr33'] ) ;
+			doormen.equals( chatBot.tokenize( 'Éâï ôùæÆ ÆØ' ) , ['Éâï','ôùæÆ','ÆØ'] ) ;
+			
+			doormen.equals( chatBot.tokenize( '* two three' ) , ['*','two','three'] ) ;
+			doormen.equals( chatBot.tokenize( 'One * three' ) , ['One','*','three'] ) ;
+			doormen.equals( chatBot.tokenize( 'One two *' ) , ['One','two','*'] ) ;
+			
+			doormen.equals( chatBot.tokenize( '** two three' ) , ['**','two','three'] ) ;
+			doormen.equals( chatBot.tokenize( 'One ** three' ) , ['One','**','three'] ) ;
+			doormen.equals( chatBot.tokenize( 'One two **' ) , ['One','two','**'] ) ;
+			
+			doormen.equals( chatBot.tokenize( '* | two | three' ) , ['*','|','two','|','three'] ) ;
 		} ) ;
 		
-		it( "Splitting sentence with punctuation into words" , function() {
-			doormen.equals( chatBot.splitIntoWords( 'One, two,three' ) , ['One','two','three'] ) ;
+		it( "Splitting sentence with punctuation into tokens" , function() {
+			doormen.equals( chatBot.tokenize( 'One, two,three' ) , ['One','two','three'] ) ;
+			doormen.equals( chatBot.tokenize( 'One, two,three' , { punctuation: true } ) , ['One',',','two',',','three'] ) ;
 		} ) ;
 	} ) ;
 } ) ;
