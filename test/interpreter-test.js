@@ -150,7 +150,7 @@ describe( "Interpreter" , function() {
 		it( "Splitting basic sentence into tokens" , function() {
 			doormen.equals( chatBot.tokenize( 'One two three' ) , ['One','two','three'] ) ;
 			doormen.equals( chatBot.tokenize( 'One 2 thr33' ) , ['One','2','thr33'] ) ;
-			doormen.equals( chatBot.tokenize( 'Éâï ôùæÆ ÆØ' ) , ['Éâï','ôùæÆ','ÆØ'] ) ;
+			doormen.equals( chatBot.tokenize( 'Éâï ôùæÆ ÆØç' ) , ['Éâï','ôùæÆ','ÆØç'] ) ;
 			
 			doormen.equals( chatBot.tokenize( '* two three' ) , ['*','two','three'] ) ;
 			doormen.equals( chatBot.tokenize( 'One * three' ) , ['One','*','three'] ) ;
@@ -159,6 +159,9 @@ describe( "Interpreter" , function() {
 			doormen.equals( chatBot.tokenize( '** two three' ) , ['**','two','three'] ) ;
 			doormen.equals( chatBot.tokenize( 'One ** three' ) , ['One','**','three'] ) ;
 			doormen.equals( chatBot.tokenize( 'One two **' ) , ['One','two','**'] ) ;
+			
+			doormen.equals( chatBot.tokenize( "j'ai" ) , ['j','ai'] ) ;
+			doormen.equals( chatBot.tokenize( "one-two" ) , ['one-two'] ) ;
 			
 			doormen.equals( chatBot.tokenize( '* | two | three' ) , ['*','|','two','|','three'] ) ;
 		} ) ;
@@ -176,6 +179,8 @@ describe( "Interpreter" , function() {
 		
 		it( "Simplify tokens" , function() {
 			doormen.equals( chatBot.simplifyTokens( ['One','two','three'] ) , ['one','two','three'] ) ;
+			doormen.equals( chatBot.simplifyTokens( ['Éâï','ôùæÆ','ÆØç'] ) , ['eai','ouaeae','aeoc'] ) ;
+			
 			doormen.equals( chatBot.simplifyTokens( ['!','!!','!!!','.','...','!...','?!'] ) , ['!','!','!','.','.','!','?'] ) ;
 		} ) ;
 	} ) ;

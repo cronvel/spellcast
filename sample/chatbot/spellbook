@@ -11,6 +11,11 @@
 	#[punctuation] true
 	[symbols] true
 	
+	[substitutions]
+		input:
+			chui: je suis
+			deg: dégouté
+	
 	[pattern-list]
 		- input
 		- topic
@@ -99,6 +104,14 @@
 	[query]
 		[pattern] > *
 		[reply] $> Universal fallback
+
+	[query]
+		[pattern] > je suis degouté
+		[reply] $> Trop dégoûté moi aussi...
+	
+	[query]
+		[pattern] > je suis beau
+		[reply] $> ... et prétentieux!
 
 
 
