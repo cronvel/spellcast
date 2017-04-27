@@ -8,6 +8,9 @@
 
 [interpreter bot]
 	
+	#[punctuation] true
+	[symbols] true
+	
 	[pattern-list]
 		- input
 		- topic

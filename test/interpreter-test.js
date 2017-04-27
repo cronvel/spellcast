@@ -166,6 +166,17 @@ describe( "Interpreter" , function() {
 		it( "Splitting sentence with punctuation into tokens" , function() {
 			doormen.equals( chatBot.tokenize( 'One, two,three' ) , ['One','two','three'] ) ;
 			doormen.equals( chatBot.tokenize( 'One, two,three' , { punctuation: true } ) , ['One',',','two',',','three'] ) ;
+			
+			doormen.equals( chatBot.tokenize( 'One, two... three!!!' ) , ['One','two','three'] ) ;
+			doormen.equals( chatBot.tokenize( 'One, two... three!!!' , { punctuation: true } ) , ['One',',','two','...','three','!!!'] ) ;
+			
+			doormen.equals( chatBot.tokenize( 'a=b' ) , ['a','b'] ) ;
+			doormen.equals( chatBot.tokenize( 'a=b' , { symbols: true } ) , ['a','=','b'] ) ;
+		} ) ;
+		
+		it( "Simplify tokens" , function() {
+			doormen.equals( chatBot.simplifyTokens( ['One','two','three'] ) , ['one','two','three'] ) ;
+			doormen.equals( chatBot.simplifyTokens( ['!','!!','!!!','.','...','!...','?!'] ) , ['!','!','!','.','.','!','?'] ) ;
 		} ) ;
 	} ) ;
 } ) ;
