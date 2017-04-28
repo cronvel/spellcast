@@ -1,0 +1,22 @@
+
+[[doctype adventurer]]
+
+
+
+[interpreter bot]
+	
+	#[punctuation] true
+	[symbols] true
+	
+	[substitutions]
+		input: <Object>
+	
+	[pattern-list]
+		- input
+		- topic
+	
+	[query]
+		[pattern] > go *
+		[pattern] > go to *
+		[reply] $> Go to: <${args.stars.input[0]}>
+		

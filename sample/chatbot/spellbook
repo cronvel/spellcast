@@ -2,8 +2,6 @@
 [[doctype adventurer]]
 
 # TODO
-# - srai
-# - random replies
 # - person substitution
 
 [interpreter bot]
@@ -112,7 +110,9 @@
 	
 	[query]
 		[pattern] > je suis beau
-		[reply] $> ... et prétentieux!
+		[reply]
+			- $> ... et prétentieux!
+			- $> Comme un lavabo!
 
 
 

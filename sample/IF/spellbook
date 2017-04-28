@@ -4,6 +4,8 @@
 [module] @@{core}/utils.kfg
 #[module] @@{rpg}/system/inventory.kfg
 
+[module] @@/interpreter.kfg
+
 
 
 [create-main-entity]
