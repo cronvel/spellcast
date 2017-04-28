@@ -139,6 +139,31 @@ function followPath( book , ui , path , callback )
 
 
 
+function testTokenize( source )
+{
+	var options , expected ;
+	
+	if ( arguments.length <= 2 )
+	{
+		options = null ;
+		expected = arguments[ 1 ] ;
+	}
+	else
+	{
+		options = arguments[ 1 ] ;
+		expected = arguments[ 2 ] ;
+	}
+	
+	tokens = [] ;
+	simplifiedTokens = [] ;
+	chatBot.tokenize( source , options , tokens , simplifiedTokens ) ;
+	doormen.equals( tokens , expected ) ;
+}
+
+
+
+
+
 			/* Tests */
 
 
@@ -148,33 +173,33 @@ describe( "Interpreter" , function() {
 	describe( "Preprocessing" , function() {
 		
 		it( "Splitting basic sentence into tokens" , function() {
-			doormen.equals( chatBot.tokenize( 'One two three' ) , ['One','two','three'] ) ;
-			doormen.equals( chatBot.tokenize( 'One 2 thr33' ) , ['One','2','thr33'] ) ;
-			doormen.equals( chatBot.tokenize( 'Éâï ôùæÆ ÆØç' ) , ['Éâï','ôùæÆ','ÆØç'] ) ;
+			testTokenize( 'One two three' , ['One','two','three'] ) ;
+			testTokenize( 'One 2 thr33' , ['One','2','thr33'] ) ;
+			testTokenize( 'Éâï ôùæÆ ÆØç' , ['Éâï','ôùæÆ','ÆØç'] ) ;
 			
-			doormen.equals( chatBot.tokenize( '* two three' ) , ['*','two','three'] ) ;
-			doormen.equals( chatBot.tokenize( 'One * three' ) , ['One','*','three'] ) ;
-			doormen.equals( chatBot.tokenize( 'One two *' ) , ['One','two','*'] ) ;
+			testTokenize( '* two three' , ['*','two','three'] ) ;
+			testTokenize( 'One * three' , ['One','*','three'] ) ;
+			testTokenize( 'One two *' , ['One','two','*'] ) ;
 			
-			doormen.equals( chatBot.tokenize( '** two three' ) , ['**','two','three'] ) ;
-			doormen.equals( chatBot.tokenize( 'One ** three' ) , ['One','**','three'] ) ;
-			doormen.equals( chatBot.tokenize( 'One two **' ) , ['One','two','**'] ) ;
+			testTokenize( '** two three' , ['**','two','three'] ) ;
+			testTokenize( 'One ** three' , ['One','**','three'] ) ;
+			testTokenize( 'One two **' , ['One','two','**'] ) ;
 			
-			doormen.equals( chatBot.tokenize( "j'ai" ) , ['j','ai'] ) ;
-			doormen.equals( chatBot.tokenize( "one-two" ) , ['one-two'] ) ;
+			testTokenize( "j'ai" , ['j','ai'] ) ;
+			testTokenize( "one-two" , ['one-two'] ) ;
 			
-			doormen.equals( chatBot.tokenize( '* | two | three' ) , ['*','|','two','|','three'] ) ;
+			testTokenize( '* | two | three' , ['*','|','two','|','three'] ) ;
 		} ) ;
 		
 		it( "Splitting sentence with punctuation into tokens" , function() {
-			doormen.equals( chatBot.tokenize( 'One, two,three' ) , ['One','two','three'] ) ;
-			doormen.equals( chatBot.tokenize( 'One, two,three' , { punctuation: true } ) , ['One',',','two',',','three'] ) ;
+			testTokenize( 'One, two,three' , ['One','two','three'] ) ;
+			testTokenize( 'One, two,three' , { punctuation: true } , ['One',',','two',',','three'] ) ;
 			
-			doormen.equals( chatBot.tokenize( 'One, two... three!!!' ) , ['One','two','three'] ) ;
-			doormen.equals( chatBot.tokenize( 'One, two... three!!!' , { punctuation: true } ) , ['One',',','two','...','three','!!!'] ) ;
+			testTokenize( 'One, two... three!!!' , ['One','two','three'] ) ;
+			testTokenize( 'One, two... three!!!' , { punctuation: true } , ['One',',','two','...','three','!!!'] ) ;
 			
-			doormen.equals( chatBot.tokenize( 'a=b' ) , ['a','b'] ) ;
-			doormen.equals( chatBot.tokenize( 'a=b' , { symbols: true } ) , ['a','=','b'] ) ;
+			testTokenize( 'a=b' , ['a','b'] ) ;
+			testTokenize( 'a=b' , { symbols: true } , ['a','=','b'] ) ;
 		} ) ;
 		
 		it( "Simplify tokens" , function() {

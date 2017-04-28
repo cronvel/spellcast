@@ -15,6 +15,7 @@
 		input:
 			chui: je suis
 			deg: dégouté
+			bo: beau
 	
 	[pattern-list]
 		- input
