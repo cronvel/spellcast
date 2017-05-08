@@ -4,7 +4,15 @@
 [module] @@{core}/utils.kfg
 #[module] @@{rpg}/system/inventory.kfg
 
-[module] @@/interpreter.kfg
+[module] @@interpreter.kfg
+
+
+[item-model coin]
+	class: object
+	label: coin
+	description: A coin.
+	params:
+		examineFlavor: A silver coin.
 
 
 
@@ -16,13 +24,31 @@
 
 
 
-#[here-actions]
+[here-actions]
+	[message] > plop1
+	[call input/input]
+
+
+
+[system input]
+	
+	[fn input]
+		
+		[define $state]
+			input: ""
+		[message] > plop2
+		[input $state.input]
+		[request bot => $reply] $state
+		[debug] $reply
 
 
 
 [chapter game]
 	
 	[starting-scene intro1]
+		
+		[here]
+			items: <Array>
 		
 		[message]
 			> Some well written texts.

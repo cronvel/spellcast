@@ -20,7 +20,6 @@
     "chokidar": "^1.6.1",
     "dom-kit": "^0.1.2",
     "doormen": "^0.6.7",
-    "electron": "^1.6.7",
     "fs-kit": "^0.2.2",
     "glob": "^7.1.1",
     "jsbindat": "^0.5.1",
@@ -28,23 +27,22 @@
     "logfella": "^0.3.52",
     "math-kit": "^0.11.9",
     "minimist": "^1.2.0",
-    "mocha": "^3.3.0",
     "nextgen-events": "^0.9.9",
     "semver": "^5.3.0",
     "server-kit": "^0.4.2",
-    "string-kit": "^0.5.20",
-    "terminal-kit": "^1.4.4",
+    "string-kit": "^0.5.21",
+    "terminal-kit": "^1.7.2",
     "tif-parser": "^0.3.3",
     "tree-kit": "^0.5.26"
   },
   "devDependencies": {
     "browserify": "^14.3.0",
-    "electron": "^1.4.8",
+    "electron": "^1.6.8",
     "expect.js": "^0.3.1",
     "fs-kit": "^0.1.5",
     "jshint": "^2.9.2",
-    "mocha": "^3.2.0",
-    "uglify-js": "^2.8.22"
+    "mocha": "^3.3.0",
+    "uglify-js": "^3.0.1"
   },
   "scripts": {
     "test": "tea-time -R dot -O"
