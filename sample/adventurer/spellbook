@@ -50,6 +50,7 @@
 			$> Dices #2: ${dices}
 	
 	[scene start]
+		[vote-time] 5
 		[theme] > /themes/visual-novel.css
 		[emit blast] Jack
 		[message]
