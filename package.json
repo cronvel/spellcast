@@ -17,14 +17,14 @@
     "@cronvel/minimatch": "^3.0.2",
     "async-kit": "^2.2.3",
     "babel-tower": "^0.12.2",
-    "chokidar": "^1.6.1",
+    "chokidar": "^1.7.0",
     "dom-kit": "^0.1.2",
     "doormen": "^0.6.7",
     "fs-kit": "^0.2.2",
     "glob": "^7.1.1",
     "jsbindat": "^0.5.1",
     "kung-fig": "^0.38.2",
-    "logfella": "^0.3.52",
+    "logfella": "^0.3.54",
     "math-kit": "^0.11.9",
     "minimist": "^1.2.0",
     "nextgen-events": "^0.9.9",
@@ -42,7 +42,7 @@
     "fs-kit": "^0.1.5",
     "jshint": "^2.9.2",
     "mocha": "^3.3.0",
-    "uglify-js": "^3.0.1"
+    "uglify-js": "^3.0.3"
   },
   "scripts": {
     "test": "tea-time -R dot -O"
