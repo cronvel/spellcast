@@ -58,12 +58,12 @@
 * user (userObject): this contains the user related to the client. Argument `userObject` is an object containing
   at least those properties:
 	* id `string` it's the client ID for THIS SESSION
-	* name `string` if set, the role is currently taken by this user
+	* name `string` if set, this is the role that is currently taken by this user
 
 * userList (users): this contains the  list of connected users. Argument `users` is an array of object
   containing those users, where:
 	* id `string` it's the client ID for THIS SESSION
-	* name `string` if set, the role is currently taken by this user
+	* name `string` if set, this is the role that is currently taken by this user
 
 * roleList (roles, unassignedClients , assigned): this give the list of roles that should be chosen by each client.
   Argument `assigned` is a boolean. If false, some clients still need to choose a role, sending a `selectRole` event.
@@ -115,11 +115,11 @@
 	* position `string` (optional) is one of 'left' or 'right', indicating if the image should be on the left or on the right
 	* origin `string` (optional) indicating how the image should be centered. One of 'center', 'top', 'bottom', 'left', right', ...
 
-* music (data): instructs the client (if it is capable) play a music as the scene music. Argument `data` is an object, where:
+* music (data): instructs the client (if it is capable) to play a music as the scene music. Argument `data` is an object, where:
 	* url `string` (optional) if set this is the URL of the music to play, else the client should stop playing music
   There is only one music that must be played at any time, so a music replace another.
 
-* sound (data): instructs the client (if it is capable) play a sound right now. Argument `data` is an object, where:
+* sound (data): instructs the client (if it is capable) to play a sound right now. Argument `data` is an object, where:
 	* url `string` this is the URL of the sound to play
   Multiple sounds may be played at any time. If the client supports sounds, it is recommended to support at least 2 channels.
 
