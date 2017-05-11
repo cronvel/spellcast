@@ -18,7 +18,7 @@
 
 ### input
 
-* exit: [completion] emitted when the process hosting book is about to exit
+* exit: [completion] emitted when the process hosting the book is about to exit
 * end (result, data): [state,completion] emitted once the book is finished, `result` constains the outcome for *that* client.
   It can be: *end* (end, nothing special), *win*, *lost*, *draw* (this spellbook is a game and the client win/lost or
   it was a draw game). `data` contains end of game details, depending on the spellbook (things like score, etc).
