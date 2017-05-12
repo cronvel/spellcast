@@ -15,7 +15,7 @@
 		[next intro2]
 		#[goto intro2]
 	
-	[scene intro2]
+	[scene intro3]
 		#[image] > background.png
 		#[sound] > effect1.mp3
 		#[music] > theme.ogg
@@ -36,6 +36,22 @@
 		[gosub sub1]
 		[message]
 			$> ...
+		[next start]
+	
+	[scene intro2]
+		#[image] > background.png
+		#[sound] > effect1.mp3
+		#[music] > theme.ogg
+		
+		[message] $> message 1
+		[pause] 0.5
+		[message] $> message 2
+		[pause] 0.5
+		[message] $> message 3
+		[pause] 0.5
+		[message] $> message 4
+		[pause] 0.5
+		[message] $> message 5
 		[next start]
 	
 	[scene sub1]
