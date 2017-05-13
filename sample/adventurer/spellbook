@@ -52,6 +52,14 @@
 		[message] $> message 4
 		[pause] 0.5
 		[message] $> message 5
+		[input $like] $> What do you like?
+		[message] $> You like ${like}!
+		[message] $> You like ${like}!
+		[message] $> You like ${like}!
+		[message] $> You like ${like}!
+		[message] $> You like ${like}!
+		#[pause] 0.5
+		[message] $> You like ${like}!
 		[next start]
 	
 	[scene sub1]
