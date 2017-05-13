@@ -44,21 +44,15 @@
 		#[music] > theme.ogg
 		
 		[message] $> message 1
-		[pause] 0.5
+		[pause] 0.2
 		[message] $> message 2
-		[pause] 0.5
+		[pause] 0.2
 		[message] $> message 3
-		[pause] 0.5
+		[pause] 0.2
 		[message] $> message 4
-		[pause] 0.5
+		[pause] 0.2
 		[message] $> message 5
 		[input $like] $> What do you like?
-		[message] $> You like ${like}!
-		[message] $> You like ${like}!
-		[message] $> You like ${like}!
-		[message] $> You like ${like}!
-		[message] $> You like ${like}!
-		#[pause] 0.5
 		[message] $> You like ${like}!
 		[next start]
 	

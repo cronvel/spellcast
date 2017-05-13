@@ -67,7 +67,7 @@
 
 * roleList (roles, unassignedClients , assigned): this give the list of roles that should be chosen by each client.
   Argument `assigned` is a boolean. If false, some clients still need to choose a role, sending a `selectRole` event.
-  If true, all clients have chosen their role, the game is about to start, and `selectRole` events are ignored.
+  If true, all clients have chosen their role, the game is about to start, and further `selectRole` events are ignored.
   Argument `unassignedUsers` is an array of client ID names that hasn't chosen a role yet.
   Argument `roles` is an array of object containing those roles, where:
 	* id `string` contains the unique ID of this role
