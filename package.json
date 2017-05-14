@@ -10,8 +10,7 @@
     "test": "test"
   },
   "bin": {
-    "spellcast": "./bin/spellcast",
-    "adventure": "./bin/adventure"
+    "spellcast": "./bin/spellcast"
   },
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
