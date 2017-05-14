@@ -1,0 +1,24 @@
+
+[[doctype spellcast/story]]
+
+
+
+[interpreter bot]
+	
+	[substitutions]
+		input: <Object>
+	
+	[pattern-list]
+		- input
+		- topic
+	
+	[query]
+		[pattern] > go *
+		[pattern] > go to *
+		[reply] $> Go to: <${args.stars.input[0]}>
+		
+	[query]
+		[pattern] > get *
+		[pattern] > go to *
+		[reply] $> Go to: <${args.stars.input[0]}>
+		

@@ -1,12 +1,12 @@
 
 
-# Spellcast! Adventurer Mode
+# Spellcast! Story Mode
 
 Make: your own adventure!
 
 **Spellcast** is a scripting language, an interpreter/server, plus a terminal and a web clients with powerful capabilities.
 
-The *adventurer mode* allows one to create scenario with branches, so building game in the spirit of old roleplay gamebooks
+The *story mode* allows one to create scenario with branches, so building game in the spirit of old roleplay gamebooks
 is possible out of the box.
 
 But Spellcast can also be embedded into app, allowing users to create contents, items, campaigns and more...
@@ -142,7 +142,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 <a name="usage"></a>
 ## Usage
 
-Usage: `adventure <book> [<options 1>] [<options 2>] [...]`
+Usage: `spellcast story <book> [<options 1>] [<options 2>] [...]`
 
 Options:
 
@@ -168,10 +168,10 @@ Options:
 ## Getting started: basic script example
 
 This is an example of a very short script with 3 scenes, featuring the most basic tags.
-Copy-paste this script into a file named `test.kfg`, then run `adventure test.kfg`.
+Copy-paste this script into a file named `test.kfg`, then run `spellcast story test.kfg`.
 
 ```
-[[doctype adventurer]]
+[[doctype spellcast/story]]
 
 [chapter intro]
 	[scene village]
@@ -216,7 +216,7 @@ A tag start with an opening bracket and finish with a closing bracket.
 The content of a tag is indented using tabs.
 
 So here we have:
-* The `[[doctype adventurer]]` is a meta-tag, it tell spellcast that the current file is a *spellcast adventurer* file.
+* The `[[doctype spellcast/story]]` is a meta-tag, it tell spellcast that the current file is a *spellcast story* file.
   Meta-tags have two opening and two closing brackets, they **MUST** be placed before any other tags, because they are headers.
 * A top-level container tag: the `[chapter]` tag with an identifier (*intro*).
 * This chapter contains 3 `[scene]` tags named *village*, *master* and *rogue*.
@@ -299,7 +299,7 @@ It also supports some parameter tags of the *scene* tag, if present they will ac
 * attribute style: label
 * content type: tags
 
-The *scene* tag is the most important tag of Spellcast Scripting in *Adventurer mode*.
+The *scene* tag is the most important tag of Spellcast Scripting in *Story mode*.
 
 A scenario is basically a lot of scenes, jumping from scene to scene through the [*next* tag](#ref.scenario.next).
 
@@ -492,7 +492,7 @@ If there is no *starting-scene* tag in a scenario, the first *scene* tag will be
 * attribute style: scene label
 * content type: tags or string/template (the label)
 
-The *next* tag is one of the most important tag of Spellcast Scripting in *Adventurer mode*.
+The *next* tag is one of the most important tag of Spellcast Scripting in *Story mode*.
 
 A scenario is basically a lot of scenes, jumping from scene to scene through the *next* tag.
 
@@ -1247,7 +1247,7 @@ The *return* tag exit from the current *fn* tag (i.e. *fn* tag executed by a [*c
 If inside the *fn* tag and the `[call $var => $into]` or the `[call label => $into]` syntax was used,
 the content of the *return* tag is solved **at run time** and stored into the *$into* variable.
 
-The *return* tag can also exit from the current sub *scene* tag (i.e. *scene* tag executed by a [*gosub* tag](#ref.adventurer.gosub))
+The *return* tag can also exit from the current sub *scene* tag (i.e. *scene* tag executed by a [*gosub* tag](#ref.scenario.gosub))
 immediately.
 
 

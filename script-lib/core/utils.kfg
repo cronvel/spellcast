@@ -1,13 +1,13 @@
 
-[[doctype adventurer]]
+[[doctype spellcast/story]]
 
-[system core.utils]
+[system core:utils]
 	
 	[fn confirm]
 		[if $args is-string?]
 			[set $args]
 				message: $args
-		[gosub core.utils/confirm-menu => $confirmed] $args
+		[gosub core:utils/confirm-menu => $confirmed] $args
 		[if ! $confirmed]
 			[cancel]
 	

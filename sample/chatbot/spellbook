@@ -1,74 +1,141 @@
 
-[[doctype adventurer]]
+[[doctype spellcast/story]]
+
+# TODO
+# - person substitution
+
+[interpreter bot]
+	
+	#[punctuation] true
+	[symbols] true
+	
+	[substitutions]
+		input:
+			chui: je suis
+			deg: dégouté
+			bo: beau
+	
+	[pattern-list]
+		- input
+		- topic
+	
+	[query]
+		[pattern] > do you know that *
+		
+		# AIML <that> and <topic>
+		#[pattern replied] blah
+		#[pattern topic] general
+		#[pattern mood] happy
+		
+		# <something> is like an AIML <srai>something</srai>: it performs a sub-query
+		[reply] $> I know that: <${args.stars.input[0]}>
+		
+	[query]
+		[pattern] > do you know that * and that *
+		
+		# AIML <that> and <topic>
+		#[pattern replied] blah
+		#[pattern topic] general
+		#[pattern mood] happy
+		
+		# <something> is like an AIML <srai>something</srai>: it performs a sub-query
+		[reply] $> I know that <${args.stars.input[0]}>. I hear about <${args.stars.input[1]}>
+		
+	[query]
+		[pattern] > hello
+		[reply] > Hi!
+		
+	[query]
+		[pattern] > hi
+		[reply] > Hello!
+		
+	[query]
+		[pattern] > I like you
+		[reply] > Me too!
+		
+	[query]
+		[pattern] > my name is *
+		[pattern] > I'm *
+		[reply] $> Hello ${args.stars.input[0]}
+		
+	[query]
+		[pattern] > my name is Bob
+		[pattern] > I'm Bob
+		[reply] $> There are so much people named Bob...
+		
+	[query]
+		[pattern] > my name is * wallace
+		[pattern] > I'm * wallace
+		[reply] $> I'm Mia Wallace.
+		
+	[query]
+		[pattern] > ** dawg
+		[set $args.topic] lulz
+		[reply]
+			$> Yo dawg, I herd yo and yo dawg like yo yos,
+			$> so we put yo dawg in a yo yo,
+			$> so yo can yo yo yo dawg while yo dawg yo yos,
+			$> dawg.
+		
+	[query]
+		[pattern] > *
+		[pattern topic] > lulz
+		[unset $args.topic]
+		[reply] $> Very funny!
+		
+	[query]
+		[pattern] > * 1 2 3
+		[reply] $> * 1 2 3
+		
+	[query]
+		[pattern] > * a b c
+		[reply] $> * a b c
+		
+	[query]
+		[pattern] > pause
+		[pause] 1
+		[reply] $> paused
+		
+	[query]
+		[pattern] > * = *
+		[reply] $> So "${args.stars.input[0]}" is the same than "${args.stars.input[1]}"?
+		
+	[query]
+		[pattern] > *
+		[reply] $> Universal fallback
+
+	[query]
+		[pattern] > je suis degouté
+		[reply] $> Trop dégoûté moi aussi...
+	
+	[query]
+		[pattern] > je suis beau
+		[reply]
+			- $> ... et prétentieux!
+			- $> Comme un lavabo!
 
 
 
-# Also [query domain]?
-# or create a group tag like [query-domain domain]?
-[query]
-	[pattern] > do you know that *
-	
-	# AIML <that> and <topic>
-	[pattern replied] blah
-	[pattern topic] general
-	[pattern mood] happy
-	
-	# <something> is like an AIML <srai>something</srai>: it performs a sub-query
-	[reply] $> I know that: <${star1}>
-	
-[query]
-	[pattern] > hello
-	[reply] > Hi!
-	
-[query]
-	[pattern] > hi
-	[reply] > Hello!
-	
-[query]
-	[pattern] > I like you
-	[reply] > Me too!
-	
-[query]
-	[pattern] > my name is *
-	[pattern] > I'm *
-	[reply] $> Hello ${args.stars[0]}
-	
-[query]
-	[pattern] > my name is Bob
-	[pattern] > I'm Bob
-	[reply] $> There are so much people named Bob...
-	
-[query]
-	[pattern] > my name is * wallace
-	[pattern] > I'm * wallace
-	[reply] $> I'm Mia Wallace.
-	
-[query]
-	[pattern] > ** dawg
-	[reply]
-		$> Yo dawg, I herd yo and yo dawg like yo yos,
-		$> so we put yo dawg in a yo yo,
-		$> so yo can yo yo yo dawg while yo dawg yo yos,
-		$> dawg.
-	
-[query]
-	[pattern] > * 1 2 3
-	[reply] $> * 1 2 3
-	
-[query]
-	[pattern] > * a b c
-	[reply] $> * a b c
-	
-[query]
-	[pattern] > *
-	[reply] $> Universal fallback
-
+[interpreter hello]
+	[query]
+		[pattern] > hello
+		[pattern] > hi
+		[reply] > Hello World!
+		
 
 
 [system chat]
-	[starting-scene start]
+	[scene simple]
 		[input $input]
-		[request $reply] $input
+		[request bot => $reply] $input
 		[message] $> ${reply}
-		[goto start]
+		[goto simple]
 
+	[starting-scene advanced]
+		[define $state]
+			input: ""
+		[input $state.input]
+		[request bot => $reply] $state
+		[message] $> ${reply}
+		[goto advanced]
+	

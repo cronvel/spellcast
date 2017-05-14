@@ -1,5 +1,5 @@
 
-[[doctype spellcaster]]
+[[doctype spellcast/caster]]
 
 # Reverse summonings are tested after all summonings have been tried.
 # The label of the [reverse-summoning] tag is used as a spell name to summon everything.

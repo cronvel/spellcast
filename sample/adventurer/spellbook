@@ -1,5 +1,5 @@
 
-[[doctype adventurer]]
+[[doctype spellcast/story]]
 [[locales locales/*]]
 [[assets ../]]
 
@@ -15,7 +15,7 @@
 		[next intro2]
 		#[goto intro2]
 	
-	[scene intro2]
+	[scene intro3]
 		#[image] > background.png
 		#[sound] > effect1.mp3
 		#[music] > theme.ogg
@@ -38,6 +38,24 @@
 			$> ...
 		[next start]
 	
+	[scene intro2]
+		#[image] > background.png
+		#[sound] > effect1.mp3
+		#[music] > theme.ogg
+		
+		[message] $> message 1
+		[pause] 0.2
+		[message] $> message 2
+		[pause] 0.2
+		[message] $> message 3
+		[pause] 0.2
+		[message] $> message 4
+		[pause] 0.2
+		[message] $> message 5
+		[input $like] $> What do you like?
+		[message] $> You like ${like}!
+		[next start]
+	
 	[scene sub1]
 		[set $dices] $= 3 D 6
 		[message]
@@ -50,6 +68,7 @@
 			$> Dices #2: ${dices}
 	
 	[scene start]
+		[vote-time] 5
 		[theme] > /themes/visual-novel.css
 		[emit blast] Jack
 		[message]

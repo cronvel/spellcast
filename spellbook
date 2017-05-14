@@ -1,4 +1,5 @@
-[[doctype spellcaster]]
+
+[[doctype spellcast/caster]]
 
 [formula]
 	browserify: ./node_modules/.bin/browserify
@@ -30,7 +31,7 @@
 		$> kill ${pid}
 	[scroll]
 		- $> kill ${pid}
-		- $> cd sample/adventure ; ../../bin/spellcast --ui websocket
+		- $> cd sample/adventure ; ../../bin/spellcast story --ui websocket
 
 [spell browser]
 	[summon]

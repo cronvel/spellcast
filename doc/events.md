@@ -18,18 +18,18 @@
 
 ### input
 
-* exit: [completion] emitted when the process hosting book is about to exit
+* exit: [completion] emitted when the process hosting the book is about to exit
 * end (result, data): [state,completion] emitted once the book is finished, `result` constains the outcome for *that* client.
   It can be: *end* (end, nothing special), *win*, *lost*, *draw* (this spellbook is a game and the client win/lost or
   it was a draw game). `data` contains end of game details, depending on the spellbook (things like score, etc).
-* cast (spellName, status, [error]): a spell has been casted or has fizzled (spellcaster mode), where:
+* cast (spellName, status, [error]): a spell has been casted or has fizzled (caster mode), where:
 	* spellName `string` the name of the spell
 	* status `string` is one of:
 		* 'ok': the spell was casted successfully
 		* 'upToDate': the spell was not casted because all its dependencies are up to date
 		* 'error': the spell was not casted because of an error
 	* error `object` (optional) when status='error' this contains the error object
-* summon (summoning, status, [error]): a summoning has been summoned or has fizzled (spellcaster mode), where:
+* summon (summoning, status, [error]): a summoning has been summoned or has fizzled (caster mode), where:
 	* summoning `string` the path of the summoning
 	* status `string` is one of:
 		* 'ok': the summoning was summoned successfully
@@ -58,16 +58,16 @@
 * user (userObject): this contains the user related to the client. Argument `userObject` is an object containing
   at least those properties:
 	* id `string` it's the client ID for THIS SESSION
-	* name `string` if set, the role is currently taken by this user
+	* name `string` if set, this is the role that is currently taken by this user
 
 * userList (users): this contains the  list of connected users. Argument `users` is an array of object
   containing those users, where:
 	* id `string` it's the client ID for THIS SESSION
-	* name `string` if set, the role is currently taken by this user
+	* name `string` if set, this is the role that is currently taken by this user
 
 * roleList (roles, unassignedClients , assigned): this give the list of roles that should be chosen by each client.
   Argument `assigned` is a boolean. If false, some clients still need to choose a role, sending a `selectRole` event.
-  If true, all clients have chosen their role, the game is about to start, and `selectRole` events are ignored.
+  If true, all clients have chosen their role, the game is about to start, and further `selectRole` events are ignored.
   Argument `unassignedUsers` is an array of client ID names that hasn't chosen a role yet.
   Argument `roles` is an array of object containing those roles, where:
 	* id `string` contains the unique ID of this role
@@ -115,11 +115,11 @@
 	* position `string` (optional) is one of 'left' or 'right', indicating if the image should be on the left or on the right
 	* origin `string` (optional) indicating how the image should be centered. One of 'center', 'top', 'bottom', 'left', right', ...
 
-* music (data): instructs the client (if it is capable) play a music as the scene music. Argument `data` is an object, where:
+* music (data): instructs the client (if it is capable) to play a music as the scene music. Argument `data` is an object, where:
 	* url `string` (optional) if set this is the URL of the music to play, else the client should stop playing music
   There is only one music that must be played at any time, so a music replace another.
 
-* sound (data): instructs the client (if it is capable) play a sound right now. Argument `data` is an object, where:
+* sound (data): instructs the client (if it is capable) to play a sound right now. Argument `data` is an object, where:
 	* url `string` this is the URL of the sound to play
   Multiple sounds may be played at any time. If the client supports sounds, it is recommended to support at least 2 channels.
 
