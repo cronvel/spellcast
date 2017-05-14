@@ -21,7 +21,7 @@ See also:
 
 ## Usage
 
-Usage: `spellcast story <book> [<options 1>] [<options 2>] [...]`
+Usage: `spellcast story [<book>] [<options 1>] [<options 2>] [...]`
 
 Options:
 
