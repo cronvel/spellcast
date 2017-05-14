@@ -1,7 +1,7 @@
 
 
 
-== ADVENTURER MODE ==
+== STORY MODE ==
 
 Tags:
 - aside
@@ -30,7 +30,7 @@ cli.exit() is async, but callers act as if it was not
 
 
 
-== SPELLCASTER MODE (a.k.a. TASK RUNNER) ==
+== CASTER MODE (a.k.a. TASK RUNNER) ==
 
 - be compatible with Gulp plugins?
 - group dependencies into a [dependencies] tag?

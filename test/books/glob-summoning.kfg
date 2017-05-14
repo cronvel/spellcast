@@ -1,5 +1,5 @@
 
-[[doctype spellcaster]]
+[[doctype spellcast/caster]]
 
 [summoning ../build/*.ext]
 	[scroll]

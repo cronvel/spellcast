@@ -1,5 +1,5 @@
 
-[[doctype spellcaster]]
+[[doctype spellcast/caster]]
 
 [spell test1]
 	[set $count] 0

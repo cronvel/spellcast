@@ -1,5 +1,5 @@
 
-[[doctype spellcaster]]
+[[doctype spellcast/caster]]
 
 [spell while-break]
 	[set $count] 5

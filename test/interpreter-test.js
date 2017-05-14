@@ -102,9 +102,9 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 				case 'summon' :
 					book.summon( action.target , triggerCallback ) ;
 					break ;
-				case 'adventure' :
+				case 'story' :
 					if ( action.path ) { followPath( book , ui , action.path , triggerCallback ) ; }
-					book.startAdventure( triggerCallback ) ;
+					book.startStory( triggerCallback ) ;
 					break ;
 			}
 		} ) ;

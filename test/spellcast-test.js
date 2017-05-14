@@ -101,9 +101,9 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 				case 'summon' :
 					book.summon( action.target , triggerCallback ) ;
 					break ;
-				case 'adventure' :
+				case 'story' :
 					if ( action.path ) { followPath( book , ui , action.path , triggerCallback ) ; }
-					book.startAdventure( triggerCallback ) ;
+					book.startStory( triggerCallback ) ;
 					break ;
 			}
 		} ) ;
@@ -1051,7 +1051,7 @@ describe( "Operations tags" , function() {
 
 
 
-describe( "Basic spellcaster tags and features" , function() {
+describe( "Basic caster tags and features" , function() {
 	
 	beforeEach( function( done ) {
 		fsKit.deltree( __dirname + '/build/*' , done ) ;
@@ -1696,9 +1696,9 @@ describe( "Basic spellcaster tags and features" , function() {
 
 
 
-describe( "Basic adventurer tags and features" , function() {
+describe( "Basic story tags and features" , function() {
 	
-	it( "Basic adventurer book, with [chapter], [scene] and [next] tags" , function( done ) {
+	it( "Basic story book, with [chapter], [scene] and [next] tags" , function( done ) {
 		
 		var messages , ends ;
 		
@@ -1707,7 +1707,7 @@ describe( "Basic adventurer tags and features" , function() {
 				messages = [] ;
 				ends = [] ;
 						
-				runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'adventure' , path: [ 2 , 0 , 2 ] } ,
+				runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'story' , path: [ 2 , 0 , 2 ] } ,
 					function( ui ) {
 						
 						ui.bus.on( 'message' , function() {
@@ -1738,7 +1738,7 @@ describe( "Basic adventurer tags and features" , function() {
 				messages = [] ;
 				ends = [] ;
 						
-				runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'adventure' , path: [ 1 , 0 , 0 ] } ,
+				runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'story' , path: [ 1 , 0 , 0 ] } ,
 					function( ui ) {
 						
 						ui.bus.on( 'message' , function() {
@@ -1773,7 +1773,7 @@ describe( "Basic adventurer tags and features" , function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/starting-scene.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+		runBook( __dirname + '/books/starting-scene.kfg' , { type: 'story' , path: [ 0 ] } ,
 			function( ui ) {
 				
 				ui.bus.on( 'message' , function() {
@@ -1795,7 +1795,7 @@ describe( "Basic adventurer tags and features" , function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/module-loader.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+		runBook( __dirname + '/books/module-loader.kfg' , { type: 'story' , path: [ 0 ] } ,
 			function( ui ) {
 				
 				ui.bus.on( 'message' , function() {
@@ -1829,7 +1829,7 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "Special var $local" , function( done ) {
 		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/local-var.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+		runBook( __dirname + '/books/local-var.kfg' , { type: 'story' , path: [ 0 ] } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1851,7 +1851,7 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "Special var $global" , function( done ) {
 		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/global-var.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+		runBook( __dirname + '/books/global-var.kfg' , { type: 'story' , path: [ 0 ] } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1895,7 +1895,7 @@ describe( "Basic adventurer tags and features" , function() {
 	it( "Special var $static into [scene] tags" , function( done ) {
 		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/scene-static-var.kfg' , { type: 'adventure' , path: [ 0 ] } ,
+		runBook( __dirname + '/books/scene-static-var.kfg' , { type: 'story' , path: [ 0 ] } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1918,7 +1918,7 @@ describe( "Basic adventurer tags and features" , function() {
 		
 		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/args-stack.kfg' , { type: 'adventure' } ,
+		runBook( __dirname + '/books/args-stack.kfg' , { type: 'story' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1944,7 +1944,7 @@ describe( "Basic adventurer tags and features" , function() {
 
 
 
-describe( "Multiplayer adventure tags and features" , function() {
+describe( "Multiplayer story tags and features" , function() {
 	it( "[role] tag" ) ;
 	it( "[split] tag" ) ;
 } ) ;

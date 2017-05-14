@@ -11,17 +11,17 @@ out of the box.
 
 But Spellcast can also be embedded into your app, to allow users to create content, item, campaign and so on.
 
-This page focus on the *adventure* capabilities of spellcast, but Spellcast is also a task-runner.
+This page focus on the *story* capabilities of spellcast, but Spellcast is also a task-runner.
 
 See also:
 
-* [The full *adventurer* mode reference](https://github.com/cronvel/spellcast/blob/master/doc/adventurer.md)
+* [The full *story* mode reference](https://github.com/cronvel/spellcast/blob/master/doc/story.md)
 
 
 
 ## Usage
 
-Usage: `adventure <book> [<options 1>] [<options 2>] [...]`
+Usage: `spellcast story <book> [<options 1>] [<options 2>] [...]`
 
 Options:
 
@@ -46,10 +46,10 @@ Options:
 ## Getting started: basic script example
 
 This is an example of a very short script with 3 scenes, featuring the most basic tags.
-Copy-paste this script into a file named `test.kfg`, then run `adventure test.kfg`.
+Copy-paste this script into a file named `test.kfg`, then run `spellcast story test.kfg`.
 
 ```
-[[doctype adventurer]]
+[[doctype spellcast/story]]
 
 [chapter intro]
 	[scene village]
@@ -94,7 +94,7 @@ A tag start with an opening bracket and finish with a closing bracket.
 The content of a tag is indented using tabs.
 
 So here we have:
-* The `[[doctype adventurer]]` is a meta-tag, it tell spellcast that the current file is a *spellcast adventurer* file.
+* The `[[doctype spellcast/story]]` is a meta-tag, it tell spellcast that the current file is a *spellcast story* file.
   Meta-tags have two opening and two closing brackets, they **MUST** be placed before any other tags, because they are headers.
 * A top-level container tag: the `[chapter]` tag with an identifier (*intro*).
 * This chapter contains 3 `[scene]` tags named *village*, *master* and *rogue*.
