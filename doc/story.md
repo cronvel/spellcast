@@ -142,7 +142,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 <a name="usage"></a>
 ## Usage
 
-Usage: `spellcast story <book> [<options 1>] [<options 2>] [...]`
+Usage: `spellcast story [<book>] [<options 1>] [<options 2>] [...]`
 
 Options:
 
@@ -171,7 +171,7 @@ This is an example of a very short script with 3 scenes, featuring the most basi
 Copy-paste this script into a file named `test.kfg`, then run `spellcast story test.kfg`.
 
 ```
-[[doctype spellcast/story]]
+[[doctype spellcast/book]]
 
 [chapter intro]
 	[scene village]
@@ -216,7 +216,7 @@ A tag start with an opening bracket and finish with a closing bracket.
 The content of a tag is indented using tabs.
 
 So here we have:
-* The `[[doctype spellcast/story]]` is a meta-tag, it tell spellcast that the current file is a *spellcast story* file.
+* The `[[doctype spellcast/book]]` is a meta-tag, it tell spellcast that the current file is a *spellcast story* file.
   Meta-tags have two opening and two closing brackets, they **MUST** be placed before any other tags, because they are headers.
 * A top-level container tag: the `[chapter]` tag with an identifier (*intro*).
 * This chapter contains 3 `[scene]` tags named *village*, *master* and *rogue*.

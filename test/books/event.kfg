@@ -1,5 +1,5 @@
 
-[[doctype spellcast/caster]]
+[[doctype spellcast/spellbook]]
 
 [spell event]
 	[on blast]
