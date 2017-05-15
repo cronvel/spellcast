@@ -166,6 +166,8 @@
 * ready: [state] emitted once the client is init
 * textSubmit (text): the text the user submit in response of a `textInput` event
 
+* command (text): a text command sent by a player/role, can be sent at any time.
+
 * chat (text): the text sent by a player/role as a chat message. If the role can chat, it will be sent to all player in
   a message event.
 

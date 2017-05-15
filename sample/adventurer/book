@@ -3,6 +3,11 @@
 [[locales locales/*]]
 [[assets ../]]
 
+# Create the main character
+[create-main-entity]
+	#class: character
+	label: the hero
+
 [action drink]
 	[message]
 		$> You drink a cup of vine...
