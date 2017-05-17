@@ -108,9 +108,9 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 	* [Event Tags](#ref.event)
 		* [Emit Tag](#ref.event.emit)
 		* [On Tag](#ref.event.on)
+			* [Once Tag](#ref.event.on.once)
+			* [Global Tag](#ref.event.on.global)
 		* [Once Tag](#ref.event.once)
-		* [On-global Tag](#ref.event.on-global)
-		* [Once-global Tag](#ref.event.once-global)
 		* [Cancel Tag](#ref.event.cancel)
 	* [Multiplayer Tags](#ref.multiplayer)
 		* [Role Tag](#ref.multiplayer.role)
@@ -1854,48 +1854,43 @@ The value can be of any type, and is produced by the listener.
 
 The *on* tag listen for the *event-label* event: whenever the event is fired, it executes its content.
 
+The content of the *on* tag is called a **listener**.
+
 Inside the listener, the special **$args** variable will be an object, where:
 * event `string` this is the *event-label*
 * data `anything` this is the data of the event (the solved content of the *emit* tag)
 
-The listener is destroyed once the script leave the current scene.
+Except if the listener has the *global* parameter on, the following apply:
+* The listener is destroyed once the script execution leaves the current scene.
+* Moreover, the listener is triggered only when the current scene is active: if the scene *gosub* to a sub-scene,
+  as long as it has not returned to the scene that defined the listener.
+
+Parameters tags can modify many things about the listener mechanism, but there are **NOT** dynamic,
+i.e. they do not contain variable but direct constant data.
+
+
+<a name="ref.event.on.once"></a>
+### [once]
+
+* types: parameter
+* attribute style: none
+* content type: boolean or none (none=true)
+
+With the *once* parameter, the *on* tag will listen for that event **only once**, i.e. it triggers at most only once.
 
 
 
-<a name="ref.event.once"></a>
-## [once *event-label*]
+<a name="ref.event.on.global"></a>
+## [global]
 
-* types: run, exec
-* attribute style: label
-* content type: tags
+* types: parameter
+* attribute style: none
+* content type: boolean none (none=true)
 
-The *once* tag works just like the [*on* tag](#ref.event.on), except that it listens for that event only once
-(i.e. it triggers at most only once).
-
-
-
-<a name="ref.event.on-global"></a>
-## [on-global *event-label*]
-
-* types: run, exec
-* attribute style: label
-* content type: tags
-
-The *on-global* tag works just like the [*on* tag](#ref.event.on), except that it is **NOT** destroyed
-at the end of the current scene, instead it continues to be active even after the execution leaves it
-
-
-
-<a name="ref.event.on-global"></a>
-## [once-global *event-label*]
-
-* types: run, exec
-* attribute style: label
-* content type: tags
-
-The *once-global* tag works just like the [*on* tag](#ref.event.on), except that:
-* it listens for that event only once (i.e. it triggers at most only once)
-* it is **NOT** destroyed at the end of the current scene, instead it continues to be active even after the execution leaves it
+With the *global* parameter, the *on* tag will listen for that event **globally**, implying that:
+* It can trigger when the scene *gosub* to a sub-scene.
+* The listener is not destroyed when the script execution leaves the current scene, it can be triggered by event emitted
+  from any other scene
 
 
 

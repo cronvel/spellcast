@@ -120,7 +120,8 @@
 	[on blast]
 		[message]
 			$> ^RBlasted ${args.data}!
-	[once blast]
+	[on blast]
+		[once]
 		[message]
 			$> ^RRoasted ${args.data}!
 	[emit blast] Troll

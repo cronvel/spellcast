@@ -5,7 +5,7 @@
 
 # Create the main character
 [create-main-entity]
-	#class: character
+	class: character
 	label: the hero
 
 [action drink]
@@ -25,8 +25,8 @@
 		#[sound] > effect1.mp3
 		#[music] > theme.ogg
 		
-		[on-global blast]
-		#[on blast]
+		[on blast]
+			[global]
 			[message]
 				$> ${args.data} was blasted!
 		
