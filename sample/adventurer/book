@@ -15,6 +15,12 @@
 [chapter intro]
 	
 	[scene intro1]
+		# should be defined outside scenes?
+		[on command]
+			[global]
+			[debug] $args
+			[message] $> ^/${args.entity.label//uc1} says:^ “${args.command}^:”
+		
 		[message]
 			$> ^/Once ^Bupon a time...
 		[next intro2]

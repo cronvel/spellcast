@@ -1872,7 +1872,7 @@ i.e. they do not contain variable but direct constant data.
 <a name="ref.event.on.once"></a>
 ### [once]
 
-* types: parameter
+* types: parameter (init)
 * attribute style: none
 * content type: boolean or none (none=true)
 
@@ -1883,7 +1883,7 @@ With the *once* parameter, the *on* tag will listen for that event **only once**
 <a name="ref.event.on.global"></a>
 ## [global]
 
-* types: parameter
+* types: parameter (init)
 * attribute style: none
 * content type: boolean none (none=true)
 

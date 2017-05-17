@@ -14,6 +14,17 @@
 
 
 
+# Events on script/API bus
+
+Events emitted here are usually **userland** event, except few standard event:
+
+* command (object): emitted every time a role (a client) send a command, object contains:
+	* role (Role instance): the role that sent the command
+	* entity (Entity instance): the entity that sent the command, if any (the same than role.entity)
+	* command (text): the raw text command
+
+
+
 # Events on Client instances
 
 ### input
