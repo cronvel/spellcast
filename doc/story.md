@@ -25,8 +25,6 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Theme Tag](#ref.scenario.scene.theme)
 			* [Image Tag](#ref.scenario.scene.image)
 			* [Music Tag](#ref.scenario.scene.music)
-			* [Chat Tag](#ref.scenario.scene.chat)
-			* [Action-config Tag](#ref.scenario.scene.action-config)
 			* [Vote-time Tag](#ref.scenario.scene.vote-time)
 			* [Vote-style Tag](#ref.scenario.scene.vote-style)
 			* [Hurry-time Tag](#ref.scenario.scene.hurry-time)
@@ -287,8 +285,6 @@ It also supports some parameter tags of the *scene* tag, if present they will ac
 * [theme](#ref.scenario.scene.theme)
 * [image](#ref.scenario.scene.image)
 * [music](#ref.scenario.scene.music)
-* [chat](#ref.scenario.scene.chat)
-* [action-config](#ref.scenario.scene.action-config)
 
 
 
@@ -370,33 +366,6 @@ The content is an object where:
 * url `string` (optional) if set this is the URL of the music to play, else the client should stop playing music
 
 If the content is a string, it contains the *url* of the music.
-
-
-
-<a name="ref.scenario.scene.chat"></a>
-### [chat]
-
-* types: parameter
-* attribute style: none
-* content type: boolean or object
-
-The content is an object, where each key is a *role id* and the value is an object where:
-* read `boolean` is true if the current *role* can read the chat
-* write `boolean` is true if the current *role* can write to the chat
-
-Alternatively, the content can be a boolean used as a global setting, in that case all *roles* read and write permission
-will be set to that boolean.
-
-
-
-<a name="ref.scenario.scene.action-config"></a>
-### [action-config]
-
-* types: parameter
-* attribute style: none
-* content type: object
-
-TODO: documentation
 
 
 

@@ -12,6 +12,11 @@
 	[message]
 		$> ${this.role.label} drink a cup of vine.
 
+[on command]
+	[global]
+	[message] $> ^/${args.data.role.label//uc1} says:^ “${args.data.command}^:”
+
+
 [chapter intro]
 	
 	[image]

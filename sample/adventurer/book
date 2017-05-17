@@ -12,13 +12,14 @@
 	[message]
 		$> You drink a cup of vine...
 
+[on command]
+	[global]
+	[message] $> ^/${args.data.entity.label//uc1} says:^ “${args.data.command}^:”
+
+
 [chapter intro]
 	
 	[scene intro1]
-		# should be defined outside scenes?
-		[on command]
-			[global]
-			[message] $> ^/${args.data.entity.label//uc1} says:^ “${args.data.command}^:”
 		
 		[message]
 			$> ^/Once ^Bupon a time...

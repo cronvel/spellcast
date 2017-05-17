@@ -134,13 +134,6 @@ Events emitted here are usually **userland** event, except few standard event:
 	* url `string` this is the URL of the sound to play
   Multiple sounds may be played at any time. If the client supports sounds, it is recommended to support at least 2 channels.
 
-* chatConfig (configObject): [state] this passes the chat status for each roles. Argument `configObject` is an object, where keys
-  are existing role IDs, and value is an object, where:
-	* active: `boolean` true if the role can chat
-
-* actionConfig (configObject): [state]   .................. (todo)
-	* disabled `boolean` true if all role actions are disabled
-
 * defineAnimation (id, data): defines an animation (if the client is capable) to be used later (e.g. on a sprite), where:
 	* id `string` the animation ID to use
 	* data `object` data related to the animation, where:
@@ -179,15 +172,7 @@ Events emitted here are usually **userland** event, except few standard event:
 
 * command (text): a text command sent by a player/role, can be sent at any time.
 
-* chat (text): the text sent by a player/role as a chat message. If the role can chat, it will be sent to all player in
-  a message event.
-
-* action (data):   ........................... (todo)
-	* action `string` the action ID, the action should be owned by the role, or the performer
-	* performer `string` the Entity ID performing the action, if the role controle multiple Entity
-	* using `string` the Item ID used for the action, it should be owned by the performer
-	* targetEntity `string` an Entity ID target of the action, or `array` of Entity IDs
-	* targetItem `string` an Item ID target of the action, or `array` of Item IDs
+* chat (text): the text sent by a client as a chat message when player are still in the role assignement phase.
 
 * selectRole (index): in response of a `roleList` event, it contains the index of the role the current client want
   to be assigned to, if `index` is `null`, the client is unassigned to any role
