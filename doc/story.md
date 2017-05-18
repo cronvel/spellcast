@@ -1853,7 +1853,7 @@ With the *once* parameter, the *on* tag will listen for that event **only once**
 
 * types: parameter (init)
 * attribute style: none
-* content type: boolean none (none=true)
+* content type: boolean or none (none=true)
 
 With the *global* parameter, the *on* tag will listen for that event **globally**, implying that:
 * It can trigger when the scene *gosub* to any number of nested sub-scene.
