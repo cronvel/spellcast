@@ -1,21 +1,21 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SpellcastClient = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /*
 	Spellcast
-
-	Copyright (c) 2015 - 2016 Cédric Ronvel
-
+	
+	Copyright (c) 2014 - 2017 Cédric Ronvel
+	
 	The MIT License (MIT)
-
+	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-
+	
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
-
+	
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -767,7 +767,7 @@ function soundFadeOut( element , callback )
 /*
 	Spellcast
 	
-	Copyright (c) 2015 - 2016 Cédric Ronvel
+	Copyright (c) 2014 - 2017 Cédric Ronvel
 	
 	The MIT License (MIT)
 	
@@ -944,21 +944,21 @@ dom.ready( function() {
 },{"./ui/classic.js":4,"dom-kit":6,"nextgen-events":9,"url":22}],3:[function(require,module,exports){
 /*
 	Spellcast
-
-	Copyright (c) 2014 - 2016 Cédric Ronvel
-
+	
+	Copyright (c) 2014 - 2017 Cédric Ronvel
+	
 	The MIT License (MIT)
-
+	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-
+	
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
-
+	
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -1039,21 +1039,21 @@ toolkit.markup = function()
 },{"string-kit/lib/escape.js":18,"string-kit/lib/format.js":19}],4:[function(require,module,exports){
 /*
 	Spellcast
-
-	Copyright (c) 2014 - 2016 Cédric Ronvel
-
+	
+	Copyright (c) 2014 - 2017 Cédric Ronvel
+	
 	The MIT License (MIT)
-
+	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-
+	
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
-
+	
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -1090,7 +1090,6 @@ function UI( bus , client , self )
 			roles: { value: null , writable: true , enumerable: true } ,
 			roleId: { value: null , writable: true , enumerable: true } ,
 			config: { value: null , writable: true , enumerable: true } ,
-			chatConfig: { value: null , writable: true , enumerable: true } ,
 			inGame: { value: false , writable: true , enumerable: true } ,
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
@@ -1103,10 +1102,11 @@ function UI( bus , client , self )
 	self.client.once( 'open' , UI.clientOpen.bind( self ) ) ;
 	self.client.once( 'close' , UI.clientClose.bind( self ) ) ;
 	self.client.on( 'error' , UI.clientError.bind( self ) ) ;
-
-
+	
+	
 	self.dom.enableChat( function( message ) {
-		self.bus.emit( 'chat' , message ) ;
+		console.log( 'inGame?' , self.inGame ) ;
+		self.bus.emit( self.inGame ? 'command' : 'chat' , message ) ;
 	} ) ;
 
 	return self ;
@@ -1134,7 +1134,6 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'extErrorOutput' , UI.extErrorOutput.bind( this ) ) ;
 
 	this.bus.on( 'message' , UI.message.bind( this ) , { async: true } ) ;
-	this.bus.on( 'chatConfig' , UI.chatConfig.bind( this ) ) ;
 
 	this.bus.on( 'theme' , UI.theme.bind( this ) ) ;
 	this.bus.on( 'image' , UI.image.bind( this ) ) ;
@@ -1352,26 +1351,6 @@ UI.prototype.messageNext = function messageNext( callback )
 
 
 
-UI.chatConfig = function chatConfig( data )
-{
-	var self = this ;
-
-	this.chatConfig = data ;
-	console.warn( 'chatConfig:' , this.chatConfig ) ;
-
-	if ( this.roleId && this.chatConfig[ this.roleId ].write )
-	{
-		this.dom.enableChat( function( message ) {
-			self.bus.emit( 'chat' , message ) ;
-		} ) ;
-	}
-	else
-	{
-		this.dom.disableChat() ;
-	}
-} ;
-
-
 // 'enterScene' event
 UI.enterScene = function enterScene()
 {
@@ -1523,7 +1502,7 @@ UI.theme = function theme( data )
 	}
 	else
 	{
-		this.dom.setTheme( this.config.theme ) ;
+		if ( this.config.theme ) { this.dom.setTheme( this.config.theme ) ; }
 		return ;
 	}
 	
@@ -3802,29 +3781,94 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message )
 
 },{"./NextGenEvents.js":9}],11:[function(require,module,exports){
 module.exports={
-  "name": "nextgen-events",
-  "version": "0.9.8",
-  "description": "The next generation of events handling for javascript! New: abstract away the network!",
-  "main": "lib/NextGenEvents.js",
-  "directories": {
-    "test": "test"
+  "_args": [
+    [
+      {
+        "raw": "nextgen-events@^0.9.9",
+        "scope": null,
+        "escapedName": "nextgen-events",
+        "name": "nextgen-events",
+        "rawSpec": "^0.9.9",
+        "spec": ">=0.9.9 <0.10.0",
+        "type": "range"
+      },
+      "/home/cedric/inside/github/spellcast"
+    ]
+  ],
+  "_from": "nextgen-events@>=0.9.9 <0.10.0",
+  "_id": "nextgen-events@0.9.9",
+  "_inCache": true,
+  "_location": "/nextgen-events",
+  "_nodeVersion": "6.9.1",
+  "_npmOperationalInternal": {
+    "host": "packages-18-east.internal.npmjs.com",
+    "tmp": "tmp/nextgen-events-0.9.9.tgz_1492690600528_0.6061110475566238"
+  },
+  "_npmUser": {
+    "name": "cronvel",
+    "email": "cedric.ronvel@gmail.com"
+  },
+  "_npmVersion": "3.10.8",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "nextgen-events@^0.9.9",
+    "scope": null,
+    "escapedName": "nextgen-events",
+    "name": "nextgen-events",
+    "rawSpec": "^0.9.9",
+    "spec": ">=0.9.9 <0.10.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/",
+    "/async-kit",
+    "/terminal-kit"
+  ],
+  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.9.9.tgz",
+  "_shasum": "39a8afc4a2b845388c57e2c6bb9716711986a3a0",
+  "_shrinkwrap": null,
+  "_spec": "nextgen-events@^0.9.9",
+  "_where": "/home/cedric/inside/github/spellcast",
+  "author": {
+    "name": "Cédric Ronvel"
+  },
+  "bugs": {
+    "url": "https://github.com/cronvel/nextgen-events/issues"
+  },
+  "config": {
+    "tea-time": {
+      "coverDir": [
+        "lib"
+      ]
+    }
+  },
+  "copyright": {
+    "title": "Next-Gen Events",
+    "years": [
+      2015,
+      2016
+    ],
+    "owner": "Cédric Ronvel"
   },
   "dependencies": {},
+  "description": "The next generation of events handling for javascript! New: abstract away the network!",
   "devDependencies": {
-    "browserify": "^13.0.1",
+    "browserify": "^14.3.0",
     "expect.js": "^0.3.1",
     "jshint": "^2.9.2",
     "mocha": "^2.5.3",
-    "uglify-js": "^2.6.2",
-    "ws": "^1.1.1"
+    "uglify-js": "^2.8.22",
+    "ws": "^2.2.3"
   },
-  "scripts": {
-    "test": "mocha -R dot"
+  "directories": {
+    "test": "test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cronvel/nextgen-events.git"
+  "dist": {
+    "shasum": "39a8afc4a2b845388c57e2c6bb9716711986a3a0",
+    "tarball": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.9.9.tgz"
   },
+  "gitHead": "bc68fdf466c331d066d0ac371c12beb3d5f86d9a",
+  "homepage": "https://github.com/cronvel/nextgen-events#readme",
   "keywords": [
     "events",
     "async",
@@ -3837,28 +3881,26 @@ module.exports={
     "proxy",
     "network"
   ],
-  "author": {
-    "name": "Cédric Ronvel"
-  },
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cronvel/nextgen-events/issues"
-  },
-  "copyright": {
-    "title": "Next-Gen Events",
-    "years": [
-      2015,
-      2016
-    ],
-    "owner": "Cédric Ronvel"
-  },
+  "main": "lib/NextGenEvents.js",
+  "maintainers": [
+    {
+      "name": "cronvel",
+      "email": "cedric.ronvel@gmail.com"
+    }
+  ],
+  "name": "nextgen-events",
+  "optionalDependencies": {},
   "readme": "\n\n# NextGen Events\n\nNext generation of events handling for node.js\n\n* License: MIT\n* Current status: close to release\n* Platform: Node.js and browsers\n\n*NextGen Events* solves common trouble that one may encounter when dealing with events and listeners.\n\n## Feature highlights:\n\n* Standard event-handling almost compatible with Node.js built-in events\n* .emit() support a completion callback\n* Support for asynchronous event-handling\n* Multiple listeners can be tied to a single context\n* A context can be temporarly *disabled*\n* A context can be in *queue* mode: events for its listeners are stored, they will be *resumed* when the context is enabled again\n* Context serialization: async listeners can be run one after the other is fully completed\n* **NEW: proxy services!** Abstract away your network: emit and listen to emitter on the other side of the plug!\n\nEmitting events asynchronously or registering a listener that will be triggered asynchronously because it performs\nnon-critical tasks has some virtues: it gives some breath to the event-loop, so important I/O can be processed as soon as possible.\n\nContexts are really useful, it handles a collection of listeners.\nAt first glance, it looks like a sort of namespace for listeners.\nBut it can do more than that: you can turn a context off, so every listener tied to this context will not be triggered anymore,\nthen turn it on and they will be available again. \n\nYou can even switch a context into queue mode: the listeners tied to it will not be triggered, but events for those\nlisteners will be stored in the context. When the context is resumed, all retained events will trigger their listeners.\nThis allow one to postpone some operations, while performing some other high priority tasks, but be careful:\ndepending on your application nature, the queue may grow fast and consumes a lot of memory very quickly.\n\nOne of the top feature of this lib is the context serialization: it greatly eases the flow of the code!\nWhen differents events can fire at the same time, there are use cases when one does not want that async listener run concurrently.\nThe context serialization feature will ensure you that no concurrency will happen for listeners tied to it.\nYou do not have to code fancy or complicated tests to cover all cases anymore: just let *NextGen Events* do it for you!\n\n**Proxy services are awesome.** They abstract away the network so we can emit and listen to emitter on the other side of the plug!\nBoth side of the channel create a Proxy, and add to it local and remote *services*, i.e. event emitters, and that's all.\nA remote service looks like a normal (i.e. local) emitter, and share the same API (with few limitations).\nIt's totally protocol agnostic, you just define two methods for your proxy: one to read from the network and one to send to it\n(e.g. for Web Socket, this is a one-liner).\n\n\n\n# Install\n\nUse npm:\n\n```\nnpm install nextgen-events\n```\n\n\n# Getting started\n\nBy the way you can create an event emitter simply by creating a new object, this way:\n\n```js\nvar NGEmitter = require( 'nextgen-events' ) ;\nvar emitter = new NGEmitter() ;\n```\n\nYou can use `var emitter = Object.create( NGEmitter.prototype )` as well, the object does not need the constructor.\n\nBut in real life, you would make your own objects inherit it:\n\n```js\nvar NGEmitter = require( 'nextgen-events' ) ;\n\nfunction myClass()\n{\n\t// myClass constructor code here\n}\n\nmyClass.prototype = Object.create( NGEmitter.prototype ) ;\nmyClass.prototype.constructor = myClass ;\t// restore the constructor\n\n// define other methods for myClass...\n```\n\nThe basis of the event emitter works like Node.js built-in events:\n\n```js\nvar NGEmitter = require( 'nextgen-events' ) ;\nvar emitter = new NGEmitter() ;\n\n// Normal listener\nemitter.on( 'message' , function( message ) {\n\tconsole.log( 'Message received: ' , message ) ;\n} ) ;\n\n// One time listener:\nemitter.once( 'close' , function() {\n\tconsole.log( 'Connection closed!' ) ;\n} ) ;\n\n// The error listener: if it is not defined, the error event will throw an exception\nemitter.on( 'error' , function( error ) {\n\tconsole.log( 'Shit happens: ' , error ) ;\n} ) ;\n\nemitter.emit( 'message' , 'Hello world!' ) ;\n// ...\n```\n\n\n\n# References\n\nNode.js documentation:\n\n> When an EventEmitter instance experiences an error, the typical action is to emit an 'error' event.\n> Error events are treated as a special case in node. If there is no listener for it,\n> then the default action is to print a stack trace and exit the program.\n\n> All EventEmitters emit the event 'newListener' when new listeners are added and 'removeListener' when a listener is removed. \n\nFor the 'newListener' and 'removeListener' events, see the section about [incompatibilities](#incompatibilities), since there\nare few differences with the built-in Node.js EventEmitter.\n\n\n\n## Table of Content\n\n* [Events](#ref.events)\n\t* [.addListener() / .on()](#ref.events.addListener)\n\t* [.once()](#ref.events.once)\n\t* [.removeListener() / .off()](#ref.events.removeListener)\n\t* [.removeAllListeners()](#ref.events.removeAllListeners)\n\t* [.setMaxListeners()](#ref.events.setMaxListeners)\n\t* [.listeners()](#ref.events.listeners)\n\t* [.listenerCount()](#ref.events.listenerCount)\n\t* [.setNice()](#ref.events.setNice)\n\t* [.emit()](#ref.events.emit)\n\t* [.addListenerContext()](#ref.events.addListenerContext)\n\t* [.disableListenerContext()](#ref.events.disableListenerContext)\n\t* [.queueListenerContext()](#ref.events.queueListenerContext)\n\t* [.enableListenerContext()](#ref.events.enableListenerContext)\n\t* [.setListenerContextNice()](#ref.events.setListenerContextNice)\n\t* [.serializeListenerContext()](#ref.events.serializeListenerContext)\n\t* [.destroyListenerContext()](#ref.events.destroyListenerContext)\n\t* [the *nice feature*](#ref.note.nice)\n\t* [incompatibilities](#incompatibilities)\n* [Proxy Services](#ref.proxy)\n\n\n\n<a name=\"ref.events\"></a>\n## Events\n\n<a name=\"ref.events.addListener\"></a>\n### .addListener( eventName , [fn] , [options] )   *or*   .on( eventName , [fn] , [options] )\n\n* eventName `string` the name of the event to bind to\n* fn `Function` the callback function for this event, this argument is optional: it can be passed to the `fn` property of `options`\n* options `Object` where:\n\t* fn `Function` (mandatory if no `fn` argument provided) the listener function\n\t* id `any type` (default to the provided *fn* function) the identifier of the listener, useful if we have to remove it later\n\t* once `boolean` (default: false) *true* if this is a one-time-listener\n\t* context `string` (default: undefined - no context) a non-empty string identifying a context, if defined the listener\n\t  will be tied to this context, if this context is unexistant, it will be implicitly defined with default behaviour\n\t* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\t* async `boolean` (default: false) set it to *true* if the listener is async by nature and a context serialization is wanted,\n\t  when *async* is set for a listener, it **MUST** accept a completion callback as its last argument.\n\t* eventObject `boolean` (default: false) if set, the listener will be passed an unique argument: the very same event object\n\t  that is returned by `.emit()`, if the listener is async, a second argument is passed as the callback\n\nNode.js documentation:\n\n> Adds a listener to the end of the listeners array for the specified event.\n> No checks are made to see if the listener has already been added.\n> Multiple calls passing the same combination of event and listener will result in the listener being added multiple times.\n\n```js\nserver.on( 'connection' , function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ) ;\n```\n\n> Returns emitter, so calls can be chained.\n\nExample, creating implicitly a context the listeners will be tied to:\n\n```js\nserver.on( 'connection' , {\n\tcontext: 'ctx' ,\n\tfn: function( stream ) {\n\t\tconsole.log( 'someone connected!' ) ;\n\t}\n} ) ;\n\nserver.on( 'close' , {\n\tcontext: 'ctx' ,\n\tfn: function() {\n\t\tconsole.log( 'connection closed!' ) ;\n\t\t\n\t\t// Destroy the context and all listeners tied to it:\n\t\tserver.destroyListenerContext( 'ctx' ) ;\n\t}\n} ) ;\n\nserver.on( 'error' , {\n\tcontext: 'ctx' ,\n\tfn: function() {\n\t\t// some error handling code\n\t\t\n\t\t// Destroy the context and all listeners tied to it:\n\t\tserver.destroyListenerContext( 'ctx' ) ;\n\t}\n} ) ;\n```\n\nWhen an async listener is defined, the completion callback is automatically added at the end of the arguments \nsupplied to [.emit()](#ref.events.emit) for any listeners with *async = true*.\n\n\n\n<a name=\"ref.events.once\"></a>\n### .once( eventName , listener )\n\n* eventName `string` the name of the event to bind to\n* listener `Function` or `Object` the listener that will listen to this event, it can be a function or an object where:\n\t* fn `Function` (mandatory) the listener function\n\t* id `any type` (default to the provided *fn* function) the identifier of the listener, useful if we have to remove it later\n\t* context `string` (default: undefined - no context) a non-empty string identifying a context, if defined the listener\n\t  will be tied to this context, if this context is unexistant, it will be implicitly defined with default behaviour\n\t* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\t* async `boolean` (default: false) set it to *true* if the listener is async by nature and a context serialization is wanted\n\nNode.js documentation:\n\n> Adds a **one time** listener for the event.\n> This listener is invoked only the next time the event is fired, after which it is removed. \n\n```js\nserver.once( 'connection' , function( stream ) {\n\tconsole.log( 'Ah, we have our first user!' ) ;\n} ) ;\n```\n\n> Returns emitter, so calls can be chained.\n\nNote that using `.once()` in *NextGen Events* lib is just a syntactic sugar (and it's also there for compatibility),\nthe previous example can be rewritten using `.on()`:\n\n```js\nserver.on( 'connection' , {\n\tfn: function( stream ) {\n\t\tconsole.log( 'Ah, we have our first user!' ) ;\n\t} ,\n\tonce: true\n} ) ;\n```\n\n\n\n<a name=\"ref.events.removeListener\"></a>\n### .removeListener( eventName , listenerID )   *or*   .off( eventName , listenerID )\n\n* eventName `string` the name of the event the listener to remove is binded to\n* listenerID `any type` the identifier of the listener to remove\n\nNode.js documentation:\n\n> Remove a listener from the listener array for the specified event.\n> **Caution**: changes array indices in the listener array behind the listener. \n\n```js\nvar callback = function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ;\n\nserver.on( 'connection' , callback ) ;\n// ...\nserver.removeListener( 'connection' , callback ) ;\n```\n\n**CAUTION: Unlike the built-in Node.js emitter**, `.removeListener()` will remove **ALL** listeners whose ID is matching\nthe given *listenerID*.\nIf any single listener has been added multiple times to the listener array for the specified event, then only one\ncall to `.removeListener()` will remove them all.\n\n> Returns emitter, so calls can be chained.\n\nExample using user-defined ID:\n\n```js\nvar callback = function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ;\n\nserver.on( 'connection' , { id: 'foo' , fn: callback } ) ;\nserver.on( 'connection' , { id: 'bar' , fn: callback } ) ;\n\n// ...\n\n// Does nothing! we have used custom IDs!\nserver.removeListener( 'connection' , callback ) ;\n\n// Remove the first listener only, despite the fact they are sharing the same function\nserver.removeListener( 'connection' , 'foo' ) ;\n```\n\nDon't forget that by default, the ID is the callback function itself.\n\n\n\n<a name=\"ref.events.removeAllListeners\"></a>\n### .removeAllListeners( [eventName] )\n\n* eventName `string` (optional) the name of the event the listeners to remove are binded to\n\nNode.js documentation:\n\n> Removes all listeners, or those of the specified event.\n> It's not a good idea to remove listeners that were added elsewhere in the code, especially when it's on an emitter\n> that you didn't create (e.g. sockets or file streams).\n\n> Returns emitter, so calls can be chained.\n\n\n\n<a name=\"ref.events.setMaxListeners\"></a>\n### .setMaxListeners()\n\nOnly available for compatibility with the built-in Node.js emitter, so it does not break the code for people that want\nto make the switch.\n\nBut please note that **there is no such concept of max listener in NextGen Events**, this method does nothing\n(it's an empty function).\n\n\n\n<a name=\"ref.events.listeners\"></a>\n### .listeners( eventName )\n\n* eventName `string` (optional) the name of the event the listeners to list are binded to\n\nNode.js documentation:\n\n> Returns an array of listeners for the specified event.\n\n```js\nserver.on( 'connection' , function( stream ) {\n\tconsole.log( 'someone connected!' ) ;\n} ) ;\n\nconsole.log( util.inspect( server.listeners( 'connection' ) ) ) ;\n// output:\n// [ { id: [Function], fn: [Function], nice: -Infinity, event: 'connection' } ]\n```\n\n\n\n<a name=\"ref.events.listenerCount\"></a>\n### .listenerCount( eventName )\n\n* eventName `string` the name of the event\n\nNode.js documentation:\n\n> Returns the number of listeners listening to the type of event.\n\n\n\n<a name=\"ref.events.setNice\"></a>\n### .setNice( nice )\n\n* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\nSet the default *nice value* of the current emitter.\n\n\n\n<a name=\"ref.events.emit\"></a>\n### .emit( [nice] , eventName , [arg1] , [arg2] , [...] , [callback] )\n\n* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n* eventName `string` (optional) the name of the event to emit\n* arg1 `any type` (optional) first argument to transmit\n* arg2 `any type` (optional) second argument to transmit\n* ...\n* callback `function` (optional) a completion callback triggered when all listener have done, accepting arguments:\n\t* interruption `any type` if truthy, then emit was interrupted with this interrupt value (provided by userland)\n\t* event `Object` representing the current event\n\nIt returns an object representing the current event.\n\nNode.js documentation:\n\n> Execute each of the listeners in order with the supplied arguments.\n\n**It does not returns the emitter!**\n\n\n\n\n<a name=\"ref.note.nice\"></a>\n### A note about the *nice feature*\n\nThe *nice value* represent the *niceness* of the event-emitting processing.\nThis concept is inspired by the UNIX *nice* concept for processus (see the man page for the *nice* and *renice* command).\n\nIn this lib, this represents the asyncness of the event-emitting processing.\n\nThe constant `require( 'nextgen-events' ).SYNC` can be used to have synchronous event emitting, its value is `-Infinity`\nand it's the default value.\n\n* any nice value *N* greater than or equals to 0 will be emitted asynchronously using setTimeout() with a *N* ms timeout\n  to call the listeners\n* any nice value *N* lesser than 0 will emit event synchronously until *-N* recursion is reached, after that, setImmediate()\n  will be used to call the listeners, the first event count as 1 recursion, so if nice=-1, all events will be asynchronously emitted,\n  if nice=-2 the initial event will call the listener synchronously, but if the listener emits events on the same emitter object,\n  the sub-listener will be called through setImmediate(), breaking the recursion... and so on...\n\nThey are many elements that can define their own *nice value*.\n\nHere is how this is resolved:\n\n* First the *emit nice value* will be the one passed to the `.emit()` method if given, or the default *emitter nice value*\n  defined with [.setNice()](#ref.events.setNice).\n* For each listener to be called, the real *nice value* for the current listener will be the **HIGHEST** *nice value* of\n  the *emit nice value* (see above), the listener *nice value* (defined with [.addListener()](#ref.events.addListener)), and\n  if the listener is tied to a context, the context *nice value* (defined with [.addListenerContext()](#ref.events.addListenerContext)\n  or [.setListenerContextNice](#ref.events.setListenerContextNice))\n\n\n\n<a name=\"ref.events.addListenerContext\"></a>\n### .addListenerContext( contextName , options )\n\n* contextName `string` a non-empty string identifying the context to be created\n* options `Object` an object of options, where:\n\t* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\t* serial `boolean` (default: false) if true, the async listeners tied to this context will run sequentially,\n\t  one after the other is fully completed\n\nCreate a context using the given *contextName*.\n\nListeners can be tied to a context, enabling some grouping features like turning them on or off just by enabling/disabling\nthe context, queuing them, resuming them, or forcing serialization of all async listeners.\n\n\n\n<a name=\"ref.events.disableListenerContext\"></a>\n### .disableListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nIt disables a context: any listeners tied to it will not be triggered anymore.\n\nThe context is not destroyed, the listeners are not removed, they are just inactive.\nThey can be enabled again using [.enableListenerContext()](#ref.events.enableListenerContext).\n\n\n\n<a name=\"ref.events.queueListenerContext\"></a>\n### .queueListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nIt switchs a context into *queue mode*: any listeners tied to it will not be triggered anymore, but every listener's call\nwill be queued.\n\nWhen the context will be enabled again using [.enableListenerContext()](#ref.events.enableListenerContext), any queued listener's call\nwill be processed.\n\n\n\n<a name=\"ref.events.enableListenerContext\"></a>\n### .enableListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nThis enables a context previously disabled using [.disableListenerContext()](#ref.events.disableListenerContext) or queued\nusing [.disableListenerContext()](#ref.events.disableListenerContext).\n\nIf the context was queued, any queued listener's call will be processed right now for synchronous emitter, or a bit later\ndepending on the *nice value*. E.g. if a listener would have been called with a timeout of 50 ms (nice value = 5),\nand the call has been queued, the timeout will apply at resume time.\n\n\n\n<a name=\"ref.events.setListenerContextNice\"></a>\n### .setListenerContextNice( contextName , nice )\n\n* contextName `string` a non-empty string identifying the context to be created\n* nice `integer` (default: -Infinity) see [the nice feature](#ref.note.nice) for details\n\nSet the *nice* value for the current context.\n\n\n\n<a name=\"ref.events.serializeListenerContext\"></a>\n### .serializeListenerContext( contextName , [value] )\n\n* contextName `string` a non-empty string identifying the context to be created\n* value `boolean` (optional, default is true) if *true* the context will enable serialization for async listeners.\n\nThis is one of the top feature of this lib.\n\nIf set to *true* it enables the context serialization.\n\nIt has no effect on listeners defined without the *async* option (see [.addListener()](#ref.events.addListener)).\nListeners defined with the async option will postpone any other listener's calls part of the same context.\nThose calls will be queued until the completion callback of the listener is triggered.\n\nExample:\n\n```js\napp.on( 'maintenance' , {\n\tcontext: 'maintenanceHandlers' ,\n\tasync: true ,\n\tfn: function( type , done ) {\n\t\tperformSomeCriticalAsyncStuff( function() {\n\t\t\tconsole.log( 'Critical maintenance stuff finished' ) ;\n\t\t\tdone() ;\n\t\t} ) ;\n\t}\n} ) ;\n\napp.serializeListenerContext( maintenanceHandlers ) ;\n\n// ...\n\napp.emit( 'maintenance' , 'doBackup' ) ;\n\n// Despite the fact we emit synchronously, the listener will not be called now,\n// it will be queued and called later when the previous call will be finished\napp.emit( 'maintenance' , 'doUpgrade' ) ;\n```\n\nBy the way, there is only one listener here that will queue itself, and only one event type is fired.\nBut this would work the same with multiple listener and event type, if they share the same context.\n\nSame code with two listeners and two event type:\n\n```js\napp.on( 'doBackup' , {\n\tcontext: 'maintenanceHandlers' ,\n\tasync: true ,\n\tfn: function( done ) {\n\t\tperformBackup( function() {\n\t\t\tconsole.log( 'Backup finished' ) ;\n\t\t\tdone() ;\n\t\t} ) ;\n\t}\n} ) ;\n\napp.on( 'doUpgrade' , {\n\tcontext: 'maintenanceHandlers' ,\n\tasync: true ,\n\tfn: function( done ) {\n\t\tperformUpgrade( function() {\n\t\t\tconsole.log( 'Upgrade finished' ) ;\n\t\t\tdone() ;\n\t\t} ) ;\n\t}\n} ) ;\n\napp.on( 'whatever' , function() {\n\t// Some actions...\n} ) ;\n\napp.serializeListenerContext( maintenanceHandlers ) ;\n\n// ...\n\napp.emit( 'doBackup' ) ;\n\n// Despite the fact we emit synchronously, the second listener will not be called now,\n// it will be queued and called later when the first listener will have finished its job\napp.emit( 'doUpgrade' ) ;\n\n// The third listener is not part of the 'maintenanceHandlers' context, so it will be called\n// right now, before the first listener finished, and before the second listener ever start\napp.emit( 'whatever' ) ;\n```\n\n\n\n<a name=\"ref.events.destroyListenerContext\"></a>\n### .destroyListenerContext( contextName )\n\n* contextName `string` a non-empty string identifying the context to be created\n\nThis destroy a context and remove all listeners tied to it.\n\nAny queued listener's calls will be lost.\n\n\n\n<a name=\"incompatibilities\"></a>\n## Incompatibilities with the built-in Node.js EventEmitter\n\nNextGen Events is almost compatible with Node.js' EventEmitter, except for few things:\n\n* .emit() does not return the emitter, but an object representing the current event.\n\n* If the last argument passed to .emit() is a function, it is not passed to listeners, instead it is a completion callback\n  triggered when all listeners have done their job. If one want to pass function to listeners as the final argument, it is easy\n  to add an extra `null` or `undefined` argument to .emit().\n\n* There is more reserved event name: 'interrupt', 'emitted'.\n\n* There is no such concept of *max listener* in NextGen Events, .setMaxListeners() function exists only to not break compatibility\n  for people that want to make the switch, but it does nothing (it's an empty function).\n\n* .removeListener() will remove all matching listener, not only the first listener found.\n\n* 'newListener'/'removeListener' event listener will receive an array of new/removed *listener object*, instead of only one\n  *listener function*.\n  E.g: it will be fired only once by when .removeListener() or .removeAllListener() is invoked and multiple listeners are deleted.\n  A *listener object* contains a property called 'fn' that hold the actual *listener function*.\n\n* `.removeAllListeners()` without any argument does not trigger 'removeListener' listener, because there are actually removed too.\n  The same apply to `.removeAllListeners( 'removeListener' )`.\n\n* .listeners() same here: rather than providing an array of *listener function* an array of *listener object* is provided.\n\n\n\n<a name=\"ref.proxy\"></a>\n## Proxy Services\n\n**This part of the doc is still a work in progress!**\n\n**Proxy services are awesome.** They abstract away the network so we can emit and listen to emitter on the other side of the plug!\nBoth side of the channel create a Proxy, and add to it local and remote *services*, i.e. event emitters, and that's all.\nA remote service looks like a normal (i.e. local) emitter, and share the same API (with few limitations).\n\nIt's totally protocol agnostic, you just define two methods for your proxy: one to read from the network and one to send to it\n(e.g. for Web Socket, this is a one-liner).\n\n\n\n#### Example, using the Web Socket *ws* node module\n\nThe code below set up a server and a client written in Node.js.\nThe server expose the *heartBeatService* which simply emit an *heartBeat* event once in a while with the beat count as data.\nMost of this code is websocket boiler-plate, the actual proxy code involves only few lines.\nThe client code could be easily rewritten for the browser.\n\n**Server:**\n\n```js\nvar NGEvents = require( 'nextgen-events' ) ;\n\n// Create our service/emitter\nvar heartBeatEmitter = new NGEvents() ;\nvar nextBeat = 1 ;\n\n// Emit one 'heartBeat' event every few seconds\nsetInterval( function() {\n  var beat = nextBeat ++ ;\n  heartBeatEmitter.emit( 'heartBeat' , beat ) ;\n} , 2000 ) ;\n\n// Create our server\nvar WebSocket = require( 'ws' ) ;\nvar server = new WebSocket.Server( { port: 12345 } ) ;\n\n// On new connection... \nserver.on( 'connection' , function connection( ws ) {\n  \n  // Create a proxy for this client\n  var proxy = new NGEvents.Proxy() ;\n  \n  // Add the local service exposed to this client and grant it all right\n  proxy.addLocalService( 'heartBeatService' , heartBeatEmitter ,\n    { listen: true , emit: true , ack: true } ) ;\n  \n  // message received: just hook to proxy.receive()\n  ws.on( 'message' , function incoming( message ) {\n    proxy.receive( message ) ;\n  } ) ;\n  \n  // Define the receive method: should call proxy.push()\n  // after decoding the raw message\n  proxy.receive = function receive( raw ) {\n    try { proxy.push( JSON.parse( raw ) ) ; } catch ( error ) {}\n  } ;\n  \n  // Define the send method\n  proxy.send = function send( message ) {\n    ws.send( JSON.stringify( message ) ) ;\n  } ;\n  \n  // Clean up after everything is done\n  ws.on( 'close' , function close() {\n    proxy.destroy() ;\n  } ) ;\n} ) ;\n```\n\n**Client:**\n\n```js\nvar NGEvents = require( 'nextgen-events' ) ;\nvar WebSocket = require( 'ws' ) ;\nvar ws = new WebSocket( 'ws://127.0.0.1:12345' ) ;\n\n// Create a proxy\nvar proxy = new NGEvents.Proxy() ;\n\n// Once the connection is established...\nws.on( 'open' , function open() {\n  \n  // Add the remote service we want to access\n  proxy.addRemoteService( 'heartBeatService' ) ;\n  \n  // Listen to the event 'heartBeat' on this service\n  proxy.remoteServices.heartBeatService.on( 'heartBeat' , function( beat ) {\n    console.log( '>>> Heart Beat (%d) received!' , beat ) ;\n  } ) ;\n} ) ;\n\n// message received: just hook to proxy.receive()\nws.on( 'message' , function( message ) {\n  proxy.receive( message ) ;\n} ) ;\n\n// Define the receive method: should call proxy.push()\n// after decoding the raw message\nproxy.receive = function receive( raw ) {\n  try { proxy.push( JSON.parse( raw ) ) ; } catch ( error ) {}\n} ;\n\n// Define the send method\nproxy.send = function send( message ) {\n  ws.send( JSON.stringify( message ) ) ;\n} ;\n\n// Clean up after everything is done\nws.on( 'close' , function close() {\n  proxy.destroy() ;\n} ) ;\n```\n\n\n\nOptions passed to `.addLocalService()`:\n\n* listen `boolean` if set, the remote client can listen (addListener()/on()) to the local emitter\n* emit `boolean` if set, the remote client can emit on the local emitter\n* ack `boolean` if set, the remote client can acknowledge or ask for acknowledgement, enabling **async listeners**\n  and .emit()'s **completion callback**\n\n\n\nNextGen Events features available in proxy services:\n\n* All the basic API is supported (the node-compatible API)\n* Emit completion callback supported\n* Async listeners supported\n\n\n\nFeatures that could be supported in the future:\n\n* Emit interruption and retrieving the interruption value\n\n\n\nFeatures that are unlikely to be supported:\n\n* Remote emit with a nice value (does not make sense at all through a network)\n* Contexts cannot be shared across different proxies/client, think of it as if they were namespaced behind their proxy\n\n\n",
   "readmeFilename": "README.md",
-  "gitHead": "e91559128a1653ed3b58dcadefcac62aa7056207",
-  "homepage": "https://github.com/cronvel/nextgen-events#readme",
-  "_id": "nextgen-events@0.9.8",
-  "_shasum": "ed1712c2b37dad55407b3e941672d1568c3a4630",
-  "_from": "nextgen-events@>=0.9.8 <0.10.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cronvel/nextgen-events.git"
+  },
+  "scripts": {
+    "test": "mocha -R dot"
+  },
+  "version": "0.9.9"
 }
 
 },{}],12:[function(require,module,exports){
@@ -4032,6 +4074,10 @@ process.off = noop;
 process.removeListener = noop;
 process.removeAllListeners = noop;
 process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
@@ -4798,6 +4844,7 @@ module.exports = {
 	italic: '\x1b[3m' ,
 	underline: '\x1b[4m' ,
 	inverse: '\x1b[7m' ,
+	
 	defaultColor: '\x1b[39m' ,
 	black: '\x1b[30m' ,
 	red: '\x1b[31m' ,
@@ -4815,6 +4862,24 @@ module.exports = {
 	brightMagenta: '\x1b[95m' ,
 	brightCyan: '\x1b[96m' ,
 	brightWhite: '\x1b[97m' ,
+	
+	defaultBgColor: '\x1b[49m' ,
+	bgBlack: '\x1b[40m' ,
+	bgRed: '\x1b[41m' ,
+	bgGreen: '\x1b[42m' ,
+	bgYellow: '\x1b[43m' ,
+	bgBlue: '\x1b[44m' ,
+	bgMagenta: '\x1b[45m' ,
+	bgCyan: '\x1b[46m' ,
+	bgWhite: '\x1b[47m' ,
+	bgBrightBlack: '\x1b[100m' ,
+	bgBrightRed: '\x1b[101m' ,
+	bgBrightGreen: '\x1b[102m' ,
+	bgBrightYellow: '\x1b[103m' ,
+	bgBrightBlue: '\x1b[104m' ,
+	bgBrightMagenta: '\x1b[105m' ,
+	bgBrightCyan: '\x1b[106m' ,
+	bgBrightWhite: '\x1b[107m' ,
 } ;
 
 
@@ -4875,6 +4940,16 @@ exports.regExpReplacement = function escapeRegExpReplacement( str ) {
 
 exports.format = function escapeFormat( str ) {
 	return str.replace( /%/g , '%%' ) ;	// This replace any single % by a double %%
+} ;
+
+
+
+exports.jsSingleQuote = function escapeJsSingleQuote( str ) {
+	return exports.control( str ).replace( /'/g , "\\'" ) ;
+} ;
+
+exports.jsDoubleQuote = function escapeJsDoubleQuote( str ) {
+	return exports.control( str ).replace( /"/g , '\\"' ) ;
 } ;
 
 
@@ -4994,14 +5069,19 @@ exports.formatMethod = function format( str )
 {
 	if ( typeof str !== 'string' )
 	{
-		if ( str === null || str === undefined ) { return '' ; }
-		else if ( /*str && typeof str === 'object' && */ typeof str.toString === 'function' ) { str = str.toString() ; }
-		else { return '' ; }
+		if ( ! str ) { str = '' ; }
+		else if ( typeof str.toString === 'function' ) { str = str.toString() ; }
+		else { str = '' ; }
 	}
 	
 	var self = this , arg , value ,
 		autoIndex = 1 , args = arguments , length = arguments.length ,
-		hasMarkup = false , markupStack = [] ;
+		hasMarkup = false , shift = null , markupStack = [] ;
+	
+	if ( this.markupReset && this.startingMarkupReset )
+	{
+		str = ( typeof this.markupReset === 'function' ? this.markupReset( markupStack ) : this.markupReset ) + str ;
+	}
 	
 	//console.log( 'format args:' , arguments ) ;
 	
@@ -5010,7 +5090,7 @@ exports.formatMethod = function format( str )
 	str = str.replace( /\^(.?)|(%%)|%([+-]?)([0-9]*)(?:\[([^\]]*)\])?([a-zA-Z])/g ,
 		function( match , markup , doublePercent , relative , index , modeArg , mode ) {		// jshint ignore:line
 			
-			var replacement , i , n , tmp , fn , fnArgString , argMatches , argList = [] ;
+			var replacement , i , n , depth , tmp , fn , fnArgString , argMatches , argList = [] ;
 			
 			//console.log( 'replaceArgs:' , arguments ) ;
 			if ( doublePercent ) { return '%'; }
@@ -5018,18 +5098,54 @@ exports.formatMethod = function format( str )
 			if ( markup )
 			{
 				if ( markup === '^' ) { return '^' ; }
-				if ( ! self.markup || ! self.markup[ markup ] ) { return '' ; }
-				hasMarkup = true ;
 				
-				if ( typeof self.markup[ markup ] === 'function' )
+				if ( self.shiftMarkup && self.shiftMarkup[ markup ] )
 				{
-					replacement = self.markup[ markup ]( markupStack ) ;
-					// method should manage markup stack themselves
+					shift = self.shiftMarkup[ markup ] ;
+					return '' ;
+				}
+				
+				if ( shift )
+				{
+					if ( ! self.shiftedMarkup || ! self.shiftedMarkup[ shift ] || ! self.shiftedMarkup[ shift ][ markup ] )
+					{
+						return '' ;
+					}
+					
+					hasMarkup = true ;
+					
+					if ( typeof self.shiftedMarkup[ shift ][ markup ] === 'function' )
+					{
+						replacement = self.shiftedMarkup[ shift ][ markup ]( markupStack ) ;
+						// method should manage markup stack themselves
+					}
+					else
+					{
+						replacement = self.shiftedMarkup[ shift ][ markup ] ;
+						markupStack.push( replacement ) ;
+					}
+					
+					shift = null ;
 				}
 				else
 				{
-					replacement = self.markup[ markup ] ;
-					markupStack.push( replacement ) ;
+					if ( ! self.markup || ! self.markup[ markup ] )
+					{
+						return '' ;
+					}
+					
+					hasMarkup = true ;
+					
+					if ( typeof self.markup[ markup ] === 'function' )
+					{
+						replacement = self.markup[ markup ]( markupStack ) ;
+						// method should manage markup stack themselves
+					}
+					else
+					{
+						replacement = self.markup[ markup ] ;
+						markupStack.push( replacement ) ;
+					}
 				}
 				
 				return replacement ;
@@ -5115,9 +5231,14 @@ exports.formatMethod = function format( str )
 					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 2 ) ; }
 					return '0' ;
 				case 'I' :
-					return inspect( { style: ( self && self.color ? 'color' : 'none' ) } , arg ) ;
+					depth = 3 ;
+					if ( modeArg !== undefined ) { depth = parseInt( modeArg , 10 ) ; }
+					return inspect( { depth: depth , style: ( self && self.color ? 'color' : 'none' ) } , arg ) ;
 				case 'Y' :
+					depth = 3 ;
+					if ( modeArg !== undefined ) { depth = parseInt( modeArg , 10 ) ; }
 					return inspect( {
+							depth: depth ,
 							style: ( self && self.color ? 'color' : 'none' ) ,
 							noFunc: true ,
 							enumOnly: true ,
@@ -5204,7 +5325,11 @@ exports.formatMethod = function format( str )
 var defaultFormatter = {
 	extraArguments: true ,
 	endingMarkupReset: true ,
+	startingMarkupReset: false ,
 	markupReset: ansi.reset ,
+	shiftMarkup: {
+		'#': 'background'
+	} ,
 	markup: {
 		":": ansi.reset ,
 		" ": ansi.reset + " " ,
@@ -5231,6 +5356,29 @@ var defaultFormatter = {
 		"W": ansi.brightWhite ,
 		"y": ansi.yellow ,
 		"Y": ansi.brightYellow
+	} ,
+	shiftedMarkup: {
+		background: {
+			":": ansi.reset ,
+			" ": ansi.reset + " " ,
+			
+			"b": ansi.bgBlue ,
+			"B": ansi.bgBrightBlue ,
+			"c": ansi.bgCyan ,
+			"C": ansi.bgBrightCyan ,
+			"g": ansi.bgGreen ,
+			"G": ansi.bgBrightGreen ,
+			"k": ansi.bgBlack ,
+			"K": ansi.bgBrightBlack ,
+			"m": ansi.bgMagenta ,
+			"M": ansi.bgBrightMagenta ,
+			"r": ansi.bgRed ,
+			"R": ansi.bgBrightRed ,
+			"w": ansi.bgWhite ,
+			"W": ansi.bgBrightWhite ,
+			"y": ansi.bgYellow ,
+			"Y": ansi.bgBrightYellow
+		}
 	}
 } ;
 
@@ -5243,12 +5391,17 @@ exports.markupMethod = function markup( str )
 {
 	if ( typeof str !== 'string' )
 	{
-		if ( str === null || str === undefined ) { return '' ; }
-		else if ( /*str && typeof str === 'object' && */ typeof str.toString === 'function' ) { str = str.toString() ; }
-		else { return '' ; }
+		if ( ! str ) { str = '' ; }
+		else if ( typeof str.toString === 'function' ) { str = str.toString() ; }
+		else { str = '' ; }
 	}
 	
-	var self = this , hasMarkup = false , markupStack = [] ;
+	var self = this , hasMarkup = false , shift = null , markupStack = [] ;
+	
+	if ( this.markupReset && this.startingMarkupReset )
+	{
+		str = ( typeof this.markupReset === 'function' ? this.markupReset( markupStack ) : this.markupReset ) + str ;
+	}
 	
 	//console.log( 'format args:' , arguments ) ;
 	
@@ -5256,18 +5409,54 @@ exports.markupMethod = function markup( str )
 		var replacement ;
 		
 		if ( markup === '^' ) { return '^' ; }
-		if ( ! self.markup || ! self.markup[ markup ] ) { return '' ; }
-		hasMarkup = true ;
 		
-		if ( typeof self.markup[ markup ] === 'function' )
+		if ( self.shiftMarkup && self.shiftMarkup[ markup ] )
 		{
-			replacement = self.markup[ markup ]( markupStack ) ;
-			// method should manage markup stack themselves
+			shift = self.shiftMarkup[ markup ] ;
+			return '' ;
+		}
+		
+		if ( shift )
+		{
+			if ( ! self.shiftedMarkup || ! self.shiftedMarkup[ shift ] || ! self.shiftedMarkup[ shift ][ markup ] )
+			{
+				return '' ;
+			}
+			
+			hasMarkup = true ;
+			
+			if ( typeof self.shiftedMarkup[ shift ][ markup ] === 'function' )
+			{
+				replacement = self.shiftedMarkup[ shift ][ markup ]( markupStack ) ;
+				// method should manage markup stack themselves
+			}
+			else
+			{
+				replacement = self.shiftedMarkup[ shift ][ markup ] ;
+				markupStack.push( replacement ) ;
+			}
+			
+			shift = null ;
 		}
 		else
 		{
-			replacement = self.markup[ markup ] ;
-			markupStack.push( replacement ) ;
+			if ( ! self.markup || ! self.markup[ markup ] )
+			{
+				return '' ;
+			}
+			
+			hasMarkup = true ;
+			
+			if ( typeof self.markup[ markup ] === 'function' )
+			{
+				replacement = self.markup[ markup ]( markupStack ) ;
+				// method should manage markup stack themselves
+			}
+			else
+			{
+				replacement = self.markup[ markup ] ;
+				markupStack.push( replacement ) ;
+			}
 		}
 		
 		return replacement ;
@@ -5280,6 +5469,8 @@ exports.markupMethod = function markup( str )
 	
 	return str ;
 } ;
+
+
 
 exports.markup = exports.markupMethod.bind( defaultFormatter ) ;
 
