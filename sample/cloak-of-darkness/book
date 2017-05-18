@@ -86,7 +86,7 @@
 			> There are doorways south and west.
 		
 		[on rpg:drop-item]
-			[if $args.data.model = "cloak-of-darkness"]
+			[if $args.model = "cloak-of-darkness"]
 				[message]
 					> Hey! You can't drop such a classy cloak on the ground!
 					>
@@ -108,7 +108,7 @@
 		[define $cloakroom] true
 		
 		[on rpg:drop-item]
-			[if $args.data.model = "cloak-of-darkness"]
+			[if $args.model = "cloak-of-darkness"]
 				[message]
 					> You put the Cloak of Darkness on the brass hook.
 					>
@@ -201,7 +201,7 @@
 		[else]
 			[message]
 				> You try to quickly reach the hilt of your sword only to realize that you have abandonned
-				> it inside the opera house... ^+You are empty handed!^:
+				> it inside the opera house... ^R^+You are empty handed!^:
 				> The goblins rejoyce and charge you with their spears.
 				> You heroically defended your life, punching and kicking goblins with all you have.
 				> You eventually knock out three of them with few powerful blows...

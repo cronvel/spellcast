@@ -14,7 +14,7 @@
 
 [on command]
 	[global]
-	[message] $> ^/${args.data.role.label//uc1} says:^ “${args.data.command}^:”
+	[message] $> ^/${args.role.label//uc1} says:^ “${args.command}^:”
 
 
 [chapter intro]

@@ -14,7 +14,7 @@
 
 [on command]
 	[global]
-	[message] $> ^/${args.data.entity.label//uc1} says:^ “${args.data.command}^:”
+	[message] $> ^/${args.entity.label//uc1} says:^ “${args.command}^:”
 
 
 [chapter intro]
@@ -34,7 +34,7 @@
 		[on blast]
 			[global]
 			[message]
-				$> ${args.data} was blasted!
+				$> ${args} was blasted!
 		
 		[message] $> ...
 		[pause] 0.2

@@ -118,12 +118,14 @@
 
 [spell event]
 	[on blast]
+		[global]
 		[message]
-			$> ^RBlasted ${args.data}!
+			$> ^RBlasted ${args}!
 	[on blast]
+		[global]
 		[once]
 		[message]
-			$> ^RRoasted ${args.data}!
+			$> ^RRoasted ${args}!
 	[emit blast] Troll
 	[emit blast] Gnoll
 
