@@ -1828,10 +1828,9 @@ The content of the *on* tag is called a **listener**.
 Inside the listener, the special **$args** variable will contain the data of the event, e.g. the solved content
 of the *emit* tag that fired the event.
 
-Except if the listener has the *global* parameter on, the following apply:
-* The listener is destroyed once the script execution leaves the current scene (*goto*, *next*).
-* Moreover, the listener is triggered only when the current scene is active: if the scene *gosub* to a sub-scene,
-  as long as it has not returned to the scene that defined the listener, it will not be triggered.
+Except if the listener has the *global* parameter on, the listener is destroyed once the script execution leaves
+the current scene (*goto*, *next*).
+But it still apply for any nested level of sub-scene (*gosub*).
 
 Parameters tags can modify many things about the listener mechanism, but there are **NOT** dynamic,
 i.e. they do not contain variable but direct constant data.
@@ -1855,10 +1854,9 @@ With the *once* parameter, the *on* tag will listen for that event **only once**
 * attribute style: none
 * content type: boolean or none (none=true)
 
-With the *global* parameter, the *on* tag will listen for that event **globally**, implying that:
-* It can trigger when the scene *gosub* to any number of nested sub-scene.
-* The listener is not destroyed when the script execution leaves the current scene (*goto*, *next*), it can be triggered
-  by event emitted from any other scene.
+With the *global* parameter, the *on* tag will listen for that event **globally**, implying that the listener
+is not destroyed when the script execution leaves the current scene (*goto*, *next*), it can be triggered
+by event emitted from any other scenes.
 
 
 

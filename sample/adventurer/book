@@ -23,31 +23,8 @@
 		
 		[message]
 			$> ^/Once ^Bupon a time...
-		[next intro2]
+		[next intro3]
 		#[goto intro2]
-	
-	[scene intro3]
-		#[image] > background.png
-		#[sound] > effect1.mp3
-		#[music] > theme.ogg
-		
-		[on blast]
-			[global]
-			[message]
-				$> ${args} was blasted!
-		
-		[message] $> ...
-		[pause] 0.2
-		[emit blast] Bill
-		[message] $> ...
-		[pause] 0.2
-		[emit blast] Bob
-		[message] $> ...
-		[pause] 0.2
-		[gosub sub1]
-		[message]
-			$> ...
-		[next start]
 	
 	[scene intro2]
 		#[image] > background.png
@@ -67,16 +44,26 @@
 		[message] $> You like ${like}!
 		[next start]
 	
+	[scene intro3]
+		#[image] > background.png
+		#[sound] > effect1.mp3
+		#[music] > theme.ogg
+		
+		[on blast]
+			[once]
+			[message]
+				$> ${args} was blasted!
+		
+		[gosub sub1]
+		[emit blast] Bill
+		[next start]
+	
 	[scene sub1]
-		[set $dices] $= 3 D 6
-		[message]
-			$> Dices #1: ${dices}
+		[emit blast] Jack
 		[next sub2]
 	
 	[scene sub2]
-		[set $dices] $= 3 D 6
-		[message]
-			$> Dices #2: ${dices}
+		[message] $> return
 	
 	[scene start]
 		[vote-time] 5
