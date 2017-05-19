@@ -50,10 +50,13 @@
 		#[music] > theme.ogg
 		
 		[on blast]
-			[once]
+			#[once]
+			[id] event_1
 			[message]
 				$> ${args} was blasted!
 		
+		[off] event_1
+		[emit blast] Joe
 		[gosub sub1]
 		[emit blast] Bill
 		[next start]
