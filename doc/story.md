@@ -108,7 +108,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [On Tag](#ref.event.on)
 			* [Once Tag](#ref.event.on.once)
 			* [Global Tag](#ref.event.on.global)
-		* [Once Tag](#ref.event.once)
+			* [Id Tag](#ref.event.on.id)
+		* [Off Tag](#ref.event.off)
 		* [Cancel Tag](#ref.event.cancel)
 	* [Multiplayer Tags](#ref.multiplayer)
 		* [Role Tag](#ref.multiplayer.role)
@@ -1836,6 +1837,7 @@ Parameters tags can modify many things about the listener mechanism, but there a
 i.e. they do not contain variable but direct constant data.
 
 
+
 <a name="ref.event.on.once"></a>
 ### [once]
 
@@ -1848,7 +1850,7 @@ With the *once* parameter, the *on* tag will listen for that event **only once**
 
 
 <a name="ref.event.on.global"></a>
-## [global]
+### [global]
 
 * types: parameter (init)
 * attribute style: none
@@ -1857,6 +1859,32 @@ With the *once* parameter, the *on* tag will listen for that event **only once**
 With the *global* parameter, the *on* tag will listen for that event **globally**, implying that the listener
 is not destroyed when the script execution leaves the current scene (*goto*, *next*), it can be triggered
 by event emitted from any other scenes.
+
+
+
+<a name="ref.event.on.id"></a>
+### [id]
+
+* types: parameter (init)
+* attribute style: none
+* content type: string
+
+Set the content of this tag as the listener ID.
+The ID is useful if the listener should be removed.
+
+
+
+<a name="ref.event.off"></a>
+## [off]
+
+* types: run
+* attribute style: none
+* content type: string or none
+
+The *off* tag unregister (*remove*, *turn off*) a listener.
+The content of this tag is the ID of the listener to unregister.
+
+If the tag has no content, then the *off* tag must be inside a *on* tag, the listener to unregister.
 
 
 

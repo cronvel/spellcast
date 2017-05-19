@@ -54,9 +54,11 @@
 			[id] event_1
 			[message]
 				$> ${args} was blasted!
+			#[off]
 		
-		[off] event_1
+		#[off] event_1
 		[emit blast] Joe
+		[emit blast] Joey
 		[gosub sub1]
 		[emit blast] Bill
 		[next start]
