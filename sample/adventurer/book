@@ -54,7 +54,8 @@
 			[id] event_1
 			[message]
 				$> ${args} was blasted!
-			#[off]
+			[if true]
+				[off]
 		
 		#[off] event_1
 		[emit blast] Joe
