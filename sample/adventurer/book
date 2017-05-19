@@ -21,6 +21,12 @@
 	
 	[scene intro1]
 		
+		[on blast]
+			[global]
+			[default]
+			[message]
+				$> ${args} was not blasted!
+		
 		[message]
 			$> ^/Once ^Bupon a time...
 		[next intro3]
@@ -54,8 +60,7 @@
 			[id] event_1
 			[message]
 				$> ${args} was blasted!
-			[if true]
-				[off]
+			#[off]
 		
 		#[off] event_1
 		[emit blast] Joe

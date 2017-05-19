@@ -15,6 +15,17 @@
 	slotType: cloak
 	slotCount: 1
 
+[on rpg:drop-item]
+	[global]
+	[default]
+	[if $args.model = "cloak-of-darkness"]
+		[message]
+			> Hey! You can't drop such a classy cloak on the ground!
+			>
+		[cancel]
+
+
+
 [item-model sword-of-slashing]
 	class: object
 	label: Sword of Slashing
@@ -24,12 +35,16 @@
 	slotType: hand
 	slotCount: 1
 
+
+
 [item-model coin]
 	class: object
 	label: coin
 	description: A coin.
 	params:
 		examineFlavor: A silver coin.
+
+
 
 # Create the main character
 [create-main-entity]
@@ -84,13 +99,6 @@
 		[message]
 			> The hall is spacious. Someone lighted few chandeliers.
 			> There are doorways south and west.
-		
-		[on rpg:drop-item]
-			[if $args.model = "cloak-of-darkness"]
-				[message]
-					> Hey! You can't drop such a classy cloak on the ground!
-					>
-				[cancel]
 		
 		[next taverne] $= ( $taverne is-set? ) ? "Go to the taverne (south)" "Go south"
 		[next cloakroom] $= ( $cloakroom is-set? ) ? "Go to the cloakroom (west)" "Go west"

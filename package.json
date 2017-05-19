@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.35.3",
+  "version": "0.35.4",
   "description": "Make: your own adventure!",
   "main": "lib/Book.js",
   "engines": {

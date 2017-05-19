@@ -108,6 +108,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [On Tag](#ref.event.on)
 			* [Once Tag](#ref.event.on.once)
 			* [Global Tag](#ref.event.on.global)
+			* [Default Tag](#ref.event.on.default)
 			* [Id Tag](#ref.event.on.id)
 		* [Off Tag](#ref.event.off)
 		* [Cancel Tag](#ref.event.cancel)
@@ -1859,6 +1860,17 @@ With the *once* parameter, the *on* tag will listen for that event **only once**
 With the *global* parameter, the *on* tag will listen for that event **globally**, implying that the listener
 is not destroyed when the script execution leaves the current scene (*goto*, *next*), it can be triggered
 by event emitted from any other scenes.
+
+
+
+<a name="ref.event.on.default"></a>
+### [default]
+
+* types: parameter (init)
+* attribute style: none
+* content type: boolean or none (none=true)
+
+With the *default* parameter, the *on* tag will be activated **only** if it is the only one listening that event.
 
 
 
