@@ -1960,7 +1960,7 @@ describe( "RPG tags and features" , function() {
 
 describe( "API" , function() {
 	
-	it( "Event [on]/[once]/[emit] tags" , function( done ) {
+	it( "Event [on]/[off]/[emit] tags" , function( done ) {
 		
 		var messages = [] ;
 		
@@ -1982,7 +1982,7 @@ describe( "API" , function() {
 		) ;
 	} ) ;
 	
-	it( "Global listeners [on-global]/[once-global] tags" ) ;
+	it( "Global listeners [on]+[global] tags" ) ;
 	it( "[emit] tag" ) ;
 } ) ;
 

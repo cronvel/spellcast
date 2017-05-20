@@ -123,7 +123,7 @@
 			$> ^RBlasted ${args}!
 	[on blast]
 		[global]
-		[once]
+		[off]
 		[message]
 			$> ^RRoasted ${args}!
 	[emit blast] Troll

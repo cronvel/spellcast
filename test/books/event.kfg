@@ -8,7 +8,7 @@
 			$> Blasted ${args}!
 	[on blast]
 		[global]
-		[once]
+		[off]
 		[message]
 			$> Roasted ${args}!
 	[emit blast] Troll
