@@ -70,7 +70,7 @@
 		[next start]
 	
 	[scene sub1]
-		[emit blast] Jack
+		[emit blast] Jean
 		[next sub2]
 	
 	[scene sub2]
