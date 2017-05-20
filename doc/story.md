@@ -106,7 +106,6 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 	* [Event Tags](#ref.event)
 		* [Emit Tag](#ref.event.emit)
 		* [On Tag](#ref.event.on)
-			* [Once Tag](#ref.event.on.once)
 			* [Global Tag](#ref.event.on.global)
 			* [Default Tag](#ref.event.on.default)
 			* [Id Tag](#ref.event.on.id)
@@ -1836,17 +1835,6 @@ But it still apply for any nested level of sub-scene (*gosub*).
 
 Parameters tags can modify many things about the listener mechanism, but there are **NOT** dynamic,
 i.e. they do not contain variable but direct constant data.
-
-
-
-<a name="ref.event.on.once"></a>
-### [once]
-
-* types: parameter (init)
-* attribute style: none
-* content type: boolean or none (none=true)
-
-With the *once* parameter, the *on* tag will listen for that event **only once**, i.e. it triggers at most only once.
 
 
 
