@@ -14,7 +14,11 @@
 
 [on command]
 	[global]
-	[message] $> ^/${args.role.label//uc1} says:^ “${args.command}^:”
+	[if $args.command = "stop"]
+		[message] > [chat stopped!]
+		[off]
+	[else]
+		[message] $> ^/${args.role.label//uc1} says:^ “${args.command}^:”
 
 
 [chapter intro]
