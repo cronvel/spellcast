@@ -1828,6 +1828,8 @@ The content of the *on* tag is called a **listener**.
 
 Inside the listener, the special **$args** variable will contain the data of the event, e.g. the solved content
 of the *emit* tag that fired the event.
+The context inside the listener is **NOT** the context of the parent tag, **INSTEAD** the context of the emitter is used.
+In fact, listeners work almost like functions defined by the *fn* tag.
 
 Except if the listener has the *global* parameter on, the listener is destroyed once the script execution leaves
 the current scene (*goto*, *next*).
@@ -1968,7 +1970,7 @@ It works like the [*create-entity* tag](#ref.rpg.create-entity).
 * content type: tags (only *gosub* tags)
 
 The *split* tag is used to split players in two or more scenario branches.
-Instead of playing together the same scene, group of players can play different scenes.
+Instead of playing together the same scene, groups of players can play different scenes.
 
 Inside a *split* tag, there must be at least two [*gosub* tags](#ref.flow.gosub), those *gosub* tags must have
 a [*roles* parameter tags](#ref.flow.gosub.roles).
@@ -1991,6 +1993,18 @@ In this example, there are two roles whose ID are `alice` and `bob`.
 When the *split* tag is run, Alice and Bob's player are splitted in two branches.
 Alice will play on the `alice-branch` sub-scene and Bob will play on the `bob-branch` sub-scene,
 until they finished their respective sub-scenario.
+
+When a split occurs, **branches run in parallel mode**.
+Therefore it should receive special care: **they should not act on the same variables**, or a lot of concurrency issues
+may arise.
+
+Furthermore, events are somewhat splitted too:
+* new listeners defined by the *on* tag inside a branch does not exist inside other branches
+* listener removed by the *off* tag inside a branch are not removed inside other branches
+
+Once all branches have reunited, listeners are merged:
+* all listeners created and still existing at the end of any branch are created (but those with duplicated ID are removed)
+* all listeners defined **BEFORE** the split and removed by any branch are removed
 
 
 
