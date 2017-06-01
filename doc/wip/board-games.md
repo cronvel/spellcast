@@ -4,7 +4,7 @@ With this module, it will be possible to make board games.
 
 
 
-## [board *$var*] tag
+## [board] tag
 
 Describe a board.
 
@@ -18,7 +18,9 @@ It **must** be accessible both server-side and client-side.
 The server parse it to produces *buttons* for the board UI and *squares*.
 
 ```
-[map] path/to/file.svg
+[map]
+	url: path/to/map.svg
+	style: css-url
 ```
 
 
@@ -69,7 +71,7 @@ Declare multiple squares and automatically build a network (populate the *paths*
 ### [piece]
 
 Declare a piece.
-It is an entity that can be placed to a square.
+It is something that can be placed on a square, most probably linked to an *entity*.
 
 ```
 [piece $my-piece]
@@ -80,13 +82,31 @@ It is an entity that can be placed to a square.
 
 
 
+### [immovable]
+
+Like *piece* but cannot be moved, they are fixed in place on a square, and displayed on a different layer than pieces (below).
+For things like buildings, towns, etc...
+
+
+
+### [card-slot]
+
+Like *square* but for cards.
+
+
+
 ### [card]
 
 Declare a card.
-Useful for card-based games.
+A card can be in a player hand, in a player deck, in a board deck, or on a board card slot.
+
+Card may probably have an HTML template, except if a format can be universal enough to rely only on CSS.
 
 ```
 [card $my-card]
 	url: image-url
+	style: css-url
 	name: card-name
 ```
+
+
