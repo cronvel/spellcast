@@ -129,6 +129,10 @@
 	[emit blast] Troll
 	[emit blast] Gnoll
 
+[spell random]
+	[set $successes] $= random-trial-successes 0.5 100
+	[message] $> Successes: ${successes}
+
 [spell js]
 	[message]
 		$> Hello ${wizard}!
