@@ -1,5 +1,5 @@
 
-[[doctype spellcast/story]]
+[[doctype spellcast/book]]
 
 [usage-compound-stats melee-fighting]
 	attack: $= $stats.fighting - $status.bodyMalus

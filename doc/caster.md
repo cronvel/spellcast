@@ -12,10 +12,10 @@ This Scroll is still a work in progress (specs, etc...)
 * Are-we-better-yet: **Maybe.**
 
 
-Usage: `spellcast [--book <spellbook>] <spell or summoning> [<options 1>] [<options 2>] [...]`
+Usage: `spellcast [cast|summon] <spell|file> [<options 1>] [<options 2>] [...]`
 
 * *spell*: a spell to cast (i.e. some actions to perform) existing in the spellbook.
-* *summoning*: a file to summon, it's like *spell* but the result should build the file
+* *file*: a file to summon, it's like *spell* but the result should build the file
 
 Options:
 

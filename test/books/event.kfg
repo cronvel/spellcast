@@ -1,12 +1,15 @@
 
-[[doctype spellcast/caster]]
+[[doctype spellcast/spellbook]]
 
 [spell event]
 	[on blast]
+		[global]
 		[message]
-			$> Blasted ${args.data}!
-	[once blast]
+			$> Blasted ${args}!
+	[on blast]
+		[global]
+		[off]
 		[message]
-			$> Roasted ${args.data}!
+			$> Roasted ${args}!
 	[emit blast] Troll
 	[emit blast] Gnoll

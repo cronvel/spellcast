@@ -1,5 +1,5 @@
 
-[[doctype spellcast/story]]
+[[doctype spellcast/book]]
 
 [item-model ring-of-fighting-spirit]
 	class: object

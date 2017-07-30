@@ -1,5 +1,5 @@
 
-[[doctype spellcast/caster]]
+[[doctype spellcast/spellbook]]
 
 [spell apply]
 	[set $template] $$> This is a template! Here some ${var}.

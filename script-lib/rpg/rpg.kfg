@@ -1,5 +1,5 @@
 
-[[doctype spellcast/story]]
+[[doctype spellcast/book]]
 
 [module] @@system/*.kfg
 [module] @@characters/*.kfg

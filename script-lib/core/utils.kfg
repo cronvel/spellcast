@@ -1,5 +1,8 @@
 
-[[doctype spellcast/story]]
+[[doctype spellcast/book]]
+[[locales locales/*]]
+
+
 
 [system core:utils]
 	

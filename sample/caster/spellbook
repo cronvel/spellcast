@@ -1,5 +1,5 @@
 
-[[doctype spellcast/caster]]
+[[doctype spellcast/spellbook]]
 
 [formula]
 	wizard: Zang'dar
@@ -118,13 +118,20 @@
 
 [spell event]
 	[on blast]
+		[global]
 		[message]
-			$> ^RBlasted ${args.data}!
-	[once blast]
+			$> ^RBlasted ${args}!
+	[on blast]
+		[global]
+		[off]
 		[message]
-			$> ^RRoasted ${args.data}!
+			$> ^RRoasted ${args}!
 	[emit blast] Troll
 	[emit blast] Gnoll
+
+[spell random]
+	[set $successes] $= random-trial-successes 0.5 100
+	[message] $> Successes: ${successes}
 
 [spell js]
 	[message]

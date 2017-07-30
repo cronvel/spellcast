@@ -25,8 +25,6 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Theme Tag](#ref.scenario.scene.theme)
 			* [Image Tag](#ref.scenario.scene.image)
 			* [Music Tag](#ref.scenario.scene.music)
-			* [Chat Tag](#ref.scenario.scene.chat)
-			* [Action-config Tag](#ref.scenario.scene.action-config)
 			* [Vote-time Tag](#ref.scenario.scene.vote-time)
 			* [Vote-style Tag](#ref.scenario.scene.vote-style)
 			* [Hurry-time Tag](#ref.scenario.scene.hurry-time)
@@ -108,9 +106,10 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 	* [Event Tags](#ref.event)
 		* [Emit Tag](#ref.event.emit)
 		* [On Tag](#ref.event.on)
-		* [Once Tag](#ref.event.once)
-		* [On-global Tag](#ref.event.on-global)
-		* [Once-global Tag](#ref.event.once-global)
+			* [Global Tag](#ref.event.on.global)
+			* [Default Tag](#ref.event.on.default)
+			* [Id Tag](#ref.event.on.id)
+		* [Off Tag](#ref.event.off)
 		* [Cancel Tag](#ref.event.cancel)
 	* [Multiplayer Tags](#ref.multiplayer)
 		* [Role Tag](#ref.multiplayer.role)
@@ -142,7 +141,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 <a name="usage"></a>
 ## Usage
 
-Usage: `spellcast story <book> [<options 1>] [<options 2>] [...]`
+Usage: `spellcast story [<book>] [<options 1>] [<options 2>] [...]`
 
 Options:
 
@@ -171,7 +170,7 @@ This is an example of a very short script with 3 scenes, featuring the most basi
 Copy-paste this script into a file named `test.kfg`, then run `spellcast story test.kfg`.
 
 ```
-[[doctype spellcast/story]]
+[[doctype spellcast/book]]
 
 [chapter intro]
 	[scene village]
@@ -216,7 +215,7 @@ A tag start with an opening bracket and finish with a closing bracket.
 The content of a tag is indented using tabs.
 
 So here we have:
-* The `[[doctype spellcast/story]]` is a meta-tag, it tell spellcast that the current file is a *spellcast story* file.
+* The `[[doctype spellcast/book]]` is a meta-tag, it tell spellcast that the current file is a *spellcast story* file.
   Meta-tags have two opening and two closing brackets, they **MUST** be placed before any other tags, because they are headers.
 * A top-level container tag: the `[chapter]` tag with an identifier (*intro*).
 * This chapter contains 3 `[scene]` tags named *village*, *master* and *rogue*.
@@ -287,8 +286,6 @@ It also supports some parameter tags of the *scene* tag, if present they will ac
 * [theme](#ref.scenario.scene.theme)
 * [image](#ref.scenario.scene.image)
 * [music](#ref.scenario.scene.music)
-* [chat](#ref.scenario.scene.chat)
-* [action-config](#ref.scenario.scene.action-config)
 
 
 
@@ -370,33 +367,6 @@ The content is an object where:
 * url `string` (optional) if set this is the URL of the music to play, else the client should stop playing music
 
 If the content is a string, it contains the *url* of the music.
-
-
-
-<a name="ref.scenario.scene.chat"></a>
-### [chat]
-
-* types: parameter
-* attribute style: none
-* content type: boolean or object
-
-The content is an object, where each key is a *role id* and the value is an object where:
-* read `boolean` is true if the current *role* can read the chat
-* write `boolean` is true if the current *role* can write to the chat
-
-Alternatively, the content can be a boolean used as a global setting, in that case all *roles* read and write permission
-will be set to that boolean.
-
-
-
-<a name="ref.scenario.scene.action-config"></a>
-### [action-config]
-
-* types: parameter
-* attribute style: none
-* content type: object
-
-TODO: documentation
 
 
 
@@ -1854,48 +1824,69 @@ The value can be of any type, and is produced by the listener.
 
 The *on* tag listen for the *event-label* event: whenever the event is fired, it executes its content.
 
-Inside the listener, the special **$args** variable will be an object, where:
-* event `string` this is the *event-label*
-* data `anything` this is the data of the event (the solved content of the *emit* tag)
+The content of the *on* tag is called a **listener**.
 
-The listener is destroyed once the script leave the current scene.
+Inside the listener, the special **$args** variable will contain the data of the event, e.g. the solved content
+of the *emit* tag that fired the event.
+The context inside the listener is **NOT** the context of the parent tag, **INSTEAD** the context of the emitter is used.
+In fact, listeners work almost like functions defined by the *fn* tag.
 
+Except if the listener has the *global* parameter on, the listener is destroyed once the script execution leaves
+the current scene (*goto*, *next*).
+But it still apply for any nested level of sub-scene (*gosub*).
 
-
-<a name="ref.event.once"></a>
-## [once *event-label*]
-
-* types: run, exec
-* attribute style: label
-* content type: tags
-
-The *once* tag works just like the [*on* tag](#ref.event.on), except that it listens for that event only once
-(i.e. it triggers at most only once).
+Parameters tags can modify many things about the listener mechanism, but there are **NOT** dynamic,
+i.e. they do not contain variable but direct constant data.
 
 
 
-<a name="ref.event.on-global"></a>
-## [on-global *event-label*]
+<a name="ref.event.on.global"></a>
+### [global]
 
-* types: run, exec
-* attribute style: label
-* content type: tags
+* types: parameter (init)
+* attribute style: none
+* content type: boolean or none (none=true)
 
-The *on-global* tag works just like the [*on* tag](#ref.event.on), except that it is **NOT** destroyed
-at the end of the current scene, instead it continues to be active even after the execution leaves it
+With the *global* parameter, the *on* tag will listen for that event **globally**, implying that the listener
+is not destroyed when the script execution leaves the current scene (*goto*, *next*), it can be triggered
+by event emitted from any other scenes.
 
 
 
-<a name="ref.event.on-global"></a>
-## [once-global *event-label*]
+<a name="ref.event.on.default"></a>
+### [default]
 
-* types: run, exec
-* attribute style: label
-* content type: tags
+* types: parameter (init)
+* attribute style: none
+* content type: boolean or none (none=true)
 
-The *once-global* tag works just like the [*on* tag](#ref.event.on), except that:
-* it listens for that event only once (i.e. it triggers at most only once)
-* it is **NOT** destroyed at the end of the current scene, instead it continues to be active even after the execution leaves it
+With the *default* parameter, the *on* tag will be activated **only** if it is the only one listening that event.
+
+
+
+<a name="ref.event.on.id"></a>
+### [id]
+
+* types: parameter (init)
+* attribute style: none
+* content type: string
+
+Set the content of this tag as the listener ID.
+The ID is useful if the listener should be removed.
+
+
+
+<a name="ref.event.off"></a>
+## [off]
+
+* types: run
+* attribute style: none
+* content type: string or none
+
+The *off* tag unregister (*remove*, *turn off*) a listener.
+The content of this tag is the ID of the listener to unregister.
+
+If the tag has no content, then the *off* tag must be inside a *on* tag, the listener to unregister.
 
 
 
@@ -1979,7 +1970,7 @@ It works like the [*create-entity* tag](#ref.rpg.create-entity).
 * content type: tags (only *gosub* tags)
 
 The *split* tag is used to split players in two or more scenario branches.
-Instead of playing together the same scene, group of players can play different scenes.
+Instead of playing together the same scene, groups of players can play different scenes.
 
 Inside a *split* tag, there must be at least two [*gosub* tags](#ref.flow.gosub), those *gosub* tags must have
 a [*roles* parameter tags](#ref.flow.gosub.roles).
@@ -2002,6 +1993,18 @@ In this example, there are two roles whose ID are `alice` and `bob`.
 When the *split* tag is run, Alice and Bob's player are splitted in two branches.
 Alice will play on the `alice-branch` sub-scene and Bob will play on the `bob-branch` sub-scene,
 until they finished their respective sub-scenario.
+
+When a split occurs, **branches run in parallel mode**.
+Therefore it should receive special care: **they should not act on the same variables**, or a lot of concurrency issues
+may arise.
+
+Furthermore, events are somewhat splitted too:
+* new listeners defined by the *on* tag inside a branch does not exist inside other branches
+* listener removed by the *off* tag inside a branch are not removed inside other branches
+
+Once all branches have reunited, listeners are merged:
+* all listeners created and still existing at the end of any branch are created (but those with duplicated ID are removed)
+* all listeners defined **BEFORE** the split and removed by any branch are removed
 
 
 
