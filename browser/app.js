@@ -85,7 +85,7 @@ Dom.create = function create()
 
 Dom.prototype.setTheme = function setTheme( theme )
 {
-	this.$theme.setAttribute('href' , theme.url) ;
+	this.$theme.setAttribute( 'href' , theme.url ) ;
 } ;
 
 
@@ -215,7 +215,7 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 
 		if ( choice.selectedBy && choice.selectedBy.length )
 		{
-			var spanElement = document.createElement('span') ;
+			var spanElement = document.createElement( 'span' ) ;
 			spanElement.classList.add( 'italic' , 'brightBlack' ) ;
 
 			// Add an extra space to separate from the label text
@@ -239,13 +239,17 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 
 
 // This is used when new choices replaces the previous scene choices
-Dom.prototype.setChoices = function setChoices( choices , undecidedNames , timeout , onSelect , callback )
+Dom.prototype.setChoices = function setChoices( choices , undecidedNames , onSelect , options , callback )
 {
 	var self = this ;
 
+	options = options || {} ;
 	callback = callback || noop ;
 
 	this.clearChoices( function() {
+		if ( options.style === 'inline' ) { self.$next.classList.add( 'inline' ) ; }
+		else { self.$next.classList.remove( 'inline' ) ; }
+		
 		self.addChoices( choices , onSelect , callback ) ;
 
 		if ( undecidedNames && undecidedNames.length )
@@ -256,8 +260,24 @@ Dom.prototype.setChoices = function setChoices( choices , undecidedNames , timeo
 			self.$next.appendChild( $unassignedUsers ) ;
 		}
 
-		if ( typeof timeout === 'number' ) { self.choiceTimeout( timeout ) ; }
+		if ( typeof options.timeout === 'number' ) { self.choiceTimeout( options.timeout ) ; }
 	} ) ;
+} ;
+
+
+
+Dom.prototype.setChoiceStyle = function setChoiceStyle( style )
+{
+	switch ( style )
+	{
+		case 'inline' :
+		case 'list' :
+			this.$next.setAttribute( 'data-choice-style' , style ) ;
+			break ;
+		case 'auto' :
+		default :
+			this.$next.setAttribute( 'data-choice-style' , null ) ;
+	}
 } ;
 
 
@@ -1299,7 +1319,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 		}
 	} ;
 
-	this.dom.setChoices( choices , undecidedNames , null , onSelect ) ;
+	this.dom.setChoices( choices , undecidedNames , onSelect ) ;
 
 	if ( assigned )
 	{
@@ -1389,7 +1409,7 @@ UI.nextTriggered = function nextTriggered()
 
 UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
 {
-	var self = this , choices = [] , undecidedNames ;
+	var self = this , choices = [] , undecidedNames , charCount = 0 , style = null ;
 
 	this.nexts = nexts ;
 	this.afterNext = true ;
@@ -1400,16 +1420,23 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , tim
 	nexts.forEach( function( next , i ) {
 
 		var roles = next.roleIds.map( function( id ) { return self.roles.get( id ).label ; } ) ;
+		
+		if ( next.label ) { charCount += next.label.length ; }
 
 		choices.push( {
 			index: i ,
 			label: next.label || 'Next' ,
-			orderedList: nexts.length > 1 ,
+			//orderedList: nexts.length > 1 ,
 			type: 'next' ,
 			selectedBy: roles
 		} ) ;
 	} ) ;
 
+	if ( this.roles.length <= 1 && choices.length <= 3 && charCount < 20 )
+	{
+		style = 'inline' ;
+	}
+	
 	if ( undecidedRoleIds.length && this.roles.length )
 	{
 		undecidedNames = undecidedRoleIds.map( function( e ) { return self.roles.get( e ).label ; } ) ;
@@ -1425,8 +1452,8 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , tim
 			self.bus.emit( 'selectNext' , index ) ;
 		}
 	} ;
-
-	this.dom.setChoices( choices , undecidedNames , timeout , onSelect ) ;
+	
+	this.dom.setChoices( choices , undecidedNames , onSelect , { timeout: timeout , style: style } ) ;
 } ;
 
 
