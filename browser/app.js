@@ -247,8 +247,16 @@ Dom.prototype.setChoices = function setChoices( choices , undecidedNames , onSel
 	callback = callback || noop ;
 
 	this.clearChoices( function() {
-		if ( options.style === 'inline' ) { self.$next.classList.add( 'inline' ) ; }
-		else { self.$next.classList.remove( 'inline' ) ; }
+		
+		switch ( options.style )
+		{
+			case 'inline' :
+			case 'thin' :
+				self.$next.setAttribute( 'data-choice-style' , options.style ) ;
+				break ;
+			default :
+				self.$next.removeAttribute( 'data-choice-style' ) ;
+		}
 		
 		self.addChoices( choices , onSelect , callback ) ;
 
@@ -1435,6 +1443,10 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , tim
 	if ( this.roles.length <= 1 && choices.length <= 3 && charCount < 20 )
 	{
 		style = 'inline' ;
+	}
+	else if ( choices.length > 8 )
+	{
+		style = 'thin' ;
 	}
 	
 	if ( undecidedRoleIds.length && this.roles.length )

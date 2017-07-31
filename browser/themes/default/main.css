@@ -107,28 +107,11 @@ body {
 
 			/* Paragraph, span, text message... */
 
+
+
 p {
 	margin: 0.2em 0em;
 }
-
-p.unassigned-users {
-	color: #555753;
-}
-
-span.unassigned-users {
-	color: #555753;
-	font-style: italic;
-}
-
-p.waiting-roles {
-	color: #555753;
-}
-
-span.waiting-roles {
-	color: #555753;
-	font-style: italic;
-}
-
 
 .end {
 	background-color: #fce94f;
@@ -192,30 +175,50 @@ input[type=text].text-input {
 
 
 
+			/* Choices and buttons */
+
+
+
+.choices {
+	display: flex;
+	flex-flow: column;
+}
+
+.choices[data-choice-style="inline"] {
+	flex-flow: row wrap;
+	justify-content: space-evenly;
+}
+
+.choices[data-choice-style="thin"] button {
+	font-size: 0.9em;
+	padding: 3px 10px;
+	margin: 4px 10px;
+}
+
 button {
 	display: block;
 	position: relative;
-	top: 0px;
+	/*text-align: left;*/
 	border: none;
 	outline: none;
 	background-color: #aaa ;
-	padding: 10px 20px;
-	margin: 15px 0px;
-	border-radius: 15px ;
-	box-shadow: 0 6px #3c3c3c;
+	padding: 6px 10px;
+	margin: 8px 10px;
 	cursor: pointer ;
 	font-family: inherit;
 	font-size: inherit;
 	color: inherit;
-	letter-spacing: 1px;
 	-webkit-transition: all 0.3s;
 	-moz-transition: all 0.3s;
 	transition: all 0.3s;
+	border-radius: 10px ;
+	box-shadow: 0 4px #3c3c3c;
+	top: 0px;
 }
 
 button:hover {
 	background-color: #f77 ;
-	box-shadow: 0 4px #3c3c3c;
+	box-shadow: 0 2px #3c3c3c;
 	top: 2px;
 }
 
@@ -237,12 +240,12 @@ button:after {
 
 button.next {
 	background-color: #faa ;
-	box-shadow: 0 6px #ab3c3c;
+	box-shadow: 0 4px #ab3c3c;
 }
 
 button.next:hover {
 	background-color: #f77 ;
-	box-shadow: 0 4px #ab3c3c;
+	box-shadow: 0 2px #ab3c3c;
 }
 
 button.next:active {
@@ -253,14 +256,36 @@ button.next:active {
 
 button.role {
 	background-color: #aaf ;
-	box-shadow: 0 6px #3c3cab;
+	box-shadow: 0 4px #3c3cab;
 }
 
 button.role:hover {
 	background-color: #77f ;
-	box-shadow: 0 4px #3c3cab;
+	box-shadow: 0 2px #3c3cab;
 }
 
 button.role:active {
 	box-shadow: 0 0 #3c3cab;
 }
+
+p.unassigned-users {
+	flex-basis: 100%;
+	color: #555753;
+	font-style: italic;
+}
+
+span.unassigned-users {
+	color: #555753;
+	font-style: italic;
+}
+
+p.waiting-roles {
+	flex-basis: 100%;
+	color: #555753;
+}
+
+span.waiting-roles {
+	color: #555753;
+	font-style: italic;
+}
+

@@ -54,8 +54,7 @@ body {
 }
 
 .unassigned-users:before {
-	content:'Idling: ';
-
+	content:'Idling: ' ;
 }
 
 
