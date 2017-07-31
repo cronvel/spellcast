@@ -15,31 +15,15 @@
 
 
 
-
-
 # Browser client
-
-# Do not work ATM, the execution does not finish, hence no undead mode can kick in
-[spell dev-browser]
-	[cast]
-		- browser
-	[scroll store=$pid silence]
-		> ps x | grep spellcast | grep websocket
-	[set $regex] <RegExp> /^([0-9]+)[\s\S]*$/$1/m
-	[set $pid] $= $regex.substitute -> $pid
-	[message]
-		$> kill ${pid}
-	[scroll]
-		- $> kill ${pid}
-		- $> cd sample/adventure ; ../../bin/spellcast story --ui websocket
 
 [spell browser]
 	[summon]
 		- browser/app.html
 		- browser/app.min.js
 		- browser/common.css
-		- browser/themes/default/main.css
-		- browser/themes/visual-novel/main.css
+#		- browser/themes/default/main.css
+#		- browser/themes/visual-novel/main.css
 
 [summoning browser/app.html]
 	[summon]
@@ -53,17 +37,17 @@
 	[scroll]
 		- > cp lib/clients/web/common.css browser/common.css
 
-[summoning browser/themes/default/main.css]
-	[summon]
-		- lib/clients/web/themes/default/main.css
-	[scroll]
-		- > cp -r lib/clients/web/themes/default/ browser/themes/
+#[summoning browser/themes/default/main.css]
+#	[summon]
+#		- lib/clients/web/themes/default/main.css
+#	[scroll]
+#		- > cp -r lib/clients/web/themes/default/ browser/themes/
 
-[summoning browser/themes/visual-novel/main.css]
-	[summon]
-		- lib/clients/web/themes/visual-novel/main.css
-	[scroll]
-		- > cp -r lib/clients/web/themes/visual-novel/ browser/themes/
+#[summoning browser/themes/visual-novel/main.css]
+#	[summon]
+#		- lib/clients/web/themes/visual-novel/main.css
+#	[scroll]
+#		- > cp -r lib/clients/web/themes/visual-novel/ browser/themes/
 
 [summoning browser/app.js]
 	[summon]
@@ -81,6 +65,20 @@
 		- $> ${uglify} browser/app.js -o browser/app.min.js -m
 
 
+
+# Do not work ATM, the execution does not finish, hence no undead mode can kick in
+[spell dev-browser]
+	[cast]
+		- browser
+	[scroll store=$pid silence]
+		> ps x | grep spellcast | grep websocket
+	[set $regex] <RegExp> /^([0-9]+)[\s\S]*$/$1/m
+	[set $pid] $= $regex.substitute -> $pid
+	[message]
+		$> kill ${pid}
+	[scroll]
+		- $> kill ${pid}
+		- $> cd sample/adventure ; ../../bin/spellcast story --ui websocket
 
 
 
@@ -124,3 +122,4 @@
 		$>
 		$> ^M^/That's all folks!
 		$>
+
