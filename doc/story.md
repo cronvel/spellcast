@@ -25,6 +25,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Theme Tag](#ref.scenario.scene.theme)
 			* [Image Tag](#ref.scenario.scene.image)
 			* [Music Tag](#ref.scenario.scene.music)
+			* [Next-style Tag](#ref.scenario.scene.next-style)
 			* [Vote-time Tag](#ref.scenario.scene.vote-time)
 			* [Vote-style Tag](#ref.scenario.scene.vote-style)
 			* [Hurry-time Tag](#ref.scenario.scene.hurry-time)
@@ -367,6 +368,24 @@ The content is an object where:
 * url `string` (optional) if set this is the URL of the music to play, else the client should stop playing music
 
 If the content is a string, it contains the *url* of the music.
+
+
+
+<a name="ref.scenario.scene.next-style"></a>
+### [next-style]
+
+* types: parameter
+* attribute style: none
+* content type: string
+
+It is used to style the next-list, i.e. display buttons inline, or one per line, compact, etc...
+
+Its content is a string, where:
+* *auto*: (default) let the client decide how to style it
+* *inline*: all choices are on the same line, if possible
+* *smallInline*: same than inline, with smaller buttons
+* *list*: one choice per line
+* *smallList*: same than list, with smaller buttons
 
 
 

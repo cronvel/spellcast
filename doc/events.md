@@ -16,7 +16,7 @@
 
 # Events on script/API bus
 
-Events emitted here are usually **userland** event, except few standard event:
+Events emitted here are usually **userland** event, except few standard events:
 
 * command (object): emitted every time a role (a client) send a command, object contains:
 	* role (Role instance): the role that sent the command
@@ -87,7 +87,7 @@ Events emitted here are usually **userland** event, except few standard event:
 
 * enterScene: the book enter a new scene
 * leaveScene: the book is leaving the current scene
-* nextList (nexts, grantedRoleIds, undecidedRoleIds, timeout, isUpdate): users should make a choice between multiple
+* nextList (nexts, grantedRoleIds, undecidedRoleIds, options, isUpdate): users should make a choice between multiple
   alternatives, `nexts` is an array of object containing those alternatives, where:
 	* label `string` contains the text describing the choice
 	* image `url` if set, the choice as an image that would usually be displayed as an icon
@@ -96,8 +96,15 @@ Events emitted here are usually **userland** event, except few standard event:
   Argument `isUpdate` is a boolean, it is true if the provided *next list* is an update of the previous one (i.e. it is not a new
   choice to make, but an update of the values of the current choice, e.g. when a choice get a vote, etc).
   `undecidedRoleIds` is a array of role's IDs that hasn't chosen anything yet.
-  `timeout` is the time in ms before the vote finish.
   `grantedRoleIds` is an array of role's ID, roles that can select a response (TODO).
+  `options` is an object containing various optional values for the next list, where:
+     * timeout `number` the time in ms before the vote finish.
+     * style `string` next-list display style, if supported by the client. One of:
+       * *auto*: (default) let the client decide how to style it
+       * *inline*: all choices are on the same line, if possible
+       * *smallInline*: same than inline, with smaller buttons
+       * *list*: one choice per line
+       * *smallList*: same than list, with smaller buttons
 * nextTriggered (nextIndex, roleIds, special): a next action was triggered, `nextIndex` contains its index in the
   `nextList` event's argument `nexts`, and `roleIds`, if not null, is an array of IDs of roles that activated it (if relevant),
   provided in the last `roleList` event, in the `roles` argument. The last argument `special`, if set, it contains a code:

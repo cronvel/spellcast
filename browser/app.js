@@ -1415,9 +1415,9 @@ UI.nextTriggered = function nextTriggered()
 
 
 
-UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate )
+UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , options , isUpdate )
 {
-	var self = this , choices = [] , undecidedNames , charCount = 0 , style = null ;
+	var self = this , choices = [] , undecidedNames , charCount = 0 ;
 
 	this.nexts = nexts ;
 	this.afterNext = true ;
@@ -1440,13 +1440,20 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , tim
 		} ) ;
 	} ) ;
 
-	if ( this.roles.length <= 1 && choices.length <= 3 && charCount < 20 )
+	if ( ! options.style || options.style === 'auto' )
 	{
-		style = 'inline' ;
-	}
-	else if ( choices.length > 8 )
-	{
-		style = 'thin' ;
+		if ( this.roles.length <= 1 && choices.length <= 3 && charCount < 20 )
+		{
+			options.style = 'inline' ;
+		}
+		else if ( choices.length > 8 )
+		{
+			options.style = 'thin' ;
+		}
+		else
+		{
+			options.style = null ;
+		}
 	}
 	
 	if ( undecidedRoleIds.length && this.roles.length )
@@ -1465,7 +1472,7 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , tim
 		}
 	} ;
 	
-	this.dom.setChoices( choices , undecidedNames , onSelect , { timeout: timeout , style: style } ) ;
+	this.dom.setChoices( choices , undecidedNames , onSelect , { timeout: options.timeout , style: options.style } ) ;
 } ;
 
 
