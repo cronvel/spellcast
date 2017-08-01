@@ -85,8 +85,10 @@ Events emitted here are usually **userland** event, except few standard events:
 	* label `string` contains the text describing the role
 	* clientId `null` or `string` if not null, it's the client ID of the user holding this role
 
-* enterScene: the book enter a new scene
-* leaveScene: the book is leaving the current scene
+* enterScene (isGosub): the book enter a new scene
+  `isGosub` is true if we are gosub'ing from the previous scene (without leaving it)
+* leaveScene (isReturn): the book is leaving the current scene
+  `isReturn` is true if we are returning from a gosub
 * nextList (nexts, grantedRoleIds, undecidedRoleIds, options, isUpdate): users should make a choice between multiple
   alternatives, `nexts` is an array of object containing those alternatives, where:
 	* label `string` contains the text describing the choice

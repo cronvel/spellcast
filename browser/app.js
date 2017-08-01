@@ -52,6 +52,7 @@ Dom.create = function create()
 	self.$sceneImage = document.querySelector( '.scene-image' ) ;
 	self.$content = document.querySelector( '#content' ) ;
 	self.$text = document.querySelector( '#text' ) ;
+	self.$activeScene = null ;
 	self.$chat = document.querySelector( '#chat' ) ;
 	self.$chatForm = document.querySelector( '#chat-form' ) ;
 	self.$chatInput = document.querySelector( '#chat-input' ) ;
@@ -160,6 +161,19 @@ Dom.prototype.clearMessages = function clearMessages( callback )
 {
 	callback = callback || noop ;
 	domKit.empty( this.$text ) ;
+	callback() ;
+} ;
+
+
+
+Dom.prototype.newScene = function newScene( isGosub , callback )
+{
+	callback = callback || noop ;
+	//domKit.empty( this.$text ) ;
+	
+	
+	// ------------------------------------------ here --------------------------------------------
+	
 	callback() ;
 } ;
 
@@ -1119,6 +1133,7 @@ function UI( bus , client , self )
 			roleId: { value: null , writable: true , enumerable: true } ,
 			config: { value: null , writable: true , enumerable: true } ,
 			inGame: { value: false , writable: true , enumerable: true } ,
+			depth: { value: 0 , writable: true , enumerable: true } ,
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
@@ -1380,23 +1395,46 @@ UI.prototype.messageNext = function messageNext( callback )
 
 
 // 'enterScene' event
-UI.enterScene = function enterScene()
+UI.enterScene = function enterScene( isGosub )
 {
 	this.inGame = true ;
-
-	if ( this.afterLeave && ! this.afterNextTriggered )
+	
+	if ( isGosub )
 	{
-		this.dom.clear() ;
+		this.depth ++ ;
 	}
-
+	
+	/*
+	if ( this.afterLeave )
+	{
+		// Next, goto
+		
+		if ( ! this.afterNextTriggered )
+		{
+			this.dom.clear() ;
+		}
+	}
+	else
+	{
+		// Gosub
+	}
+	*/
+	
+	this.dom.newScene( isGosub ) ;
+	
 	this.afterNext = this.afterLeave = this.afterNextTriggered = false ;
 } ;
 
 
 
 // 'leaveScene' event
-UI.leaveScene = function leaveScene( callback )
+UI.leaveScene = function leaveScene( isReturn , callback )
 {
+	if ( isReturn )
+	{
+		this.depth -- ;
+	}
+	
 	this.afterLeave = true ;
 
 	if ( this.afterNext ) { callback() ; return ; }
@@ -1409,7 +1447,7 @@ UI.leaveScene = function leaveScene( callback )
 UI.nextTriggered = function nextTriggered()
 {
 	this.afterNextTriggered = true ;
-	this.dom.clearMessages() ;
+	//this.dom.clearMessages() ;
 	this.dom.clearChoices() ;
 } ;
 
