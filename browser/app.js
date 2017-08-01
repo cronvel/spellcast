@@ -51,8 +51,9 @@ Dom.create = function create()
 	self.$gfx = document.querySelector( '#gfx' ) ;
 	self.$sceneImage = document.querySelector( '.scene-image' ) ;
 	self.$content = document.querySelector( '#content' ) ;
+	self.$history = document.querySelector( '#history' ) ;
 	self.$text = document.querySelector( '#text' ) ;
-	self.$activeScene = null ;
+	self.$activeSegment = null ;
 	self.$chat = document.querySelector( '#chat' ) ;
 	self.$chatForm = document.querySelector( '#chat-form' ) ;
 	self.$chatInput = document.querySelector( '#chat-input' ) ;
@@ -166,13 +167,28 @@ Dom.prototype.clearMessages = function clearMessages( callback )
 
 
 
-Dom.prototype.newScene = function newScene( isGosub , callback )
+Dom.prototype.newSegment = function newSegment( callback )
 {
 	callback = callback || noop ;
-	//domKit.empty( this.$text ) ;
 	
+	if ( this.$activeSegment && ! this.$activeSegment.textContent )
+	{
+		callback() ;
+		return ;
+	}
 	
-	// ------------------------------------------ here --------------------------------------------
+	var lastSegmentElement = this.$activeSegment ;
+	
+	var segmentElement = document.createElement( 'segment' ) ;
+	this.$activeSegment = segmentElement ;
+	this.$text.appendChild( segmentElement ) ;
+	
+	if ( lastSegmentElement )
+	{
+		//lastSegmentElement.classList.add( 'inactive' ) ;
+		this.$history.appendChild( lastSegmentElement ) ;
+		lastSegmentElement.scrollIntoView( false ) ;
+	}
 	
 	callback() ;
 } ;
@@ -190,7 +206,7 @@ Dom.prototype.addMessage = function addMessage( text , options , callback )
 	// Because the text contains <span> tags
 	textElement.innerHTML = text ;
 
-	this.$text.appendChild( textElement ) ;
+	this.$activeSegment.appendChild( textElement ) ;
 
 	callback() ;
 } ;
@@ -1399,11 +1415,6 @@ UI.enterScene = function enterScene( isGosub )
 {
 	this.inGame = true ;
 	
-	if ( isGosub )
-	{
-		this.depth ++ ;
-	}
-	
 	/*
 	if ( this.afterLeave )
 	{
@@ -1420,7 +1431,15 @@ UI.enterScene = function enterScene( isGosub )
 	}
 	*/
 	
-	this.dom.newScene( isGosub ) ;
+	if ( isGosub )
+	{
+		this.depth ++ ;
+	}
+	else
+	{
+		this.dom.newSegment() ;
+	}
+	
 	
 	this.afterNext = this.afterLeave = this.afterNextTriggered = false ;
 } ;
@@ -1433,6 +1452,7 @@ UI.leaveScene = function leaveScene( isReturn , callback )
 	if ( isReturn )
 	{
 		this.depth -- ;
+		//this.dom.parentScene() ;
 	}
 	
 	this.afterLeave = true ;

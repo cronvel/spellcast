@@ -1,4 +1,10 @@
 
+
+
+			/* Layout */
+
+
+
 body {
 	font-family: sans-serif;
 	font-size: 16px;
@@ -45,6 +51,10 @@ body {
 
 .hidden {
 	opacity: 0 !important;
+}
+
+.history-wrapper {
+	margin: 1.5em;
 }
 
 #text {
@@ -109,6 +119,23 @@ body {
 
 
 
+.history-wrapper {
+	overflow: hidden;
+}
+
+.history {
+	opacity: 0.5;
+	max-height: 20vh;
+	overflow-y: scroll;
+	width: 100%;
+	padding-right: 15px;
+}
+
+segment {
+	display: block;
+	margin-top: 1em;
+}
+
 p {
 	margin: 0.2em 0em;
 }
@@ -145,32 +172,13 @@ p {
 
 
 
+			/* Chat / Input */
+
+
 
 input[type=text].text-input {
 	display: inline;
 	width: 50%;
-}
-
-
-
-@keyframes pulse-animation {
-	0% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0.4;
-	}
-}
-
-.pulse-animation {
-	animation-name: pulse-animation;
-	animation-duration: 1s;
-	animation-timing-function: ease-in-out;
-	animation-delay: 0ms;
-	animation-direction: alternate;
-	animation-iteration-count: infinite;
-	animation-fill-mode: none;
-	animation-play-state: running;
 }
 
 
@@ -288,4 +296,32 @@ span.waiting-roles {
 	color: #555753;
 	font-style: italic;
 }
+
+
+
+			/* Misc */
+
+
+
+@keyframes pulse-animation {
+	0% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.4;
+	}
+}
+
+.pulse-animation {
+	animation-name: pulse-animation;
+	animation-duration: 1s;
+	animation-timing-function: ease-in-out;
+	animation-delay: 0ms;
+	animation-direction: alternate;
+	animation-iteration-count: infinite;
+	animation-fill-mode: none;
+	animation-play-state: running;
+}
+
+
 
