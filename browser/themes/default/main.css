@@ -126,7 +126,7 @@ body {
 	max-height: 20vh;
 	overflow-y: scroll;
 	width: 100%;
-	padding-right: 15px;
+	padding-right: 20px;
 }
 
 segment {
@@ -201,7 +201,7 @@ input[type=text].text-input {
 
 .choices[data-choice-style="inline"] group , .choices[data-choice-style="smallInline"] group {
 	flex-flow: row wrap;
-	justify-content: space-evenly;
+	justify-content: space-around;
 }
 
 .choices[data-choice-style="smallList"] .choice , .choices[data-choice-style="smallInline"] .choice {

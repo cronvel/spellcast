@@ -338,7 +338,10 @@
 			[label] $> (Done)
 			[on-trigger]
 				[return] true
+		
+		[next-group-break]
 		[call grab-one] $args
+		[next-group-break]
 		[call drop-one] $args
 		
 	

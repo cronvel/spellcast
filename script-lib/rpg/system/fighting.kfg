@@ -330,10 +330,12 @@
 				[on-trigger]
 					[set $fight.entityTurn.adhoc.fight.offensiveness] -1
 
-		[next pc-charge]
-			[label] $> Charge!
-			[group-break]
+		[next-group-break]
+		
+		[next pc-charge] $> Charge!
 
+		[next-group-break]
+		
 		[if $fight.entityTurn.primary.ranged-fighting]
 			[set $local.item] $fight.entityTurn.primary.ranged-fighting
 
@@ -342,9 +344,7 @@
 			[else]
 				[set $local.label] $> Shoot
 
-			[next pc-ranged-fighting]
-				[label] $> ${local.label//uc1}
-				#[group-break]
+			[next pc-ranged-fighting] $> ${local.label//uc1}
 
 		[if $fight.entityTurn.primary.battle-ability]
 			[set $local.item] $fight.entityTurn.primary.battle-ability
@@ -354,13 +354,12 @@
 			[else]
 				[set $local.label] $> Use ability
 
-			[next pc-battle-ability]
-				[label] $> ${local.label//uc1}
-				#[group-break]
+			[next pc-battle-ability] $> ${local.label//uc1}
 
+		[next-group-break]
+		
 		[next pc-turn]
 			[label] $> Select primary ability or object
-			[group-break]
 			[on-trigger]
 				[gosub rpg:inventory/select-ability-choose-primary]
 					performer: $fight.entityTurn

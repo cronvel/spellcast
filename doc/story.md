@@ -41,6 +41,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 				* [Cancel Tag](#ref.scenario.next.on-trigger.cancel)
 			* [Args Tag](#ref.scenario.next.args)
 		* [Fake Next Tag](#ref.scenario.fake-next)
+		* [Next-group-break Tag](#ref.scenario.next-group-break)
 		* [End Tag](#ref.scenario.end)
 		* [Win Tag](#ref.scenario.win)
 		* [Lost Tag](#ref.scenario.lost)
@@ -634,6 +635,22 @@ but the scene remain the same, and is not rendered again.
 If present, the mode can be:
 * normal: nothing special (the default)
 * once: the *fake-next* option is removed once selected, but would be enabled if the scene is rendered again
+
+
+
+<a name="ref.scenario.next-group-break"></a>
+## [next-group-break]
+
+* types: parameter
+* attribute style: none
+* content type: boolean (default to true)
+
+Create a new group of *next tags*, if supported by the client.
+This is equivalent to add a [*group-break* Tag](#ref.scenario.next.group-break) to the next *next tag*
+(e.g.: this is useful when the next *next tag* is not easily predictable).
+
+For exemple if the [*next-style*](#ref.scenario.scene.next-style) tag is set to table, this indicates to the client
+that this *next item* should start a new column.
 
 
 
