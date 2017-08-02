@@ -32,7 +32,7 @@ body {
 #content {
 	position: relative;
 	z-index: 1;
-	padding-top: 1em;
+	padding-top: 1em;	/* it seems to bug with 0 */
 	padding-bottom: 1em;
 	margin: 0;
 	margin-left: 0%;
@@ -54,7 +54,8 @@ body {
 }
 
 .history-wrapper {
-	margin: 1.5em;
+	margin: 0 1.5em 1.5em 1.5em;
+	overflow: hidden;
 }
 
 #text {
@@ -119,12 +120,9 @@ body {
 
 
 
-.history-wrapper {
-	overflow: hidden;
-}
-
 .history {
 	opacity: 0.5;
+	background-color: rgba( 255 , 255 , 255 , 0.2 );
 	max-height: 20vh;
 	overflow-y: scroll;
 	width: 100%;
@@ -187,26 +185,57 @@ input[type=text].text-input {
 
 
 
-.choices {
+.choices group {
 	display: flex;
 	flex-flow: column;
 }
 
-.choices[data-choice-style="inline"] {
+.choices group {
+	display: flex;
+	flex-flow: column;
+}
+
+.choices[data-choice-style="list"] group , .choices[data-choice-style="smallList"] group {
+	flex-flow: column;
+}
+
+.choices[data-choice-style="inline"] group , .choices[data-choice-style="smallInline"] group {
 	flex-flow: row wrap;
 	justify-content: space-evenly;
 }
 
-.choices[data-choice-style="thin"] button {
+.choices[data-choice-style="smallList"] .choice , .choices[data-choice-style="smallInline"] .choice {
 	font-size: 0.9em;
 	padding: 3px 10px;
 	margin: 4px 10px;
 }
 
-button {
+.choices[data-choice-style="table"] {
+	display: table;
+	border-collapse: separate;
+	border-spacing: 1em 0.6em;
+}
+
+.choices[data-choice-style="table"] group {
+	display: table-row;
+}
+
+.choices[data-choice-style="table"] group .choice {
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.choices.columns-2[data-choice-style="table"] group .choice { width: 50%; }
+.choices.columns-3[data-choice-style="table"] group .choice { width: 33%; }
+.choices.columns-4[data-choice-style="table"] group .choice { width: 25%; }
+.choices.columns-5[data-choice-style="table"] group .choice { width: 20%; }
+
+.choice {
 	display: block;
 	position: relative;
 	/*text-align: left;*/
+	text-align: center;
 	border: none;
 	outline: none;
 	background-color: #aaa ;
@@ -224,18 +253,18 @@ button {
 	top: 0px;
 }
 
-button:hover {
+.choice:hover {
 	background-color: #f77 ;
 	box-shadow: 0 2px #3c3c3c;
 	top: 2px;
 }
 
-button:active {
+.choice:active {
 	box-shadow: 0 0 #3c3c3c;
 	top: 6px;
 }
 
-button:after {
+.choice:after {
 	content: '';
 	position: absolute;
 	z-index: -1;
@@ -246,33 +275,33 @@ button:after {
 
 
 
-button.next {
+.choice.next {
 	background-color: #faa ;
 	box-shadow: 0 4px #ab3c3c;
 }
 
-button.next:hover {
+.choice.next:hover {
 	background-color: #f77 ;
 	box-shadow: 0 2px #ab3c3c;
 }
 
-button.next:active {
+.choice.next:active {
 	box-shadow: 0 0 #ab3c3c;
 }
 
 
 
-button.role {
+.choice.role {
 	background-color: #aaf ;
 	box-shadow: 0 4px #3c3cab;
 }
 
-button.role:hover {
+.choice.role:hover {
 	background-color: #77f ;
 	box-shadow: 0 2px #3c3cab;
 }
 
-button.role:active {
+.choice.role:active {
 	box-shadow: 0 0 #3c3cab;
 }
 

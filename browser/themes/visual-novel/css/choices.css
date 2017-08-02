@@ -6,7 +6,7 @@
 	display:none;
 }
 
-.choices button,
+.choices .choice,
 .choice {
 	font-family:inherit;
 	font-size:inherit;
@@ -21,36 +21,36 @@
 	box-sizing: border-box;
 }
 
-.choices button:hover,
+.choices .choice:hover,
 .choice:hover {
 	color:red;
 	cursor:pointer;
 }
 .choices p { display: block; }
 
-.choices button:active,
+.choices .choice:active,
 .choice:active {
 }
 
 
 
-.choices button.next {
+.choices .choice.next {
 }
 
-.choices button.next:hover {
+.choices .choice.next:hover {
 }
 
-.choices button.next:active {
+.choices .choice.next:active {
 }
 
 
-.choices button.role {
+.choices .choice.role {
 }
 
-.choices button.role:hover {
+.choices .choice.role:hover {
 }
 
-.choices button.role:active {
+.choices .choice.role:active {
 }
 
 

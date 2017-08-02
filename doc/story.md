@@ -36,6 +36,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Label Tag](#ref.scenario.next.label)
 			* [Vote-style Tag](#ref.scenario.next.vote-style)
 			* [Auto Tag](#ref.scenario.next.auto)
+			* [Group-break Tag](#ref.scenario.next.group-break)
 			* [On-trigger Tag](#ref.scenario.next.on-trigger)
 				* [Cancel Tag](#ref.scenario.next.on-trigger.cancel)
 			* [Args Tag](#ref.scenario.next.args)
@@ -386,6 +387,7 @@ Its content is a string, where:
 * *smallInline*: same than inline, with smaller buttons
 * *list*: one choice per line
 * *smallList*: same than list, with smaller buttons
+* *table*: display button as a table, using [[group-break]](#ref.scenario.next.group-break) parameter tag to create a new row
 
 
 
@@ -538,6 +540,19 @@ This is a particular *vote style* just for this choice, see
 * content type: number (in seconds)
 
 The *auto* tag is used to automatically select the current choice once the time set in the content is elapsed.
+
+
+
+<a name="ref.scenario.next.group-break"></a>
+### [group-break]
+
+* types: parameter
+* attribute style: none
+* content type: boolean (default to true)
+
+Create a new group of next-tag, if supported by the client.
+For exemple if the [*next-style*](#ref.scenario.scene.next-style) tag is set to table, this indicates to the client
+that this *next item* should start a new column.
 
 
 

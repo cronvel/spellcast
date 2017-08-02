@@ -327,6 +327,8 @@
 	
 	
 	[scene drop-grab-one]
+		[next-style] inline
+		
 		[if ( $args.buy-price is-number? ) || ( $args.sell-price is-number? )]
 			[if $args.performer.goods.cash is-empty?]
 				[set $args.performer.goods.cash] 0

@@ -92,6 +92,7 @@ Events emitted here are usually **userland** event, except few standard events:
 * nextList (nexts, grantedRoleIds, undecidedRoleIds, options, isUpdate): users should make a choice between multiple
   alternatives, `nexts` is an array of object containing those alternatives, where:
 	* label `string` contains the text describing the choice
+	* groupBreak `boolean` true if the item start a new group
 	* image `url` if set, the choice as an image that would usually be displayed as an icon
 	* roleIds `array` of role's IDs, if not null, it's the client ID of the user holding this role
   Once the user has selected a choice, the client should emit a `selectNext` event.
@@ -100,13 +101,14 @@ Events emitted here are usually **userland** event, except few standard events:
   `undecidedRoleIds` is a array of role's IDs that hasn't chosen anything yet.
   `grantedRoleIds` is an array of role's ID, roles that can select a response (TODO).
   `options` is an object containing various optional values for the next list, where:
-     * timeout `number` the time in ms before the vote finish.
-     * style `string` next-list display style, if supported by the client. One of:
-       * *auto*: (default) let the client decide how to style it
-       * *inline*: all choices are on the same line, if possible
-       * *smallInline*: same than inline, with smaller buttons
-       * *list*: one choice per line
-       * *smallList*: same than list, with smaller buttons
+	* timeout `number` the time in ms before the vote finish.
+	* style `string` next-list display style, if supported by the client. One of:
+	  * *auto*: (default) let the client decide how to style it
+	  * *list*: one choice per line
+	  * *smallList*: same than list, with smaller buttons
+	  * *inline*: all choices are on the same line, if possible
+	  * *smallInline*: same than inline, with smaller buttons
+	  * *table*: display button as a table, using [group-break] parameter tag to create a new row
 * nextTriggered (nextIndex, roleIds, special): a next action was triggered, `nextIndex` contains its index in the
   `nextList` event's argument `nexts`, and `roleIds`, if not null, is an array of IDs of roles that activated it (if relevant),
   provided in the last `roleList` event, in the `roles` argument. The last argument `special`, if set, it contains a code:

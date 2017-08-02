@@ -231,13 +231,14 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 {
 	var choicesFragment = document.createDocumentFragment() ;
-
+	var groupElement = document.createElement( 'group' ) ;
+	
 	callback = callback || noop ;
 
 	choices.forEach( function( choice ) {
 		console.warn( "choice.selectedBy:" , choice.selectedBy ) ;
 
-		var buttonElement = document.createElement('button') ;
+		var buttonElement = document.createElement( 'choice' ) ;
 		buttonElement.classList.add( 'choice' , choice.type ) ;
 		buttonElement.setAttribute( 'data-isOrdered' , choice.orderedList ) ;
 
@@ -252,18 +253,48 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 			spanElement.textContent = ' ' + choice.selectedBy.join( ', ' ) ;
 			buttonElement.appendChild( spanElement ) ;
 		}
-
+		
 		buttonElement.addEventListener( 'click' , function() {
-			// HINT: removeListener
+			// /!\ HINT: removeListener
 			onSelect( choice.index ) ;
 		} ) ;
-
-		choicesFragment.appendChild( buttonElement ) ;
+		
+		if ( choice.groupBreak )
+		{
+			// Add current group to the fragment, and create a new group
+			choicesFragment.appendChild( groupElement ) ;
+			groupElement = document.createElement( 'group' ) ;
+		}
+		
+		groupElement.appendChild( buttonElement ) ;
 	} ) ;
-
+	
+	// Add the pending group to the fragment
+	choicesFragment.appendChild( groupElement ) ;
+	
 	this.$next.appendChild( choicesFragment ) ;
 
 	callback() ;
+} ;
+
+
+
+Dom.prototype.getChoiceColumnsCount = function getChoiceColumnsCount( choices )
+{
+	var count = 0 , maxCount = 0 ;
+	
+	choices.forEach( function( choice ) {
+		if ( choice.groupBreak )
+		{
+			if ( count > maxCount ) { maxCount = count ; }
+			count = 0 ;
+		}
+		
+		count ++ ;
+	} ) ;
+	
+	if ( count > maxCount ) { maxCount = count ; }
+	return maxCount ;
 } ;
 
 
@@ -281,11 +312,18 @@ Dom.prototype.setChoices = function setChoices( choices , undecidedNames , onSel
 		switch ( options.style )
 		{
 			case 'inline' :
-			case 'thin' :
+			case 'smallInline' :
+			case 'list' :
+			case 'smallList' :
 				self.$next.setAttribute( 'data-choice-style' , options.style ) ;
 				break ;
+			case 'table' :
+				self.$next.setAttribute( 'data-choice-style' , options.style ) ;
+				self.$next.classList.add( 'columns-' + self.getChoiceColumnsCount( choices ) ) ;
+				break ;
 			default :
-				self.$next.removeAttribute( 'data-choice-style' ) ;
+				// Default to list
+				self.$next.setAttribute( 'data-choice-style' , 'list' ) ;
 		}
 		
 		self.addChoices( choices , onSelect , callback ) ;
@@ -304,45 +342,9 @@ Dom.prototype.setChoices = function setChoices( choices , undecidedNames , onSel
 
 
 
-Dom.prototype.setChoiceStyle = function setChoiceStyle( style )
-{
-	switch ( style )
-	{
-		case 'inline' :
-		case 'list' :
-			this.$next.setAttribute( 'data-choice-style' , style ) ;
-			break ;
-		case 'auto' :
-		default :
-			this.$next.setAttribute( 'data-choice-style' , null ) ;
-	}
-} ;
-
-
-
 // This is used when the scene update its choices details (selectedBy, ...)
-// /!\ TEMP! This does not update but just reset, just like .setChoices()
-Dom.prototype.updateChoices = function setChoices( choices , undecidedNames , timeout , onSelect , callback )
-{
-	var self = this ;
-
-	callback = callback || noop ;
-
-	// /!\ TEMP! This does not update but just reset, just like .setChoices()
-	this.clearChoices( function() {
-		self.addChoices( choices , onSelect , callback ) ;
-
-		if ( undecidedNames && undecidedNames.length )
-		{
-			var $unassignedUsers = document.createElement( 'p' ) ;
-			$unassignedUsers.classList.add( 'unassigned-users' ) ;
-			$unassignedUsers.textContent = undecidedNames.join( ', ' ) ;
-			self.$next.appendChild( $unassignedUsers ) ;
-		}
-
-		if ( typeof timeout === 'number' ) { self.choiceTimeout( timeout ) ; }
-	} ) ;
-} ;
+// /!\ For instance, it is the same than .setChoices
+Dom.prototype.updateChoices = Dom.prototype.setChoices ;
 
 
 
@@ -1492,12 +1494,13 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , opt
 		choices.push( {
 			index: i ,
 			label: next.label || 'Next' ,
+			groupBreak: !! next.groupBreak ,
 			//orderedList: nexts.length > 1 ,
 			type: 'next' ,
 			selectedBy: roles
 		} ) ;
 	} ) ;
-
+	
 	if ( ! options.style || options.style === 'auto' )
 	{
 		if ( this.roles.length <= 1 && choices.length <= 3 && charCount < 20 )
@@ -1506,11 +1509,11 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , opt
 		}
 		else if ( choices.length > 8 )
 		{
-			options.style = 'thin' ;
+			options.style = 'smallList' ;
 		}
 		else
 		{
-			options.style = null ;
+			options.style = 'list' ;
 		}
 	}
 	
