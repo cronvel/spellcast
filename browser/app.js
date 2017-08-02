@@ -47,7 +47,8 @@ Dom.create = function create()
 {
 	var self = Object.create( Dom.prototype ) ;
 
-	self.$theme = document.querySelector('#theme') ;
+	self.$body = document.querySelector( 'body' ) ;
+	self.$theme = document.querySelector( '#theme' ) ;
 	self.$gfx = document.querySelector( '#gfx' ) ;
 	self.$sceneImage = document.querySelector( '.scene-image' ) ;
 	self.$content = document.querySelector( '#content' ) ;
@@ -135,6 +136,24 @@ Dom.prototype.clientStatus = function clientStatus( text , options )
 
 	this.$connection.appendChild( textElement ) ;
 	this.$connection.classList.toggle( 'alert' , options.alert ) ;
+} ;
+
+
+
+Dom.prototype.setMultiplayer = function setMultiplayer( value , callback )
+{
+	callback = callback || noop ;
+	
+	if ( value || value === undefined )
+	{
+		this.$body.classList.add( 'multiplayer' ) ;
+	}
+	else
+	{
+		this.$body.classList.remove( 'multiplayer' ) ;
+	}
+	
+	callback() ;
 } ;
 
 
@@ -1310,6 +1329,9 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned )
 {
 	var self = this , choices = [] , undecidedNames ;
 
+	// If there are many roles, this is a multiplayer game
+	if ( ! this.roles && roles.length > 1 ) { this.dom.setMultiplayer( true ) ; }
+	
 	// Add the get method to the array
 	roles.get = arrayGetById ;
 

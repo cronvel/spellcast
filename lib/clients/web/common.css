@@ -53,9 +53,9 @@ body {
 	content: counter( next , lower-alpha ) '. ' ;
 }
 
-.unassigned-users:before {
-	content:'Idling: ' ;
-}
+.unassigned-users { visibility: hidden; }
+.multiplayer .unassigned-users { visibility: visible; }
+.multiplayer .unassigned-users:before { content: 'Idling: ' ; }
 
 
 
