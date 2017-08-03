@@ -1,7 +1,7 @@
 
 [[doctype spellcast/book]]
 [[locales locales/*]]
-#[[assets ../]]
+#[[assets ./]]
 
 # Create the main character
 [create-main-entity]

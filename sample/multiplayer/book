@@ -1,6 +1,6 @@
 
 [[doctype spellcast/book]]
-#[[assets ../]]
+#[[assets ./]]
 
 [role alice]
 	[label] Alice
