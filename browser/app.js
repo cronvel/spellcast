@@ -424,7 +424,7 @@ Dom.prototype.textInputDisabled = function textInputDisabled( options )
 
 	$form.appendChild( $label ) ;
 	$form.appendChild( $input ) ;
-	this.$text.appendChild( $form ) ;
+	this.$activeSegment.appendChild( $form ) ;
 } ;
 
 
@@ -443,7 +443,7 @@ Dom.prototype.textInput = function textInput( options , callback )
 
 	$form.appendChild( $label ) ;
 	$form.appendChild( $input ) ;
-	this.$text.appendChild( $form ) ;
+	this.$activeSegment.appendChild( $form ) ;
 
 	$input.focus() ;
 
