@@ -59,6 +59,7 @@ Dom.create = function create()
 	self.$chatForm = document.querySelector( '#chat-form' ) ;
 	self.$chatInput = document.querySelector( '#chat-input' ) ;
 	self.$next = document.querySelector( '#next' ) ;
+	self.$dialogWrapper = document.querySelector( '#dialog-wrapper' ) ;
 	self.$hint = document.querySelector( '#hint' ) ;
 	self.$connection = document.querySelector( '#connection' ) ;
 	self.$music = document.querySelector( '#music' ) ;
@@ -170,6 +171,7 @@ Dom.prototype.clear = function clear( callback )
 {
 	callback = callback || noop ;
 	domKit.empty( this.$hint ) ;
+	domKit.empty( this.$dialogWrapper ) ;
 	domKit.empty( this.$text ) ;
 	domKit.empty( this.$next ) ;
 	callback() ;
@@ -505,6 +507,35 @@ Dom.prototype.setBigHint = function setBigHint( text , classes )
 	if ( classes ) { domKit.class( $hint , classes ) ; }
 	domKit.empty( this.$hint ) ;
 	this.$hint.appendChild( $hint ) ;
+} ;
+
+
+
+Dom.prototype.clearDialog = function clearDialog()
+{
+	domKit.empty( this.$dialogWrapper ) ;
+	this.$dialogWrapper.classList.add( 'empty' ) ;
+	this.$dialogWrapper.classList.remove( 'modal' ) ;
+} ;
+
+
+
+Dom.prototype.setDialog = function setDialog( text , classes )
+{
+	var modal = classes && classes.modal ;
+	
+	var $dialog = document.createElement( 'div' ) ;
+	$dialog.classList.add( 'dialog' ) ;
+	$dialog.textContent = text ;
+	
+	if ( classes ) { domKit.class( $dialog , classes ) ; }
+	
+	if ( modal ) { this.$dialogWrapper.classList.add( 'modal' ) ; }
+	else { this.$dialogWrapper.classList.remove( 'modal' ) ; }
+	
+	domKit.empty( this.$dialogWrapper ) ;
+	this.$dialogWrapper.appendChild( $dialog ) ;
+	this.$dialogWrapper.classList.remove( 'empty' ) ;
 } ;
 
 
@@ -1721,6 +1752,7 @@ UI.music = function music( data )
 
 
 // Exit event
+/*
 UI.end = function end( result , data )
 {
 	switch ( result )
@@ -1738,7 +1770,27 @@ UI.end = function end( result , data )
 			this.dom.setBigHint( 'Draw.' , { end: true , draw: true } ) ;
 			break ;
 	}
+	
+} ;
+*/
 
+UI.end = function end( result , data )
+{
+	switch ( result )
+	{
+		case 'end' :
+			this.dom.setDialog( 'The End.' , { modal: true , end: true } ) ;
+			break ;
+		case 'win' :
+			this.dom.setDialog( 'You Win!' , { modal: true , end: true , win: true } ) ;
+			break ;
+		case 'lost' :
+			this.dom.setDialog( 'You Lose...' , { modal: true , end: true , lost: true } ) ;
+			break ;
+		case 'draw' :
+			this.dom.setDialog( 'Draw.' , { modal: true , end: true , draw: true } ) ;
+			break ;
+	}
 } ;
 
 

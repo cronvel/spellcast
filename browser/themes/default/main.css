@@ -113,6 +113,12 @@ p {
 	margin: 0.2em 0em;
 }
 
+
+
+.dialog-wrapper {
+	position: absolute;
+}
+
 .end {
 	background-color: #fce94f;
 	margin: 2em 30%;
@@ -285,22 +291,6 @@ input[type=text].text-input {
 .choice.role:active {
 	box-shadow: 0 0 #3cab3c;
 }
-
-/*
-.choice.next {
-	background-color: #aaf ;
-	box-shadow: 0 4px #3c3cab;
-}
-
-.choice.next:hover {
-	background-color: #77f ;
-	box-shadow: 0 2px #3c3cab;
-}
-
-.choice.next:active {
-	box-shadow: 0 0 #3c3cab;
-}
-*/
 
 p.unassigned-users {
 	flex-basis: 100%;
