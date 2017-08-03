@@ -1,7 +1,7 @@
 
 [[doctype spellcast/book]]
 [[locales locales/*]]
-[[assets ../]]
+#[[assets ../]]
 
 [module] @@{rpg}/rpg.kfg
 [module] @@data.kfg
@@ -25,7 +25,7 @@
 		#[debug info] $roles.hero.entity
 		
 		[next goblin-camp]
-			[image] sword-icon.svg
+			[image] /icons/sword-icon.svg
 			[label] Multiple foes.
 		[next first-encounter]
 			[label] One foe.

@@ -1,6 +1,6 @@
 
 [[doctype spellcast/book]]
-[[assets ../]]
+#[[assets ../]]
 
 [action drink]
     [message]
@@ -63,9 +63,9 @@
 				
 		
 		[show-sprite druidess]
-			url: shaman.png
+			url: /sprites/shaman.png
 			action: /drink
-			maskUrl: shaman.mask.svg
+			maskUrl: /sprites/shaman.mask.svg
 			style:
 				height: 70%
 				right: 0
@@ -76,7 +76,7 @@
 		#[return]
 		
 		[fake-show-sprite another-one]
-			url: shaman.png
+			url: /sprites/shaman.png
 			label: A Druidess!
 			position:
 				# coord system: inside means that 0 is left but wholy included in the image, 1 is right but wholy included...
@@ -88,7 +88,7 @@
 			
 		[pause] 1
 		
-		[sound] open.wav
+		[sound] /sounds/open.wav
 
 		[message] $> ^/There was a druidess...
 		
@@ -108,7 +108,7 @@
 			action: /shout
 		
 		[show-sprite druidess2]
-			url: shaman.png
+			url: /sprites/shaman.png
 			style:
 				height: 70%
 				left: 0

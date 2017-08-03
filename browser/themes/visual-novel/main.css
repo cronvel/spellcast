@@ -25,7 +25,7 @@ body {
 	right: 0;
 	bottom: 0;
 
-	background-image: url('images/default.jpg');
+	background-image: url('/backgrounds/default.jpg');
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;

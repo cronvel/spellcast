@@ -1,6 +1,6 @@
 
 [[doctype spellcast/book]]
-[[assets ../]]
+#[[assets ../]]
 
 [role alice]
 	[label] Alice
@@ -24,12 +24,12 @@
 [chapter intro]
 	
 	[image]
-		url: story1.jpg
+		url: /backgrounds/story1.jpg
 		position: right
 		origin: top
 	
 	[music]
-		url: music1.ogg
+		url: /musics/music1.ogg
 	
 	[scene intro]
 		
@@ -60,7 +60,7 @@
 			label: > What do you like, Alice? 
 		
 		[sound]
-			url: open.wav
+			url: /sounds/open.wav
 		
 		[message]
 			$> Alice likes ^/${aliceLike}.
@@ -93,7 +93,7 @@
 	
 	[scene a]
 		[image]
-			url: story1.jpg
+			url: /backgrounds/story1.jpg
 			origin: top
 			position: left
 		
@@ -103,7 +103,7 @@
 	
 	[scene b]
 		[image]
-			url: story1.jpg
+			url: /backgrounds/story1.jpg
 			origin: top
 			position: left
 		

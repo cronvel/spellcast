@@ -18,7 +18,7 @@ body {
 	right: 0;
 	bottom: 0;
 
-	background-image: url("default.jpg");
+	background-image: url("/backgrounds/default.jpg");
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
@@ -283,36 +283,49 @@ input[type=text].text-input {
 }
 
 
-
 .choice.next {
-	background-color: #faa ;
-	box-shadow: 0 4px #ab3c3c;
+	background-color: #dabff3;
+	box-shadow: 0 4px #b07ee0;
 }
 
 .choice.next:hover {
-	background-color: #f77 ;
-	box-shadow: 0 2px #ab3c3c;
+	background-color: #e7dcf2;
+	box-shadow: 0 2px #b07ee0;
 }
 
 .choice.next:active {
-	box-shadow: 0 0 #ab3c3c;
+	box-shadow: 0 0 #b07ee0;
 }
 
-
-
 .choice.role {
+	background-color: #b0ec79 ;
+	box-shadow: 0 4px #3cab3c;
+}
+
+.choice.role:hover {
+	background-color: #d1f3b2 ;
+	box-shadow: 0 2px #3cab3c;
+}
+
+.choice.role:active {
+	box-shadow: 0 0 #3cab3c;
+}
+
+/*
+.choice.next {
 	background-color: #aaf ;
 	box-shadow: 0 4px #3c3cab;
 }
 
-.choice.role:hover {
+.choice.next:hover {
 	background-color: #77f ;
 	box-shadow: 0 2px #3c3cab;
 }
 
-.choice.role:active {
+.choice.next:active {
 	box-shadow: 0 0 #3c3cab;
 }
+*/
 
 p.unassigned-users {
 	flex-basis: 100%;

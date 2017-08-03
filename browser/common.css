@@ -53,8 +53,8 @@ body {
 	content: counter( next , lower-alpha ) '. ' ;
 }
 
-.unassigned-users { visibility: hidden; }
-.multiplayer .unassigned-users { visibility: visible; }
+.unassigned-users { display: none; }
+.multiplayer .unassigned-users { display: block; }
 .multiplayer .unassigned-users:before { content: 'Idling: ' ; }
 
 
