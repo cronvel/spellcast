@@ -25,6 +25,7 @@
 		#[debug info] $roles.hero.entity
 		
 		[next goblin-camp]
+			[image] sword-icon.svg
 			[label] Multiple foes.
 		[next first-encounter]
 			[label] One foe.

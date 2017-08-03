@@ -231,6 +231,15 @@ input[type=text].text-input {
 .choices.columns-4[data-choice-style="table"] group .choice { width: 25%; }
 .choices.columns-5[data-choice-style="table"] group .choice { width: 20%; }
 
+.choice .image {
+	max-height: 2em;
+	vertical-align: middle;
+}
+
+.choice.has-image .label {
+	margin-left: 0.6em;
+}
+
 .choice {
 	display: block;
 	position: relative;

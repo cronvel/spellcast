@@ -86,9 +86,17 @@ Dom.create = function create()
 
 
 
+Dom.prototype.cleanUrl = function cleanUrl( url )
+{
+    if ( url[ 0 ] === '/' ) { return url ; }
+    return '/script/' + url ;
+} ;
+
+
+
 Dom.prototype.setTheme = function setTheme( theme )
 {
-	this.$theme.setAttribute( 'href' , theme.url ) ;
+	this.$theme.setAttribute( 'href' , this.cleanUrl( theme.url ) ) ;
 } ;
 
 
@@ -249,6 +257,7 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 
 Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 {
+	var self = this ;
 	var choicesFragment = document.createDocumentFragment() ;
 	var groupElement = document.createElement( 'group' ) ;
 	
@@ -260,9 +269,22 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 		var buttonElement = document.createElement( 'choice' ) ;
 		buttonElement.classList.add( 'choice' , choice.type ) ;
 		buttonElement.setAttribute( 'data-isOrdered' , choice.orderedList ) ;
-
-		buttonElement.textContent = choice.label ;
-
+		
+		if ( choice.image )
+		{
+			buttonElement.classList.add( 'has-image' ) ;
+			var imageElement = document.createElement( 'img' ) ;
+			imageElement.classList.add( 'image' ) ;
+			imageElement.setAttribute( 'src' , self.cleanUrl( choice.image ) ) ;
+			buttonElement.appendChild( imageElement ) ;
+		}
+		
+		var spanElement = document.createElement( 'span' ) ;
+		spanElement.classList.add( 'label' ) ;
+		spanElement.textContent = choice.label ;
+		buttonElement.appendChild( spanElement ) ;
+		//buttonElement.textContent = choice.label ;
+		
 		if ( choice.selectedBy && choice.selectedBy.length )
 		{
 			var spanElement = document.createElement( 'span' ) ;
@@ -503,7 +525,7 @@ Dom.prototype.setSceneImage = function setSceneImage( data )
 
 	if ( data.url )
 	{
-		this.$sceneImage.style.backgroundImage = 'url("' + data.url + '")' ;
+		this.$sceneImage.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
 	}
 
 	if ( data.origin && typeof data.origin === 'string' )
@@ -568,7 +590,7 @@ Dom.prototype.showSprite = function showSprite( id , data )
 	{
 		console.warn( 'has mask!' ) ;
 
-		domKit.svg.load( null , data.maskUrl , {
+		domKit.svg.load( null , this.cleanUrl( data.maskUrl ) , {
 				class: { spriteMask: true , clickable: true } ,
 				css: data.style ,
 				noWidthHeightAttr: true
@@ -626,7 +648,7 @@ Dom.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 
 	if ( data.url )
 	{
-		sprite.$img.setAttribute( 'src' , data.url ) ;
+		sprite.$img.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 	}
 
 	if ( data.action !== undefined )
@@ -755,7 +777,7 @@ Dom.prototype.sound = function sound( data )	// maybe? , callback )
 	console.warn( '$sound' + this.nextSoundChannel , data , element ) ;
 	this.nextSoundChannel = ( this.nextSoundChannel + 1 ) % 4 ;
 
-	element.setAttribute( 'src' , data.url ) ;
+	element.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 
 	element.play() ;
 } ;
@@ -766,9 +788,11 @@ Dom.prototype.music = function music( data )
 {
 	var self = this ,
 		oldSrc = this.$music.getAttribute( 'src' ) ;
-
+	
 	if ( data.url )
 	{
+		data.url = this.cleanUrl( data.url ) ;
+		
 		if ( oldSrc )
 		{
 			if ( oldSrc !== data.url )
@@ -1247,14 +1271,6 @@ UI.prototype.initBus = function initBus()
 
 
 
-UI.prototype.cleanUrl = function cleanUrl( url )
-{
-	if ( url[ 0 ] === '/' ) { return url ; }
-	return '/script/' + url ;
-} ;
-
-
-
 UI.clientConnecting = function clientConnecting()
 {
 	console.log( 'Connecting!' ) ;
@@ -1299,7 +1315,6 @@ UI.clientConfig = function clientConfig( config )
 
 	if ( this.config.theme )
 	{
-		this.config.theme.url = this.cleanUrl( this.config.theme.url ) ;
 		this.dom.setTheme( this.config.theme ) ;
 	}
 } ;
@@ -1516,6 +1531,7 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , opt
 		choices.push( {
 			index: i ,
 			label: next.label || 'Next' ,
+			image: next.image ,
 			groupBreak: !! next.groupBreak ,
 			//orderedList: nexts.length > 1 ,
 			type: 'next' ,
@@ -1625,11 +1641,7 @@ UI.wait = function wait( what )
 
 UI.theme = function theme( data )
 {
-	if ( data.url )
-	{
-		data.url = this.cleanUrl( data.url ) ;
-	}
-	else
+	if ( ! data.url )
 	{
 		if ( this.config.theme ) { this.dom.setTheme( this.config.theme ) ; }
 		return ;
@@ -1642,7 +1654,6 @@ UI.theme = function theme( data )
 
 UI.image = function image( data )
 {
-	if ( data.url ) { data.url = this.cleanUrl( data.url ) ; }
 	this.dom.setSceneImage( data ) ;
 } ;
 
@@ -1658,9 +1669,6 @@ UI.defineAnimation = function defineAnimation( id , data )
 UI.showSprite = function showSprite( id , data )
 {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
-
-	data.url = this.cleanUrl( data.url ) ;
-	if ( data.maskUrl ) { data.maskUrl = this.cleanUrl( data.maskUrl ) ; }
 
 	data.actionCallback = UI.spriteActionCallback.bind( this ) ;
 
@@ -1679,9 +1687,6 @@ UI.spriteActionCallback = function spriteActionCallback( action )
 
 UI.prototype.updateSprite = function updateSprite( id , data )
 {
-	if ( data.url ) { data.url = this.cleanUrl( data.url ) ; }
-	if ( data.maskUrl ) { data.maskUrl = this.cleanUrl( data.maskUrl ) ; }
-
 	this.dom.updateSprite( id , data ) ;
 } ;
 
@@ -1703,7 +1708,6 @@ UI.clearSprite = function clearSprite( id )
 
 UI.sound = function sound( data )	// maybe? , callback )
 {
-	if ( data.url ) { data.url = this.cleanUrl( data.url ) ; }
 	this.dom.sound( data ) ;
 } ;
 
@@ -1711,7 +1715,6 @@ UI.sound = function sound( data )	// maybe? , callback )
 
 UI.music = function music( data )
 {
-	if ( data.url ) { data.url = this.cleanUrl( data.url ) ; }
 	this.dom.music( data ) ;
 } ;
 
