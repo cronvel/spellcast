@@ -70,31 +70,6 @@ body {
 	margin: 1.5em;
 }
 
-#connection {
-	position: fixed;
-	z-index: 5;
-	overflow: hidden;
-	top: 0%;
-	right: 0%;
-	width: 10%;
-	margin: 0;
-	padding: 0.2em 0.5em;
-	box-sizing: border-box;
-	font-size: 10px;
-	text-align: center;
-/*	text-shadow: 1px 1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, -1px -1px 1px #fff;*/
-	text-shadow: 1px 1px 0px #ccc, -1px 1px 0px #ccc, 1px -1px 0px #ccc, -1px -1px 0px #ccc;
-	background-color: rgba(50,50,150,0.5);
-	transition: top 1s, right 1s, width 1s, font-size 1s;
-}
-
-#connection.alert {
-	top: 40%;
-	width: 30%;
-	right: 35%;
-	font-size: 32px;
-}
-
 #chat {
 	position: absolute;
 	bottom: 0;
