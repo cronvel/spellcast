@@ -11,12 +11,17 @@
 body {
 	font-family: 'Open Sans', sans-serif;
 	font-size: 16px;
-	color: #212121;
+	color: #333;
 }
 
 .fun {
 	font-family: 'Oleo Script', cursive;
 	font-weight: 700;
+}
+
+/* fix few colors that are too light for this theme */
+.brightYellow {
+	text-shadow: 0 0 1px #555;
 }
 
 
