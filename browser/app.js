@@ -105,6 +105,7 @@ Dom.prototype.setTheme = function setTheme( theme )
 Dom.prototype.initEvents = function initEvents()
 {
 	this.$gfx.addEventListener( 'click' , this.toggleContent.bind( this ) , false ) ;
+	this.$dialogWrapper.addEventListener( 'click' , this.clearDialog.bind( this ) , false ) ;
 } ;
 
 
@@ -268,36 +269,36 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 	choices.forEach( function( choice ) {
 		console.warn( "choice.selectedBy:" , choice.selectedBy ) ;
 
-		var buttonElement = document.createElement( 'choice' ) ;
-		buttonElement.classList.add( 'choice' , choice.type ) ;
-		buttonElement.setAttribute( 'data-isOrdered' , choice.orderedList ) ;
+		var $button = document.createElement( 'choice' ) ;
+		$button.classList.add( 'choice' , choice.type ) ;
+		$button.setAttribute( 'data-isOrdered' , choice.orderedList ) ;
 		
 		if ( choice.image )
 		{
-			buttonElement.classList.add( 'has-image' ) ;
-			var imageElement = document.createElement( 'img' ) ;
-			imageElement.classList.add( 'image' ) ;
-			imageElement.setAttribute( 'src' , self.cleanUrl( choice.image ) ) ;
-			buttonElement.appendChild( imageElement ) ;
+			$button.classList.add( 'has-image' ) ;
+			var $image = document.createElement( 'img' ) ;
+			$image.classList.add( 'image' ) ;
+			$image.setAttribute( 'src' , self.cleanUrl( choice.image ) ) ;
+			$button.appendChild( $image ) ;
 		}
 		
-		var spanElement = document.createElement( 'span' ) ;
-		spanElement.classList.add( 'label' ) ;
-		spanElement.textContent = choice.label ;
-		buttonElement.appendChild( spanElement ) ;
-		//buttonElement.textContent = choice.label ;
+		var $span = document.createElement( 'span' ) ;
+		$span.classList.add( 'label' ) ;
+		$span.textContent = choice.label ;
+		$button.appendChild( $span ) ;
+		//$button.textContent = choice.label ;
 		
 		if ( choice.selectedBy && choice.selectedBy.length )
 		{
-			var spanElement = document.createElement( 'span' ) ;
-			spanElement.classList.add( 'italic' , 'brightBlack' ) ;
+			var $span = document.createElement( 'span' ) ;
+			$span.classList.add( 'italic' , 'brightBlack' ) ;
 
 			// Add an extra space to separate from the label text
-			spanElement.textContent = ' ' + choice.selectedBy.join( ', ' ) ;
-			buttonElement.appendChild( spanElement ) ;
+			$span.textContent = ' ' + choice.selectedBy.join( ', ' ) ;
+			$button.appendChild( $span ) ;
 		}
 		
-		buttonElement.addEventListener( 'click' , function() {
+		$button.addEventListener( 'click' , function() {
 			// /!\ HINT: removeListener
 			onSelect( choice.index ) ;
 		} ) ;
@@ -309,7 +310,7 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 			groupElement = document.createElement( 'group' ) ;
 		}
 		
-		groupElement.appendChild( buttonElement ) ;
+		groupElement.appendChild( $button ) ;
 	} ) ;
 	
 	// Add the pending group to the fragment
@@ -520,18 +521,47 @@ Dom.prototype.clearDialog = function clearDialog()
 
 
 
-Dom.prototype.setDialog = function setDialog( text , classes )
+/*
+	Common options:
+	* modal: create a modal dialog
+	* title: specify a dialog title
+	* big: dialog for small text written in BIG font
+	* fun: use a fun font
+	* alert: dialog for alerts, critical stuffs...
+*/
+Dom.prototype.setDialog = function setDialog( text , options )
 {
-	var modal = classes && classes.modal ;
+	options = options || {} ;
 	
 	var $dialog = document.createElement( 'div' ) ;
 	$dialog.classList.add( 'dialog' ) ;
-	$dialog.textContent = text ;
 	
-	if ( classes ) { domKit.class( $dialog , classes ) ; }
+	if ( options.title )
+	{
+		var $title = document.createElement( 'h2' ) ;
+		$title.classList.add( 'title' ) ;
+		$title.textContent = options.title ;
+		$dialog.appendChild( $title ) ;
+	}
 	
-	if ( modal ) { this.$dialogWrapper.classList.add( 'modal' ) ; }
-	else { this.$dialogWrapper.classList.remove( 'modal' ) ; }
+	var $message = document.createElement( 'div' ) ;
+	$message.classList.add( 'message' ) ;
+	$message.textContent = text ;
+	$dialog.appendChild( $message ) ;
+	
+	if ( options.big ) { $dialog.classList.add( 'big' ) ; }
+	if ( options.fun ) { $dialog.classList.add( 'fun' ) ; }
+	if ( options.alert ) { $dialog.classList.add( 'alert' ) ; }
+	
+	if ( options.modal )
+	{
+		$dialog.classList.add( 'modal' ) ;
+		this.$dialogWrapper.classList.add( 'modal' ) ;
+	}
+	else
+	{
+		this.$dialogWrapper.classList.remove( 'modal' ) ;
+	}
 	
 	domKit.empty( this.$dialogWrapper ) ;
 	this.$dialogWrapper.appendChild( $dialog ) ;
@@ -1315,7 +1345,7 @@ UI.clientOpen = function clientOpen()
 	console.log( 'Connected!' ) ;
 	this.dom.clientStatus( 'connected' , { color: 'green' } ) ;
 	this.initBus() ;
-	this.dom.setDialog( 'Yo!' , { modal: true } ) ;
+	//this.dom.setDialog( 'Yo!' , { modal: true , big: true , fun: true } ) ;
 } ;
 
 
@@ -1777,19 +1807,21 @@ UI.end = function end( result , data )
 
 UI.end = function end( result , data )
 {
+	var options = { modal: true , big: true , fun: true } ;
+	
 	switch ( result )
 	{
 		case 'end' :
-			this.dom.setDialog( 'The End.' , { modal: true , end: true } ) ;
+			this.dom.setDialog( 'The End.' , options ) ;
 			break ;
 		case 'win' :
-			this.dom.setDialog( 'You Win!' , { modal: true , end: true , win: true } ) ;
+			this.dom.setDialog( 'You Win!' , options ) ;
 			break ;
 		case 'lost' :
-			this.dom.setDialog( 'You Lose...' , { modal: true , end: true , lost: true } ) ;
+			this.dom.setDialog( 'You Lose...' , options ) ;
 			break ;
 		case 'draw' :
-			this.dom.setDialog( 'Draw.' , { modal: true , end: true , draw: true } ) ;
+			this.dom.setDialog( 'Draw.' , options ) ;
 			break ;
 	}
 } ;

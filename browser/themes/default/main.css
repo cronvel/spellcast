@@ -1,14 +1,29 @@
 
 
 
+			/* Fonts */
+
+
+
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700,700i&subset=latin-ext');
+@import url('https://fonts.googleapis.com/css?family=Oleo+Script:700&subset=latin-ext');
+
+body {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 16px;
+	color: #212121;
+}
+
+.fun {
+	font-family: 'Oleo Script', cursive;
+	font-weight: 700;
+}
+
+
+
 			/* Layout */
 
 
-
-body {
-	font-family: sans-serif;
-	font-size: 16px;
-}
 
 .scene-image {
 	position: fixed;
@@ -39,7 +54,8 @@ body {
 	min-height: 100vh;
 	box-sizing: border-box;
 	width: 50%;
-	background-color: rgba(220,220,200,0.6);
+	/*background-color: rgba(220,220,200,0.6);*/
+	background-color: rgba(232, 225, 215, 0.7);
 	opacity: 1;
 	box-shadow: 0px 0px 10px 1px #000;
 	transition: opacity 0.5s , margin 0.3s;
@@ -127,7 +143,7 @@ p {
 	right: 0;
 	bottom: 0;
 	left: 0;
-	background: rgba(0,0,0,0.8);
+	background: rgba(0,0,0,0.6);
 	z-index: 99999;
 	opacity: 1;
 	transition: opacity 400ms ease-in;
@@ -139,43 +155,37 @@ p {
 }
 
 .dialog {
-	display: block;
-	color: #fff;
-	
+	display: flex;
 	width: 40%;
 	position: relative;
 	margin: 10% auto;
-	padding: 5px 20px 13px 20px;
-	border-radius: 10px;
-	background: #777;
+	padding: 1em;
+	background: #f0efe9;
 	
-	border-image: url( '/boxes/geometric-box.svg' ) 30;
+	/* This part is specific to the border image used */
+	border-image-source: url("/boxes/geometric-gold.svg");
+	/* 360 SVG units inward for both horizontal and vertical*/
+	border-image-slice: 168;
+	/* Repeat an integer number of time, rescale when needed */
 	border-image-repeat: round;
+	/* Make it so the image is larger than the border box, half of the tiles are outside of it */
+	border-image-outset: 1em;
+	border-image-width: 4em;
+	/* Avoid trouble when the height is too low, and thus create distorsion */
+	min-height: 9em;
 }
 
-
-
-.end {
-	background-color: #fce94f;
-	margin: 2em 30%;
-	border-radius: 10px;
-	padding: 10px 20px;
-	text-align: center;
-	text-shadow: 1px 1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff, -1px -1px 1px #fff;
+.dialog .message {
+	margin: auto;
+	font-size: 1.5em;
 }
 
-.win {
-	background-color: #34e2e2;
+.dialog.big .message {
+	margin: auto;
+	font-size: 3em;
 }
 
-.lost {
-	background-color: #ef2929;
-}
-
-.draw {
-	background-color: #8ae234;
-}
-
+/* /!\ What to do with that? */
 .wait {
 	background-color: #75507b;
 	margin: 2em 20%;
@@ -374,6 +384,5 @@ span.waiting-roles {
 	animation-fill-mode: none;
 	animation-play-state: running;
 }
-
 
 
