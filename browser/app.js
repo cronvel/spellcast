@@ -1315,6 +1315,7 @@ UI.clientOpen = function clientOpen()
 	console.log( 'Connected!' ) ;
 	this.dom.clientStatus( 'connected' , { color: 'green' } ) ;
 	this.initBus() ;
+	this.dom.setDialog( 'Yo!' , { modal: true } ) ;
 } ;
 
 
