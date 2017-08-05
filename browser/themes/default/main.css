@@ -315,31 +315,31 @@ input[type=text].text-input {
 }
 
 
-.choice.next {
+.choice.role {
 	background-color: #dabff3;
 	box-shadow: 0 4px #b07ee0;
 }
 
-.choice.next:hover {
+.choice.role:hover {
 	background-color: #e7dcf2;
 	box-shadow: 0 2px #b07ee0;
 }
 
-.choice.next:active {
+.choice.role:active {
 	box-shadow: 0 0 #b07ee0;
 }
 
-.choice.role {
+.choice.next {
 	background-color: #b0ec79 ;
 	box-shadow: 0 4px #3cab3c;
 }
 
-.choice.role:hover {
+.choice.next:hover {
 	background-color: #d1f3b2 ;
 	box-shadow: 0 2px #3cab3c;
 }
 
-.choice.role:active {
+.choice.next:active {
 	box-shadow: 0 0 #3cab3c;
 }
 
