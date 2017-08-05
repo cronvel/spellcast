@@ -473,6 +473,61 @@ describe( "Control flow tags" , function() {
 	
 	it( "[call] tag on real function (not on [fn] tag)" ) ;
 	it( "[return] tag" ) ;
+	
+	it( "explicit [return] from [gosub]" , function( done ) {
+		
+		var messages = [] , ends = [] , leaveSceneCount = 0 ;
+		
+		runBook( __dirname + '/books/explicit-return.kfg' , { type: 'story' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+				ui.bus.on( 'leaveScene' , function() {
+					leaveSceneCount ++ ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'before' ] ,
+					[ 'subscene' ] ,
+					[ 'after' ]
+				] ) ;
+				
+				doormen.equals( leaveSceneCount , 1 ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
+	it( "implicit [return] from [gosub]" , function( done ) {
+		
+		var messages = [] , ends = [] , leaveSceneCount = 0 ;
+		
+		runBook( __dirname + '/books/implicit-return.kfg' , { type: 'story' } ,
+			function( ui ) {
+				ui.bus.on( 'message' , function() {
+					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+				} ) ;
+				ui.bus.on( 'leaveScene' , function() {
+					leaveSceneCount ++ ;
+				} ) ;
+			} ,
+			function() {
+				doormen.equals( messages , [
+					[ 'before' ] ,
+					[ 'subscene' ] ,
+					[ 'after' ]
+				] ) ;
+				
+				doormen.equals( leaveSceneCount , 1 ) ;
+				
+				done() ;
+			}
+		) ;
+	} ) ;
+	
 } ) ;
 
 
@@ -1821,6 +1876,7 @@ describe( "Basic story tags and features" , function() {
 	it( "[goto] tag" ) ;
 	it( "[gosub] tag" ) ;
 	it( "[gosub] tag with return Ref" ) ;
+	
 	it( "[include] tag" ) ;
 	it( "[action] tag" ) ;
 	it( "[here] tag" ) ;

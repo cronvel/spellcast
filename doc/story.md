@@ -51,6 +51,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Gosub Tag](#ref.scenario.gosub)
 			* [Args Tag](#ref.scenario.gosub.args)
 			* [Roles Tag](#ref.scenario.gosub.roles)
+			* [Alt Tag](#ref.scenario.gosub.alt)
 		* [Include Tag](#ref.scenario.include)
 		* [Action Tag](#ref.scenario.action)
 		* [Here Tag](#ref.scenario.here)
@@ -797,6 +798,26 @@ for that sub-scene.
 The *roles* tag is used when the *gosub* tag is inside a [*split* tag](#ref.multiplayer.split) (used in multiplayer books).
 
 Its content is an array of *role ID*: the role list that will go to the *sub-scene*.
+
+
+
+<a name="ref.scenario.gosub.alt"></a>
+### [alt]
+
+* types: parameter
+* attribute style: none
+* content type: none or boolean (default to true)
+
+The *alt* tag is used to indicate to the client that the sub-scene and all its descendant should be rendered
+inside the *alternate buffer*.
+
+If the client supports it, the *alternate buffer* behaves like a separated buffer without history.
+When the sub-scene returns, the *alt buffer* is cleared and turned off, and the *main buffer* becomes active again
+in the same state it was before entering the *alternate buffer*.
+Usually, capable clients should display the *alternate buffer* aside the *main buffer*.
+
+E.g.: the *alternate buffer* can be used for things like inventory, or menus that are not directly related to the
+story-telling.
 
 
 

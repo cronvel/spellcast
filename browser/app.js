@@ -1512,7 +1512,7 @@ UI.prototype.messageNext = function messageNext( callback )
 
 
 // 'enterScene' event
-UI.enterScene = function enterScene( isGosub )
+UI.enterScene = function enterScene( isGosub , toAltBuffer )
 {
 	this.inGame = true ;
 	
@@ -1548,7 +1548,7 @@ UI.enterScene = function enterScene( isGosub )
 
 
 // 'leaveScene' event
-UI.leaveScene = function leaveScene( isReturn , callback )
+UI.leaveScene = function leaveScene( isReturn , backToMainBuffer , callback )
 {
 	if ( isReturn )
 	{

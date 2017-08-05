@@ -1,0 +1,13 @@
+
+[[doctype spellcast/book]]
+
+[chapter a-chapter]
+	[scene init]
+		[message] $> before
+		[gosub explicit]
+		[message] $> after
+	
+	[scene explicit]
+		[message] $> subscene
+		[return]
+		[message] $> unreachable

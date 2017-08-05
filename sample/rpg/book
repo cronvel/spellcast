@@ -156,5 +156,7 @@
 				flavor:
 					$$> ^RAs ${performer.label} charges, ${target.label} slips from the wooden beam!
 					$$> ${target.label//uc1} falls into the chasm!
+		
+		[win]
 
 

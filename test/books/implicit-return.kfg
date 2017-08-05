@@ -1,0 +1,11 @@
+
+[[doctype spellcast/book]]
+
+[chapter a-chapter]
+	[scene init]
+		[message] $> before
+		[gosub implicit]
+		[message] $> after
+	
+	[scene implicit]
+		[message] $> subscene
