@@ -1,6 +1,6 @@
-#chat { display:none; }
+.buffer .chat { display:none; }
 
-#chat {
+.buffer .chat {
 	position: absolute;
 	bottom: 0;
 	width: 100%;
@@ -12,6 +12,6 @@
 	transition: opacity 0.5s;
 }
 
-#chat-input {
+.buffer .chat-input {
 	width: 85%;
 }

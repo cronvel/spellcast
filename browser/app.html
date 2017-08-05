@@ -19,30 +19,57 @@
 			<!-- Background, Sprites-->
 			<div class="scene-image"></div>
 		</div>
-
-		<div id="main-buffer">
+		
+		<div id="main-buffer" class="buffer main active">
 			<div class="history-wrapper">
-				<div id="history" class="messages history">
+				<div class="messages history">
 					<!-- Contain the history of all past messages messages sended by server -->
 				</div>
 			</div>
 
-			<div id="text" class="messages active">
+			<div class="messages active">
 				<!-- Contain all messages sended by server -->
 			</div>
 
-			<div id="next" class="choices">
+			<div class="choices">
 				<!-- Contain all choices -->
 			</div>
 
-			<div id="hint" class="hint">
+			<div class="hint">
 				<!-- Contain hints -->
 			</div>
 
-			<div id="chat" class="chat">
+			<div class="chat">
 				<!-- Chatbox -->
-				<form id="chat-form" class="chat-form">
-					<input type="text" id="chat-input" class="chat-input" />
+				<form class="chat-form">
+					<input type="text" class="chat-input" />
+				</form>
+			</div>
+		</div>
+		
+		<div id="alt-buffer" class="buffer alt">
+			<div class="history-wrapper">
+				<div class="messages history">
+					<!-- Contain the history of all past messages messages sended by server -->
+				</div>
+			</div>
+
+			<div class="messages active">
+				<!-- Contain all messages sended by server -->
+			</div>
+
+			<div class="choices">
+				<!-- Contain all choices -->
+			</div>
+
+			<div class="hint">
+				<!-- Contain hints -->
+			</div>
+
+			<div class="chat">
+				<!-- Chatbox -->
+				<form class="chat-form">
+					<input type="text" class="chat-input" />
 				</form>
 			</div>
 		</div>

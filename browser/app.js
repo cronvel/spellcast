@@ -132,7 +132,19 @@ Dom.prototype.showContent = function showContent()
 
 Dom.prototype.toMainBuffer = function toMainBuffer()
 {
+	if ( this.$activeBuffer === this.$mainBuffer ) { return ; }
+	
 	this.$activeBuffer = this.$mainBuffer ;
+	this.getElements() ;
+} ;
+
+
+
+Dom.prototype.toAltBuffer = function toAltBuffer()
+{
+	if ( this.$activeBuffer === this.$altBuffer ) { return ; }
+	
+	this.$activeBuffer = this.$altBuffer ;
 	this.getElements() ;
 } ;
 
@@ -148,14 +160,6 @@ Dom.prototype.getElements = function getElements()
 	this.$chat = this.$activeBuffer.querySelector( '.chat' ) ;
 	this.$chatForm = this.$chat.querySelector( '.chat-form' ) ;
 	this.$chatInput = this.$chatForm.querySelector( '.chat-input' ) ;
-} ;
-
-
-
-Dom.prototype.toAltBuffer = function toAltBuffer()
-{
-	this.$activeBuffer = this.$altBuffer ;
-	this.getElements() ;
 } ;
 
 

@@ -70,6 +70,28 @@ body {
 	margin-left: 50%;
 }
 
+#alt-buffer {
+	position: fixed;
+	z-index: 1;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	top: 10vh;
+	right: 7.5%;
+	width: 35%;
+	height: 80vh;
+	box-sizing: border-box;
+	/*background-color: rgba(220,220,200,0.6);*/
+	background-color: rgba(232, 225, 215, 0.7);
+	opacity: 1;
+	box-shadow: 0px 0px 10px 1px #000;
+	transition: opacity 0.5s , margin 0.3s;
+}
+
+/* Hide widget that will be probably inactive */
+#alt-buffer .chat , #alt-buffer .history-wrapper {
+	display: none;
+}
+
 .hidden {
 	opacity: 0 !important;
 }
@@ -79,19 +101,19 @@ body {
 	overflow: hidden;
 }
 
-#text {
+.buffer .messages.active {
 	margin: 1.5em;
 }
 
-#next {
+.buffer .choices {
 	margin: 1.5em;
 }
 
-#hint {
+.buffer .hint {
 	margin: 1.5em;
 }
 
-#chat {
+.buffer .chat {
 	position: absolute;
 	bottom: 0;
 	width: 100%;
@@ -103,10 +125,10 @@ body {
 	transition: opacity 0.5s;
 }
 
-#chat-form {
+.buffer .chat-form {
 }
 
-#chat-input {
+.buffer .chat-input {
 	width: 85%;
 }
 
