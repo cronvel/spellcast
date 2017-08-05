@@ -11,7 +11,7 @@ body {
 	font-size: 24px;
 }
 
-#content {
+#main-buffer {
 	display: flex;
 	flex-direction: column;
 	height:100vh;

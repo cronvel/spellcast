@@ -51,22 +51,16 @@ Dom.create = function create()
 	self.$theme = document.querySelector( '#theme' ) ;
 	self.$gfx = document.querySelector( '#gfx' ) ;
 	self.$sceneImage = document.querySelector( '.scene-image' ) ;
-	self.$content = document.querySelector( '#content' ) ;
-	self.$history = document.querySelector( '#history' ) ;
-	self.$text = document.querySelector( '#text' ) ;
-	self.$activeSegment = null ;
-	self.$chat = document.querySelector( '#chat' ) ;
-	self.$chatForm = document.querySelector( '#chat-form' ) ;
-	self.$chatInput = document.querySelector( '#chat-input' ) ;
-	self.$next = document.querySelector( '#next' ) ;
+	self.$mainBuffer = document.querySelector( '#main-buffer' ) ;
 	self.$dialogWrapper = document.querySelector( '#dialog-wrapper' ) ;
-	self.$hint = document.querySelector( '#hint' ) ;
 	self.$connection = document.querySelector( '#connection' ) ;
 	self.$music = document.querySelector( '#music' ) ;
 	self.$sound0 = document.querySelector( '#sound0' ) ;
 	self.$sound1 = document.querySelector( '#sound1' ) ;
 	self.$sound2 = document.querySelector( '#sound2' ) ;
 	self.$sound3 = document.querySelector( '#sound3' ) ;
+	
+	self.toMainBuffer() ;
 
 	self.nextSoundChannel = 0 ;
 
@@ -112,7 +106,7 @@ Dom.prototype.initEvents = function initEvents()
 
 Dom.prototype.toggleContent = function toggleContent()
 {
-	if ( this.$content.classList.contains( 'hidden' ) ) { this.showContent() ; }
+	if ( this.$mainBuffer.classList.contains( 'hidden' ) ) { this.showContent() ; }
 	else { this.hideContent() ; }
 } ;
 
@@ -122,7 +116,7 @@ Dom.prototype.hideContent = function hideContent()
 {
 	if ( this.hideContentTimer !== null ) { clearTimeout( this.hideContentTimer ) ; this.hideContentTimer = null ; }
 
-	this.$content.classList.add( 'hidden' ) ;
+	this.$mainBuffer.classList.add( 'hidden' ) ;
 	this.hideContentTimer = setTimeout( this.showContent.bind( this ) , 8000 ) ;
 } ;
 
@@ -131,7 +125,27 @@ Dom.prototype.hideContent = function hideContent()
 Dom.prototype.showContent = function showContent()
 {
 	if ( this.hideContentTimer !== null ) { clearTimeout( this.hideContentTimer ) ; this.hideContentTimer = null ; }
-	this.$content.classList.remove( 'hidden' ) ;
+	this.$mainBuffer.classList.remove( 'hidden' ) ;
+} ;
+
+
+
+Dom.prototype.toMainBuffer = function toMainBuffer()
+{
+	this.$history = document.querySelector( '#history' ) ;
+	this.$activeMessages = document.querySelector( '#main-buffer .messages.active' ) ;
+	this.$activeSegment = document.querySelector( '#main-buffer .messages.active segment:last-child' ) || null ;
+	this.$chat = document.querySelector( '#chat' ) ;
+	this.$chatForm = document.querySelector( '#chat-form' ) ;
+	this.$chatInput = document.querySelector( '#chat-input' ) ;
+	this.$next = document.querySelector( '#next' ) ;
+	this.$hint = document.querySelector( '#hint' ) ;
+} ;
+
+
+
+Dom.prototype.toAltBuffer = function toAltBuffer()
+{
 } ;
 
 
@@ -173,7 +187,7 @@ Dom.prototype.clear = function clear( callback )
 	callback = callback || noop ;
 	domKit.empty( this.$hint ) ;
 	domKit.empty( this.$dialogWrapper ) ;
-	domKit.empty( this.$text ) ;
+	domKit.empty( this.$activeMessages ) ;
 	domKit.empty( this.$next ) ;
 	callback() ;
 } ;
@@ -191,7 +205,7 @@ Dom.prototype.clearHints = function clearHints( callback )
 Dom.prototype.clearMessages = function clearMessages( callback )
 {
 	callback = callback || noop ;
-	domKit.empty( this.$text ) ;
+	domKit.empty( this.$activeMessages ) ;
 	callback() ;
 } ;
 
@@ -211,7 +225,7 @@ Dom.prototype.newSegment = function newSegment( callback )
 	
 	var segmentElement = document.createElement( 'segment' ) ;
 	this.$activeSegment = segmentElement ;
-	this.$text.appendChild( segmentElement ) ;
+	this.$activeMessages.appendChild( segmentElement ) ;
 	
 	if ( lastSegmentElement )
 	{
@@ -618,11 +632,11 @@ Dom.prototype.setSceneImage = function setSceneImage( data )
 	switch ( data.position )
 	{
 		case 'left' :
-			this.$content.setAttribute( 'data-position' , 'right' ) ;
+			this.$mainBuffer.setAttribute( 'data-position' , 'right' ) ;
 			break ;
 		case 'right' :	// jshint ignore:line
 		default :
-			this.$content.setAttribute( 'data-position' , 'left' ) ;
+			this.$mainBuffer.setAttribute( 'data-position' , 'left' ) ;
 			break ;
 	}
 } ;
