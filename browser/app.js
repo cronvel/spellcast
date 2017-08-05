@@ -132,20 +132,30 @@ Dom.prototype.showContent = function showContent()
 
 Dom.prototype.toMainBuffer = function toMainBuffer()
 {
-	this.$history = document.querySelector( '#history' ) ;
-	this.$activeMessages = document.querySelector( '#main-buffer .messages.active' ) ;
-	this.$activeSegment = document.querySelector( '#main-buffer .messages.active segment:last-child' ) || null ;
-	this.$chat = document.querySelector( '#chat' ) ;
-	this.$chatForm = document.querySelector( '#chat-form' ) ;
-	this.$chatInput = document.querySelector( '#chat-input' ) ;
-	this.$next = document.querySelector( '#next' ) ;
-	this.$hint = document.querySelector( '#hint' ) ;
+	this.$activeBuffer = this.$mainBuffer ;
+	this.getElements() ;
+} ;
+
+
+
+Dom.prototype.getElements = function getElements()
+{
+	this.$history = this.$activeBuffer.querySelector( '.messages.history' ) ;
+	this.$activeMessages = this.$activeBuffer.querySelector( '.messages.active' ) ;
+	this.$activeSegment = this.$activeMessages.querySelector( 'segment:last-child' ) || null ;
+	this.$next = this.$activeBuffer.querySelector( '.choices' ) ;
+	this.$hint = this.$activeBuffer.querySelector( '.hint' ) ;
+	this.$chat = this.$activeBuffer.querySelector( '.chat' ) ;
+	this.$chatForm = this.$chat.querySelector( '.chat-form' ) ;
+	this.$chatInput = this.$chatForm.querySelector( '.chat-input' ) ;
 } ;
 
 
 
 Dom.prototype.toAltBuffer = function toAltBuffer()
 {
+	this.$activeBuffer = this.$altBuffer ;
+	this.getElements() ;
 } ;
 
 
