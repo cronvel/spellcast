@@ -77,9 +77,13 @@ body[data-image-position="left"] #main-buffer {
 
 #alt-buffer {
 	position: fixed;
+	/*
+	top: 50%;
+    transform: translateY(-50%);
+	*/
 	z-index: 1;
-	padding-top: 1em;
-	padding-bottom: 1em;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
 	top: 10vh;
 	right: 7.5%;
 	width: 35%;
@@ -119,6 +123,10 @@ body[data-image-position="left"] #alt-buffer {
 
 .buffer .messages.active {
 	margin: 1.5em;
+}
+
+#alt-buffer .messages.active {
+	margin-top: 0;
 }
 
 .buffer .choices {

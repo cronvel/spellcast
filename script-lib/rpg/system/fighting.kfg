@@ -370,8 +370,10 @@
 			[label] $> Equip object in hand
 			[on-trigger]
 				[gosub rpg:inventory/equip-object => $local.changed]
-					performer: $fight.entityTurn
-					slot: hand
+					[alt]
+					[args]
+						performer: $fight.entityTurn
+						slot: hand
 				[if $local.changed]
 					[set $fight.entityTurn.adhoc.fight.speed] 0
 					[set $fight.entityTurn.adhoc.fight.offensiveness] -1
@@ -418,6 +420,7 @@
 	[scene pc-melee-fighting]
 		[if $fight.distance = 0]
 			[gosub pc-targeting]
+				[alt]
 		[call melee-fighting]
 			performer: $fight.entityTurn
 			target: $fight.target
@@ -428,6 +431,7 @@
 	[scene pc-charge]
 		[if $fight.distance = 0]
 			[gosub pc-targeting]
+				[alt]
 		[call charge]
 			performer: $fight.entityTurn
 			target: $fight.target
@@ -437,6 +441,7 @@
 
 	[scene pc-ranged-fighting]
 		[gosub pc-targeting]
+			[alt]
 		[call ranged-fighting]
 			performer: $fight.entityTurn
 			target: $fight.target
@@ -739,7 +744,9 @@
 					targetAllies: $local.usage.params.targetAllies
 			[else]
 				[gosub pc-targeting]
-					targetAllies: $local.usage.params.targetAllies
+					[alt]
+					[args]
+						targetAllies: $local.usage.params.targetAllies
 			[set $local.target] $fight.target
 			[set $local.position] $fight.target.adhoc.fight.position
 
@@ -1090,8 +1097,10 @@
 			[on-trigger]
 				[call drop => $local.stack] $args
 				[gosub rpg:inventory/drop-grab]
-					performer: $args.performer
-					stack: $local.stack
+					[alt]
+					[args]
+						performer: $args.performer
+						stack: $local.stack
 		[next] $> No
 
 
