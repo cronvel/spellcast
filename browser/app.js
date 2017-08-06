@@ -51,7 +51,9 @@ Dom.create = function create()
 	self.$theme = document.querySelector( '#theme' ) ;
 	self.$gfx = document.querySelector( '#gfx' ) ;
 	self.$sceneImage = document.querySelector( '.scene-image' ) ;
+	self.$main = document.querySelector( 'main' ) ;
 	self.$mainBuffer = document.querySelector( '#main-buffer' ) ;
+	self.$altBuffer = document.querySelector( '#alt-buffer' ) ;
 	self.$dialogWrapper = document.querySelector( '#dialog-wrapper' ) ;
 	self.$connection = document.querySelector( '#connection' ) ;
 	self.$music = document.querySelector( '#music' ) ;
@@ -106,7 +108,7 @@ Dom.prototype.initEvents = function initEvents()
 
 Dom.prototype.toggleContent = function toggleContent()
 {
-	if ( this.$mainBuffer.classList.contains( 'hidden' ) ) { this.showContent() ; }
+	if ( this.$main.classList.contains( 'hidden' ) ) { this.showContent() ; }
 	else { this.hideContent() ; }
 } ;
 
@@ -116,7 +118,7 @@ Dom.prototype.hideContent = function hideContent()
 {
 	if ( this.hideContentTimer !== null ) { clearTimeout( this.hideContentTimer ) ; this.hideContentTimer = null ; }
 
-	this.$mainBuffer.classList.add( 'hidden' ) ;
+	this.$main.classList.add( 'hidden' ) ;
 	this.hideContentTimer = setTimeout( this.showContent.bind( this ) , 8000 ) ;
 } ;
 
@@ -125,7 +127,7 @@ Dom.prototype.hideContent = function hideContent()
 Dom.prototype.showContent = function showContent()
 {
 	if ( this.hideContentTimer !== null ) { clearTimeout( this.hideContentTimer ) ; this.hideContentTimer = null ; }
-	this.$mainBuffer.classList.remove( 'hidden' ) ;
+	this.$main.classList.remove( 'hidden' ) ;
 } ;
 
 
@@ -154,12 +156,14 @@ Dom.prototype.getElements = function getElements()
 {
 	this.$history = this.$activeBuffer.querySelector( '.messages.history' ) ;
 	this.$activeMessages = this.$activeBuffer.querySelector( '.messages.active' ) ;
-	this.$activeSegment = this.$activeMessages.querySelector( 'segment:last-child' ) || null ;
 	this.$next = this.$activeBuffer.querySelector( '.choices' ) ;
 	this.$hint = this.$activeBuffer.querySelector( '.hint' ) ;
 	this.$chat = this.$activeBuffer.querySelector( '.chat' ) ;
 	this.$chatForm = this.$chat.querySelector( '.chat-form' ) ;
 	this.$chatInput = this.$chatForm.querySelector( '.chat-input' ) ;
+	
+	this.$activeSegment = this.$activeMessages.querySelector( 'segment:last-child' ) ;
+	if ( ! this.$activeSegment ) { this.newSegment() ; }
 } ;
 
 
@@ -646,11 +650,11 @@ Dom.prototype.setSceneImage = function setSceneImage( data )
 	switch ( data.position )
 	{
 		case 'left' :
-			this.$mainBuffer.setAttribute( 'data-position' , 'right' ) ;
+			this.$body.setAttribute( 'data-image-position' , 'left' ) ;
 			break ;
 		case 'right' :	// jshint ignore:line
 		default :
-			this.$mainBuffer.setAttribute( 'data-position' , 'left' ) ;
+			this.$body.setAttribute( 'data-image-position' , 'right' ) ;
 			break ;
 	}
 } ;
@@ -1560,6 +1564,8 @@ UI.enterScene = function enterScene( isGosub , toAltBuffer )
 	}
 	*/
 	
+	if ( toAltBuffer ) { this.dom.toAltBuffer() ; }
+	
 	if ( isGosub )
 	{
 		this.depth ++ ;
@@ -1578,6 +1584,12 @@ UI.enterScene = function enterScene( isGosub , toAltBuffer )
 // 'leaveScene' event
 UI.leaveScene = function leaveScene( isReturn , backToMainBuffer , callback )
 {
+	if ( backToMainBuffer )
+	{
+		console.warn( 'backToMainBuffer' ) ;
+		this.dom.toMainBuffer() ;
+	}
+	
 	if ( isReturn )
 	{
 		this.depth -- ;

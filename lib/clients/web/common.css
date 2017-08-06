@@ -57,7 +57,9 @@ body {
 	display: none !important;
 }
 
-.multiplayer .unassigned-users { display: block; }
+.multiplayer .unassigned-users {
+	display: block !important;
+}
 .multiplayer .unassigned-users:before { content: 'Idling: ' ; }
 
 

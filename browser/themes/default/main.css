@@ -49,6 +49,11 @@ body {
 	transition: opacity 2s ;
 }
 
+main {
+	opacity: 1;
+	transition: opacity 0.5s;
+}
+
 #main-buffer {
 	position: relative;
 	z-index: 1;
@@ -66,7 +71,7 @@ body {
 	transition: opacity 0.5s , margin 0.3s;
 }
 
-#main-buffer[data-position="right"] {
+body[data-image-position="left"] #main-buffer {
 	margin-left: 50%;
 }
 
@@ -79,21 +84,27 @@ body {
 	right: 7.5%;
 	width: 35%;
 	height: 80vh;
+	overflow: auto;
 	box-sizing: border-box;
 	/*background-color: rgba(220,220,200,0.6);*/
 	background-color: rgba(232, 225, 215, 0.7);
 	opacity: 1;
 	box-shadow: 0px 0px 10px 1px #000;
-	transition: opacity 0.5s , margin 0.3s;
+	transition: opacity 0.5s , right 0.3s;
 }
 
-/* Hide widget that will be probably inactive */
+body[data-image-position="left"] #alt-buffer {
+	right: 57.5%;
+}
+
+/* Hide widgets that will be probably inactive */
 #alt-buffer .chat , #alt-buffer .history-wrapper {
 	display: none;
 }
 
 .hidden {
 	opacity: 0 !important;
+	pointer-events: none !important;
 }
 
 .history-wrapper {
