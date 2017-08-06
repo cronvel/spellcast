@@ -84,7 +84,7 @@
 	[scene sub2]
 		[message] $> return
 	
-	[scene start]
+	[starting-scene start]
 		[vote-time] 5
 		[theme] > /themes/visual-novel
 		[emit blast] Jack

@@ -136,7 +136,19 @@ Dom.prototype.toMainBuffer = function toMainBuffer()
 {
 	if ( this.$activeBuffer === this.$mainBuffer ) { return ; }
 	
+	if ( this.$activeBuffer )
+	{
+		// This is not defined at startup
+		this.clearChoices() ;
+		this.clearMessages() ;
+		this.clearHints() ;
+		this.clearHistory() ;
+	}
+	
 	this.$activeBuffer = this.$mainBuffer ;
+	this.$mainBuffer.classList.remove( 'inactive' ) ;
+	this.$altBuffer.classList.add( 'inactive' ) ;
+	
 	this.getElements() ;
 } ;
 
@@ -147,6 +159,9 @@ Dom.prototype.toAltBuffer = function toAltBuffer()
 	if ( this.$activeBuffer === this.$altBuffer ) { return ; }
 	
 	this.$activeBuffer = this.$altBuffer ;
+	this.$mainBuffer.classList.add( 'inactive' ) ;
+	this.$altBuffer.classList.remove( 'inactive' ) ;
+	
 	this.getElements() ;
 } ;
 
@@ -156,7 +171,7 @@ Dom.prototype.getElements = function getElements()
 {
 	this.$history = this.$activeBuffer.querySelector( '.messages.history' ) ;
 	this.$activeMessages = this.$activeBuffer.querySelector( '.messages.active' ) ;
-	this.$next = this.$activeBuffer.querySelector( '.choices' ) ;
+	this.$choices = this.$activeBuffer.querySelector( '.choices' ) ;
 	this.$hint = this.$activeBuffer.querySelector( '.hint' ) ;
 	this.$chat = this.$activeBuffer.querySelector( '.chat' ) ;
 	this.$chatForm = this.$chat.querySelector( '.chat-form' ) ;
@@ -206,7 +221,7 @@ Dom.prototype.clear = function clear( callback )
 	domKit.empty( this.$hint ) ;
 	domKit.empty( this.$dialogWrapper ) ;
 	domKit.empty( this.$activeMessages ) ;
-	domKit.empty( this.$next ) ;
+	domKit.empty( this.$choices ) ;
 	callback() ;
 } ;
 
@@ -224,6 +239,15 @@ Dom.prototype.clearMessages = function clearMessages( callback )
 {
 	callback = callback || noop ;
 	domKit.empty( this.$activeMessages ) ;
+	callback() ;
+} ;
+
+
+
+Dom.prototype.clearHistory = function clearHistory( callback )
+{
+	callback = callback || noop ;
+	domKit.empty( this.$history ) ;
 	callback() ;
 } ;
 
@@ -284,7 +308,7 @@ Dom.prototype.messageNext = function messageNext( callback )
 Dom.prototype.clearChoices = function clearChoices( callback )
 {
 	callback = callback || noop ;
-	domKit.empty( this.$next ) ;
+	domKit.empty( this.$choices ) ;
 	callback() ;
 } ;
 
@@ -348,7 +372,7 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 	// Add the pending group to the fragment
 	choicesFragment.appendChild( groupElement ) ;
 	
-	this.$next.appendChild( choicesFragment ) ;
+	this.$choices.appendChild( choicesFragment ) ;
 
 	callback() ;
 } ;
@@ -391,15 +415,15 @@ Dom.prototype.setChoices = function setChoices( choices , undecidedNames , onSel
 			case 'smallInline' :
 			case 'list' :
 			case 'smallList' :
-				self.$next.setAttribute( 'data-choice-style' , options.style ) ;
+				self.$choices.setAttribute( 'data-choice-style' , options.style ) ;
 				break ;
 			case 'table' :
-				self.$next.setAttribute( 'data-choice-style' , options.style ) ;
-				self.$next.classList.add( 'columns-' + self.getChoiceColumnsCount( choices ) ) ;
+				self.$choices.setAttribute( 'data-choice-style' , options.style ) ;
+				self.$choices.classList.add( 'columns-' + self.getChoiceColumnsCount( choices ) ) ;
 				break ;
 			default :
 				// Default to list
-				self.$next.setAttribute( 'data-choice-style' , 'list' ) ;
+				self.$choices.setAttribute( 'data-choice-style' , 'list' ) ;
 		}
 		
 		self.addChoices( choices , onSelect , callback ) ;
@@ -409,7 +433,7 @@ Dom.prototype.setChoices = function setChoices( choices , undecidedNames , onSel
 			var $unassignedUsers = document.createElement( 'p' ) ;
 			$unassignedUsers.classList.add( 'unassigned-users' ) ;
 			$unassignedUsers.textContent = undecidedNames.join( ', ' ) ;
-			self.$next.appendChild( $unassignedUsers ) ;
+			self.$choices.appendChild( $unassignedUsers ) ;
 		}
 
 		if ( typeof options.timeout === 'number' ) { self.choiceTimeout( options.timeout ) ; }
@@ -432,7 +456,7 @@ Dom.prototype.choiceTimeout = function choiceTimeout( timeout )
 	$timer.classList.add( 'timer' ) ;
 	$timer.textContent = Math.round( timeout / 1000 ) ;
 
-	this.$next.appendChild( $timer ) ;
+	this.$choices.appendChild( $timer ) ;
 
 	timer = setInterval( function() {
 		// If no parentNode, the element has been removed...
@@ -1599,7 +1623,10 @@ UI.leaveScene = function leaveScene( isReturn , backToMainBuffer , callback )
 	this.afterLeave = true ;
 
 	if ( this.afterNext ) { callback() ; return ; }
-	setTimeout( callback , 500 ) ;
+	callback() ;
+	
+	// WTF was that?
+	//setTimeout( callback , 500 ) ;
 } ;
 
 

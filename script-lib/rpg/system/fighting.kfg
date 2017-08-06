@@ -361,12 +361,10 @@
 		[next pc-turn]
 			[label] $> Select primary ability or object
 			[on-trigger]
-				[debug error] before
 				[gosub rpg:inventory/select-ability-choose-primary]
+					[alt]
 					[args]
 						performer: $fight.entityTurn
-					[alt]
-				[debug error] after
 
 		[next pc-turn]
 			[label] $> Equip object in hand

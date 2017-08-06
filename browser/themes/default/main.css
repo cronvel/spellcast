@@ -93,6 +93,11 @@ body[data-image-position="left"] #main-buffer {
 	transition: opacity 0.5s , right 0.3s;
 }
 
+#alt-buffer.inactive {
+	opacity: 0 !important;
+	pointer-events: none !important;
+}
+
 body[data-image-position="left"] #alt-buffer {
 	right: 57.5%;
 }
