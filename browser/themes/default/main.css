@@ -77,17 +77,20 @@ body[data-image-position="left"] #main-buffer {
 
 #alt-buffer {
 	position: fixed;
-	/*
-	top: 50%;
-    transform: translateY(-50%);
-	*/
 	z-index: 1;
 	padding-top: 0.5em;
 	padding-bottom: 0.5em;
-	top: 10vh;
+	
+	/*
+		top % are based upon container size, translate % are based upon the object size:
+		used in conjunction it centers vertically
+	*/
+	top: 50%;
+    transform: translateY(-50%);
+    
 	right: 7.5%;
 	width: 35%;
-	height: 80vh;
+	max-height: 80vh;
 	overflow: auto;
 	box-sizing: border-box;
 	/*background-color: rgba(220,220,200,0.6);*/
