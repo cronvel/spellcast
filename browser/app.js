@@ -609,6 +609,17 @@ Dom.prototype.setDialog = function setDialog( text , options )
 {
 	options = options || {} ;
 	
+	// ------------------------------------ HERE -------------------------------------------
+	
+	if ( options.contentDelay )
+	{
+		delete options.contentDelay ;
+		var contentLength = this.$activeSegment.innerHTML.replace( /<[^>]+>|&[a-z]+;/g , '' ).length ;
+		var delay = contentLength.length * 5 ;
+		setTimeout( this.setDialog.bind( this , text , options ) , delay ) ;
+		return ;
+	}
+	
 	var $dialog = document.createElement( 'div' ) ;
 	$dialog.classList.add( 'dialog' ) ;
 	
@@ -1881,7 +1892,7 @@ UI.end = function end( result , data )
 
 UI.end = function end( result , data )
 {
-	var options = { modal: true , big: true , fun: true } ;
+	var options = { modal: true , big: true , fun: true , contentDelay: true } ;
 	
 	switch ( result )
 	{
