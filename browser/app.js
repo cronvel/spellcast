@@ -339,8 +339,7 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 	callback = callback || noop ;
 
 	choices.forEach( function( choice ) {
-		console.warn( "choice.selectedBy:" , choice.selectedBy ) ;
-
+		
 		var $button = document.createElement( 'choice' ) ;
 		$button.classList.add( 'choice' , choice.type ) ;
 		$button.setAttribute( 'data-isOrdered' , choice.orderedList ) ;
@@ -605,18 +604,18 @@ Dom.prototype.clearDialog = function clearDialog()
 	* fun: use a fun font
 	* alert: dialog for alerts, critical stuffs...
 */
-Dom.prototype.setDialog = function setDialog( text , options )
+Dom.prototype.setDialog = function setDialog( text , options , callback )
 {
 	options = options || {} ;
+	callback = callback || noop ;
 	
-	// ------------------------------------ HERE -------------------------------------------
-	
-	if ( options.contentDelay )
+	if ( options.contentDelay && ! this.newSegmentNeeded )
 	{
 		delete options.contentDelay ;
 		var contentLength = this.$activeSegment.innerHTML.replace( /<[^>]+>|&[a-z]+;/g , '' ).length ;
-		var delay = contentLength.length * 5 ;
-		setTimeout( this.setDialog.bind( this , text , options ) , delay ) ;
+		var delay = contentLength * 10 ;
+		console.warn( 'contentLength/delay' , contentLength , delay ) ;
+		setTimeout( this.setDialog.bind( this , text , options , callback ) , delay ) ;
 		return ;
 	}
 	
@@ -636,6 +635,10 @@ Dom.prototype.setDialog = function setDialog( text , options )
 	$message.textContent = text ;
 	$dialog.appendChild( $message ) ;
 	
+	// ------------------- /!\ fading are not working ATM -------------------------------------
+	if ( options.slowFading ) { this.$dialogWrapper.classList.add( 'slow-fading' ) ; }
+	else { this.$dialogWrapper.classList.remove( 'slow-fading' ) ; }
+	
 	if ( options.big ) { $dialog.classList.add( 'big' ) ; }
 	if ( options.fun ) { $dialog.classList.add( 'fun' ) ; }
 	if ( options.alert ) { $dialog.classList.add( 'alert' ) ; }
@@ -653,6 +656,8 @@ Dom.prototype.setDialog = function setDialog( text , options )
 	domKit.empty( this.$dialogWrapper ) ;
 	this.$dialogWrapper.appendChild( $dialog ) ;
 	this.$dialogWrapper.classList.remove( 'empty' ) ;
+	
+	callback() ;
 } ;
 
 
@@ -1409,7 +1414,7 @@ UI.prototype.initBus = function initBus()
     this.bus.on( 'rejoin' , UI.rejoin.bind( this ) ) ;
 
     this.bus.on( 'wait' , UI.wait.bind( this ) ) ;
-    this.bus.on( 'end' , UI.end.bind( this ) ) ;
+    this.bus.on( 'end' , UI.end.bind( this ) , { async: true } ) ;
 
 	this.bus.on( 'exit' , UI.exit.bind( this ) ) ;
 
@@ -1602,31 +1607,8 @@ UI.enterScene = function enterScene( isGosub , toAltBuffer )
 {
 	this.inGame = true ;
 	
-	/*
-	if ( this.afterLeave )
-	{
-		// Next, goto
-		
-		if ( ! this.afterNextTriggered )
-		{
-			this.dom.clear() ;
-		}
-	}
-	else
-	{
-		// Gosub
-	}
-	*/
-	
-	if ( toAltBuffer )
-	{
-		this.dom.toAltBuffer() ;
-	}
-	else if ( ! isGosub )
-	{
-		this.dom.newSegmentOnContent() ;
-	}
-	
+	if ( toAltBuffer ) { this.dom.toAltBuffer() ; }
+	else if ( ! isGosub ) { this.dom.newSegmentOnContent() ; }
 	
 	this.afterNext = this.afterLeave = this.afterNextTriggered = false ;
 } ;
@@ -1636,14 +1618,12 @@ UI.enterScene = function enterScene( isGosub , toAltBuffer )
 // 'leaveScene' event
 UI.leaveScene = function leaveScene( isReturn , backToMainBuffer )
 {
-	if ( backToMainBuffer )
-	{
-		//console.warn( 'backToMainBuffer' ) ;
-		this.dom.toMainBuffer() ;
-	}
+	if ( backToMainBuffer ) { this.dom.toMainBuffer() ; }
+	//else { this.dom.newSegmentOnContent() ; }
 	
 	// if ( isReturn ) {}
 	
+	this.afterNext = this.afterNextTriggered = false ;
 	this.afterLeave = true ;
 } ;
 
@@ -1890,23 +1870,23 @@ UI.end = function end( result , data )
 } ;
 */
 
-UI.end = function end( result , data )
+UI.end = function end( result , data , callback )
 {
-	var options = { modal: true , big: true , fun: true , contentDelay: true } ;
+	var options = { modal: true , big: true , fun: true , contentDelay: ! this.afterNext , slowFading: true } ;
 	
 	switch ( result )
 	{
 		case 'end' :
-			this.dom.setDialog( 'The End.' , options ) ;
+			this.dom.setDialog( 'The End.' , options , callback ) ;
 			break ;
 		case 'win' :
-			this.dom.setDialog( 'You Win!' , options ) ;
+			this.dom.setDialog( 'You Win!' , options , callback ) ;
 			break ;
 		case 'lost' :
-			this.dom.setDialog( 'You Lose...' , options ) ;
+			this.dom.setDialog( 'You Lose...' , options , callback ) ;
 			break ;
 		case 'draw' :
-			this.dom.setDialog( 'Draw.' , options ) ;
+			this.dom.setDialog( 'Draw.' , options , callback ) ;
 			break ;
 	}
 } ;

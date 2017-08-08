@@ -203,9 +203,13 @@ p {
 	transition: opacity 400ms ease-in;
 }
 
+.dialog-wrapper.slow-fading {
+	transition: opacity 1500ms ease-in;
+}
+
 .dialog-wrapper.empty {
 	display: none;
-	opacity:0;
+	opacity: 0;
 }
 
 .dialog {
