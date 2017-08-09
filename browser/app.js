@@ -635,9 +635,8 @@ Dom.prototype.setDialog = function setDialog( text , options , callback )
 	$message.textContent = text ;
 	$dialog.appendChild( $message ) ;
 	
-	// ------------------- /!\ fading are not working ATM -------------------------------------
-	if ( options.slowFading ) { this.$dialogWrapper.classList.add( 'slow-fading' ) ; }
-	else { this.$dialogWrapper.classList.remove( 'slow-fading' ) ; }
+	if ( options.slow ) { this.$dialogWrapper.classList.add( 'slow' ) ; }
+	else { this.$dialogWrapper.classList.remove( 'slow' ) ; }
 	
 	if ( options.big ) { $dialog.classList.add( 'big' ) ; }
 	if ( options.fun ) { $dialog.classList.add( 'fun' ) ; }
@@ -1436,7 +1435,13 @@ UI.clientOpen = function clientOpen()
 	console.log( 'Connected!' ) ;
 	this.dom.clientStatus( 'connected' , { color: 'green' } ) ;
 	this.initBus() ;
-	//this.dom.setDialog( 'Yo!' , { modal: true , big: true , fun: true } ) ;
+	
+	/*
+	this.dom.setDialog( 'Yo!' , { modal: true , big: true , fun: true , slow: true } ) ;
+	setTimeout( () => {
+		this.dom.setDialog( 'Yo2!' , { modal: true , big: true , fun: true , slow: true } ) ;
+	} , 5000 ) ;
+	*/
 } ;
 
 
@@ -1872,7 +1877,8 @@ UI.end = function end( result , data )
 
 UI.end = function end( result , data , callback )
 {
-	var options = { modal: true , big: true , fun: true , contentDelay: ! this.afterNext , slowFading: true } ;
+	// /!\ this.afterNext is not the good way to detect extra content...
+	var options = { modal: true , big: true , fun: true , contentDelay: ! this.afterNext , slow: true } ;
 	
 	switch ( result )
 	{

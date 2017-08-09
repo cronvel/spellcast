@@ -86,8 +86,8 @@ body[data-image-position="left"] #main-buffer {
 		used in conjunction it centers vertically
 	*/
 	top: 50%;
-    transform: translateY(-50%);
-    
+	transform: translateY(-50%);
+	
 	right: 7.5%;
 	width: 35%;
 	max-height: 80vh;
@@ -195,21 +195,27 @@ p {
 	font-family: Arial, Helvetica, sans-serif;
 	top: 0;
 	right: 0;
-	bottom: 0;
+	/*bottom: 0;*/
+	height: 100vh;
 	left: 0;
 	background: rgba(0,0,0,0.6);
 	z-index: 99999;
 	opacity: 1;
-	transition: opacity 400ms ease-in;
-}
-
-.dialog-wrapper.slow-fading {
-	transition: opacity 1500ms ease-in;
+	transition: opacity 400ms ease-in-out, height 400ms step-start;
 }
 
 .dialog-wrapper.empty {
-	display: none;
+	height: 0vh;
 	opacity: 0;
+	transition: opacity 400ms ease-in-out, height 400ms step-end;
+}
+
+.dialog-wrapper.slow {
+	transition: opacity 1500ms ease-in-out, height 1500ms step-start;
+}
+
+.dialog-wrapper.empty.slow {
+	transition: opacity 1500ms ease-in-out, height 1500ms step-end;
 }
 
 .dialog {
@@ -442,5 +448,4 @@ span.waiting-roles {
 	animation-fill-mode: none;
 	animation-play-state: running;
 }
-
 
