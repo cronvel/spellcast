@@ -226,6 +226,9 @@ p {
 	padding: 1em;
 	background: #f0efe9;
 	
+	/* Chrome require that, even if it doesn't make sense */
+	border-style: solid;
+	
 	/* This part is specific to the border image used */
 	border-image-source: url("/boxes/geometric-gold.svg");
 	/* 360 SVG units inward for both horizontal and vertical*/

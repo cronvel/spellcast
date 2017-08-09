@@ -370,7 +370,6 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 		}
 		
 		$button.addEventListener( 'click' , function() {
-			// /!\ HINT: removeListener
 			onSelect( choice.index ) ;
 		} ) ;
 		
@@ -589,9 +588,36 @@ Dom.prototype.setBigHint = function setBigHint( text , classes )
 
 Dom.prototype.clearDialog = function clearDialog()
 {
-	domKit.empty( this.$dialogWrapper ) ;
+	var self = this ;
+	
 	this.$dialogWrapper.classList.add( 'empty' ) ;
 	this.$dialogWrapper.classList.remove( 'modal' ) ;
+	
+	/*
+		Try to remove children of this.$dialogWrapper after an eventual transition.
+		Start a race with a transition start and setTimeout, the first to win inhibit the other.
+	*/
+	var raceWon = false ;
+	
+	var onStart = function() {
+		self.$dialogWrapper.removeEventListener( 'transitionstart' , onStart ) ;
+		if ( raceWon ) { return ; }
+		raceWon = true ;
+		self.$dialogWrapper.addEventListener( 'transitionend' , onEnd ) ;
+	} ;
+	
+	var onEnd = function() {
+		self.$dialogWrapper.removeEventListener( 'transitionend' , onEnd ) ;
+		domKit.empty( this.$dialogWrapper ) ;
+	} ;
+	
+	this.$dialogWrapper.addEventListener( 'transitionstart' , onStart ) ;
+	
+	setTimeout( function() {
+		if ( raceWon ) { return ; }
+		raceWon = true ;
+		domKit.empty( this.$dialogWrapper ) ;
+	} , 10 ) ;
 } ;
 
 
@@ -822,7 +848,7 @@ Dom.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 			$element.classList.remove( 'clickable' ) ;
 			$element.removeEventListener( 'click' , sprite.onClick ) ;
 		}
-
+		
 		sprite.action = data.action || null ;
 	}
 
@@ -1441,7 +1467,7 @@ UI.clientOpen = function clientOpen()
 	setTimeout( () => {
 		this.dom.setDialog( 'Yo2!' , { modal: true , big: true , fun: true , slow: true } ) ;
 	} , 5000 ) ;
-	*/
+	//*/
 } ;
 
 
