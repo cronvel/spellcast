@@ -29,6 +29,10 @@
 		[indicators]
 			-	label: $> HP
 				value: $this.entity.status.hp
+				type: hbar
+			-	label: $> Mana
+				value: $this.entity.status.mana
+				type: hbar
 		
 		#[debug info] $roles.hero.entity.equippedItems.hand
 		#[debug info] $roles.hero.entity.actual

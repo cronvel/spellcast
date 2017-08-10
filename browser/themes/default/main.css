@@ -275,6 +275,29 @@ input[type=text].text-input {
 
 
 
+
+
+			/* Indicators */
+
+
+
+indicator {
+	display: table-row;
+}
+
+indicator label , indicator widget {
+	display: table-cell;
+}
+
+indicator widget.hbar {
+	width: 200px;
+}
+
+indicator widget.hbar bar {
+	background-color: blue;
+}
+
+
 			/* Choices and buttons */
 
 
