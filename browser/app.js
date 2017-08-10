@@ -637,9 +637,11 @@ Dom.prototype.setDialog = function setDialog( text , options , callback )
 	
 	if ( options.contentDelay && ! this.newSegmentNeeded )
 	{
+		// The contentDelay options wait depending on the content size before actually trigger the dialog box.
+		// It is used to let the user read the content before being interupted by the dialog box.
 		delete options.contentDelay ;
 		var contentLength = this.$activeSegment.innerHTML.replace( /<[^>]+>|&[a-z]+;/g , '' ).length ;
-		var delay = contentLength * 10 ;
+		var delay = Math.min( contentLength * 10 , 5000 ) ;
 		console.warn( 'contentLength/delay' , contentLength , delay ) ;
 		setTimeout( this.setDialog.bind( this , text , options , callback ) , delay ) ;
 		return ;
@@ -1374,7 +1376,9 @@ function UI( bus , client , self )
 			inGame: { value: false , writable: true , enumerable: true } ,
 			nexts: { value: null , writable: true , enumerable: true } ,
 			afterNext: { value: false , writable: true , enumerable: true } ,
+			afterNextTriggered: { value: false , writable: true , enumerable: true } ,
 			afterLeave: { value: false , writable: true , enumerable: true } ,
+			hasNewContent: { value: false , writable: true , enumerable: true } ,
 			dom: { value: Dom.create() } ,
 		} ) ;
 	}
@@ -1610,6 +1614,8 @@ UI.message = function message( text , options , callback )
 {
 	var self = this , triggered = false ;
 
+	this.hasNewContent = true ;
+	
 	text = toolkit.markup( text ) ;
 
 	if ( ! options ) { options = {} ; }
@@ -1664,6 +1670,7 @@ UI.leaveScene = function leaveScene( isReturn , backToMainBuffer )
 UI.nextTriggered = function nextTriggered()
 {
 	this.afterNextTriggered = true ;
+	this.hasNewContent = false ;
 	//this.dom.clearMessages() ;
 	this.dom.clearChoices() ;
 } ;
@@ -1904,7 +1911,7 @@ UI.end = function end( result , data )
 UI.end = function end( result , data , callback )
 {
 	// /!\ this.afterNext is not the good way to detect extra content...
-	var options = { modal: true , big: true , fun: true , contentDelay: ! this.afterNext , slow: true } ;
+	var options = { modal: true , big: true , fun: true , contentDelay: this.hasNewContent , slow: true } ;
 	
 	switch ( result )
 	{
