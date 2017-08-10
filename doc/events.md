@@ -66,7 +66,7 @@ Events emitted here are usually **userland** event, except few standard events:
 * textInput (label, grantedRoleIds): the book requires that the user enter a text, `label` is the text describing what is required,
   the client response should emit a `textSubmit` event, `grantedRoleIds` is an array of role's ID, roles that can respond.
 
-* indicators (data): 
+* indicators (data): TODOC
 * status (data): works just like the 'indicators' event, but should be displayed in the status area of the client
 
 * user (userObject): this contains the user related to the client. Argument `userObject` is an object containing

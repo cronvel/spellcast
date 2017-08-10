@@ -57,10 +57,11 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Here Tag](#ref.scenario.here)
 		* [Here-actions Tag](#ref.scenario.here-actions)
 		* [Reset-here-actions Tag](#ref.scenario.reset-here-actions)
-		* [Status Tag](#ref.scenario.status)
 	* [Input/Output Tags](#ref.io)
 		* [Message Tag](#ref.io.message)
 		* [Fortune Tag](#ref.io.fortune)
+		* [Indicators Tag](#ref.io.indicators)
+		* [Status Tag](#ref.io.status)
 		* [Input Tag](#ref.io.input)
 		* [Sound Tag](#ref.io.sound)
 		* [Show-sprite Tag](#ref.io.show-sprite)
@@ -850,13 +851,6 @@ TODO.
 
 
 
-<a name="ref.scenario.status"></a>
-## [status]
-
-TODO.
-
-
-
 <a name="ref.io"></a>
 # Input/Output Tags
 
@@ -938,6 +932,20 @@ Example:
 ```
 
 ... will display `Hello Joe!` or `Hi Joe!` or `Howdy!` in the client UI.
+
+
+
+<a name="ref.io.indicators"></a>
+## [indicators]
+
+TODO.
+
+
+
+<a name="ref.io.status"></a>
+## [status]
+
+TODO.
 
 
 
