@@ -6,6 +6,7 @@
 [module] @@{rpg}/rpg.kfg
 [module] @@data.kfg
 
+
 [action drink]
 	[message]
 		$> You drink a cup of vine...
@@ -16,9 +17,18 @@
 	[entity] player
 
 
+[status]
+	-	label: $> HP
+		value: $this.entity.status.hp
+
+
 
 [chapter intro]
 	[starting-scene init]
+		
+		[indicators]
+			-	label: $> HP
+				value: $this.entity.status.hp
 		
 		#[debug info] $roles.hero.entity.equippedItems.hand
 		#[debug info] $roles.hero.entity.actual

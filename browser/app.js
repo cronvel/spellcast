@@ -1419,6 +1419,8 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'extErrorOutput' , UI.extErrorOutput.bind( this ) ) ;
 
 	this.bus.on( 'message' , UI.message.bind( this ) , { async: true } ) ;
+	this.bus.on( 'indicators' , UI.indicators.bind( this ) ) ;
+	this.bus.on( 'status' , UI.status.bind( this ) ) ;
 
 	this.bus.on( 'theme' , UI.theme.bind( this ) ) ;
 	this.bus.on( 'image' , UI.image.bind( this ) ) ;
@@ -1635,6 +1637,18 @@ UI.message = function message( text , options , callback )
 UI.prototype.messageNext = function messageNext( callback )
 {
 	this.dom.messageNext( callback ) ;
+} ;
+
+
+
+UI.indicators = function indicators( data )
+{
+} ;
+
+
+
+UI.status = function status( data )
+{
 } ;
 
 
