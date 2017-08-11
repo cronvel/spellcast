@@ -291,7 +291,7 @@ Dom.prototype.newSegment = function newSegment( callback )
 Dom.prototype.newSegmentOnContent = function newSegmentOnContent()
 {
 	this.newSegmentNeeded = true ;
-}
+} ;
 
 
 
@@ -322,40 +322,98 @@ Dom.prototype.messageNext = function messageNext( callback )
 
 
 
-Dom.prototype.addIndicator = function addIndicator( data , callback )
+Dom.prototype.addIndicators = function addIndicators( indicators , callback )
 {
+	var self = this ;
+	
 	callback = callback || noop ;
 	
-	var $indicator = document.createElement( 'indicator' ) ;
-	//$indicator.classList.add( data.type ) ;
+	var $indicatorList = document.createElement( 'indicator-list' ) ;
 	
-	var $label = document.createElement( 'label' ) ;
-	$label.classList.add( 'label' ) ;
-	$label.textContent = data.label ;
-	$indicator.appendChild( $label ) ;
-	
-	var $widget = document.createElement( 'widget' ) ;
-	$widget.classList.add( 'widget' ) ;
-	$widget.classList.add( data.type ) ;
-	$widget.setAttribute( 'data-value' , data.value ) ;
-	
-	switch ( data.type )
-	{
-		case 'hbar' :
-			var $bar = document.createElement( 'bar' ) ;
-			$bar.style.width = '' + data.value + '%' ;
-			$widget.appendChild( $bar ) ;
-			break ;
-		case 'text' :
-		default :
-			$widget.textContent = data.value ;
-	}
-	
-	$indicator.appendChild( $widget ) ;
+	indicators.forEach( function( data ) {
+		
+		var $indicator , $label , $image , $widget , $innerBar , $outerBar ;
+		$indicator = document.createElement( 'indicator' ) ;
+		//$indicator.classList.add( data.type ) ;
+		
+		$label = document.createElement( 'label' ) ;
+		$label.classList.add( 'label' ) ;
+		
+		if ( data.image )
+		{
+			$indicator.classList.add( 'has-image' ) ;
+			$image = document.createElement( 'img' ) ;
+			$image.classList.add( 'image' ) ;
+			$image.setAttribute( 'src' , self.cleanUrl( data.image ) ) ;
+			
+			if ( data.label )
+			{
+				$image.setAttribute( 'alt' , data.label ) ;
+				$image.setAttribute( 'title' , data.label ) ;
+			}
+			
+			$label.appendChild( $image ) ;
+		}
+		else
+		{
+			$label.textContent = data.label ;
+		}
+		
+		$indicator.appendChild( $label ) ;
+		
+		$widget = document.createElement( 'widget' ) ;
+		$widget.classList.add( 'widget' ) ;
+		$widget.classList.add( data.type ) ;
+		$widget.setAttribute( 'data-value' , data.value ) ;
+		
+		switch ( data.type )
+		{
+			case 'hbar' :
+				$outerBar = document.createElement( 'outer-bar' ) ;
+				$widget.appendChild( $outerBar ) ;
+				
+				$innerBar = document.createElement( 'inner-bar' ) ;
+				
+				if ( isNaN( data.value ) ) { data.value = 0 ; }
+				else if ( data.value > 100 ) { data.value = 100 ; }
+				else if ( data.value < 0 ) { data.value = 0 ; }
+				
+				if ( typeof data.color === 'string' ) { $innerBar.style.backgroundColor = data.color ; }
+				
+				$innerBar.style.width = '' + data.value + '%' ;
+				
+				$outerBar.appendChild( $innerBar ) ;
+				break ;
+			
+			case 'vbar' :
+				$outerBar = document.createElement( 'outer-bar' ) ;
+				$widget.appendChild( $outerBar ) ;
+				
+				$innerBar = document.createElement( 'inner-bar' ) ;
+				
+				if ( isNaN( data.value ) ) { data.value = 0 ; }
+				else if ( data.value > 100 ) { data.value = 100 ; }
+				else if ( data.value < 0 ) { data.value = 0 ; }
+				
+				if ( typeof data.color === 'string' ) { $innerBar.style.backgroundColor = data.color ; }
+				
+				$innerBar.style.height = '' + data.value + '%' ;
+				
+				$outerBar.appendChild( $innerBar ) ;
+				break ;
+			
+			case 'text' :	// jshint ignore:line
+			default :
+				$widget.textContent = data.value ;
+		}
+		
+		$indicator.appendChild( $widget ) ;
+		$indicatorList.appendChild( $indicator ) ;
+	} ) ;
 	
 	if ( this.newSegmentNeeded ) { this.newSegment() ; }
-	this.$activeSegment.appendChild( $indicator ) ;
-
+	this.$activeSegment.appendChild( $indicatorList ) ;
+	
 	callback() ;
 } ;
 
@@ -393,20 +451,20 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 			$button.appendChild( $image ) ;
 		}
 		
-		var $span = document.createElement( 'span' ) ;
-		$span.classList.add( 'label' ) ;
-		$span.textContent = choice.label ;
-		$button.appendChild( $span ) ;
+		var $label = document.createElement( 'span' ) ;
+		$label.classList.add( 'label' ) ;
+		$label.textContent = choice.label ;
+		$button.appendChild( $label ) ;
 		//$button.textContent = choice.label ;
 		
 		if ( choice.selectedBy && choice.selectedBy.length )
 		{
-			var $span = document.createElement( 'span' ) ;
-			$span.classList.add( 'italic' , 'brightBlack' ) ;
+			var $selectedBy = document.createElement( 'span' ) ;
+			$selectedBy.classList.add( 'italic' , 'brightBlack' ) ;
 
 			// Add an extra space to separate from the label text
-			$span.textContent = ' ' + choice.selectedBy.join( ', ' ) ;
-			$button.appendChild( $span ) ;
+			$selectedBy.textContent = ' ' + choice.selectedBy.join( ', ' ) ;
+			$button.appendChild( $selectedBy ) ;
 		}
 		
 		$button.addEventListener( 'click' , function() {
@@ -1683,9 +1741,7 @@ UI.prototype.messageNext = function messageNext( callback )
 
 UI.indicators = function indicators( data )
 {
-	data.forEach( indicator => {
-		this.dom.addIndicator( indicator ) ;
-	} ) ;
+	this.dom.addIndicators( data ) ;
 } ;
 
 

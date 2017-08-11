@@ -281,6 +281,12 @@ input[type=text].text-input {
 
 
 
+indicator-list {	
+	display: table;
+	border-collapse: separate;
+	border-spacing: 5px;
+}
+
 indicator {
 	display: table-row;
 }
@@ -289,12 +295,46 @@ indicator label , indicator widget {
 	display: table-cell;
 }
 
-indicator widget.hbar {
-	width: 200px;
+indicator label img {
+	height: 1em;
+	vertical-align: middle;
 }
 
-indicator widget.hbar bar {
-	background-color: blue;
+indicator widget.hbar {
+	width: 10em;
+	vertical-align: middle;
+}
+
+indicator widget.hbar outer-bar {
+	display: block;
+	height: 1em;
+	border: solid 1px #555;
+}
+
+indicator widget.hbar inner-bar {
+	display: block;
+	height: 100%;
+	background-color: #ee5;
+}
+
+indicator widget.vbar {
+	width: 1em;
+	vertical-align: middle;
+}
+
+indicator widget.vbar outer-bar {
+	display: block;
+	position: relative;
+	height: 1em;
+	border: solid 1px #555;
+}
+
+indicator widget.vbar inner-bar {
+	display: block;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	background-color: #ee5;
 }
 
 

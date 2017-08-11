@@ -30,8 +30,11 @@
 			-	label: $> HP
 				value: $this.entity.status.hp
 				type: hbar
+				image: /icons/heart.svg
 			-	label: $> Mana
-				value: $this.entity.status.mana
+				#value: $this.entity.status.mana
+				value: 60
+				color: #93e
 				type: hbar
 		
 		#[debug info] $roles.hero.entity.equippedItems.hand
@@ -39,7 +42,7 @@
 		#[debug info] $roles.hero.entity
 		
 		[next goblin-camp]
-			[image] /icons/sword-icon.svg
+			[image] /icons/sword.svg
 			[label] Multiple foes.
 		[next first-encounter]
 			[label] One foe.
