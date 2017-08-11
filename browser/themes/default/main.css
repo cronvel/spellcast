@@ -114,11 +114,6 @@ body[data-image-position="left"] #alt-buffer {
 	display: none;
 }
 
-.hidden {
-	opacity: 0 !important;
-	pointer-events: none !important;
-}
-
 .history-wrapper {
 	margin: 0 1.5em 1.5em 1.5em;
 	overflow: hidden;
@@ -157,6 +152,32 @@ body[data-image-position="left"] #alt-buffer {
 
 .buffer .chat-input {
 	width: 85%;
+}
+
+#status {
+	position: fixed;
+	z-index: 1;
+	height: 2.2em;
+	max-width: 50%;
+	bottom: 0;
+	right: 0;
+	padding: 0.1em;
+	font-size: 0.6em;
+	
+	overflow: hidden;
+	background-color: rgba(232, 225, 215, 0.7);
+	opacity: 1;
+	box-shadow: 0px 0px 10px 1px #000;
+	transition: opacity 0.5s;
+}
+
+#status.empty {
+	display: none;
+}
+
+body[data-image-position="left"] #status {
+	left: 0;
+	right: auto;
 }
 
 
@@ -291,6 +312,14 @@ indicator {
 	display: table-row;
 }
 
+.status indicator-list {
+	display: table-row;
+}
+
+.status indicator {
+	display: table-cell;
+}
+
 indicator label , indicator widget {
 	display: table-cell;
 }
@@ -303,6 +332,10 @@ indicator label img {
 indicator widget.hbar {
 	width: 10em;
 	vertical-align: middle;
+}
+
+.status indicator widget.hbar {
+	width: 2em;
 }
 
 indicator widget.hbar outer-bar {
@@ -494,6 +527,11 @@ span.waiting-roles {
 			/* Misc */
 
 
+
+.hidden {
+	opacity: 0 !important;
+	pointer-events: none !important;
+}
 
 @keyframes pulse-animation {
 	0% {

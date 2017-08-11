@@ -19,25 +19,32 @@
 
 [status]
 	-	label: $> HP
+		type: hbar
 		value: $this.entity.status.hp
+		color: #ea2424
+		image: /icons/heart.svg
+	-	label: $> Mana
+		type: hbar
+		value: $this.entity.status.mana
+		color: #650fbe
+		image: /icons/mana.svg
 
 
 
 [chapter intro]
 	[starting-scene init]
 		
-		[indicators]
-			-	label: $> HP
-				type: hbar
-				value: $this.entity.status.hp
-				color: #ea2424
-				image: /icons/heart.svg
-			-	label: $> Mana
-				type: hbar
-				#value: $this.entity.status.mana
-				value: 60
-				color: #650fbe
-				image: /icons/mana.svg
+		#[indicators]
+		#	-	label: $> HP
+		#		type: hbar
+		#		value: $this.entity.status.hp
+		#		color: #ea2424
+		#		image: /icons/heart.svg
+		#	-	label: $> Mana
+		#		type: hbar
+		#		value: $this.entity.status.mana
+		#		color: #650fbe
+		#		image: /icons/mana.svg
 		
 		#[debug info] $roles.hero.entity.equippedItems.hand
 		#[debug info] $roles.hero.entity.actual

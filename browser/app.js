@@ -56,6 +56,7 @@ Dom.create = function create()
 	self.$altBuffer = document.querySelector( '#alt-buffer' ) ;
 	self.$dialogWrapper = document.querySelector( '#dialog-wrapper' ) ;
 	self.$connection = document.querySelector( '#connection' ) ;
+	self.$status = document.querySelector( '#status' ) ;
 	self.$music = document.querySelector( '#music' ) ;
 	self.$sound0 = document.querySelector( '#sound0' ) ;
 	self.$sound1 = document.querySelector( '#sound1' ) ;
@@ -322,11 +323,28 @@ Dom.prototype.messageNext = function messageNext( callback )
 
 
 
-Dom.prototype.addIndicators = function addIndicators( indicators , callback )
+Dom.prototype.addIndicators = function addIndicators( indicators , isStatus , callback )
 {
 	var self = this ;
 	
 	callback = callback || noop ;
+	
+	if ( isStatus )
+	{
+		console.warn( this.$status ) ;
+		domKit.empty( this.$status ) ;
+		
+		if ( indicators.length )
+		{
+			this.$status.classList.remove( 'empty' ) ;
+		}
+		else
+		{
+			this.$status.classList.add( 'empty' ) ;
+			callback() ;
+			return ;
+		}
+	}
 	
 	var $indicatorList = document.createElement( 'indicator-list' ) ;
 	
@@ -411,8 +429,15 @@ Dom.prototype.addIndicators = function addIndicators( indicators , callback )
 		$indicatorList.appendChild( $indicator ) ;
 	} ) ;
 	
-	if ( this.newSegmentNeeded ) { this.newSegment() ; }
-	this.$activeSegment.appendChild( $indicatorList ) ;
+	if ( isStatus )
+	{
+		this.$status.appendChild( $indicatorList ) ;
+	}
+	else
+	{
+		if ( this.newSegmentNeeded ) { this.newSegment() ; }
+		this.$activeSegment.appendChild( $indicatorList ) ;
+	}
 	
 	callback() ;
 } ;
@@ -1748,6 +1773,7 @@ UI.indicators = function indicators( data )
 
 UI.status = function status( data )
 {
+	this.dom.addIndicators( data , true ) ;
 } ;
 
 
