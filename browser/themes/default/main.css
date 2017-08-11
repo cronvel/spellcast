@@ -154,6 +154,29 @@ body[data-image-position="left"] #alt-buffer {
 	width: 85%;
 }
 
+#lobby {
+	position: fixed;
+	z-index: 1;
+	width: 2em;
+	top: 0;
+	right: 0;
+	padding: 0.1em;
+	
+	overflow: hidden;
+	background-color: rgba(232, 225, 215, 0.7);
+	opacity: 1;
+	box-shadow: 0px 0px 10px 1px #000;
+	transition: opacity 0.5s;
+	text-align: center;
+}
+
+/*#lobby.empty { display: none; }*/
+
+body[data-image-position="left"] #lobby {
+	left: 0;
+	right: auto;
+}
+
 #status {
 	position: fixed;
 	z-index: 1;
@@ -176,6 +199,30 @@ body[data-image-position="left"] #alt-buffer {
 }
 
 body[data-image-position="left"] #status {
+	left: 0;
+	right: auto;
+}
+
+#menu {
+	position: fixed;
+	z-index: 1;
+	width: 2em;
+	top: 20%;
+	right: 0;
+	padding: 0.1em;
+	
+	overflow: hidden;
+	background-color: rgba(232, 225, 215, 0.7);
+	opacity: 1;
+	box-shadow: 0px 0px 10px 1px #000;
+	transition: opacity 0.5s;
+}
+
+#menu.empty {
+	display: none;
+}
+
+body[data-image-position="left"] #menu {
 	left: 0;
 	right: auto;
 }
@@ -206,85 +253,6 @@ p {
 
 
 
-			/* Dialog box */
-
-
-
-.dialog-wrapper {
-	display: table-cell;
-	position: fixed;
-	font-family: Arial, Helvetica, sans-serif;
-	top: 0;
-	right: 0;
-	/*bottom: 0;*/
-	height: 100vh;
-	left: 0;
-	background: rgba(0,0,0,0.6);
-	z-index: 99999;
-	opacity: 1;
-	transition: opacity 400ms ease-in-out, height 400ms step-start;
-}
-
-.dialog-wrapper.empty {
-	height: 0vh;
-	opacity: 0;
-	transition: opacity 400ms ease-in-out, height 400ms step-end;
-}
-
-.dialog-wrapper.slow {
-	transition: opacity 1500ms ease-in-out, height 1500ms step-start;
-}
-
-.dialog-wrapper.empty.slow {
-	transition: opacity 1500ms ease-in-out, height 1500ms step-end;
-}
-
-.dialog {
-	display: flex;
-	width: 40%;
-	position: relative;
-	margin: 10% auto;
-	padding: 1em;
-	background: #f0efe9;
-	
-	/* Chrome require that, even if it doesn't make sense */
-	border-style: solid;
-	
-	/* This part is specific to the border image used */
-	border-image-source: url("/boxes/geometric-gold.svg");
-	/* 360 SVG units inward for both horizontal and vertical*/
-	border-image-slice: 168;
-	/* Repeat an integer number of time, rescale when needed */
-	border-image-repeat: round;
-	/* Make it so the image is larger than the border box, half of the tiles are outside of it */
-	border-image-outset: 1em;
-	border-image-width: 4em;
-	/* Avoid trouble when the height is too low, and thus create distorsion */
-	min-height: 9em;
-}
-
-.dialog .message {
-	margin: auto;
-	font-size: 1.5em;
-}
-
-.dialog.big .message {
-	margin: auto;
-	font-size: 3em;
-}
-
-/* /!\ What to do with that? */
-.wait {
-	background-color: #75507b;
-	margin: 2em 20%;
-	border-radius: 10px;
-	padding: 10px 20px;
-	text-align: center;
-	text-shadow: 1px 1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff, -1px -1px 1px #fff;
-}
-
-
-
 			/* Chat / Input */
 
 
@@ -294,81 +262,6 @@ input[type=text].text-input {
 	width: 50%;
 }
 
-
-
-
-
-			/* Indicators */
-
-
-
-indicator-list {	
-	display: table;
-	border-collapse: separate;
-	border-spacing: 5px;
-}
-
-indicator {
-	display: table-row;
-}
-
-.status indicator-list {
-	display: table-row;
-}
-
-.status indicator {
-	display: table-cell;
-}
-
-indicator label , indicator widget {
-	display: table-cell;
-}
-
-indicator label img {
-	height: 1em;
-	vertical-align: middle;
-}
-
-indicator widget.hbar {
-	width: 10em;
-	vertical-align: middle;
-}
-
-.status indicator widget.hbar {
-	width: 2em;
-}
-
-indicator widget.hbar outer-bar {
-	display: block;
-	height: 1em;
-	border: solid 1px #555;
-}
-
-indicator widget.hbar inner-bar {
-	display: block;
-	height: 100%;
-	background-color: #ee5;
-}
-
-indicator widget.vbar {
-	width: 1em;
-	vertical-align: middle;
-}
-
-indicator widget.vbar outer-bar {
-	display: block;
-	position: relative;
-	height: 1em;
-	border: solid 1px #555;
-}
-
-indicator widget.vbar inner-bar {
-	display: block;
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-	background-color: #ee5;
-}
 
 
 			/* Choices and buttons */
@@ -520,6 +413,182 @@ p.waiting-roles {
 span.waiting-roles {
 	color: #555753;
 	font-style: italic;
+}
+
+
+
+			/* Indicators */
+
+
+
+indicator-list {	
+	display: table;
+	border-collapse: separate;
+	border-spacing: 5px;
+}
+
+indicator {
+	display: table-row;
+}
+
+.status indicator-list {
+	display: table-row;
+}
+
+.status indicator {
+	display: table-cell;
+}
+
+indicator label , indicator widget {
+	display: table-cell;
+}
+
+indicator label img {
+	height: 1em;
+	vertical-align: middle;
+}
+
+indicator widget.hbar {
+	width: 10em;
+	vertical-align: middle;
+}
+
+.status indicator widget.hbar {
+	width: 2em;
+}
+
+indicator widget.hbar outer-bar {
+	display: block;
+	height: 1em;
+	border: solid 1px #555;
+}
+
+indicator widget.hbar inner-bar {
+	display: block;
+	height: 100%;
+	background-color: #ee5;
+}
+
+indicator widget.vbar {
+	width: 1em;
+	vertical-align: middle;
+}
+
+indicator widget.vbar outer-bar {
+	display: block;
+	position: relative;
+	height: 1em;
+	border: solid 1px #555;
+}
+
+indicator widget.vbar inner-bar {
+	display: block;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	background-color: #ee5;
+}
+
+
+
+			/* Lobby */
+
+
+
+#lobby .client-status {
+	display: inline-block;
+	height: 1.5em;
+	width: 1.5em;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	
+	/* Default, used as preload, since the http static server disconnect as soon as the WS socket is closed */
+	background-image: url("/icons/unplugged.svg");
+}
+
+#lobby .client-status[data-status="connected"] { background-image: url("/icons/plugged.svg"); }
+#lobby .client-status[data-status="connecting"] { background-image: url("/icons/plugging.svg"); }
+#lobby .client-status[data-status="closed"] { background-image: url("/icons/unplugged.svg"); }
+#lobby .client-status[data-status="unreachable"] { background-image: url("/icons/unreachable.svg"); }
+
+
+
+			/* Dialog box */
+
+
+
+.dialog-wrapper {
+	display: table-cell;
+	position: fixed;
+	font-family: Arial, Helvetica, sans-serif;
+	top: 0;
+	right: 0;
+	/*bottom: 0;*/
+	height: 100vh;
+	left: 0;
+	background: rgba(0,0,0,0.6);
+	z-index: 99999;
+	opacity: 1;
+	transition: opacity 400ms ease-in-out, height 400ms step-start;
+}
+
+.dialog-wrapper.empty {
+	height: 0vh;
+	opacity: 0;
+	transition: opacity 400ms ease-in-out, height 400ms step-end;
+}
+
+.dialog-wrapper.slow {
+	transition: opacity 1500ms ease-in-out, height 1500ms step-start;
+}
+
+.dialog-wrapper.empty.slow {
+	transition: opacity 1500ms ease-in-out, height 1500ms step-end;
+}
+
+.dialog {
+	display: flex;
+	width: 40%;
+	position: relative;
+	margin: 10% auto;
+	padding: 1em;
+	background: #f0efe9;
+	
+	/* Chrome require that, even if it doesn't make sense */
+	border-style: solid;
+	
+	/* This part is specific to the border image used */
+	border-image-source: url("/boxes/geometric-gold.svg");
+	/* 360 SVG units inward for both horizontal and vertical*/
+	border-image-slice: 168;
+	/* Repeat an integer number of time, rescale when needed */
+	border-image-repeat: round;
+	/* Make it so the image is larger than the border box, half of the tiles are outside of it */
+	border-image-outset: 1em;
+	border-image-width: 4em;
+	/* Avoid trouble when the height is too low, and thus create distorsion */
+	min-height: 9em;
+}
+
+.dialog .message {
+	margin: auto;
+	font-size: 1.5em;
+}
+
+.dialog.big .message {
+	margin: auto;
+	font-size: 3em;
+}
+
+/* /!\ What to do with that? */
+.wait {
+	background-color: #75507b;
+	margin: 2em 20%;
+	border-radius: 10px;
+	padding: 10px 20px;
+	text-align: center;
+	text-shadow: 1px 1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff, -1px -1px 1px #fff;
 }
 
 

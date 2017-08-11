@@ -55,8 +55,10 @@ Dom.create = function create()
 	self.$mainBuffer = document.querySelector( '#main-buffer' ) ;
 	self.$altBuffer = document.querySelector( '#alt-buffer' ) ;
 	self.$dialogWrapper = document.querySelector( '#dialog-wrapper' ) ;
-	self.$connection = document.querySelector( '#connection' ) ;
+	self.$lobby = document.querySelector( '#lobby' ) ;
+	self.$clientStatus = self.$lobby.querySelector( '.client-status' ) ;
 	self.$status = document.querySelector( '#status' ) ;
+	self.$menu = document.querySelector( '#menu' ) ;
 	self.$music = document.querySelector( '#music' ) ;
 	self.$sound0 = document.querySelector( '#sound0' ) ;
 	self.$sound1 = document.querySelector( '#sound1' ) ;
@@ -103,8 +105,15 @@ Dom.prototype.setTheme = function setTheme( theme )
 
 Dom.prototype.initEvents = function initEvents()
 {
+	var self = this ;
+	
 	this.$gfx.addEventListener( 'click' , this.toggleContent.bind( this ) , false ) ;
 	this.$dialogWrapper.addEventListener( 'click' , this.clearDialog.bind( this ) , false ) ;
+	
+	// Things that can get the .toggled class when clicked
+	this.$lobby.addEventListener( 'click' , function() { self.$lobby.classList.toggle( 'toggled' ) ; } ) ;
+	this.$status.addEventListener( 'click' , function() { self.$status.classList.toggle( 'toggled' ) ; } ) ;
+	this.$menu.addEventListener( 'click' , function() { self.$menu.classList.toggle( 'toggled' ) ; } ) ;
 } ;
 
 
@@ -188,16 +197,11 @@ Dom.prototype.getSwitchedElements = function getSwitchedElements()
 
 
 
-Dom.prototype.clientStatus = function clientStatus( text , options )
+Dom.prototype.clientStatus = function clientStatus( status )
 {
-	var $text = document.createElement( 'span' ) ;
-	$text.classList.add( options.color ) ;
-	$text.textContent = text ;
-
-	domKit.empty( this.$connection ) ;
-
-	this.$connection.appendChild( $text ) ;
-	this.$connection.classList.toggle( 'alert' , options.alert ) ;
+	this.$clientStatus.setAttribute( 'data-status' , status ) ;
+	//this.$clientStatus.setAttribute( 'alt' , status ) ;
+	this.$clientStatus.setAttribute( 'title' , status ) ;
 } ;
 
 
@@ -1580,7 +1584,7 @@ UI.prototype.initBus = function initBus()
 UI.clientConnecting = function clientConnecting()
 {
 	console.log( 'Connecting!' ) ;
-	this.dom.clientStatus( 'connecting...' , { color: 'blue' } ) ;
+	this.dom.clientStatus( 'connecting' ) ;
 } ;
 
 
@@ -1588,7 +1592,7 @@ UI.clientConnecting = function clientConnecting()
 UI.clientOpen = function clientOpen()
 {
 	console.log( 'Connected!' ) ;
-	this.dom.clientStatus( 'connected' , { color: 'green' } ) ;
+	this.dom.clientStatus( 'connected' ) ;
 	this.initBus() ;
 	
 	/*
@@ -1604,7 +1608,7 @@ UI.clientOpen = function clientOpen()
 UI.clientClose = function clientClose()
 {
 	console.log( 'Closed!' ) ;
-	this.dom.clientStatus( 'connection closed' , { color: 'red' , alert: true } ) ;
+	this.dom.clientStatus( 'closed' ) ;
 } ;
 
 
@@ -1614,7 +1618,7 @@ UI.clientError = function clientError( code )
 	switch ( code )
 	{
 		case 'unreachable' :
-			this.dom.clientStatus( 'server unreachable' , { color: 'red' , alert: true } ) ;
+			this.dom.clientStatus( 'unreachable' ) ;
 			break ;
 	}
 } ;
