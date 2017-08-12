@@ -7,6 +7,14 @@
 	# We have to gosub to that scene, not call to a fn, because we need a fresh scope
 	[scene fight]
 
+		[panel]
+			-	label: $> Select primary ability or object
+				image: /icons/primary.svg
+				id: primary
+			-	label: $> Equip object in hand
+				image: /icons/catch.svg
+				id: hand-equip
+		
 		[set $fight] <Object>
 
 		[set $fight.foes] <Array>

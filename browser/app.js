@@ -335,7 +335,6 @@ Dom.prototype.addIndicators = function addIndicators( indicators , isStatus , ca
 	
 	if ( isStatus )
 	{
-		console.warn( this.$status ) ;
 		domKit.empty( this.$status ) ;
 		
 		if ( indicators.length )
@@ -1548,6 +1547,7 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'message' , UI.message.bind( this ) , { async: true } ) ;
 	this.bus.on( 'indicators' , UI.indicators.bind( this ) ) ;
 	this.bus.on( 'status' , UI.status.bind( this ) ) ;
+	this.bus.on( 'panel' , UI.panel.bind( this ) ) ;
 
 	this.bus.on( 'theme' , UI.theme.bind( this ) ) ;
 	this.bus.on( 'image' , UI.image.bind( this ) ) ;
@@ -1778,6 +1778,13 @@ UI.indicators = function indicators( data )
 UI.status = function status( data )
 {
 	this.dom.addIndicators( data , true ) ;
+} ;
+
+
+
+UI.panel = function panel( data )
+{
+	// TODO...
 } ;
 
 
