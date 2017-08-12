@@ -61,7 +61,6 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Message Tag](#ref.io.message)
 		* [Fortune Tag](#ref.io.fortune)
 		* [Indicators Tag](#ref.io.indicators)
-		* [Status Tag](#ref.io.status)
 		* [Input Tag](#ref.io.input)
 		* [Sound Tag](#ref.io.sound)
 		* [Show-sprite Tag](#ref.io.show-sprite)
@@ -135,6 +134,9 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Unequip Tag](#ref.rpg.unequip)
 		* [Grab Tag](#ref.rpg.grab)
 		* [Drop Tag](#ref.rpg.drop)
+	* [UI tags](#ref.ui)
+		* [Status Tag](#ref.ui.status)
+		* [Panel Tag](#ref.ui.panel)
 	* [Misc Tags](#ref.misc)
 		* [Module Tag](#ref.misc.module)
 		* [System Tag](#ref.misc.system)
@@ -937,13 +939,6 @@ Example:
 
 <a name="ref.io.indicators"></a>
 ## [indicators]
-
-TODO.
-
-
-
-<a name="ref.io.status"></a>
-## [status]
 
 TODO.
 
@@ -2408,6 +2403,25 @@ The content is an object describing what to drop, properties are:
 * unequip `boolean` (optional, default: false) in conjunction with the *all* option, it first unequip all items,
   so all items will be dropped, included equiped items
 * stack `array` (optional) if present, dropped items are appended to the stack
+
+
+
+<a name="ref.ui"></a>
+# UI Tags
+
+
+
+<a name="ref.ui.status"></a>
+## [status]
+
+TODO.
+
+
+
+<a name="ref.ui.panel"></a>
+## [panel]
+
+TODO.
 
 
 

@@ -66,8 +66,32 @@ Events emitted here are usually **userland** event, except few standard events:
 * textInput (label, grantedRoleIds): the book requires that the user enter a text, `label` is the text describing what is required,
   the client response should emit a `textSubmit` event, `grantedRoleIds` is an array of role's ID, roles that can respond.
 
-* indicators (data): TODOC
+* indicators (data): intended to display indicators in the message area flow (i.e. mixed with *message* events).
+  An indicator is a data-representation visual-element, like bars.
+  Argument `data` is an array of *indicators*, objects where:
+	* type: the type of indicator, i.e. its data representation and appearance (e.g.: text, bar, etc)
+	* label: the label/title of the indicator
+	* value: the value for that indicator
+	* code: (optional) an internal codename for the indicator
+	* color: (optional) the color of that indicator, when that makes sense
+	* image: (optional) the url of an image that will be used instead of/in conjunction with the label,
+	  if supported by the client
+  Existing types:
+	* text: nothing special, the value is a text that will be displayed
+	* hbar: horizontal bar, the value is expressed in percent, from 0 to 100, the bar is filled accordingly
+	* vbar: vertical bar, same than hbar but vertically, usually suited for smaller area
+
 * status (data): works just like the 'indicators' event, but should be displayed in the status area of the client
+
+* panel (data): declare a new panel. A panel is a place in the client's UI where a set of button is placed,
+  that can invoke a *next* action.
+  I.e.: if a *next item* has a *panel* property linking to an existing button, then this *next item* is not added
+  to the *next list*, instead, clicking on that button trigger the *next item's action*. If no *next item* link
+  a button, this button is disabled.
+  The `data` argument is an array of *buttons*, objects where:
+	* id: the panel button's identifier, a *next item* should match it to link it
+	* image: the icon for the button
+	* label: the label for the button, if the client support image, it is not used, except as a tooltip
 
 * user (userObject): this contains the user related to the client. Argument `userObject` is an object containing
   at least those properties:
@@ -95,10 +119,11 @@ Events emitted here are usually **userland** event, except few standard events:
   `isReturn` is true if we are returning from a gosub
   `backToMainBuffer` is true if the sub-scene return to the *main buffer*
 * nextList (nexts, grantedRoleIds, undecidedRoleIds, options, isUpdate): users should make a choice between multiple
-  alternatives, `nexts` is an array of object containing those alternatives, where:
+  alternatives, `nexts` is an array of objects containing those alternatives (aka *next items*), where:
 	* label `string` contains the text describing the choice
 	* groupBreak `boolean` true if the item start a new group
 	* image `url` if set, the choice as an image that would usually be displayed as an icon
+	* panel `string` if set to a panel button's ID, it binds this *next item* the that button
 	* roleIds `array` of role's IDs, if not null, it's the client ID of the user holding this role
   Once the user has selected a choice, the client should emit a `selectNext` event.
   Argument `isUpdate` is a boolean, it is true if the provided *next list* is an update of the previous one (i.e. it is not a new
