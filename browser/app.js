@@ -529,6 +529,7 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 	{
 		$item = this.$panel.children[ i ] ;
 		$item.removeAttribute( 'data-select-index' ) ;
+		$item.removeEventListener( 'click' , this.onSelect ) ;
 	}
 	
 	domKit.empty( this.$choices ) ;

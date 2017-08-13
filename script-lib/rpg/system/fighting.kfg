@@ -342,8 +342,6 @@
 		
 		[next pc-charge] $> Charge!
 
-		[next-group-break]
-		
 		[if $fight.entityTurn.primary.ranged-fighting]
 			[set $local.item] $fight.entityTurn.primary.ranged-fighting
 
