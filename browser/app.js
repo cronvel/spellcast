@@ -449,8 +449,6 @@ Dom.prototype.createOnSelect = function createOnSelect( onSelect )
 	var self = this ;
 	
 	this.onSelect = function( event ) {
-		//console.warn( 'click event' , event ) ;
-		//console.warn( 'currentTarget' , event.currentTarget ) ;
 		var element = event.currentTarget ;
 		var index = element.getAttribute( 'data-select-index' ) ;
 		if ( ! index ) { return ; }
@@ -561,8 +559,6 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 			! $panelButton.getAttribute( 'data-select-index' )
 		)
 		{
-			console.warn( 'Found a button!' , $panelButton ) ;
-			
 			// groupBreak remainder
 			if ( choice.groupBreak ) { groupBreak = true ; }
 			
@@ -935,7 +931,6 @@ Dom.prototype.setSceneImage = function setSceneImage( data )
 
 	var $oldSceneImage = this.$sceneImage ;
 
-	console.warn( "setSceneImage: " , data ) ;
 	this.$sceneImage = document.createElement( 'div' ) ;
 	this.$sceneImage.classList.add( 'scene-image' ) ;
 
@@ -2145,29 +2140,7 @@ UI.music = function music( data )
 
 
 
-// Exit event
-/*
-UI.end = function end( result , data )
-{
-	switch ( result )
-	{
-		case 'end' :
-			this.dom.setBigHint( 'The End.' , { end: true } ) ;
-			break ;
-		case 'win' :
-			this.dom.setBigHint( 'You Win!' , { end: true , win: true } ) ;
-			break ;
-		case 'lost' :
-			this.dom.setBigHint( 'You Lose...' , { end: true , lost: true } ) ;
-			break ;
-		case 'draw' :
-			this.dom.setBigHint( 'Draw.' , { end: true , draw: true } ) ;
-			break ;
-	}
-	
-} ;
-*/
-
+// End event
 UI.end = function end( result , data , callback )
 {
 	// /!\ this.afterNext is not the good way to detect extra content...
