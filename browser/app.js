@@ -66,6 +66,7 @@ Dom.create = function create()
 	self.$sound3 = document.querySelector( '#sound3' ) ;
 	
 	self.newSegmentNeeded = false ;
+	self.onSelect = null ;
 	
 	self.toMainBuffer() ;
 
@@ -78,10 +79,6 @@ Dom.create = function create()
 	self.onChatSubmit = null ;
 
 	self.initEvents() ;
-
-	// temp
-	window.dom = self ;
-	// temp
 
 	return self ;
 } ;
@@ -447,6 +444,23 @@ Dom.prototype.addIndicators = function addIndicators( indicators , isStatus , ca
 
 
 
+Dom.prototype.createOnSelect = function createOnSelect( onSelect )
+{
+	var self = this ;
+	
+	this.onSelect = function( event ) {
+		//console.warn( 'click event' , event ) ;
+		//console.warn( 'currentTarget' , event.currentTarget ) ;
+		var element = event.currentTarget ;
+		var index = element.getAttribute( 'data-select-index' ) ;
+		if ( ! index ) { return ; }
+		index = parseInt( index , 10 ) ;
+		onSelect( index ) ;
+	} ;
+} ;
+
+
+
 Dom.prototype.setPanel = function setPanel( panel , callback )
 {
 	var self = this ;
@@ -494,7 +508,7 @@ Dom.prototype.setPanel = function setPanel( panel , callback )
 			$item.textContent = data.label ;
 		}
 		
-		$item.addEventListener( 'click' , this.toggleContent.bind( this ) , false ) ;
+		$item.addEventListener( 'click' , self.onSelect , false ) ;
 		
 		self.$panel.appendChild( $item ) ;
 	} ) ;
@@ -506,8 +520,21 @@ Dom.prototype.setPanel = function setPanel( panel , callback )
 
 Dom.prototype.clearChoices = function clearChoices( callback )
 {
+	var i , len , $item ;
+	
 	callback = callback || noop ;
+	
+	// First, unassign all panel buttons
+	for ( i = 0 , len = this.$panel.children.length ; i < len ; i ++ )
+	{
+		$item = this.$panel.children[ i ] ;
+		$item.removeAttribute( 'data-select-index' ) ;
+	}
+	
 	domKit.empty( this.$choices ) ;
+	
+	this.onSelect = null ;
+	
 	callback() ;
 } ;
 
@@ -515,16 +542,41 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 
 Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 {
-	var self = this ;
+	var self = this , groupBreak = false ;
 	var choicesFragment = document.createDocumentFragment() ;
 	var $group = document.createElement( 'group' ) ;
 	
 	callback = callback || noop ;
+	
+	this.createOnSelect( onSelect ) ;
 
 	choices.forEach( function( choice ) {
 		
+		var $panelButton ;
+		
+		if (
+			choice.button &&
+			( $panelButton = self.$panel.querySelector( '.item[data-id=' + choice.button + ']' ) ) &&
+			! $panelButton.getAttribute( 'data-select-index' )
+		)
+		{
+			console.warn( 'Found a button!' , $panelButton ) ;
+			
+			// groupBreak remainder
+			if ( choice.groupBreak ) { groupBreak = true ; }
+			
+			// Assign to it the select index
+			$panelButton.setAttribute( 'data-select-index' , choice.index ) ;
+			
+			// Add the click event to the next-item
+			$panelButton.addEventListener( 'click' , self.onSelect ) ;
+			
+			return ;
+		}
+		
 		var $button = document.createElement( 'choice' ) ;
 		$button.classList.add( 'choice' , choice.type ) ;
+		$button.setAttribute( 'data-select-index' , choice.index ) ;
 		$button.setAttribute( 'data-isOrdered' , choice.orderedList ) ;
 		
 		if ( choice.image )
@@ -552,13 +604,13 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 			$button.appendChild( $selectedBy ) ;
 		}
 		
-		$button.addEventListener( 'click' , function() {
-			onSelect( choice.index ) ;
-		} ) ;
+		// Add the click event to the next-item
+		$button.addEventListener( 'click' , self.onSelect ) ;
 		
-		if ( choice.groupBreak )
+		if ( choice.groupBreak || groupBreak )
 		{
 			// Add current group to the fragment, and create a new group
+			groupBreak = false ;
 			choicesFragment.appendChild( $group ) ;
 			$group = document.createElement( 'group' ) ;
 		}
@@ -570,7 +622,7 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 	choicesFragment.appendChild( $group ) ;
 	
 	this.$choices.appendChild( choicesFragment ) ;
-
+	
 	callback() ;
 } ;
 
@@ -1545,7 +1597,7 @@ var toolkit = require( '../toolkit.js' ) ;
 function UI( bus , client , self )
 {
 	console.log( Array.from( arguments ) ) ;
-
+	
 	if ( ! self )
 	{
 		self = Object.create( UI.prototype , {
@@ -1570,7 +1622,6 @@ function UI( bus , client , self )
 	self.client.once( 'open' , UI.clientOpen.bind( self ) ) ;
 	self.client.once( 'close' , UI.clientClose.bind( self ) ) ;
 	self.client.on( 'error' , UI.clientError.bind( self ) ) ;
-	
 	
 	self.dom.enableChat( function( message ) {
 		console.log( 'inGame?' , self.inGame ) ;
@@ -1904,6 +1955,7 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , opt
 			index: i ,
 			label: next.label || 'Next' ,
 			image: next.image ,
+			button: next.button ,
 			groupBreak: !! next.groupBreak ,
 			//orderedList: nexts.length > 1 ,
 			type: 'next' ,

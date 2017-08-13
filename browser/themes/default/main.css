@@ -183,11 +183,11 @@ body[data-image-position="left"] #lobby {
 	position: fixed;
 	box-sizing: border-box;
 	z-index: 1;
-	width: 2em;
+	width: 2.35em;
 	top: 25%;
 	right: 0;
 	max-height: 65%;
-	padding: 0.1em;
+	padding: 0 0.15em;
 	
 	overflow: hidden;
 	background-color: rgba(232, 225, 215, 0.7);
@@ -549,6 +549,27 @@ indicator widget.vbar inner-bar {
 #panel .item {
 	display: block;
 	width: 2em;
+	margin: 0.15em 0;
+	
+	/* the panel bg color */
+	background-color: rgba(212, 205, 195);
+	
+	-webkit-filter: grayscale(100%) contrast(30%) opacity(50%);
+    -moz-filter: grayscale(100%) contrast(30%) opacity(50%);
+    -ms-filter: grayscale(100%) contrast(30%) opacity(50%);
+    -o-filter: grayscale(100%) contrast(30%) opacity(50%);
+	filter: grayscale(100%) contrast(30%) opacity(50%);
+	/*opacity: 0.5;*/
+}
+
+#panel .item[data-select-index] {
+	cursor: pointer;
+	filter: none;
+	/*opacity: 1;*/
+}
+
+#panel .item[data-select-index]:hover {
+	background-color: rgba(242, 235, 225);
 }
 
 #panel .item img {
