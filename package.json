@@ -29,7 +29,7 @@
     "nextgen-events": "^0.10.0",
     "semver": "^5.4.1",
     "server-kit": "^0.4.2",
-    "string-kit": "^0.5.26",
+    "string-kit": "^0.5.27",
     "terminal-kit": "^1.11.2",
     "tree-kit": "^0.5.26"
   },
