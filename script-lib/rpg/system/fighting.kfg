@@ -368,6 +368,7 @@
 		
 		[next pc-turn]
 			[label] $> Select primary ability or object
+			[button] primary
 			[on-trigger]
 				[gosub rpg:inventory/select-ability-choose-primary]
 					[alt]
@@ -376,6 +377,7 @@
 
 		[next pc-turn]
 			[label] $> Equip object in hand
+			[button] hand-equip
 			[on-trigger]
 				[gosub rpg:inventory/equip-object => $local.changed]
 					[alt]

@@ -156,10 +156,12 @@ body[data-image-position="left"] #alt-buffer {
 
 #lobby {
 	position: fixed;
+	box-sizing: border-box;
 	z-index: 1;
 	width: 2em;
 	top: 0;
 	right: 0;
+	max-height: 25%;
 	padding: 0.1em;
 	
 	overflow: hidden;
@@ -177,10 +179,36 @@ body[data-image-position="left"] #lobby {
 	right: auto;
 }
 
+#panel {
+	position: fixed;
+	box-sizing: border-box;
+	z-index: 1;
+	width: 2em;
+	top: 25%;
+	right: 0;
+	max-height: 65%;
+	padding: 0.1em;
+	
+	overflow: hidden;
+	background-color: rgba(232, 225, 215, 0.7);
+	opacity: 1;
+	box-shadow: 0px 0px 10px 1px #000;
+	transition: opacity 0.5s;
+	text-align: center;
+}
+
+#panel.empty { display: none; }
+
+body[data-image-position="left"] #panel {
+	left: 0;
+	right: auto;
+}
+
 #status {
 	position: fixed;
+	box-sizing: border-box;
 	z-index: 1;
-	height: 2.2em;
+	height: 2.4em;
 	max-width: 50%;
 	bottom: 0;
 	right: 0;
@@ -511,6 +539,21 @@ indicator widget.vbar inner-bar {
 #lobby .client-status[data-status="connecting"] { background-image: url("/icons/plugging.svg"); }
 #lobby .client-status[data-status="closed"] { background-image: url("/icons/unplugged.svg"); }
 #lobby .client-status[data-status="unreachable"] { background-image: url("/icons/unreachable.svg"); }
+
+
+
+			/* Panel */
+
+
+
+#panel .item {
+	display: block;
+	width: 2em;
+}
+
+#panel .item img {
+	width: 100%;
+}
 
 
 

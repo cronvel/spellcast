@@ -41,6 +41,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [On-trigger Tag](#ref.scenario.next.on-trigger)
 				* [Cancel Tag](#ref.scenario.next.on-trigger.cancel)
 			* [Args Tag](#ref.scenario.next.args)
+			* [Button Tag](#ref.scenario.next.button)
 		* [Fake Next Tag](#ref.scenario.fake-next)
 		* [Next-group-break Tag](#ref.scenario.next-group-break)
 		* [End Tag](#ref.scenario.end)
@@ -637,6 +638,19 @@ The *on-trigger* tag receives an argument **$args** variable solved during the l
 All other variable have the same values since the *on-trigger* content is always run *after* the loop.
 
 In fact, the *args* tag here works just like *args* tag of *gosub* and *call* tags, but target the *on-trigger* tag.
+
+
+
+<a name="ref.scenario.next.button"></a>
+### [button]
+
+* types: parameter
+* attribute style: none
+* content type: string (ID)
+
+Create a new group of next-tag, if supported by the client.
+For exemple if the [*next-style*](#ref.scenario.scene.next-style) tag is set to table, this indicates to the client
+that this *next item* should start a new column.
 
 
 

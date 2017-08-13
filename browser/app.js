@@ -468,16 +468,15 @@ Dom.prototype.setPanel = function setPanel( panel , callback )
 	
 	panel.forEach( function( data ) {
 		
-		var $indicator , $label , $image , $widget , $innerBar , $outerBar ;
+		var $item , $image ;
 		$item = document.createElement( 'item' ) ;
-		//$indicator.classList.add( data.type ) ;
+		$item.classList.add( 'item' ) ;
 		
-		$label = document.createElement( 'label' ) ;
-		$label.classList.add( 'label' ) ;
+		$item.setAttribute( 'data-id' , data.id ) ;
 		
 		if ( data.image )
 		{
-			$indicator.classList.add( 'has-image' ) ;
+			$item.classList.add( 'has-image' ) ;
 			$image = document.createElement( 'img' ) ;
 			$image.classList.add( 'image' ) ;
 			$image.setAttribute( 'src' , self.cleanUrl( data.image ) ) ;
@@ -488,22 +487,16 @@ Dom.prototype.setPanel = function setPanel( panel , callback )
 				$image.setAttribute( 'title' , data.label ) ;
 			}
 			
-			$label.appendChild( $image ) ;
+			$item.appendChild( $image ) ;
 		}
 		else
 		{
-			$label.textContent = data.label ;
+			$item.textContent = data.label ;
 		}
 		
-		$indicator.appendChild( $label ) ;
+		$item.addEventListener( 'click' , this.toggleContent.bind( this ) , false ) ;
 		
-		$widget = document.createElement( 'widget' ) ;
-		$widget.classList.add( 'widget' ) ;
-		$widget.classList.add( data.type ) ;
-		$widget.setAttribute( 'data-value' , data.value ) ;
-		
-		$indicator.appendChild( $widget ) ;
-		$indicatorList.appendChild( $indicator ) ;
+		self.$panel.appendChild( $item ) ;
 	} ) ;
 	
 	callback() ;
