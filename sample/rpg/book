@@ -42,7 +42,8 @@
 				image: /icons/heart.svg
 			-	label: $> Mana
 				type: hbar
-				value: $this.entity.status.mana
+				#value: $this.entity.status.mana
+				value: 35
 				color: #650fbe
 				image: /icons/mana.svg
 		
