@@ -1,6 +1,7 @@
 # Specific #
 ############
 
+package-lock.json
 *.local.*
 *.local
 *.log

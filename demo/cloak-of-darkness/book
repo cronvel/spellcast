@@ -67,6 +67,13 @@
 
 
 
+[panel]
+	-	label: $> Inventory
+		image: /icons/bag.svg
+		id: inventory
+
+
+
 [chapter game]
 	
 	[starting-scene intro1]
@@ -117,7 +124,7 @@
 		
 		[on rpg:drop-item]
 			[if $args.model = "cloak-of-darkness"]
-				[message]
+				[important-message]
 					> You put the Cloak of Darkness on the brass hook.
 					>
 		

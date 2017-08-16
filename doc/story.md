@@ -60,6 +60,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Reset-here-actions Tag](#ref.scenario.reset-here-actions)
 	* [Input/Output Tags](#ref.io)
 		* [Message Tag](#ref.io.message)
+		* [Important-message Tag](#ref.io.important-message)
 		* [Fortune Tag](#ref.io.fortune)
 		* [Indicators Tag](#ref.io.indicators)
 		* [Input Tag](#ref.io.input)
@@ -886,6 +887,8 @@ For simple message, the content can be either a simple string, or a template.
 If some particular options are needed, the content should be formated as an object, where:
 * text `string` or `Template` the message to display
 * next `boolean` if true, the message wait for the user acknowledgement
+* important `boolean` if true and if the scene is rendering in the *alternate buffer*, the message should be rendered
+  in the *main buffer* too.
 * slowTyping `boolean` if true, the message is diplayed letter by letter (not all the clients supports it)
 * image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
   of what is described (not all the clients supports it)
@@ -920,6 +923,17 @@ Example with an object:
 ... will display `Hello Joe!` in the client UI, the execution of the script is paused until the user confirms.
 
 Finally, the content can be an array, in that case each element is a message to send.
+
+
+
+<a name="ref.io.important-message"></a>
+## [important-message]
+
+* types: run
+* attribute style: none
+* content type: string, template, object or array of: string, template or object.
+
+This is exactly the same than the [message tag](#ref.io.message), with the *important* option on.
 
 
 

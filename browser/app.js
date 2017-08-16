@@ -155,6 +155,7 @@ Dom.prototype.toMainBuffer = function toMainBuffer()
 	}
 	
 	this.$activeBuffer = this.$mainBuffer ;
+	this.$importantMessages = null ;
 	this.$mainBuffer.classList.remove( 'inactive' ) ;
 	this.$altBuffer.classList.add( 'inactive' ) ;
 	
@@ -167,6 +168,7 @@ Dom.prototype.toAltBuffer = function toAltBuffer()
 {
 	if ( this.$activeBuffer === this.$altBuffer ) { return ; }
 	
+	this.$importantMessages = this.$activeSegment ;
 	this.$activeBuffer = this.$altBuffer ;
 	this.$mainBuffer.classList.add( 'inactive' ) ;
 	this.$altBuffer.classList.remove( 'inactive' ) ;
@@ -303,14 +305,21 @@ Dom.prototype.addMessage = function addMessage( text , options , callback )
 	
 	var $text = document.createElement( 'p' ) ;
 	$text.classList.add( 'text' ) ;
-
+	
 	//$text.textContent = text ;
 	// Because the text contains <span> tags
 	$text.innerHTML = text ;
-
+	
 	if ( this.newSegmentNeeded ) { this.newSegment() ; }
+	
 	this.$activeSegment.appendChild( $text ) ;
-
+	
+	if ( options.important && this.$importantMessages )
+	{
+		// The message should be added to the main buffer too
+		this.$importantMessages.appendChild( $text.cloneNode( true ) ) ;
+	}
+	
 	callback() ;
 } ;
 
@@ -7468,11 +7477,6 @@ module.exports = {
 
 
 
-// Load modules
-//var tree = require( 'tree-kit' ) ;
-
-
-
 // From Mozilla Developper Network
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
 exports.regExp = exports.regExpPattern = function escapeRegExpPattern( str ) {
@@ -7579,7 +7583,6 @@ exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
 
 
 // Load modules
-//var tree = require( 'tree-kit' ) ;
 var inspect = require( './inspect.js' ).inspect ;
 var inspectError = require( './inspect.js' ).inspectError ;
 var ansi = require( './ansi.js' ) ;
@@ -8127,7 +8130,6 @@ exports.format.hasFormatting = function hasFormatting( str )
 
 
 // Load modules
-var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
 var escape = require( './escape.js' ) ;
 var ansi = require( './ansi.js' ) ;
 
@@ -8602,7 +8604,7 @@ inspectStyle.none = {
 
 
 
-inspectStyle.color = treeExtend( null , {} , inspectStyle.none , {
+inspectStyle.color = Object.assign( {} , inspectStyle.none , {
 	limit: function( str ) { return ansi.bold + ansi.brightRed + str + ansi.reset ; } ,
 	type: function( str ) { return ansi.italic + ansi.brightBlack + str + ansi.reset ; } ,
 	constant: function( str ) { return ansi.cyan + str + ansi.reset ; } ,
@@ -8626,7 +8628,7 @@ inspectStyle.color = treeExtend( null , {} , inspectStyle.none , {
 
 
 
-inspectStyle.html = treeExtend( null , {} , inspectStyle.none , {
+inspectStyle.html = Object.assign( {} , inspectStyle.none , {
 	tab: '&nbsp;&nbsp;&nbsp;&nbsp;' ,
 	nl: '<br />' ,
 	limit: function( str ) { return '<span style="color:red">' + str + '</span>' ; } ,
@@ -8653,7 +8655,7 @@ inspectStyle.html = treeExtend( null , {} , inspectStyle.none , {
 
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")},require('_process'))
-},{"../../is-buffer/index.js":11,"./ansi.js":20,"./escape.js":21,"_process":15,"tree-kit/lib/extend.js":24}],24:[function(require,module,exports){
+},{"../../is-buffer/index.js":11,"./ansi.js":20,"./escape.js":21,"_process":15}],24:[function(require,module,exports){
 /*
 	Tree Kit
 	

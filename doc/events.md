@@ -59,6 +59,8 @@ Events emitted here are usually **userland** event, except few standard events:
   if `options` is set, it is an object contains details about the message. They may or may not be implemented, depending
   on the client. Available options:
 	* next `boolean` if true, the message wait for the user acknowledgement
+	* important `boolean` if true and if the scene is rendering in the *alternate buffer*, the message should be rendered
+	  in the *main buffer* too.
 	* slowTyping `boolean` if true, the message is diplayed letter by letter
 	* image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
 	  of what is described

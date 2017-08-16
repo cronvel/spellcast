@@ -7,11 +7,14 @@
 	[fn here-inventory]
 		[fake-next]
 			[label] $> Inventory
+			[button] inventory
 			[on-trigger]
 				[reset-here-actions]
 				[gosub rpg:inventory/inventory-menu]
-					performer: $here.performer
-					stack: $here.items
+					[alt]
+					[args]
+						performer: $here.performer
+						stack: $here.items
 
 
 	
@@ -30,8 +33,10 @@
 			[on-trigger]
 				[reset-here-actions]
 				[gosub rpg:inventory/grab-menu]
-					performer: $here.performer
-					stack: $here.items
+					[alt]
+					[args]
+						performer: $here.performer
+						stack: $here.items
 	
 	
 	
