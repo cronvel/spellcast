@@ -139,6 +139,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 	* [UI tags](#ref.ui)
 		* [Status Tag](#ref.ui.status)
 		* [Panel Tag](#ref.ui.panel)
+		* [Add to panel Tag](#ref.ui.add-to-panel)
 	* [Misc Tags](#ref.misc)
 		* [Module Tag](#ref.misc.module)
 		* [System Tag](#ref.misc.system)
@@ -2448,6 +2449,13 @@ TODO.
 
 <a name="ref.ui.panel"></a>
 ## [panel]
+
+TODO.
+
+
+
+<a name="ref.ui.add-to-panel"></a>
+## [add-to-panel]
 
 TODO.
 

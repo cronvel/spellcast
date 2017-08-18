@@ -119,6 +119,11 @@ body[data-image-position="left"] #alt-buffer {
 	overflow: hidden;
 }
 
+.history-wrapper {
+	margin: 0 1.5em 1.5em 1.5em;
+	overflow: hidden;
+}
+
 .buffer .messages.active {
 	margin: 1.5em;
 }
@@ -269,6 +274,9 @@ body[data-image-position="left"] #menu {
 	width: 100%;
 	padding-right: 20px;
 }
+
+/* Make the scrollbar visible again */
+.history:hover { padding-right: 0; }
 
 segment {
 	display: block;

@@ -7,7 +7,7 @@
 	# We have to gosub to that scene, not call to a fn, because we need a fresh scope
 	[scene fight]
 
-		[panel]
+		[add-to-panel]
 			-	label: $> Select primary ability or object
 				image: /icons/primary.svg
 				id: primary
