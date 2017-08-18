@@ -85,7 +85,9 @@ Events emitted here are usually **userland** event, except few standard events:
 
 * status (data): works just like the 'indicators' event, but should be displayed in the status area of the client
 
-* panel (data): declare a new panel. A panel is a place in the client's UI where a set of button is placed,
+* panel (data , reset): declare a new panel (if *reset* is on), or add new buttons to the existing panel
+  (if *reset* is off).
+  A panel is a place in the client's UI where a set of button is placed,
   that can invoke a *next* action.
   I.e.: if a *next item* has a *panel* property linking to an existing button, then this *next item* is not added
   to the *next list*, instead, clicking on that button trigger the *next item's action*. If no *next item* link

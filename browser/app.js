@@ -469,24 +469,34 @@ Dom.prototype.createOnSelect = function createOnSelect( onSelect )
 
 
 
-Dom.prototype.setPanel = function setPanel( panel , callback )
+Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 {
 	var self = this ;
 	
 	callback = callback || noop ;
 	
-	domKit.empty( this.$panel ) ;
 	
-	if ( panel.length )
+	// Clear part
+	if ( clear )
+	{
+		domKit.empty( this.$panel ) ;
+		
+		if ( panel.length )
+		{
+			this.$panel.classList.remove( 'empty' ) ;
+		}
+		else
+		{
+			this.$panel.classList.add( 'empty' ) ;
+			callback() ;
+			return ;
+		}
+	}
+	else if ( panel.length )
 	{
 		this.$panel.classList.remove( 'empty' ) ;
 	}
-	else
-	{
-		this.$panel.classList.add( 'empty' ) ;
-		callback() ;
-		return ;
-	}
+	
 	
 	panel.forEach( function( data ) {
 		
@@ -551,7 +561,6 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 			$uiButton.removeEventListener( 'click' , self.onSelect ) ;
 		}
 	} ) ;
-	
 	
 	domKit.empty( this.$choices ) ;
 	
@@ -1914,9 +1923,9 @@ UI.status = function status( data )
 
 
 
-UI.panel = function panel( data )
+UI.panel = function panel( data , reset )
 {
-	this.dom.setPanel( data ) ;
+	this.dom.addPanel( data , reset ) ;
 } ;
 
 
