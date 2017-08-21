@@ -17,7 +17,7 @@
     "async-kit": "^2.2.3",
     "babel-tower": "^0.12.7",
     "chokidar": "^1.7.0",
-    "dom-kit": "^0.2.0",
+    "dom-kit": "^0.3.0",
     "doormen": "^0.6.8",
     "fs-kit": "^0.2.5",
     "glob": "^7.1.2",

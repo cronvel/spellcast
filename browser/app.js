@@ -518,7 +518,7 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 			
 			if ( data.image.endsWith( '.svg' ) )
 			{
-				svgKit.loadInto( self.cleanUrl( data.image ) , $item , { noWidthHeightAttr: true } ) ;
+				svgKit.loadInto( self.cleanUrl( data.image ) , $item , { removeSize: true } ) ;
 			}
 			else
 			{
@@ -2410,25 +2410,34 @@ dom.remove = function remove( $element ) { $element.parentNode.removeChild( $ele
 dom.empty = function empty( $element )
 {
 	// $element.innerHTML = '' ;	// <-- According to jsPerf, this is 96% slower
-	while ( $element.firstChild ) { $element.removeChild( $element.firstChild ); }
+	while ( $element.firstChild ) { $element.removeChild( $element.firstChild ) ; }
 } ;
 
 
 
 // Clone a source DOM tree and replace children of the destination
-dom.cloneInto = function cloneInto( destination , source )
+dom.cloneInto = function cloneInto( $source , $destination )
 {
-	dom.empty( destination ) ;
-	destination.appendChild( source.cloneNode( true ) ) ;
+	dom.empty( $destination ) ;
+	$destination.appendChild( $source.cloneNode( true ) ) ;
 } ;
 
 
 
 // Same than cloneInto() without cloning anything
-dom.insertInto = function insertInto( destination , source )
+dom.insertInto = function insertInto( $source , $destination )
 {
-	dom.empty( destination ) ;
-	destination.appendChild( source ) ;
+	dom.empty( $destination ) ;
+	$destination.appendChild( $source ) ;
+} ;
+
+
+
+// Move all children of a node into another, after removing existing target's children
+dom.moveChildrenInto = function moveChildrenInto( $source , $destination )
+{
+	dom.empty( $destination ) ;
+	while ( $source.firstChild ) { $destination.appendChild( $source.firstChild ) ; }
 } ;
 
 
