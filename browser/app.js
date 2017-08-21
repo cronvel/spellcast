@@ -33,7 +33,8 @@
 
 var domKit = require( 'dom-kit' ) ;
 var svgKit = require( 'svg-kit' ) ;
-//var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
+
+
 
 function noop() {}
 
@@ -514,17 +515,25 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 		if ( data.image )
 		{
 			$item.classList.add( 'has-image' ) ;
-			$image = document.createElement( 'img' ) ;
-			$image.classList.add( 'image' ) ;
-			$image.setAttribute( 'src' , self.cleanUrl( data.image ) ) ;
 			
-			if ( data.label )
+			if ( data.image.endsWith( '.svg' ) )
 			{
-				$image.setAttribute( 'alt' , data.label ) ;
-				$image.setAttribute( 'title' , data.label ) ;
+				svgKit.loadInto( self.cleanUrl( data.image ) , $item , { noWidthHeightAttr: true } ) ;
 			}
-			
-			$item.appendChild( $image ) ;
+			else
+			{
+				$image = document.createElement( 'img' ) ;
+				$image.setAttribute( 'src' , self.cleanUrl( data.image ) ) ;
+				$image.classList.add( 'image' ) ;
+				
+				if ( data.label )
+				{
+					$image.setAttribute( 'alt' , data.label ) ;
+					$image.setAttribute( 'title' , data.label ) ;
+				}
+				
+				$item.appendChild( $image ) ;
+			}
 		}
 		else
 		{
