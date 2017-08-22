@@ -217,6 +217,26 @@ domKit.moveChildrenInto = function moveChildrenInto( $source , $destination )
 
 
 
+// Move all attributes of an element into the destination
+domKit.moveAttributes = function moveAttributes( $source , $destination )
+{
+	var i , name , value ;
+	
+	for ( i = 0 ; i < $source.attributes.length ; i ++ )
+	{
+		name = $source.attributes[ i ].name ;
+		
+		//if ( name.indexOf( ':' ) !== -1 ) { continue ; }
+		if ( name === 'xmlns' || name.indexOf( ':' ) !== -1 ) { continue ; }
+		
+		value = $source.attributes[ i ].value ;
+		$source.removeAttribute( name ) ;
+		$destination.setAttribute( name , value ) ;
+	}
+} ;
+
+
+
 // Children of this element get all their ID namespaced, any url(#id) references are patched accordingly
 domKit.prefixIds = function prefixIds( $element , namespace )
 {
@@ -254,7 +274,7 @@ domKit.prefixIds.oneAttributeSubPass = function oneAttributeSubPass( attr , repl
 
 
 
-domKit.removeAllTags = function removeAllTags( $container , tag )
+domKit.removeAllTags = function removeAllTags( $container , tag , onlyIfEmpty )
 {
 	var i , elements , $element ;
 	
@@ -263,23 +283,27 @@ domKit.removeAllTags = function removeAllTags( $container , tag )
 	for ( i = 0 ; i < elements.length ; i ++ )
 	{
 		$element = elements.item( i ) ;
-		$element.parentNode.removeChild( $element ) ;
+		if ( ! onlyIfEmpty || ! $element.firstChild ) { $element.parentNode.removeChild( $element ) ; }
 	}
-}
+} ;
 
 
 
 domKit.removeAllAttributes = function removeAllAttributes( $container , attr )
 {
-	var i , elements ;
+	var i , elements , $element ;
+	
+	// Don't forget to remove the ID of the container itself
+	$container.removeAttribute( attr ) ;
 	
 	elements = $container.querySelectorAll( '[' + attr + ']' ) ;
 	
 	for ( i = 0 ; i < elements.length ; i ++ )
 	{
-		elements.item( i ).removeAttribute( attr ) ;
+		$element = elements.item( i ) ;
+		$element.removeAttribute( attr ) ;
 	}
-}
+} ;
 
 
 
@@ -818,22 +842,32 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 			
 			if ( data.image.endsWith( '.svg' ) )
 			{
-				svgKit.load( self.cleanUrl( data.image ) , $item , { removeSize: true , removeIds: true } ) ;
+				// Pre-create the <svg> tag
+				//$image = document.createElement( 'svg' ) ;	// <-- it doesn't works, it should be created with a NS
+				$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+				$image.classList.add( 'svg' ) ;
+				
+				svgKit.load( self.cleanUrl( data.image ) , {
+					removeSize: true ,
+					removeIds: true ,
+					as: $image
+				} ) ;
 			}
 			else
 			{
 				$image = document.createElement( 'img' ) ;
 				$image.setAttribute( 'src' , self.cleanUrl( data.image ) ) ;
-				$image.classList.add( 'image' ) ;
-				
-				if ( data.label )
-				{
-					$image.setAttribute( 'alt' , data.label ) ;
-					$image.setAttribute( 'title' , data.label ) ;
-				}
-				
-				$item.appendChild( $image ) ;
 			}
+			
+			$image.classList.add( 'image' ) ;
+			
+			if ( data.label )
+			{
+				$image.setAttribute( 'alt' , data.label ) ;
+				$image.setAttribute( 'title' , data.label ) ;
+			}
+			
+			$item.appendChild( $image ) ;
 		}
 		else
 		{
@@ -7511,6 +7545,12 @@ svgKit.inject = function inject( $svg , options )
 	if ( options.css ) { domKit.css( $svg , options.css ) ; }
 	
 	if ( options.into ) { options.into.appendChild( $svg ) ; }
+	
+	if ( options.as && options.as.tagName.toLowerCase() === 'svg' )
+	{
+		domKit.moveAttributes( $svg , options.as ) ;
+		domKit.moveChildrenInto( $svg , options.as ) ;
+	}
 } ;
 
 
@@ -7519,6 +7559,7 @@ svgKit.lightCleanup = function lightCleanup( $svg )
 {
 	domKit.removeAllTags( $svg , 'metadata' ) ;
 	domKit.removeAllTags( $svg , 'script' ) ;
+	domKit.removeAllTags( $svg , 'defs' , true ) ;	// all empty defs
 } ;
 
 
