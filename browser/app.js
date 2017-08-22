@@ -220,19 +220,19 @@ domKit.moveChildrenInto = function moveChildrenInto( $source , $destination )
 // Move all attributes of an element into the destination
 domKit.moveAttributes = function moveAttributes( $source , $destination )
 {
-	var i , name , value ;
-	
-	for ( i = 0 ; i < $source.attributes.length ; i ++ )
-	{
-		name = $source.attributes[ i ].name ;
+	Array.from( $source.attributes ).forEach( function( attr ) {
+		var name = attr.name ;
+		var value = attr.value ;
+		
+		$source.removeAttribute( name ) ;
 		
 		//if ( name.indexOf( ':' ) !== -1 ) { continue ; }
-		if ( name === 'xmlns' || name.indexOf( ':' ) !== -1 ) { continue ; }
-		
-		value = $source.attributes[ i ].value ;
-		$source.removeAttribute( name ) ;
-		$destination.setAttribute( name , value ) ;
-	}
+		if ( name !== 'xmlns' && name.indexOf( ':' ) === -1 && value )
+		{
+			console.warn( 'moving: ' , name, value , $destination.getAttribute( name ) ) ;
+			$destination.setAttribute( name , value ) ;
+		}
+	} ) ;
 } ;
 
 
@@ -276,33 +276,21 @@ domKit.prefixIds.oneAttributeSubPass = function oneAttributeSubPass( attr , repl
 
 domKit.removeAllTags = function removeAllTags( $container , tag , onlyIfEmpty )
 {
-	var i , elements , $element ;
-	
-	elements = $container.getElementsByTagName( tag ) ;
-	
-	for ( i = 0 ; i < elements.length ; i ++ )
-	{
-		$element = elements.item( i ) ;
+	Array.from( $container.getElementsByTagName( tag ) ).forEach( function( $element ) {
 		if ( ! onlyIfEmpty || ! $element.firstChild ) { $element.parentNode.removeChild( $element ) ; }
-	}
+	} ) ;
 } ;
 
 
 
 domKit.removeAllAttributes = function removeAllAttributes( $container , attr )
 {
-	var i , elements , $element ;
-	
 	// Don't forget to remove the ID of the container itself
 	$container.removeAttribute( attr ) ;
 	
-	elements = $container.querySelectorAll( '[' + attr + ']' ) ;
-	
-	for ( i = 0 ; i < elements.length ; i ++ )
-	{
-		$element = elements.item( i ) ;
+	Array.from( $container.querySelectorAll( '[' + attr + ']' ) ).forEach( function( $element ) {
 		$element.removeAttribute( attr ) ;
-	}
+	} ) ;
 } ;
 
 
@@ -845,6 +833,7 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 				// Pre-create the <svg> tag
 				//$image = document.createElement( 'svg' ) ;	// <-- it doesn't works, it should be created with a NS
 				$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+				$image.setAttribute( 'xmlns' , 'http://www.w3.org/2000/svg' ) ;
 				$image.classList.add( 'svg' ) ;
 				
 				svgKit.load( self.cleanUrl( data.image ) , {
