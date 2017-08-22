@@ -1,4 +1,304 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SpellcastClient = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (process){
+/*
+	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
+
+	Copyright (c) 2015 - 2016 Cédric Ronvel 
+	
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+/* global NamedNodeMap */
+
+// Load modules
+
+var domParser , xmlSerializer ;
+
+if ( process.browser )
+{
+	domParser = new DOMParser() ;
+	xmlSerializer = new XMLSerializer() ;
+}
+else
+{
+	var xmldom = require( '@cronvel/xmldom' ) ;
+	domParser = new xmldom.DOMParser() ;
+	xmlSerializer = new xmldom.XMLSerializer() ;
+}
+
+
+
+var domKit = {} ;
+module.exports = domKit ;
+
+
+
+// Like jQuery's $(document).ready()
+domKit.ready = function ready( callback )
+{
+	document.addEventListener( 'DOMContentLoaded' , function internalCallback() {
+		document.removeEventListener( 'DOMContentLoaded' , internalCallback , false ) ;
+		callback() ;
+	} , false ) ;
+} ;
+
+
+
+domKit.fromXml = function fromXml( xml )
+{
+	return domParser.parseFromString( xml , 'application/xml' ) ;
+} ;
+
+
+
+domKit.toXml = function fromXml( $doc )
+{
+	return xmlSerializer.serializeToString( $doc ) ;
+} ;
+
+
+
+// Return a fragment from html code
+domKit.fromHtml = function fromHtml( html )
+{
+	var i , $doc , $fragment ;
+	
+	// Fragment allow us to return a collection that... well... is not a collection,
+	// and that's fine because the html code may contains multiple top-level element
+	$fragment = document.createDocumentFragment() ;
+	
+	$doc = document.createElement( 'div' ) ;	// whatever type...
+	
+	// either .innerHTML or .insertAdjacentHTML()
+	//$doc.innerHTML = html ;
+	$doc.insertAdjacentHTML( 'beforeend' , html ) ;
+	
+	for ( i = 0 ; i < $doc.children.length ; i ++ )
+	{
+		$fragment.appendChild( $doc.children[ i ] ) ;
+	}
+	
+	return $fragment ;
+} ;
+
+
+
+// Batch processing, like array, HTMLCollection, and so on...
+domKit.batch = function batch( method , elements )
+{
+	var i , args = Array.prototype.slice.call( arguments , 1 ) ;
+	
+	if ( elements instanceof Element )
+	{
+		args[ 0 ] = elements ;
+		method.apply( this , args ) ;
+	}
+	else if ( Array.isArray( elements ) )
+	{
+		for ( i = 0 ; i < elements.length ; i ++ )
+		{
+			args[ 0 ] = elements[ i ] ;
+			method.apply( this , args ) ;
+		}
+	}
+	else if ( elements instanceof NodeList || elements instanceof NamedNodeMap )
+	{
+		for ( i = 0 ; i < elements.length ; i ++ )
+		{
+			args[ 0 ] = elements[ i ] ;
+			method.apply( this , args ) ;
+		}
+	}
+} ;
+
+
+
+// Set a bunch of css properties given as an object
+domKit.css = function css( $element , object )
+{
+	var key ;
+	
+	for ( key in object )
+	{
+		$element.style[ key ] = object[ key ] ;
+	}
+} ;
+
+
+
+// Set a bunch of attributes given as an object
+domKit.attr = function attr( $element , object )
+{
+	var key ;
+	
+	for ( key in object )
+	{
+		if ( object[ key ] === null ) { $element.removeAttribute( key ) ; }
+		else { $element.setAttribute( key , object[ key ] ) ; }
+	}
+} ;
+
+
+
+// Set/unset a bunch of classes given as an object
+domKit.class = function class_( $element , object )
+{
+	var key ;
+	
+	for ( key in object )
+	{
+		if ( object[ key ] ) { $element.classList.add( key ) ; }
+		else { $element.classList.remove( key ) ; }
+	}
+} ;
+
+
+
+// Remove an element. A little shortcut that ease life...
+domKit.remove = function remove( $element ) { $element.parentNode.removeChild( $element ) ; } ;
+
+
+
+// Remove all children of an element
+domKit.empty = function empty( $element )
+{
+	// $element.innerHTML = '' ;	// <-- According to jsPerf, this is 96% slower
+	while ( $element.firstChild ) { $element.removeChild( $element.firstChild ) ; }
+} ;
+
+
+
+// Clone a source DOM tree and replace children of the destination
+domKit.cloneInto = function cloneInto( $source , $destination )
+{
+	domKit.empty( $destination ) ;
+	$destination.appendChild( $source.cloneNode( true ) ) ;
+} ;
+
+
+
+// Same than cloneInto() without cloning anything
+domKit.insertInto = function insertInto( $source , $destination )
+{
+	domKit.empty( $destination ) ;
+	$destination.appendChild( $source ) ;
+} ;
+
+
+
+// Move all children of a node into another, after removing existing target's children
+domKit.moveChildrenInto = function moveChildrenInto( $source , $destination )
+{
+	domKit.empty( $destination ) ;
+	while ( $source.firstChild ) { $destination.appendChild( $source.firstChild ) ; }
+} ;
+
+
+
+// Children of this element get all their ID namespaced, any url(#id) references are patched accordingly
+domKit.prefixIds = function prefixIds( $element , namespace )
+{
+	var elements , replacement = {} ;
+	
+	elements = $element.querySelectorAll( '*' ) ;
+	
+	domKit.batch( domKit.prefixIds.idAttributePass , elements , namespace , replacement ) ;
+	domKit.batch( domKit.prefixIds.otherAttributesPass , elements , replacement ) ;
+} ;
+
+// Callbacks for domKit.prefixIds(), cleanly hidden behind its namespace
+
+domKit.prefixIds.idAttributePass = function idAttributePass( $element , namespace , replacement ) {
+	replacement[ $element.id ] = namespace + '.' + $element.id ;
+	$element.id = replacement[ $element.id ] ;
+} ;
+
+domKit.prefixIds.otherAttributesPass = function otherAttributesPass( $element , replacement ) {
+	domKit.batch( domKit.prefixIds.oneAttributeSubPass , $element.attributes , replacement ) ;
+} ;
+
+domKit.prefixIds.oneAttributeSubPass = function oneAttributeSubPass( attr , replacement ) {
+	
+	// We have to search all url(#id) like substring in the current attribute's value
+	attr.value = attr.value.replace( /url\(#([^)]+)\)/g , function( match , id ) {
+		
+		// No replacement? return the matched string
+		if ( ! replacement[ id ] ) { return match ; }
+		
+		// Or return the replacement ID
+		return 'url(#' + replacement[ id ] + ')' ;
+	} ) ;
+} ;
+
+
+
+domKit.removeAllTags = function removeAllTags( $container , tag )
+{
+	var i , elements , $element ;
+	
+	elements = $container.getElementsByTagName( tag ) ;
+	
+	for ( i = 0 ; i < elements.length ; i ++ )
+	{
+		$element = elements.item( i ) ;
+		$element.parentNode.removeChild( $element ) ;
+	}
+}
+
+
+
+domKit.removeAllAttributes = function removeAllAttributes( $container , attr )
+{
+	var i , elements ;
+	
+	elements = $container.querySelectorAll( '[' + attr + ']' ) ;
+	
+	for ( i = 0 ; i < elements.length ; i ++ )
+	{
+		elements.item( i ).removeAttribute( attr ) ;
+	}
+}
+
+
+
+		/* Function useful for .batch() as callback */
+		/* ... to avoid defining again and again the same callback function */
+
+// Change id
+domKit.id = function id( $element , id ) { $element.id = id ; } ;
+
+// Like jQuery .text().
+domKit.text = function text( $element , text ) { $element.textContent = text ; } ;
+
+// Like jQuery .html().
+domKit.html = function html( $element , html ) { $element.innerHTML = html ; } ;
+
+
+
+}).call(this,require('_process'))
+},{"@cronvel/xmldom":6,"_process":11}],2:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -518,7 +818,7 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 			
 			if ( data.image.endsWith( '.svg' ) )
 			{
-				svgKit.loadInto( self.cleanUrl( data.image ) , $item , { removeSize: true } ) ;
+				svgKit.load( self.cleanUrl( data.image ) , $item , { removeSize: true , removeIds: true } ) ;
 			}
 			else
 			{
@@ -1326,7 +1626,7 @@ function soundFadeOut( element , callback )
 	element.__fadeTimer = setTimeout( soundFadeOut.bind( undefined , element , callback ) , SOUND_FADE_TIMEOUT ) ;
 }
 
-},{"dom-kit":6,"svg-kit":20}],2:[function(require,module,exports){
+},{"dom-kit":1,"svg-kit":22}],3:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -1504,7 +1804,7 @@ dom.ready( function() {
 
 
 
-},{"./ui/classic.js":4,"dom-kit":6,"nextgen-events":8,"url":23}],3:[function(require,module,exports){
+},{"./ui/classic.js":5,"dom-kit":1,"nextgen-events":8,"url":20}],4:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -1599,7 +1899,7 @@ toolkit.markup = function()
 } ;
 
 
-},{"string-kit/lib/escape.js":17,"string-kit/lib/format.js":18}],4:[function(require,module,exports){
+},{"string-kit/lib/escape.js":17,"string-kit/lib/format.js":18}],5:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -2221,280 +2521,9 @@ UI.exit = function exit()
 	//term.styleReset() ;
 } ;
 
-},{"../Dom.js":1,"../toolkit.js":3}],5:[function(require,module,exports){
+},{"../Dom.js":2,"../toolkit.js":4}],6:[function(require,module,exports){
 
-},{}],6:[function(require,module,exports){
-(function (process){
-/*
-	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
-
-	Copyright (c) 2015 - 2016 Cédric Ronvel 
-	
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-/* global NamedNodeMap */
-
-// Load modules
-
-var domParser , xmlSerializer ;
-
-if ( process.browser )
-{
-	domParser = new DOMParser() ;
-	xmlSerializer = new XMLSerializer() ;
-}
-else
-{
-	var xmldom = require( '@cronvel/xmldom' ) ;
-	domParser = new xmldom.DOMParser() ;
-	xmlSerializer = new xmldom.XMLSerializer() ;
-}
-
-
-
-var dom = {} ;
-module.exports = dom ;
-
-
-
-// Like jQuery's $(document).ready()
-dom.ready = function ready( callback )
-{
-	document.addEventListener( 'DOMContentLoaded' , function internalCallback() {
-		document.removeEventListener( 'DOMContentLoaded' , internalCallback , false ) ;
-		callback() ;
-	} , false ) ;
-} ;
-
-
-
-dom.fromXml = function fromXml( xml )
-{
-	return domParser.parseFromString( xml , 'application/xml' ) ;
-} ;
-
-
-
-dom.toXml = function fromXml( $doc )
-{
-	return xmlSerializer.serializeToString( $doc ) ;
-} ;
-
-
-
-// Return a fragment from html code
-dom.fromHtml = function fromHtml( html )
-{
-	var i , $doc , $fragment ;
-	
-	// Fragment allow us to return a collection that... well... is not a collection,
-	// and that's fine because the html code may contains multiple top-level element
-	$fragment = document.createDocumentFragment() ;
-	
-	$doc = document.createElement( 'div' ) ;	// whatever type...
-	
-	// either .innerHTML or .insertAdjacentHTML()
-	//$doc.innerHTML = html ;
-	$doc.insertAdjacentHTML( 'beforeend' , html ) ;
-	
-	for ( i = 0 ; i < $doc.children.length ; i ++ )
-	{
-		$fragment.appendChild( $doc.children[ i ] ) ;
-	}
-	
-	return $fragment ;
-} ;
-
-
-
-// Batch processing, like array, HTMLCollection, and so on...
-dom.batch = function batch( method , elements )
-{
-	var i , args = Array.prototype.slice.call( arguments , 1 ) ;
-	
-	if ( elements instanceof Element )
-	{
-		args[ 0 ] = elements ;
-		method.apply( this , args ) ;
-	}
-	else if ( Array.isArray( elements ) )
-	{
-		for ( i = 0 ; i < elements.length ; i ++ )
-		{
-			args[ 0 ] = elements[ i ] ;
-			method.apply( this , args ) ;
-		}
-	}
-	else if ( elements instanceof NodeList || elements instanceof NamedNodeMap )
-	{
-		for ( i = 0 ; i < elements.length ; i ++ )
-		{
-			args[ 0 ] = elements[ i ] ;
-			method.apply( this , args ) ;
-		}
-	}
-} ;
-
-
-
-// Set a bunch of css properties given as an object
-dom.css = function css( $element , object )
-{
-	var key ;
-	
-	for ( key in object )
-	{
-		$element.style[ key ] = object[ key ] ;
-	}
-} ;
-
-
-
-// Set a bunch of attributes given as an object
-dom.attr = function attr( $element , object )
-{
-	var key ;
-	
-	for ( key in object )
-	{
-		if ( object[ key ] === null ) { $element.removeAttribute( key ) ; }
-		else { $element.setAttribute( key , object[ key ] ) ; }
-	}
-} ;
-
-
-
-// Set/unset a bunch of classes given as an object
-dom.class = function class_( $element , object )
-{
-	var key ;
-	
-	for ( key in object )
-	{
-		if ( object[ key ] ) { $element.classList.add( key ) ; }
-		else { $element.classList.remove( key ) ; }
-	}
-} ;
-
-
-
-// Remove an element. A little shortcut that ease life...
-dom.remove = function remove( $element ) { $element.parentNode.removeChild( $element ) ; } ;
-
-
-
-// Remove all children of an element
-dom.empty = function empty( $element )
-{
-	// $element.innerHTML = '' ;	// <-- According to jsPerf, this is 96% slower
-	while ( $element.firstChild ) { $element.removeChild( $element.firstChild ) ; }
-} ;
-
-
-
-// Clone a source DOM tree and replace children of the destination
-dom.cloneInto = function cloneInto( $source , $destination )
-{
-	dom.empty( $destination ) ;
-	$destination.appendChild( $source.cloneNode( true ) ) ;
-} ;
-
-
-
-// Same than cloneInto() without cloning anything
-dom.insertInto = function insertInto( $source , $destination )
-{
-	dom.empty( $destination ) ;
-	$destination.appendChild( $source ) ;
-} ;
-
-
-
-// Move all children of a node into another, after removing existing target's children
-dom.moveChildrenInto = function moveChildrenInto( $source , $destination )
-{
-	dom.empty( $destination ) ;
-	while ( $source.firstChild ) { $destination.appendChild( $source.firstChild ) ; }
-} ;
-
-
-
-// Children of this element get all their ID namespaced, any url(#id) references are patched accordingly
-dom.idNamespace = function idNamespace( $element , namespace )
-{
-	var elements , replacement = {} ;
-	
-	elements = $element.querySelectorAll( '*' ) ;
-	
-	dom.batch( dom.idNamespace.idAttributePass , elements , namespace , replacement ) ;
-	dom.batch( dom.idNamespace.otherAttributesPass , elements , replacement ) ;
-} ;
-
-// Callbacks for dom.idNamespace(), cleanly hidden behind its namespace
-
-dom.idNamespace.idAttributePass = function idAttributePass( $element , namespace , replacement ) {
-	replacement[ $element.id ] = namespace + '.' + $element.id ;
-	$element.id = replacement[ $element.id ] ;
-} ;
-
-dom.idNamespace.otherAttributesPass = function otherAttributesPass( $element , replacement ) {
-	dom.batch( dom.idNamespace.oneAttributeSubPass , $element.attributes , replacement ) ;
-} ;
-
-dom.idNamespace.oneAttributeSubPass = function oneAttributeSubPass( attr , replacement ) {
-	
-	// We have to search all url(#id) like substring in the current attribute's value
-	attr.value = attr.value.replace( /url\(#([^)]+)\)/g , function( match , id ) {
-		
-		// No replacement? return the matched string
-		if ( ! replacement[ id ] ) { return match ; }
-		
-		// Or return the replacement ID
-		return 'url(#' + replacement[ id ] + ')' ;
-	} ) ;
-} ;
-
-
-
-		/* Function useful for .batch() as callback */
-		/* ... to avoid defining again and again the same callback function */
-
-// Change id
-dom.id = function id( $element , id ) { $element.id = id ; } ;
-
-// Like jQuery .text().
-dom.text = function text( $element , text ) { $element.textContent = text ; } ;
-
-// Like jQuery .html().
-dom.html = function html( $element , html ) { $element.innerHTML = html ; } ;
-
-
-
-}).call(this,require('_process'))
-},{"@cronvel/xmldom":5,"_process":11}],7:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -6014,7 +6043,7 @@ exports.format.hasFormatting = function hasFormatting( str )
 
 
 }).call(this,require("buffer").Buffer)
-},{"./ansi.js":16,"./inspect.js":19,"buffer":5}],19:[function(require,module,exports){
+},{"./ansi.js":16,"./inspect.js":19,"buffer":6}],19:[function(require,module,exports){
 (function (Buffer,process){
 /*
 	String Kit
@@ -6581,776 +6610,6 @@ inspectStyle.html = Object.assign( {} , inspectStyle.none , {
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")},require('_process'))
 },{"../../is-buffer/index.js":7,"./ansi.js":16,"./escape.js":17,"_process":11}],20:[function(require,module,exports){
-(function (process){
-/*
-	SVG Kit
-	
-	Copyright (c) 2017 Cédric Ronvel
-	
-	The MIT License (MIT)
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-// Load modules
-var fs = require( 'fs' ) ;
-var domKit = require( 'dom-kit' ) ;
-
-
-
-var svg = {} ;
-module.exports = svg ;
-
-
-
-svg.standalone = function standalone( content , viewBox )
-{
-	var output = '<?xml version="1.0" encoding="UTF-8"?>\n' ;
-	
-	if ( ! Array.isArray( viewBox ) ) { viewBox = svg.toAreaArray( viewBox ) ; }
-	
-	output += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + viewBox.join( ' ' ) + '">\n' ;
-	
-	// ?
-    // width="500"
-    // height="500"
-    
-    output += content ;
-    output += '\n</svg>\n' ;
-    
-    return output ;
-} ;
-
-
-
-svg.toAreaArray = function toAreaArray( object )
-{
-	if ( object.xmin !== undefined && object.xmax !== undefined && object.ymin !== undefined && object.ymax !== undefined )
-	{
-		return [
-			object.xmin ,
-			object.ymin ,
-			object.xmax - object.xmin ,
-			object.ymax - object.ymin
-		] ;
-	}
-	else if ( object.x !== undefined && object.y !== undefined && object.width !== undefined && object.height !== undefined )
-	{
-		return [
-			object.x ,
-			object.y ,
-			object.width ,
-			object.height
-		] ;
-	}
-	else
-	{
-		return [ 0 , 0 , 100 , 100 ] ;
-	}
-} ;
-
-
-
-svg.inlineToClass = function inlineToClass( $svg )
-{
-	$svg.querySelectorAll( 'path' ).forEach( function( $path ) {
-		console.log( $path.getAttribute( 'style' ) ) ;
-	} ) ;
-} ;
-
-
-
-/*
-	old: function attachXmlTo( $container , $svg , options )
-	new: function attachTo( $svg , $container , options )
-*/
-// Dummy ATM...
-svg.attachTo = function attachTo( $svg , $container , options )
-{
-	var viewBox , width , height ;
-	
-	svg.lightCleanup( $svg ) ;
-	
-	// Fix id, if necessary
-	if ( options.id !== undefined )
-	{
-		if ( typeof options.id === 'string' ) { $svg.setAttribute( 'id' , options.id ) ; }
-		else if ( ! options.id ) { $svg.removeAttribute( 'id' ) ; }
-	}
-	
-	if ( options.class )
-	{
-		if ( typeof options.class === 'string' ) { $svg.classList.add( options.class ) ; }
-		else if ( typeof options.class === 'object' ) { domKit.class( $svg , options.class ) ; }
-	}
-	
-	if ( options.idNamespace ) { domKit.idNamespace( $svg , options.idNamespace ) ; }
-	
-	if ( options.hidden ) { $svg.style.visibility = 'hidden' ; }
-	
-	if ( options.noWidthHeightAttr )
-	{
-		// Save and remove the width and height attribute
-		width = $svg.getAttribute( 'width' ) ;
-		height = $svg.getAttribute( 'height' ) ;
-		
-		$svg.removeAttribute( 'height' ) ;
-		$svg.removeAttribute( 'width' ) ;
-		
-		// if the $svg don't have a viewBox attribute, set it now from the width and height (it works most of time)
-		if ( ! $svg.getAttribute( 'viewBox' ) && width && height )
-		{
-			viewBox = '0 0 ' + width + ' ' + height ;
-			//console.log( "viewBox:" , viewBox ) ;
-			$svg.setAttribute( 'viewBox' , viewBox ) ;
-		}
-	}
-	
-	if ( options.css ) { domKit.css( $svg , options.css ) ; }
-	
-	// If a $container was specified, attach to it
-	if ( $container ) { $container.appendChild( $svg ) ; }
-} ;
-
-
-
-svg.lightCleanup = function lightCleanup( $svg )
-{
-	removeAllTag( $svg , 'metadata' ) ;
-	removeAllTag( $svg , 'script' ) ;
-} ;
-
-
-
-// Should remove all tags and attributes that have non-registered namespace,
-// e.g.: sodipodi, inkscape, etc...
-//svg.heavyCleanup = function heavyCleanup( svgElement ) {} ;
-
-
-
-function removeAllTag( $container , tag )
-{
-	var i , elements , element ;
-	
-	elements = $container.getElementsByTagName( tag ) ;
-	
-	for ( i = 0 ; i < elements.length ; i ++ )
-	{
-		element = elements.item( i ) ;
-		element.parentNode.removeChild( element ) ;
-	}
-}
-
-
-
-
-/*
-	old: function load( $container , url , options , callback )
-	new: loadInto( url , $container , options , callback )
-*/
-/*
-	load( $container , url , [options] , callback )
-	
-	* url: the URL of the .svg file
-	* $container: null or the DOM element where the <svg> tag will be put
-	* options: an optional object with optional options
-		* id: the id attribute of the <svg> tag (recommanded)
-		* class: a string or a class object to add/remove on the <svg> tag
-		* hidden: inject the svg but make it hidden (useful to apply modification before the show)
-		* noWidthHeightAttr: remove the width and height attribute of the <svg> tag
-		* css: a css object to apply on the <svg> tag
-	* callback: completion callback
-*/
-svg.loadInto = function loadInto( url , $container , options , callback )
-{
-	if ( typeof options === 'function' ) { callback = options ; }
-	if ( ! options || typeof options !== 'object' ) { options = {} ; }
-	
-	if ( ! process.browser )
-	{
-		// Use Node.js 'fs' module
-		
-		if ( url.substring( 0 , 7 ) === 'file://' ) { url = url.slice( 7 ) ; }
-		
-		fs.readFile( url , 'utf8' , function( error , content ) {
-			
-			if ( error ) { callback( error ) ; return ; }
-			
-			
-			//var parser = new DOMParser() ;
-			//var $svg = parser.parseFromString( content , 'application/xml' ).documentElement ;
-			var $svg = domKit.fromXml( content ).documentElement ;
-			
-			try {
-				svg.attachTo( $svg , $container , options ) ;
-			}
-			catch ( error ) {
-				callback( error ) ;
-				return ;
-			}
-			
-			callback( undefined , $svg ) ;
-		} ) ;
-	}
-	else
-	{
-		// Use an AJAX HTTP Request
-		
-		svg.ajax( url , function( error , xmlDoc ) {
-			
-			if ( error ) { callback( error ) ; return ; }
-			
-			var $svg = xmlDoc.documentElement ;
-			
-			try {
-				svg.attachTo( $svg , $container , options ) ;
-			}
-			catch ( error ) {
-				callback( error ) ;
-				return ;
-			}
-			
-			callback( undefined , $svg ) ;
-		} ) ;
-	}
-} ;
-
-
-
-svg.ajax = function ajax( url , callback )
-{
-	var xhr = new XMLHttpRequest() ;
-	
-	//console.warn( "ajax url:" , url ) ;
-	
-	xhr.responseType = 'document' ;
-	xhr.onreadystatechange = svg.ajax.ajaxStatus.bind( xhr , callback ) ;
-	xhr.open( 'GET', url ) ;
-	xhr.send() ;
-} ;
-
-
-
-svg.ajax.ajaxStatus = function ajaxStatus( callback )
-{
-	// From MDN: In the event of a communication error (such as the webserver going down),
-	// an exception will be thrown in the when attempting to access the 'status' property. 
-	
-	try {
-		if ( this.readyState === 4 )
-		{
-			if ( this.status === 200 )
-			{
-				callback( undefined , this.responseXML ) ;
-			}
-			else if ( this.status === 0 && this.responseXML )	// Yay, loading with file:// does not provide any status...
-			{
-				callback( undefined , this.responseXML ) ;
-			}
-			else
-			{
-				if ( this.status ) { callback( this.status ) ; }
-				else { callback( new Error( "[svg-kit] ajaxStatus(): Error with falsy status" ) ) ; }
-			}
-		}
-	}
-	catch ( error ) {
-		callback( error ) ;
-	}
-} ;
-
-
-
-}).call(this,require('_process'))
-},{"_process":11,"dom-kit":21,"fs":5}],21:[function(require,module,exports){
-/*
-	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
-
-	Copyright (c) 2015 - 2016 Cédric Ronvel 
-	
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-
-
-/* global NamedNodeMap */
-
-// Load modules
-//var string = require( 'string-kit' ) ;
-
-
-
-var dom = {} ;
-module.exports = dom ;
-
-
-
-// Load the svg submodule
-dom.svg = require( './svg.js' ) ;
-
-
-
-// Like jQuery's $(document).ready()
-dom.ready = function ready( callback )
-{
-	document.addEventListener( 'DOMContentLoaded' , function internalCallback() {
-		document.removeEventListener( 'DOMContentLoaded' , internalCallback , false ) ;
-		callback() ;
-	} , false ) ;
-} ;
-
-
-
-// Return a fragment from html code
-dom.fromHtml = function fromHtml( html )
-{
-	var i , doc , fragment ;
-	
-	// Fragment allow us to return a collection that... well... is not a collection,
-	// and that's fine because the html code may contains multiple top-level element
-	fragment = document.createDocumentFragment() ;
-	
-	doc = document.createElement( 'div' ) ;	// whatever type...
-	
-	// either .innerHTML or .insertAdjacentHTML()
-	//doc.innerHTML = html ;
-	doc.insertAdjacentHTML( 'beforeend' , html ) ;
-	
-	for ( i = 0 ; i < doc.children.length ; i ++ )
-	{
-		fragment.appendChild( doc.children[ i ] ) ;
-	}
-	
-	return fragment ;
-} ;
-
-
-
-// Batch processing, like array, HTMLCollection, and so on...
-dom.batch = function batch( method , elements )
-{
-	var i , args = Array.prototype.slice.call( arguments , 1 ) ;
-	
-	if ( elements instanceof Element )
-	{
-		args[ 0 ] = elements ;
-		method.apply( this , args ) ;
-	}
-	else if ( Array.isArray( elements ) )
-	{
-		for ( i = 0 ; i < elements.length ; i ++ )
-		{
-			args[ 0 ] = elements[ i ] ;
-			method.apply( this , args ) ;
-		}
-	}
-	else if ( elements instanceof NodeList || elements instanceof NamedNodeMap )
-	{
-		for ( i = 0 ; i < elements.length ; i ++ )
-		{
-			args[ 0 ] = elements[ i ] ;
-			method.apply( this , args ) ;
-		}
-	}
-} ;
-
-
-
-// Set a bunch of css properties given as an object
-dom.css = function css( element , object )
-{
-	var key ;
-	
-	for ( key in object )
-	{
-		element.style[ key ] = object[ key ] ;
-	}
-} ;
-
-
-
-// Set a bunch of attributes given as an object
-dom.attr = function attr( element , object )
-{
-	var key ;
-	
-	for ( key in object )
-	{
-		if ( object[ key ] === null ) { element.removeAttribute( key ) ; }
-		else { element.setAttribute( key , object[ key ] ) ; }
-	}
-} ;
-
-
-
-// Set/unset a bunch of classes given as an object
-dom.class = function class_( element , object )
-{
-	var key ;
-	
-	for ( key in object )
-	{
-		if ( object[ key ] ) { element.classList.add( key ) ; }
-		else { element.classList.remove( key ) ; }
-	}
-} ;
-
-
-
-// Remove an element. A little shortcut that ease life...
-dom.remove = function remove( element ) { element.parentNode.removeChild( element ) ; } ;
-
-
-
-// Remove all children of an element
-dom.empty = function empty( element )
-{
-	// element.innerHTML = '' ;	// According to jsPerf, it is 96% slower
-	while ( element.firstChild ) { element.removeChild( element.firstChild ); }
-} ;
-
-
-
-// Clone a source DOM tree and replace children of the destination
-dom.cloneInto = function cloneInto( destination , source )
-{
-	dom.empty( destination ) ;
-	destination.appendChild( source.cloneNode( true ) ) ;
-} ;
-
-
-
-// Same than cloneInto() without cloning anything
-dom.insertInto = function insertInto( destination , source )
-{
-	dom.empty( destination ) ;
-	destination.appendChild( source ) ;
-} ;
-
-
-
-// Children of this element get all their ID namespaced, any url(#id) references are patched accordingly
-dom.idNamespace = function idNamespace( element , namespace )
-{
-	var elements , replacement = {} ;
-	
-	elements = element.querySelectorAll( '*' ) ;
-	
-	dom.batch( dom.idNamespace.idAttributePass , elements , namespace , replacement ) ;
-	dom.batch( dom.idNamespace.otherAttributesPass , elements , replacement ) ;
-} ;
-
-// Callbacks for dom.idNamespace(), cleanly hidden behind its namespace
-
-dom.idNamespace.idAttributePass = function idAttributePass( element , namespace , replacement ) {
-	replacement[ element.id ] = namespace + '.' + element.id ;
-	element.id = replacement[ element.id ] ;
-} ;
-
-dom.idNamespace.otherAttributesPass = function otherAttributesPass( element , replacement ) {
-	dom.batch( dom.idNamespace.oneAttributeSubPass , element.attributes , replacement ) ;
-} ;
-
-dom.idNamespace.oneAttributeSubPass = function oneAttributeSubPass( attr , replacement ) {
-	
-	// We have to search all url(#id) like substring in the current attribute's value
-	attr.value = attr.value.replace( /url\(#([^)]+)\)/g , function( match , id ) {
-		
-		// No replacement? return the matched string
-		if ( ! replacement[ id ] ) { return match ; }
-		
-		// Or return the replacement ID
-		return 'url(#' + replacement[ id ] + ')' ;
-	} ) ;
-} ;
-
-
-
-		/* Function useful for .batch() as callback */
-		/* ... to avoid defining again and again the same callback function */
-
-// Change id
-dom.id = function id( element , id ) { element.id = id ; } ;
-
-// Like jQuery .text().
-dom.text = function text( element , text ) { element.textContent = text ; } ;
-
-// Like jQuery .html().
-dom.html = function html( element , html ) { element.innerHTML = html ; } ;
-
-
-
-
-
-},{"./svg.js":22}],22:[function(require,module,exports){
-(function (process){
-/*
-	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
-
-	Copyright (c) 2015 - 2016 Cédric Ronvel 
-	
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-
-
-// Load modules
-var fs = require( 'fs' ) ;
-//var string = require( 'string-kit' ) ;
-var dom = require( './dom.js' ) ;
-
-
-
-var domSvg = {} ;
-module.exports = domSvg ;
-
-
-
-/*
-	load( container , url , [options] , callback )
-	
-	* container: null or the DOM element where the <svg> tag will be put
-	* url: the URL of the .svg file
-	* options: an optional object with optional options
-		* id: the id attribute of the <svg> tag (recommanded)
-		* class: a class object to add/remove on the <svg> tag
-		* hidden: inject the svg but make it hidden (useful to apply modification before the show)
-		* noWidthHeightAttr: remove the width and height attribute of the <svg> tag
-		* css: a css object to apply on the <svg> tag
-	* callback: completion callback
-*/
-domSvg.load = function load( container , url , options , callback )
-{
-	if ( typeof options === 'function' ) { callback = options ; }
-	if ( ! options || typeof options !== 'object' ) { options = {} ; }
-	
-	if ( url.substring( 0 , 7 ) === 'file://' && ! process.browser )
-	{
-		// Use Node.js 'fs' module
-		
-		fs.readFile( url.slice( 7 ) , function( error , content ) {
-			
-			if ( error ) { callback( error ) ; return ; }
-			
-			var parser = new DOMParser() ;
-			var svg = parser.parseFromString( content.toString() , 'application/xml' ).documentElement ;
-			
-			try {
-				domSvg.attachXmlTo( container , svg , options ) ;
-			}
-			catch ( error ) {
-				callback( error ) ;
-				return ;
-			}
-			
-			callback( undefined , svg ) ;
-		} ) ;
-	}
-	else
-	{
-		// Use an AJAX HTTP Request
-		
-		domSvg.ajax( url , function( error , xmlDoc ) {
-			
-			if ( error ) { callback( error ) ; return ; }
-			
-			var svg = xmlDoc.documentElement ;
-			
-			try {
-				domSvg.attachXmlTo( container , svg , options ) ;
-			}
-			catch ( error ) {
-				callback( error ) ;
-				return ;
-			}
-			
-			callback( undefined , svg ) ;
-		} ) ;
-	}
-} ;
-
-
-
-// Dummy ATM...
-domSvg.attachXmlTo = function attachXmlTo( container , svg , options )
-{
-	var viewBox , width , height ;
-	
-	domSvg.lightCleanup( svg ) ;
-	
-	// Fix id, if necessary
-	if ( options.id !== undefined )
-	{
-		if ( typeof options.id === 'string' ) { svg.setAttribute( 'id' , options.id ) ; }
-		else if ( ! options.id ) { svg.removeAttribute( 'id' ) ; }
-	}
-	
-	if ( options.class && typeof options.class === 'object' ) { dom.class( svg , options.class ) ; }
-	
-	if ( options.idNamespace ) { dom.idNamespace( svg , options.idNamespace ) ; }
-	
-	if ( options.hidden ) { svg.style.visibility = 'hidden' ; }
-	
-	if ( options.noWidthHeightAttr )
-	{
-		// Save and remove the width and height attribute
-		width = svg.getAttribute( 'width' ) ;
-		height = svg.getAttribute( 'height' ) ;
-		
-		svg.removeAttribute( 'height' ) ;
-		svg.removeAttribute( 'width' ) ;
-		
-		// if the svg don't have a viewBox attribute, set it now from the width and height (it works most of time)
-		if ( ! svg.getAttribute( 'viewBox' ) && width && height )
-		{
-			viewBox = '0 0 ' + width + ' ' + height ;
-			//console.log( "viewBox:" , viewBox ) ;
-			svg.setAttribute( 'viewBox' , viewBox ) ;
-		}
-	}
-	
-	if ( options.css ) { dom.css( svg , options.css ) ; }
-	
-	// If a container was specified, attach to it
-	if ( container ) { container.appendChild( svg ) ; }
-} ;
-
-
-
-domSvg.lightCleanup = function lightCleanup( svgElement )
-{
-	removeAllTag( svgElement , 'metadata' ) ;
-	removeAllTag( svgElement , 'script' ) ;
-} ;
-
-
-
-// Should remove all tags and attributes that have non-registered namespace,
-// e.g.: sodipodi, inkscape, etc...
-//domSvg.heavyCleanup = function heavyCleanup( svgElement ) {} ;
-
-
-
-function removeAllTag( container , tag )
-{
-	var i , elements , element ;
-	
-	elements = container.getElementsByTagName( tag ) ;
-	
-	for ( i = 0 ; i < elements.length ; i ++ )
-	{
-		element = elements.item( i ) ;
-		element.parentNode.removeChild( element ) ;
-	}
-}
-
-
-
-
-
-
-domSvg.ajax = function ajax( url , callback )
-{
-	var xhr = new XMLHttpRequest() ;
-	
-	//console.warn( "ajax url:" , url ) ;
-	
-	xhr.responseType = 'document' ;
-	xhr.onreadystatechange = domSvg.ajax.ajaxStatus.bind( xhr , callback ) ;
-	xhr.open( 'GET', url ) ;
-	xhr.send() ;
-} ;
-
-
-
-domSvg.ajax.ajaxStatus = function ajaxStatus( callback )
-{
-	// From MDN: In the event of a communication error (such as the webserver going down),
-	// an exception will be thrown in the when attempting to access the 'status' property. 
-	
-	try {
-		if ( this.readyState === 4 )
-		{
-			if ( this.status === 200 )
-			{
-				callback( undefined , this.responseXML ) ;
-			}
-			else if ( this.status === 0 && this.responseXML )	// Yay, loading with file:// does not provide any status...
-			{
-				callback( undefined , this.responseXML ) ;
-			}
-			else
-			{
-				if ( this.status ) { callback( this.status ) ; }
-				else { callback( new Error( "[dom-kit.svg] ajaxStatus(): Error with falsy status" ) ) ; }
-			}
-		}
-	}
-	catch ( error ) {
-		callback( error ) ;
-	}
-} ;
-
-
-
-}).call(this,require('_process'))
-},{"./dom.js":21,"_process":11,"fs":5}],23:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8084,7 +7343,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":24,"punycode":12,"querystring":15}],24:[function(require,module,exports){
+},{"./util":21,"punycode":12,"querystring":15}],21:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -8102,5 +7361,297 @@ module.exports = {
   }
 };
 
-},{}]},{},[2])(2)
+},{}],22:[function(require,module,exports){
+(function (process){
+/*
+	SVG Kit
+	
+	Copyright (c) 2017 Cédric Ronvel
+	
+	The MIT License (MIT)
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+// Load modules
+var fs = require( 'fs' ) ;
+var domKit = require( 'dom-kit' ) ;
+
+function noop() {}
+
+
+
+var svgKit = {} ;
+module.exports = svgKit ;
+
+
+
+svgKit.standalone = function standalone( content , viewBox )
+{
+	var output = '<?xml version="1.0" encoding="UTF-8"?>\n' ;
+	
+	if ( ! Array.isArray( viewBox ) ) { viewBox = svgKit.toAreaArray( viewBox ) ; }
+	
+	output += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + viewBox.join( ' ' ) + '">\n' ;
+	
+	// ?
+    // width="500"
+    // height="500"
+    
+    output += content ;
+    output += '\n</svg>\n' ;
+    
+    return output ;
+} ;
+
+
+
+svgKit.toAreaArray = function toAreaArray( object )
+{
+	if ( object.xmin !== undefined && object.xmax !== undefined && object.ymin !== undefined && object.ymax !== undefined )
+	{
+		return [
+			object.xmin ,
+			object.ymin ,
+			object.xmax - object.xmin ,
+			object.ymax - object.ymin
+		] ;
+	}
+	else if ( object.x !== undefined && object.y !== undefined && object.width !== undefined && object.height !== undefined )
+	{
+		return [
+			object.x ,
+			object.y ,
+			object.width ,
+			object.height
+		] ;
+	}
+	else
+	{
+		return [ 0 , 0 , 100 , 100 ] ;
+	}
+} ;
+
+
+
+svgKit.inlineToClass = function inlineToClass( $svg )
+{
+	$svg.querySelectorAll( 'path' ).forEach( function( $path ) {
+		console.log( $path.getAttribute( 'style' ) ) ;
+	} ) ;
+} ;
+
+
+
+// Fix few <svg> things in order to inject it in the dom
+svgKit.inject = function inject( $svg , options )
+{
+	var viewBox , width , height ;
+	
+	svgKit.lightCleanup( $svg ) ;
+	
+	// Fix id, if necessary
+	if ( options.id !== undefined )
+	{
+		if ( typeof options.id === 'string' ) { $svg.setAttribute( 'id' , options.id ) ; }
+		else if ( ! options.id ) { $svg.removeAttribute( 'id' ) ; }
+	}
+	
+	if ( options.class )
+	{
+		if ( typeof options.class === 'string' ) { $svg.classList.add( options.class ) ; }
+		else if ( typeof options.class === 'object' ) { domKit.class( $svg , options.class ) ; }
+	}
+	
+	if ( options.prefixIds ) { domKit.prefixIds( $svg , options.prefixIds ) ; }
+	if ( options.removeIds ) { domKit.removeAllAttributes( $svg , 'id' ) ; }
+	
+	if ( options.hidden ) { $svg.style.visibility = 'hidden' ; }
+	
+	if ( options.removeSize )
+	{
+		// Save and remove the width and height attribute
+		width = $svg.getAttribute( 'width' ) || $svg.style.width ;
+		height = $svg.getAttribute( 'height' ) || $svg.style.height ;
+		
+		$svg.removeAttribute( 'height' ) ;
+		$svg.removeAttribute( 'width' ) ;
+		$svg.style.width = null ;
+		$svg.style.height = null ;
+		
+		// if the $svg don't have a viewBox attribute, set it now from the width and height (it works most of time)
+		if ( ! $svg.getAttribute( 'viewBox' ) && width && height )
+		{
+			viewBox = '0 0 ' + width + ' ' + height ;
+			//console.log( "viewBox:" , viewBox ) ;
+			$svg.setAttribute( 'viewBox' , viewBox ) ;
+		}
+	}
+	
+	if ( options.css ) { domKit.css( $svg , options.css ) ; }
+	
+	if ( options.into ) { options.into.appendChild( $svg ) ; }
+} ;
+
+
+
+svgKit.lightCleanup = function lightCleanup( $svg )
+{
+	domKit.removeAllTags( $svg , 'metadata' ) ;
+	domKit.removeAllTags( $svg , 'script' ) ;
+} ;
+
+
+
+// Should remove all tags and attributes that have non-registered namespace,
+// e.g.: sodipodi, inkscape, etc...
+//svgKit.heavyCleanup = function heavyCleanup( svgElement ) {} ;
+
+
+
+/*
+	old (dom-kit 0.1.x) -> new (svg-kit 0.1.x)
+	function load( $container , url , options , callback ) -> load( url , options , callback )
+	$container -> options.into
+	options.noWidthHeightAttr -> options.removeSize
+*/
+/*
+	load( url , [options] , callback )
+	
+	* url: the URL of the .svg file
+	* $container: null or the DOM element where the <svg> tag will be put
+	* options: an optional object with optional options
+		* id: `string` the id attribute of the <svg> tag (recommanded)
+		* removeIds: `boolean` remove all 'id' attributes
+		* prefixIds: `string` prefix all IDs and patch url #ref
+		* class: `string` or `object` (key=class, value=true/false) to add/remove on the <svg> tag
+		* hidden: inject the svg but make it hidden (useful to apply modification before the show)
+		* removeSize: remove the width and height attribute and style from the <svg> tag
+		* css: a css object to apply on the <svg> tag
+	* callback: completion callback
+*/
+svgKit.load = function load( url , options , callback )
+{
+	if ( typeof options === 'function' ) { callback = options ; options = {} ; }
+	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
+	
+	if ( typeof callback !== 'function' ) { callback = noop ; }
+	
+	if ( ! process.browser )
+	{
+		// Use Node.js 'fs' module
+		
+		if ( url.substring( 0 , 7 ) === 'file://' ) { url = url.slice( 7 ) ; }
+		
+		fs.readFile( url , 'utf8' , function( error , content ) {
+			
+			if ( error ) { callback( error ) ; return ; }
+			
+			
+			//var parser = new DOMParser() ;
+			//var $svg = parser.parseFromString( content , 'application/xml' ).documentElement ;
+			var $svg = domKit.fromXml( content ).documentElement ;
+			
+			try {
+				svgKit.inject( $svg , options ) ;
+			}
+			catch ( error ) {
+				callback( error ) ;
+				return ;
+			}
+			
+			callback( undefined , $svg ) ;
+		} ) ;
+	}
+	else
+	{
+		// Use an AJAX HTTP Request
+		
+		svgKit.ajax( url , function( error , xmlDoc ) {
+			
+			if ( error ) { callback( error ) ; return ; }
+			
+			var $svg = xmlDoc.documentElement ;
+			
+			try {
+				svgKit.inject( $svg , options ) ;
+			}
+			catch ( error ) {
+				callback( error ) ;
+				return ;
+			}
+			
+			callback( undefined , $svg ) ;
+		} ) ;
+	}
+} ;
+
+
+
+svgKit.ajax = function ajax( url , callback )
+{
+	var xhr = new XMLHttpRequest() ;
+	
+	//console.warn( "ajax url:" , url ) ;
+	
+	xhr.responseType = 'document' ;
+	xhr.onreadystatechange = svgKit.ajax.ajaxStatus.bind( xhr , callback ) ;
+	xhr.open( 'GET', url ) ;
+	xhr.send() ;
+} ;
+
+
+
+svgKit.ajax.ajaxStatus = function ajaxStatus( callback )
+{
+	// From MDN: In the event of a communication error (such as the webserver going down),
+	// an exception will be thrown in the when attempting to access the 'status' property. 
+	
+	try {
+		if ( this.readyState === 4 )
+		{
+			if ( this.status === 200 )
+			{
+				callback( undefined , this.responseXML ) ;
+			}
+			else if ( this.status === 0 && this.responseXML )	// Yay, loading with file:// does not provide any status...
+			{
+				callback( undefined , this.responseXML ) ;
+			}
+			else
+			{
+				if ( this.status ) { callback( this.status ) ; }
+				else { callback( new Error( "[svg-kit] ajaxStatus(): Error with falsy status" ) ) ; }
+			}
+		}
+	}
+	catch ( error ) {
+		callback( error ) ;
+	}
+} ;
+
+
+
+}).call(this,require('_process'))
+},{"_process":11,"dom-kit":1,"fs":6}]},{},[3])(3)
 });
