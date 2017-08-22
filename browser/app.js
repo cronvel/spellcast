@@ -226,10 +226,11 @@ domKit.moveAttributes = function moveAttributes( $source , $destination )
 		
 		$source.removeAttribute( name ) ;
 		
-		//if ( name.indexOf( ':' ) !== -1 ) { continue ; }
+		// Do not copy namespaced attributes for instance,
+		// should probably protect this behind a third argument
 		if ( name !== 'xmlns' && name.indexOf( ':' ) === -1 && value )
 		{
-			console.warn( 'moving: ' , name, value , $destination.getAttribute( name ) ) ;
+			//console.warn( 'moving: ' , name, value , $destination.getAttribute( name ) ) ;
 			$destination.setAttribute( name , value ) ;
 		}
 	} ) ;
@@ -833,7 +834,7 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 				// Pre-create the <svg> tag
 				//$image = document.createElement( 'svg' ) ;	// <-- it doesn't works, it should be created with a NS
 				$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
-				$image.setAttribute( 'xmlns' , 'http://www.w3.org/2000/svg' ) ;
+				//$image.setAttribute( 'xmlns' , 'http://www.w3.org/2000/svg' ) ;
 				$image.classList.add( 'svg' ) ;
 				
 				svgKit.load( self.cleanUrl( data.image ) , {
@@ -848,6 +849,7 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 				$image.setAttribute( 'src' , self.cleanUrl( data.image ) ) ;
 			}
 			
+			$image.classList.add( 'icon' ) ;
 			$image.classList.add( 'image' ) ;
 			
 			if ( data.label )

@@ -669,6 +669,22 @@ indicator widget.vbar inner-bar {
 
 
 
+.icon.svg path {
+	fill: #3a3 !important;
+	stroke: #fff !important;
+}
+
+.icon.svg path.secondary {
+	fill: #fff !important;
+	stroke: #3a3 !important;
+}
+
+
+
+			/* Misc */
+
+
+
 .hidden {
 	opacity: 0 !important;
 	pointer-events: none !important;
