@@ -147,6 +147,7 @@ Dom.prototype.sceneImageOff = function sceneImageOff()
 
 
 
+// return true if switched
 Dom.prototype.toMainBuffer = function toMainBuffer()
 {
 	if ( this.$activeBuffer === this.$mainBuffer ) { return ; }
@@ -166,10 +167,13 @@ Dom.prototype.toMainBuffer = function toMainBuffer()
 	this.$altBuffer.classList.add( 'inactive' ) ;
 	
 	this.getSwitchedElements() ;
+	
+	return true ;
 } ;
 
 
 
+// return true if switched
 Dom.prototype.toAltBuffer = function toAltBuffer()
 {
 	if ( this.$activeBuffer === this.$altBuffer ) { return ; }
@@ -180,6 +184,8 @@ Dom.prototype.toAltBuffer = function toAltBuffer()
 	this.$altBuffer.classList.remove( 'inactive' ) ;
 	
 	this.getSwitchedElements() ;
+	
+	return true ;
 } ;
 
 
@@ -301,6 +307,7 @@ Dom.prototype.newSegment = function newSegment( callback )
 // Postpone new segment creation until new content
 Dom.prototype.newSegmentOnContent = function newSegmentOnContent()
 {
+	console.warn( 'New segment on content' ) ;
 	this.newSegmentNeeded = true ;
 } ;
 
@@ -1965,10 +1972,19 @@ UI.panel = function panel( data , reset )
 // 'enterScene' event
 UI.enterScene = function enterScene( isGosub , toAltBuffer )
 {
+	var switchedToAltBuffer ;
+	
 	this.inGame = true ;
 	
-	if ( toAltBuffer ) { this.dom.toAltBuffer() ; }
-	else if ( ! isGosub ) { this.dom.newSegmentOnContent() ; }
+	if ( toAltBuffer )
+	{
+		switchedToAltBuffer = this.dom.toAltBuffer() ;
+	}
+	
+	if ( ! isGosub && ! switchedToAltBuffer )
+	{
+		this.dom.newSegmentOnContent() ;
+	}
 	
 	this.afterNext = this.afterLeave = this.afterNextTriggered = false ;
 } ;
