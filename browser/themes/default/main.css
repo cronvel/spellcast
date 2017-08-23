@@ -665,18 +665,18 @@ indicator widget.vbar inner-bar {
 
 
 
-			/* Misc */
+			/* Icons */
 
 
 
-.icon.svg path {
-	fill: #3a3 !important;
-	stroke: #fff !important;
+.icon.svg .primary {
+	fill: #333;
+	stroke: #fff;
 }
 
-.icon.svg path.secondary {
-	fill: #fff !important;
-	stroke: #3a3 !important;
+.icon.svg .inv-primary {
+	fill: #fff;
+	stroke: #333;
 }
 
 

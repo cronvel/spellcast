@@ -238,6 +238,17 @@ domKit.moveAttributes = function moveAttributes( $source , $destination )
 
 
 
+domKit.styleToAttribute = function styleToAttribute( $element , property )
+{
+	if ( $element.style[ property ] )
+	{
+		$element.setAttribute( property , $element.style[ property ] ) ;
+		$element.style[ property ] = null ;
+	}
+} ;
+
+
+
 // Children of this element get all their ID namespaced, any url(#id) references are patched accordingly
 domKit.prefixIds = function prefixIds( $element , namespace )
 {
@@ -275,22 +286,22 @@ domKit.prefixIds.oneAttributeSubPass = function oneAttributeSubPass( attr , repl
 
 
 
-domKit.removeAllTags = function removeAllTags( $container , tag , onlyIfEmpty )
+domKit.removeAllTags = function removeAllTags( $container , tagName , onlyIfEmpty )
 {
-	Array.from( $container.getElementsByTagName( tag ) ).forEach( function( $element ) {
+	Array.from( $container.getElementsByTagName( tagName ) ).forEach( function( $element ) {
 		if ( ! onlyIfEmpty || ! $element.firstChild ) { $element.parentNode.removeChild( $element ) ; }
 	} ) ;
 } ;
 
 
 
-domKit.removeAllAttributes = function removeAllAttributes( $container , attr )
+domKit.removeAllAttributes = function removeAllAttributes( $container , attrName )
 {
 	// Don't forget to remove the ID of the container itself
-	$container.removeAttribute( attr ) ;
+	$container.removeAttribute( attrName ) ;
 	
-	Array.from( $container.querySelectorAll( '[' + attr + ']' ) ).forEach( function( $element ) {
-		$element.removeAttribute( attr ) ;
+	Array.from( $container.querySelectorAll( '[' + attrName + ']' ) ).forEach( function( $element ) {
+		$element.removeAttribute( attrName ) ;
 	} ) ;
 } ;
 
@@ -840,6 +851,7 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 				svgKit.load( self.cleanUrl( data.image ) , {
 					removeSize: true ,
 					removeIds: true ,
+					colorClass: true ,
 					as: $image
 				} ) ;
 			}
@@ -7479,12 +7491,18 @@ svgKit.toAreaArray = function toAreaArray( object )
 
 
 
-svgKit.inlineToClass = function inlineToClass( $svg )
-{
-	$svg.querySelectorAll( 'path' ).forEach( function( $path ) {
-		console.log( $path.getAttribute( 'style' ) ) ;
-	} ) ;
-} ;
+// List of svg tags that actually display things
+var drawingTags = [
+	'path' ,
+	'circle' ,
+	'ellipse' ,
+	'line' ,
+	'rect' ,
+	'polyline' ,
+	'polygone' ,
+	'text' ,
+	'textPath'
+] ;
 
 
 
@@ -7535,6 +7553,8 @@ svgKit.inject = function inject( $svg , options )
 	
 	if ( options.css ) { domKit.css( $svg , options.css ) ; }
 	
+	if ( options.colorClass ) { svgKit.colorClass( $svg ) ; }
+	
 	if ( options.into ) { options.into.appendChild( $svg ) ; }
 	
 	if ( options.as && options.as.tagName.toLowerCase() === 'svg' )
@@ -7551,6 +7571,25 @@ svgKit.lightCleanup = function lightCleanup( $svg )
 	domKit.removeAllTags( $svg , 'metadata' ) ;
 	domKit.removeAllTags( $svg , 'script' ) ;
 	domKit.removeAllTags( $svg , 'defs' , true ) ;	// all empty defs
+} ;
+
+
+
+svgKit.colorClass = function colorClass( $svg )
+{
+	drawingTags.forEach( function( tagName ) {
+		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( function( $element ) {
+			console.warn( "$element.className" , $element.getAttribute( 'class' ) ) ;
+			// Beware, .className does not works as expected for SVG
+			if ( ! $element.getAttribute( 'class' ) )
+			{
+				$element.classList.add( 'primary' ) ;
+			}
+			
+			domKit.styleToAttribute( $element , 'fill' ) ;
+			domKit.styleToAttribute( $element , 'stroke' ) ;
+		} ) ;
+	} ) ;
 } ;
 
 
@@ -7573,6 +7612,10 @@ svgKit.lightCleanup = function lightCleanup( $svg )
 	* url: the URL of the .svg file
 	* $container: null or the DOM element where the <svg> tag will be put
 	* options: an optional object with optional options
+		* into: `DOMElement` an element where the .svg file should be loaded into
+		* as: `DOMElement` a <svg> element where the .svg file should replace, almost like the "into" option,
+		  useful when a <svg> tag should be created synchronously to start doing stuffs on it,
+		  and let the asynchronous loading works in the background
 		* id: `string` the id attribute of the <svg> tag (recommanded)
 		* removeIds: `boolean` remove all 'id' attributes
 		* prefixIds: `string` prefix all IDs and patch url #ref
@@ -7580,6 +7623,10 @@ svgKit.lightCleanup = function lightCleanup( $svg )
 		* hidden: inject the svg but make it hidden (useful to apply modification before the show)
 		* removeSize: remove the width and height attribute and style from the <svg> tag
 		* css: a css object to apply on the <svg> tag
+		* colorClass: a very specialized option. It moves all stroke and fill color inline styles to attribute
+		  on all drawing elements and add the "primary" class to those that are class-less.
+		  Since CSS has a greater priority than attributes (but lesser than inline styles), this allows us to controle
+		  color using CSS.
 	* callback: completion callback
 */
 svgKit.load = function load( url , options , callback )
