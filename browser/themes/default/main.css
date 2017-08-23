@@ -236,28 +236,10 @@ body[data-image-position="left"] #status {
 	right: auto;
 }
 
-#menu {
-	position: fixed;
-	z-index: 1;
-	width: 2em;
-	top: 20%;
-	right: 0;
-	padding: 0.1em;
-	
-	overflow: hidden;
-	background-color: rgba(232, 225, 215, 0.7);
-	opacity: 1;
-	box-shadow: 0px 0px 10px 1px #000;
-	transition: opacity 0.5s;
-}
-
-#menu.empty {
-	display: none;
-}
-
-body[data-image-position="left"] #menu {
-	left: 0;
-	right: auto;
+/* Make the scene-image fully visible */
+body.gfx-toggled main , body.gfx-toggled #lobby , body.gfx-toggled #panel , body.gfx-toggled #status {
+	opacity: 0;
+	pointer-events: none;
 }
 
 
@@ -557,31 +539,60 @@ indicator widget.vbar inner-bar {
 #panel .item {
 	display: block;
 	width: 2em;
+	height: 2em;
+	line-height: 2em;
 	margin: 0.15em 0;
 	
 	/* the panel bg color */
 	background-color: rgba(212, 205, 195);
 	
-	-webkit-filter: grayscale(100%) contrast(30%) opacity(50%);
-    -moz-filter: grayscale(100%) contrast(30%) opacity(50%);
-    -ms-filter: grayscale(100%) contrast(30%) opacity(50%);
-    -o-filter: grayscale(100%) contrast(30%) opacity(50%);
-	filter: grayscale(100%) contrast(30%) opacity(50%);
-	/*opacity: 0.5;*/
-}
-
-#panel .item[data-select-index] {
 	cursor: pointer;
-	filter: none;
-	/*opacity: 1;*/
 }
 
-#panel .item[data-select-index]:hover {
+#panel .item .image {
+	width: 100%;
+	vertical-align: middle;
+}
+
+#panel .item.disabled {
+	cursor: auto;
+}
+
+#panel .item:not(.disabled):hover {
 	background-color: rgba(242, 235, 225);
 }
 
-#panel .item img {
-	width: 100%;
+#panel .item:not(.disabled):hover .image {
+	position: relative;
+	width: 110%;
+	top: -5%;
+	left: -5%;
+}
+
+
+
+			/* Icons */
+
+
+
+.icon.svg .primary {
+	fill: #333;
+	stroke: #fff;
+}
+
+.icon.svg .inv-primary {
+	fill: #fff;
+	stroke: #333;
+}
+
+.disabled .icon.svg .primary {
+	fill: #777;
+	stroke: #bbb;
+}
+
+.disabled .icon.svg .inv-primary {
+	fill: #bbb;
+	stroke: #777;
 }
 
 
@@ -627,12 +638,12 @@ indicator widget.vbar inner-bar {
 	padding: 1em;
 	background: #f0efe9;
 	
-	/* Chrome require that, even if it doesn't make sense */
+	/* Chrome requires that, even if it doesn't make sense */
 	border-style: solid;
 	
 	/* This part is specific to the border image used */
 	border-image-source: url("/boxes/geometric-gold.svg");
-	/* 360 SVG units inward for both horizontal and vertical*/
+	/* 168 SVG units inward for both horizontal and vertical*/
 	border-image-slice: 168;
 	/* Repeat an integer number of time, rescale when needed */
 	border-image-repeat: round;
@@ -665,22 +676,6 @@ indicator widget.vbar inner-bar {
 
 
 
-			/* Icons */
-
-
-
-.icon.svg .primary {
-	fill: #333;
-	stroke: #fff;
-}
-
-.icon.svg .inv-primary {
-	fill: #fff;
-	stroke: #333;
-}
-
-
-
 			/* Misc */
 
 
@@ -688,6 +683,15 @@ indicator widget.vbar inner-bar {
 .hidden {
 	opacity: 0 !important;
 	pointer-events: none !important;
+}
+
+.disabled img {
+	-webkit-filter: grayscale(100%) contrast(30%) opacity(50%);
+    -moz-filter: grayscale(100%) contrast(30%) opacity(50%);
+    -ms-filter: grayscale(100%) contrast(30%) opacity(50%);
+    -o-filter: grayscale(100%) contrast(30%) opacity(50%);
+	filter: grayscale(100%) contrast(30%) opacity(50%);
+	/*opacity: 0.5;*/
 }
 
 @keyframes pulse-animation {
