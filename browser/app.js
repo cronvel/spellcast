@@ -307,7 +307,6 @@ Dom.prototype.newSegment = function newSegment( callback )
 // Postpone new segment creation until new content
 Dom.prototype.newSegmentOnContent = function newSegmentOnContent()
 {
-	console.warn( 'New segment on content' ) ;
 	this.newSegmentNeeded = true ;
 } ;
 
@@ -2499,9 +2498,9 @@ domKit.moveAttributes = function moveAttributes( $source , $destination )
 
 
 
-domKit.styleToAttribute = function styleToAttribute( $element , property )
+domKit.styleToAttribute = function styleToAttribute( $element , property , blacklistedValues )
 {
-	if ( $element.style[ property ] )
+	if ( $element.style[ property ] && ( ! blacklistedValues || blacklistedValues.indexOf( $element.style[ property ] ) === -1 ) )
 	{
 		$element.setAttribute( property , $element.style[ property ] ) ;
 		$element.style[ property ] = null ;
@@ -2564,6 +2563,50 @@ domKit.removeAllAttributes = function removeAllAttributes( $container , attrName
 	Array.from( $container.querySelectorAll( '[' + attrName + ']' ) ).forEach( function( $element ) {
 		$element.removeAttribute( attrName ) ;
 	} ) ;
+} ;
+
+
+
+// Remove comments
+domKit.removeComments = function removeComments( $container )
+{
+	var i , $child ;
+	
+	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- )
+	{
+		$child = $container.childNodes[ i ] ;
+		
+		if ( $child.nodeType === 8 )
+		{
+			$container.removeChild( $child ) ;
+		}
+		else if ( $child.nodeType === 1 )
+		{
+			domKit.removeComments( $child ) ;
+		}
+	}
+} ;
+
+
+
+// Remove white-space-only text-node
+domKit.removeWhiteSpaces = function removeWhiteSpaces( $container )
+{
+	var i , $child ;
+	
+	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- )
+	{
+		$child = $container.childNodes[ i ] ;
+		
+		if ( $child.nodeType === 3 && ! /\S/.test( $child.nodeValue ) )
+		{
+			$container.removeChild( $child ) ;
+		}
+		else if ( $child.nodeType === 1 )
+		{
+			domKit.removeWhiteSpaces( $child ) ;
+		}
+	}
 } ;
 
 
@@ -6704,6 +6747,7 @@ inspectStyle.html = Object.assign( {} , inspectStyle.none , {
 // Load modules
 var fs = require( 'fs' ) ;
 var domKit = require( 'dom-kit' ) ;
+var escape = require( 'string-kit/lib/escape.js' ) ;
 
 function noop() {}
 
@@ -6711,54 +6755,6 @@ function noop() {}
 
 var svgKit = {} ;
 module.exports = svgKit ;
-
-
-
-svgKit.standalone = function standalone( content , viewBox )
-{
-	var output = '<?xml version="1.0" encoding="UTF-8"?>\n' ;
-	
-	if ( ! Array.isArray( viewBox ) ) { viewBox = svgKit.toAreaArray( viewBox ) ; }
-	
-	output += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + viewBox.join( ' ' ) + '">\n' ;
-	
-	// ?
-    // width="500"
-    // height="500"
-    
-    output += content ;
-    output += '\n</svg>\n' ;
-    
-    return output ;
-} ;
-
-
-
-svgKit.toAreaArray = function toAreaArray( object )
-{
-	if ( object.xmin !== undefined && object.xmax !== undefined && object.ymin !== undefined && object.ymax !== undefined )
-	{
-		return [
-			object.xmin ,
-			object.ymin ,
-			object.xmax - object.xmin ,
-			object.ymax - object.ymin
-		] ;
-	}
-	else if ( object.x !== undefined && object.y !== undefined && object.width !== undefined && object.height !== undefined )
-	{
-		return [
-			object.x ,
-			object.y ,
-			object.width ,
-			object.height
-		] ;
-	}
-	else
-	{
-		return [ 0 , 0 , 100 , 100 ] ;
-	}
-} ;
 
 
 
@@ -6777,8 +6773,51 @@ var drawingTags = [
 
 
 
-// Fix few <svg> things in order to inject it in the dom
+/*
+	Fix few <svg> things in order to inject it in the dom
+	
+	* $svg: the svg element
+	* options: options object, where:
+		* into: `DOMElement` an element where the .svg file should be loaded into
+		* as: `DOMElement` a <svg> element where the .svg file should replace, almost like the "into" option,
+		  useful when a <svg> tag should be created synchronously to start doing stuffs on it,
+		  and let the asynchronous loading works in the background
+		* all other options are passed to .patch()
+*/
 svgKit.inject = function inject( $svg , options )
+{
+	svgKit.patch( $svg , options ) ;
+	
+	if ( options.into ) { options.into.appendChild( $svg ) ; }
+	
+	if ( options.as && options.as.tagName.toLowerCase() === 'svg' )
+	{
+		domKit.moveAttributes( $svg , options.as ) ;
+		domKit.moveChildrenInto( $svg , options.as ) ;
+	}
+} ;
+
+
+
+/*
+	Fix few <svg> things.
+	
+	* $svg: the svg element
+	* options: options object, where:
+		* id: `string` the id attribute of the <svg> tag (recommanded)
+		* removeIds: `boolean` remove all 'id' attributes
+		* prefixIds: `string` prefix all IDs and patch url #ref
+		* hidden: `boolean` turn the svg hidden (useful to apply modification before the show)
+		* class: `string` or `object` (key=class, value=true/false) to add/remove on the <svg> tag
+		* removeSize: `boolean` remove the width and height attribute and style from the <svg> tag
+		* removeDefaultStyles: `boolean` used to removed meaningless style pollution
+		* css: `object` a css object to apply on the <svg> tag
+		* colorClass: `boolean` a very specialized option. It moves all stroke and fill color inline styles to attribute
+		  on all drawing elements and add the "primary" class to those that are class-less.
+		  Since CSS has a greater priority than attributes (but lesser than inline styles), this allows us to controle
+		  color using CSS.
+*/
+svgKit.patch = function patch( $svg , options )
 {
 	var viewBox , width , height ;
 	
@@ -6797,10 +6836,13 @@ svgKit.inject = function inject( $svg , options )
 		else if ( typeof options.class === 'object' ) { domKit.class( $svg , options.class ) ; }
 	}
 	
+	if ( options.hidden ) { $svg.style.visibility = 'hidden' ; }
+	
 	if ( options.prefixIds ) { domKit.prefixIds( $svg , options.prefixIds ) ; }
 	if ( options.removeIds ) { domKit.removeAllAttributes( $svg , 'id' ) ; }
 	
-	if ( options.hidden ) { $svg.style.visibility = 'hidden' ; }
+	if ( options.removeDefaultStyles ) { svgKit.removeDefaultStyles( $svg ) ; }
+	if ( options.removeComments ) { domKit.removeComments( $svg ) ; }
 	
 	if ( options.removeSize )
 	{
@@ -6825,14 +6867,6 @@ svgKit.inject = function inject( $svg , options )
 	if ( options.css ) { domKit.css( $svg , options.css ) ; }
 	
 	if ( options.colorClass ) { svgKit.colorClass( $svg ) ; }
-	
-	if ( options.into ) { options.into.appendChild( $svg ) ; }
-	
-	if ( options.as && options.as.tagName.toLowerCase() === 'svg' )
-	{
-		domKit.moveAttributes( $svg , options.as ) ;
-		domKit.moveChildrenInto( $svg , options.as ) ;
-	}
 } ;
 
 
@@ -6856,8 +6890,37 @@ svgKit.colorClass = function colorClass( $svg )
 				$element.classList.add( 'primary' ) ;
 			}
 			
-			domKit.styleToAttribute( $element , 'fill' ) ;
-			domKit.styleToAttribute( $element , 'stroke' ) ;
+			// move style to attribute if they are not 'none'
+			domKit.styleToAttribute( $element , 'fill' , [ 'none' ] ) ;
+			domKit.styleToAttribute( $element , 'stroke' , [ 'none' ] ) ;
+		} ) ;
+	} ) ;
+} ;
+
+
+
+const defaultStyles = [
+	[ 'stroke-dasharray' , 'none' ] ,
+] ;
+
+// Remove styles set to a default/unused value
+svgKit.removeDefaultStyles = function removeDefaultStyles( $svg )
+{
+	drawingTags.forEach( function( tagName ) {
+		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( function( $element ) {
+			var styles = $element.getAttribute( 'style' ) ;
+			
+			defaultStyles.forEach( array => {
+				var k = array[ 0 ] ;
+				var v = array[ 1 ] ;
+				
+				styles = styles.replace(
+					new RegExp( '(^|;) *' + escape.regExp( k ) + ' *: *' + escape.regExp( v ) + ' *(?:;|$)' ) ,
+					( full , pre ) => pre
+				) ;
+			} ) ;
+			
+			$element.setAttribute( 'style' , styles ) ;
 		} ) ;
 	} ) ;
 } ;
@@ -6881,23 +6944,10 @@ svgKit.colorClass = function colorClass( $svg )
 	
 	* url: the URL of the .svg file
 	* $container: null or the DOM element where the <svg> tag will be put
-	* options: an optional object with optional options
-		* into: `DOMElement` an element where the .svg file should be loaded into
-		* as: `DOMElement` a <svg> element where the .svg file should replace, almost like the "into" option,
-		  useful when a <svg> tag should be created synchronously to start doing stuffs on it,
-		  and let the asynchronous loading works in the background
-		* id: `string` the id attribute of the <svg> tag (recommanded)
-		* removeIds: `boolean` remove all 'id' attributes
-		* prefixIds: `string` prefix all IDs and patch url #ref
-		* class: `string` or `object` (key=class, value=true/false) to add/remove on the <svg> tag
-		* hidden: inject the svg but make it hidden (useful to apply modification before the show)
-		* removeSize: remove the width and height attribute and style from the <svg> tag
-		* css: a css object to apply on the <svg> tag
-		* colorClass: a very specialized option. It moves all stroke and fill color inline styles to attribute
-		  on all drawing elements and add the "primary" class to those that are class-less.
-		  Since CSS has a greater priority than attributes (but lesser than inline styles), this allows us to controle
-		  color using CSS.
-	* callback: completion callback
+	* options: (optional) object of options, transmitted to .inject() and .patch()
+	* callback: completion callback, where:
+		* error: truthy if an error happened
+		* svg: the svg dom document
 */
 svgKit.load = function load( url , options , callback )
 {
@@ -6919,7 +6969,15 @@ svgKit.load = function load( url , options , callback )
 			
 			//var parser = new DOMParser() ;
 			//var $svg = parser.parseFromString( content , 'application/xml' ).documentElement ;
-			var $svg = domKit.fromXml( content ).documentElement ;
+			var $doc = domKit.fromXml( content ) ;
+			
+			if ( options.removeComments )
+			{
+				domKit.removeComments( $doc ) ;
+				delete options.removeComments ;
+			}
+			
+			var $svg = $doc.documentElement ;
 			
 			try {
 				svgKit.inject( $svg , options ) ;
@@ -6936,11 +6994,17 @@ svgKit.load = function load( url , options , callback )
 	{
 		// Use an AJAX HTTP Request
 		
-		svgKit.ajax( url , function( error , xmlDoc ) {
+		svgKit.ajax( url , function( error , $doc ) {
 			
 			if ( error ) { callback( error ) ; return ; }
 			
-			var $svg = xmlDoc.documentElement ;
+			if ( options.removeComments )
+			{
+				domKit.removeComments( $doc ) ;
+				delete options.removeComments ;
+			}
+			
+			var $svg = $doc.documentElement ;
 			
 			try {
 				svgKit.inject( $svg , options ) ;
@@ -7001,8 +7065,58 @@ svgKit.ajax.ajaxStatus = function ajaxStatus( callback )
 
 
 
+// DEPRECATED?
+
+svgKit.toAreaArray = function toAreaArray( object )
+{
+	if ( object.xmin !== undefined && object.xmax !== undefined && object.ymin !== undefined && object.ymax !== undefined )
+	{
+		return [
+			object.xmin ,
+			object.ymin ,
+			object.xmax - object.xmin ,
+			object.ymax - object.ymin
+		] ;
+	}
+	else if ( object.x !== undefined && object.y !== undefined && object.width !== undefined && object.height !== undefined )
+	{
+		return [
+			object.x ,
+			object.y ,
+			object.width ,
+			object.height
+		] ;
+	}
+	else
+	{
+		return [ 0 , 0 , 100 , 100 ] ;
+	}
+} ;
+
+
+
+svgKit.standalone = function standalone( content , viewBox )
+{
+	var output = '<?xml version="1.0" encoding="UTF-8"?>\n' ;
+	
+	if ( ! Array.isArray( viewBox ) ) { viewBox = svgKit.toAreaArray( viewBox ) ; }
+	
+	output += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + viewBox.join( ' ' ) + '">\n' ;
+	
+	// ?
+    // width="500"
+    // height="500"
+    
+    output += content ;
+    output += '\n</svg>\n' ;
+    
+    return output ;
+} ;
+
+
+
 }).call(this,require('_process'))
-},{"_process":11,"dom-kit":6,"fs":5}],21:[function(require,module,exports){
+},{"_process":11,"dom-kit":6,"fs":5,"string-kit/lib/escape.js":17}],21:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
