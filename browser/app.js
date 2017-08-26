@@ -103,6 +103,18 @@ Dom.prototype.setTheme = function setTheme( theme )
 
 
 
+Dom.prototype.preload = function preload()
+{
+	domKit.preload( [
+		'/icons/plugged.svg' ,
+		'/icons/plugging.svg' ,
+		'/icons/unplugged.svg' ,
+		'/icons/unreachable-plug.svg'
+	] ) ;
+} ;
+
+
+
 Dom.prototype.initEvents = function initEvents()
 {
 	var self = this ;
@@ -915,7 +927,7 @@ Dom.prototype.clearDialog = function clearDialog()
 	
 	var onEnd = function() {
 		self.$dialogWrapper.removeEventListener( 'transitionend' , onEnd ) ;
-		domKit.empty( this.$dialogWrapper ) ;
+		domKit.empty( self.$dialogWrapper ) ;
 	} ;
 	
 	this.$dialogWrapper.addEventListener( 'transitionstart' , onStart ) ;
@@ -923,7 +935,7 @@ Dom.prototype.clearDialog = function clearDialog()
 	setTimeout( function() {
 		if ( raceWon ) { return ; }
 		raceWon = true ;
-		domKit.empty( this.$dialogWrapper ) ;
+		domKit.empty( self.$dialogWrapper ) ;
 	} , 10 ) ;
 } ;
 
@@ -1698,7 +1710,9 @@ function UI( bus , client , self )
 		console.log( 'inGame?' , self.inGame ) ;
 		self.bus.emit( self.inGame ? 'command' : 'chat' , message ) ;
 	} ) ;
-
+	
+	self.dom.preload() ;
+	
 	return self ;
 }
 
@@ -2509,21 +2523,21 @@ domKit.styleToAttribute = function styleToAttribute( $element , property , black
 
 
 
-// Children of this element get all their ID namespaced, any url(#id) references are patched accordingly
-domKit.prefixIds = function prefixIds( $element , namespace )
+// Children of this element get all their ID prefixed, any url(#id) references are patched accordingly
+domKit.prefixIds = function prefixIds( $element , prefix )
 {
 	var elements , replacement = {} ;
 	
 	elements = $element.querySelectorAll( '*' ) ;
 	
-	domKit.batch( domKit.prefixIds.idAttributePass , elements , namespace , replacement ) ;
+	domKit.batch( domKit.prefixIds.idAttributePass , elements , prefix , replacement ) ;
 	domKit.batch( domKit.prefixIds.otherAttributesPass , elements , replacement ) ;
 } ;
 
-// Callbacks for domKit.prefixIds(), cleanly hidden behind its namespace
+// Callbacks for domKit.prefixIds(), cleanly hidden behind its prefix
 
-domKit.prefixIds.idAttributePass = function idAttributePass( $element , namespace , replacement ) {
-	replacement[ $element.id ] = namespace + '.' + $element.id ;
+domKit.prefixIds.idAttributePass = function idAttributePass( $element , prefix , replacement ) {
+	replacement[ $element.id ] = prefix + '.' + $element.id ;
 	$element.id = replacement[ $element.id ] ;
 } ;
 
@@ -2567,6 +2581,136 @@ domKit.removeAllAttributes = function removeAllAttributes( $container , attrName
 
 
 
+domKit.preload = function preload( urls )
+{
+	if ( ! Array.isArray( urls ) ) { urls = [ urls ] ; }
+	
+	urls.forEach( function( url ) {
+		if ( domKit.preload.preloaded[ url ] ) { return ; }
+		domKit.preload.preloaded[ url ] = new Image() ;
+		domKit.preload.preloaded[ url ].src = url ;
+	} ) ;
+} ;
+
+domKit.preload.preloaded = {} ;
+
+
+
+/*
+	Filter namespaces:
+	
+	* options `object` where:
+		* blacklist `array` of `string` namespace of elements/attributes to remove
+		* whitelist `array` of `string` namespace to elements/attributes to keep
+		* primary `string` keep those elements but remove the namespace 
+*/
+domKit.filterByNamespace = function filterByNamespace( $container , options )
+{
+	var i , $child , namespace , tagName , split ;
+	
+	// Nothing to do? return now...
+	if ( ! options || typeof options !== 'object' ) { return ; }
+	
+	domKit.filterAttributesByNamespace( $container , options ) ;
+	
+	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- )
+	{
+		$child = $container.childNodes[ i ] ;
+		
+		if ( $child.nodeType === 1 )
+		{
+			if ( $child.tagName.indexOf( ':' ) !== -1 )
+			{
+				split = $child.tagName.split( ':' ) ;
+				namespace = split[ 0 ] ;
+				tagName = split[ 1 ] ;
+				
+				if ( namespace === options.primary )
+				{
+					$child.tagName = tagName ;
+					domKit.filterByNamespace( $child , options ) ;
+				}
+				else if ( options.whitelist )
+				{
+					if ( options.whitelist.indexOf( namespace ) !== -1 )
+					{
+						domKit.filterByNamespace( $child , options ) ;
+					}
+					else
+					{
+						$container.removeChild( $child ) ;
+					}
+				}
+				else if ( options.blacklist )
+				{
+					if ( options.blacklist.indexOf( namespace ) !== -1 )
+					{
+						$container.removeChild( $child ) ;
+					}
+					else
+					{
+						domKit.filterByNamespace( $child , options ) ;
+					}
+				}
+				else
+				{
+					domKit.filterByNamespace( $child , options ) ;
+				}
+			}
+			else
+			{
+				domKit.filterByNamespace( $child , options ) ;
+			}
+		}
+	}
+} ;
+
+
+
+// Filter attributes by namespace
+domKit.filterAttributesByNamespace = function filterAttributesByNamespace( $container , options )
+{
+	var i , attr , namespace , attrName , value , split ;
+	
+	// Nothing to do? return now...
+	if ( ! options || typeof options !== 'object' ) { return ; }
+	
+	for ( i = $container.attributes.length - 1 ; i >= 0 ; i -- )
+	{
+		attr = $container.attributes[ i ] ;
+		
+		if ( attr.name.indexOf( ':' ) !== -1 )
+		{
+			split = attr.name.split( ':' ) ;
+			namespace = split[ 0 ] ;
+			attrName = split[ 1 ] ;
+			value = attr.value ;
+			
+			if ( namespace === options.primary )
+			{
+				$container.removeAttributeNode( attr ) ;
+				$container.setAttribute( attrName , value ) ;
+			}
+			else if ( options.whitelist )
+			{
+				if ( options.whitelist.indexOf( namespace ) === -1 )
+				{
+					$container.removeAttributeNode( attr ) ;
+				}
+			}
+			else if ( options.blacklist )
+			{
+				if ( options.blacklist.indexOf( namespace ) !== -1 )
+				{
+					$container.removeAttributeNode( attr ) ;
+				}
+			}
+		}
+	}
+} ;
+
+
+
 // Remove comments
 domKit.removeComments = function removeComments( $container )
 {
@@ -2590,21 +2734,49 @@ domKit.removeComments = function removeComments( $container )
 
 
 // Remove white-space-only text-node
-domKit.removeWhiteSpaces = function removeWhiteSpaces( $container )
+domKit.removeWhiteSpaces = function removeWhiteSpaces( $container , onlyWhiteLines )
 {
-	var i , $child ;
+	var i , $child , $lastTextNode = null ;
 	
 	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- )
 	{
 		$child = $container.childNodes[ i ] ;
+		//console.log( '$child.nodeType' , $child.nodeType ) ;
 		
-		if ( $child.nodeType === 3 && ! /\S/.test( $child.nodeValue ) )
+		if ( $child.nodeType === 3 )
 		{
-			$container.removeChild( $child ) ;
+			if ( onlyWhiteLines )
+			{
+				if ( $lastTextNode )
+				{
+					// When multiple text-node in a row
+					$lastTextNode.nodeValue = ( $child.nodeValue + $lastTextNode.nodeValue ).replace( /^\s*(\n[\t ]*)$/ , '$1' ) ;
+					$container.removeChild( $child ) ;
+				}
+				else
+				{
+					//console.log( "deb1: '" + $child.nodeValue + "'" ) ;
+					$child.nodeValue = $child.nodeValue.replace( /^\s*(\n[\t ]*)$/ , '$1' ) ;
+					$lastTextNode = $child ;
+					//console.log( "deb2: '" + $child.nodeValue + "'" ) ;
+				}
+			}
+			else
+			{
+				if ( ! /\S/.test( $child.nodeValue ) )
+				{
+					$container.removeChild( $child ) ;
+				}
+			}
 		}
 		else if ( $child.nodeType === 1 )
 		{
-			domKit.removeWhiteSpaces( $child ) ;
+			$lastTextNode = null ;
+			domKit.removeWhiteSpaces( $child , onlyWhiteLines ) ;
+		}
+		else
+		{
+			$lastTextNode = null ;
 		}
 	}
 } ;
@@ -6816,6 +6988,11 @@ svgKit.inject = function inject( $svg , options )
 		  on all drawing elements and add the "primary" class to those that are class-less.
 		  Since CSS has a greater priority than attributes (but lesser than inline styles), this allows us to controle
 		  color using CSS.
+		* removeComments: `boolean` remove all comment nodes
+		* removeWhiteSpaces: `boolean` remove all white-space
+		* removeWhiteLines: `boolean` remove all empty lines
+		* removeExoticNamespaces: `boolean` remove all tag and attributes that have a namespace different than svg,
+		  the svg namespace is stripped
 */
 svgKit.patch = function patch( $svg , options )
 {
@@ -6844,6 +7021,11 @@ svgKit.patch = function patch( $svg , options )
 	if ( options.removeDefaultStyles ) { svgKit.removeDefaultStyles( $svg ) ; }
 	if ( options.removeComments ) { domKit.removeComments( $svg ) ; }
 	
+	if ( options.removeExoticNamespaces )
+	{
+		domKit.filterByNamespace( $svg , { primary: 'svg' , whitelist: [] } ) ;
+	}
+	
 	if ( options.removeSize )
 	{
 		// Save and remove the width and height attribute
@@ -6867,6 +7049,29 @@ svgKit.patch = function patch( $svg , options )
 	if ( options.css ) { domKit.css( $svg , options.css ) ; }
 	
 	if ( options.colorClass ) { svgKit.colorClass( $svg ) ; }
+	
+	if ( options.removeWhiteSpaces ) { domKit.removeWhiteSpaces( $svg ) ; }
+	else if ( options.removeWhiteLines ) { domKit.removeWhiteSpaces( $svg , true ) ; }
+} ;
+
+
+
+svgKit.patchDocument = function patchDocument( $doc , options )
+{
+	var removeWhiteSpaces = options.removeWhiteSpaces ,
+		removeWhiteLines = options.removeWhiteLines ,
+		removeComments = options.removeComments ;
+	
+	delete options.removeWhiteSpaces ;
+	delete options.removeWhiteLines ;
+	delete options.removeComments ;
+	
+	if ( removeComments ) { domKit.removeComments( $doc ) ; }
+	
+	svgKit.patch( $doc.documentElement , options ) ;
+	
+	if ( removeWhiteSpaces ) { domKit.removeWhiteSpaces( $doc ) ; }
+	else if ( removeWhiteLines ) { domKit.removeWhiteSpaces( $doc , true ) ; }
 } ;
 
 

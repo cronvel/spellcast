@@ -520,9 +520,7 @@ indicator widget.vbar inner-bar {
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: contain;
-	
-	/* Default, used as preload, since the http static server disconnect as soon as the WS socket is closed */
-	background-image: url("/icons/unplugged.svg");
+	background-image: url("/icons/plugging.svg");
 }
 
 #lobby .client-status[data-status="connected"] { background-image: url("/icons/plugged.svg"); }
