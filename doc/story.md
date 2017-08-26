@@ -54,7 +54,6 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Roles Tag](#ref.scenario.gosub.roles)
 			* [Alt Tag](#ref.scenario.gosub.alt)
 		* [Include Tag](#ref.scenario.include)
-		* [Action Tag](#ref.scenario.action)
 		* [Here Tag](#ref.scenario.here)
 		* [Here-actions Tag](#ref.scenario.here-actions)
 		* [Reset-here-actions Tag](#ref.scenario.reset-here-actions)
@@ -857,13 +856,6 @@ TODO.
 
 <a name="ref.scenario.reset-here-actions"></a>
 ## [reset-here-actions]
-
-TODO.
-
-
-
-<a name="ref.scenario.action"></a>
-## [action]
 
 TODO.
 
