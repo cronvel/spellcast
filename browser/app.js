@@ -1091,14 +1091,14 @@ Dom.prototype.showSprite = function showSprite( id , data )
 	{
 		console.warn( 'has mask!' ) ;
 
-		domKit.svg.load( null , this.cleanUrl( data.maskUrl ) , {
+		svgKit.load( this.cleanUrl( data.maskUrl ) , {
 				class: { spriteMask: true , clickable: true } ,
 				css: data.style ,
-				noWidthHeightAttr: true
+				removeSize: true
 			} ,
-			function( error , svg ) {
+			function( error , $svg ) {
 				if ( error ) { console.warn( error ) ; return ; }
-				sprite.$mask = svg ;
+				sprite.$mask = $svg ;
 
 				// /!\ Duplicated code:
 
@@ -7108,7 +7108,59 @@ svgKit.colorClass = function colorClass( $svg )
 
 
 const defaultStyles = [
+	[ 'font-style' , 'normal' ] ,
+	[ 'font-weight' , 'normal' ] ,
+	[ 'font-variant' , 'normal' ] ,
+	[ 'font-stretch' , 'normal' ] ,
+	[ 'font-size' , 'medium' ] ,
+	[ 'line-height' , 'normal' ] ,
+	[ 'font-variant-ligatures' , 'normal' ] ,
+	//[ 'font-family' , 'sans-serif' ] ,
+	[ 'font-variant-position' , 'normal' ] ,
+	[ 'font-variant-caps' , 'normal' ] ,
+	[ 'font-variant-numeric' , 'normal' ] ,
+	[ 'font-variant-alternates' , 'normal' ] ,
+	[ 'font-variant-east-asian' , 'normal' ] ,
+	[ 'font-feature-settings' , 'normal' ] ,
+	[ 'text-indent' , '0' ] ,
+	[ 'text-align' , 'start' ] ,
+	[ 'text-decoration' , 'none' ] ,
+	[ 'text-decoration-line' , 'none' ] ,
+	[ 'text-decoration-style' , 'solid' ] ,
+	[ 'text-decoration-color' , '#000000' ] ,
+	[ 'letter-spacing' , 'normal' ] ,
+	[ 'word-spacing' , 'normal' ] ,
+	[ 'text-transform' , 'none' ] ,
+	[ 'writing-mode' , 'lr-tb' ] ,
+	[ 'direction' , 'ltr' ] ,
+	[ 'text-orientation' , 'mixed' ] ,
+	[ 'dominant-baseline' , 'auto' ] ,
+	[ 'baseline-shift' , 'baseline' ] ,
+	[ 'text-anchor' , 'start' ] ,
+	[ 'white-space' , 'normal' ] ,
+	[ 'shape-padding' , '0' ] ,
+	[ 'display' , 'inline' ] ,
+	[ 'visibility' , 'visible' ] ,
+	[ 'overflow' , 'visible' ] ,
+	[ 'opacity' , '1' ] ,
+	[ 'isolation' , 'auto' ] ,
+	[ 'mix-blend-mode' , 'normal' ] ,
+	[ 'color-interpolation' , 'sRGB' ] ,
+	[ 'color-interpolation-filters' , 'linearRGB' ] ,
+	[ 'solid-color' , '#000000' ] ,
+	[ 'solid-opacity' , '1' ] ,
+	[ 'vector-effect' , 'none' ] ,
+	[ 'fill-rule' , 'nonzero' ] ,
+	[ 'clip-rule' , 'nonzero' ] ,
+	[ 'color-rendering' , 'auto' ] ,
+	[ 'image-rendering' , 'auto' ] ,
+	[ 'shape-rendering' , 'auto' ] ,
+	[ 'text-rendering' , 'auto' ] ,
+	[ 'enable-background' , 'accumulate' ] ,
 	[ 'stroke-dasharray' , 'none' ] ,
+	[ 'stroke-dashoffset' , '0' ] ,
+	[ 'paint-order' , 'normal' ] ,
+	[ 'paint-order' , 'fill stroke markers' ] ,
 ] ;
 
 // Remove styles set to a default/unused value
