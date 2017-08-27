@@ -9,6 +9,7 @@
 		
 		[show-sprite britain]
 			url: /script/britain.svg
+			ui: true
 			style:
 				height: 70%
 				top: 50vh
@@ -16,20 +17,19 @@
 				transform: translate( -50% , -50% )
 				transition: 1s
 		
-		[pause] 300
+		[pause] 1
 		
-		[message] $> ... in britain...
+		[message] $> ... in Great Britain...
 		
 		[update-sprite britain]
 			style:
-				height: 70%
-				top: 50vh
-				left: 50vw
-				transform: translate( -50% , -50% )
-				transition: 1s
+				height: 80%
 		
 		#[pause] 2000
 		#[return]
 		
-		[next]
-
+		[fake-next]
+            [label] $> Dumnomia
+            [button] dumnomia
+            [on-trigger]
+				[message] $> Go to dumnomia!

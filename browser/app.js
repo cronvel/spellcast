@@ -1654,9 +1654,18 @@ Dom.prototype.updateSprite = function updateSprite( id , data )
 
 
 
+Dom.prototype.svgButtonAttrToId = function svgButtonAttrToId( $svg )
+{
+	Array.from( $svg.querySelectorAll( 'path' ) ).forEach( function( $element ) {
+		$element.setAttribute( 'id' , 'button-' + $element.getAttribute( 'button' ) ) ;
+	} ) ;
+} ;
+
+
+
 Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 {
-	var $element ;
+	var self = this , $element ;
 	
 	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
 
@@ -1674,9 +1683,6 @@ Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 			sprite.$image.classList.add( 'sprite' ) ;
 			sprite.$image.classList.add( 'svg' ) ;
 			
-			sprite.$image.style.height = '80%' ;
-			console.warn( 'sprite.$image style:' , sprite.$image.style , sprite.$image.style.height ) ;
-			
 			svgKit.load( this.cleanUrl( data.url ) , {
 				removeSvgStyle: true ,
 				//removeSize: true ,
@@ -1685,10 +1691,8 @@ Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 				removeExoticNamespaces: true ,
 				//removeDefaultStyles: true ,
 				as: sprite.$image
-			//} ) ;
-			} , function( error , $svg ) {
-				console.warn( 'bobastic! sprite.$image style:' , sprite.$image.style , sprite.$image.style.height ) ;
-				//sprite.$image.style.height = '80%' ;
+			} , function() {
+				self.svgButtonAttrToId( sprite.$image ) ;
 			} ) ;
 		}
 		else
@@ -1717,7 +1721,6 @@ Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 		
 		sprite.$mask = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
 		sprite.$mask.classList.add( 'sprite-mask' ) ;
-		sprite.$mask.classList.add( 'clickable' ) ;
 		
 		svgKit.load( this.cleanUrl( data.maskUrl ) , {
 			removeSvgStyle: true ,
@@ -1745,16 +1748,37 @@ Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 				event.stopPropagation() ;
 			} ;
 
-			$element.classList.add( 'clickable' ) ;
+			$element.classList.add( 'button' ) ;
 			$element.addEventListener( 'click' , sprite.onClick ) ;
 		}
 		else if ( ! data.action && sprite.action )
 		{
-			$element.classList.remove( 'clickable' ) ;
+			$element.classList.remove( 'button' ) ;
 			$element.removeEventListener( 'click' , sprite.onClick ) ;
 		}
 		
 		sprite.action = data.action || null ;
+	}
+	
+	if ( data.ui !== undefined )
+	{
+		$element = sprite.$mask || sprite.$image ;
+		
+		if ( data.ui )
+		{
+			sprite.onClick = function( event ) {
+				//sprite.actionCallback( sprite.action ) ;
+				event.stopPropagation() ;
+			} ;
+			
+			$element.classList.add( 'ui' ) ;
+			$element.addEventListener( 'click' , sprite.onClick ) ;
+		}
+		else
+		{
+			$element.classList.remove( 'ui' ) ;
+			$element.removeEventListener( 'click' , sprite.onClick ) ;
+		}
 	}
 	
 	// Copy new styles to sprite styles
@@ -7755,8 +7779,7 @@ svgKit.inject = function inject( $svg , options )
 	
 	if ( options.as && options.as.tagName.toLowerCase() === 'svg' )
 	{
-		console.warn( 'as (inject) style:' , options.as.style.height ) ;
-		domKit.moveAttributes( $svg , options.as , true ) ;	// merge styles
+		domKit.moveAttributes( $svg , options.as ) ;
 		domKit.moveChildrenInto( $svg , options.as ) ;
 	}
 } ;
@@ -8045,12 +8068,10 @@ svgKit.load = function load( url , options , callback )
 	{
 		// Use an AJAX HTTP Request
 		
-		console.warn( 'as (load before ajax) style:' , options.as && options.as.style.height ) ;
 		svgKit.ajax( url , function( error , $doc ) {
 			
 			if ( error ) { callback( error ) ; return ; }
 			
-			console.warn( 'as (load after ajax) style:' , options.as && options.as.style.height ) ;
 			if ( options.removeComments )
 			{
 				domKit.removeComments( $doc ) ;
