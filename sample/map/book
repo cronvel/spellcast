@@ -1,0 +1,23 @@
+
+[[doctype spellcast/book]]
+#[[assets ./]]
+
+[chapter intro]
+	
+	[scene intro1]
+		[message] $> ^/Once upon a time...
+		
+		[show-sprite britain]
+			url: /script/britain.svg
+			style:
+				height: 70%
+				top: 50vh
+				left: 50vw
+				transform: translate( -50% , -50% )
+				transition: 1s
+		
+		#[pause] 2000
+		#[return]
+		
+		[next]
+

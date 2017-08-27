@@ -204,7 +204,7 @@ Events emitted here are usually **userland** event, except few standard events:
 	* spriteId `string` the sprite ID to animate
 	* animationId `string` the animation ID to use
 
-* clearSprite (id): instructs the client (if it is capable) clear a currently displayed sprite, the sprite will be
+* clearSprite (id): instructs the client (if it is capable) to clear a currently displayed sprite, the sprite will be
   totally deleted, where:
 	* id `string` the sprite ID to delete
 

@@ -1669,9 +1669,9 @@ toolkit.markup = function()
 
 "use strict" ;
 
-
-
 /* global alert */
+
+
 
 var Dom = require( '../Dom.js' ) ;
 // var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
@@ -1753,7 +1753,7 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'defineAnimation' , UI.defineAnimation.bind( this ) ) ;
 
 	this.bus.on( 'showSprite' , UI.showSprite.bind( this ) ) ;
-	this.bus.on( 'updateSprite' , UI.prototype.updateSprite.bind( this ) ) ;
+	this.bus.on( 'updateSprite' , UI.updateSprite.bind( this ) ) ;
 	this.bus.on( 'animateSprite' , UI.animateSprite.bind( this ) ) ;
 	this.bus.on( 'clearSprite' , UI.clearSprite.bind( this ) ) ;
 
@@ -2206,7 +2206,7 @@ UI.spriteActionCallback = function spriteActionCallback( action )
 
 
 
-UI.prototype.updateSprite = function updateSprite( id , data )
+UI.updateSprite = function updateSprite( id , data )
 {
 	this.dom.updateSprite( id , data ) ;
 } ;
