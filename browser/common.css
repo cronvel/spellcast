@@ -91,7 +91,7 @@ body {
 	filter: drop-shadow(0px 0px 5px red)
 }
 
-.spriteMask {
+.sprite-mask {
 	position: absolute;
 	height: 50%;
 	z-index: 1;
@@ -102,12 +102,12 @@ body {
 	pointer-events: none;
 }
 
-.spriteMask.clickable path {
+.sprite-mask.clickable path {
 	cursor: pointer;
 	pointer-events: painted;
 }
 
-.spriteMask.clickable path:hover {
+.sprite-mask.clickable path:hover {
 	filter: drop-shadow(0px 0px 50px red)
 }
 

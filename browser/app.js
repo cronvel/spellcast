@@ -1,4 +1,530 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SpellcastClient = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (process){
+/*
+	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
+
+	Copyright (c) 2015 - 2016 Cédric Ronvel 
+	
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+/* global NamedNodeMap */
+
+// Load modules
+
+var domParser , xmlSerializer ;
+
+if ( process.browser )
+{
+	domParser = new DOMParser() ;
+	xmlSerializer = new XMLSerializer() ;
+}
+else
+{
+	var xmldom = require( '@cronvel/xmldom' ) ;
+	domParser = new xmldom.DOMParser() ;
+	xmlSerializer = new xmldom.XMLSerializer() ;
+}
+
+
+
+var domKit = {} ;
+module.exports = domKit ;
+
+
+
+// Like jQuery's $(document).ready()
+domKit.ready = function ready( callback )
+{
+	document.addEventListener( 'DOMContentLoaded' , function internalCallback() {
+		document.removeEventListener( 'DOMContentLoaded' , internalCallback , false ) ;
+		callback() ;
+	} , false ) ;
+} ;
+
+
+
+domKit.fromXml = function fromXml( xml )
+{
+	return domParser.parseFromString( xml , 'application/xml' ) ;
+} ;
+
+
+
+domKit.toXml = function fromXml( $doc )
+{
+	return xmlSerializer.serializeToString( $doc ) ;
+} ;
+
+
+
+// Return a fragment from html code
+domKit.fromHtml = function fromHtml( html )
+{
+	var i , $doc , $fragment ;
+	
+	// Fragment allow us to return a collection that... well... is not a collection,
+	// and that's fine because the html code may contains multiple top-level element
+	$fragment = document.createDocumentFragment() ;
+	
+	$doc = document.createElement( 'div' ) ;	// whatever type...
+	
+	// either .innerHTML or .insertAdjacentHTML()
+	//$doc.innerHTML = html ;
+	$doc.insertAdjacentHTML( 'beforeend' , html ) ;
+	
+	for ( i = 0 ; i < $doc.children.length ; i ++ )
+	{
+		$fragment.appendChild( $doc.children[ i ] ) ;
+	}
+	
+	return $fragment ;
+} ;
+
+
+
+// Batch processing, like array, HTMLCollection, and so on...
+domKit.batch = function batch( method , elements )
+{
+	var i , args = Array.prototype.slice.call( arguments , 1 ) ;
+	
+	if ( elements instanceof Element )
+	{
+		args[ 0 ] = elements ;
+		method.apply( this , args ) ;
+	}
+	else if ( Array.isArray( elements ) )
+	{
+		for ( i = 0 ; i < elements.length ; i ++ )
+		{
+			args[ 0 ] = elements[ i ] ;
+			method.apply( this , args ) ;
+		}
+	}
+	else if ( elements instanceof NodeList || elements instanceof NamedNodeMap )
+	{
+		for ( i = 0 ; i < elements.length ; i ++ )
+		{
+			args[ 0 ] = elements[ i ] ;
+			method.apply( this , args ) ;
+		}
+	}
+} ;
+
+
+
+// Set a bunch of css properties given as an object
+domKit.css = function css( $element , object )
+{
+	var key ;
+	
+	for ( key in object )
+	{
+		$element.style[ key ] = object[ key ] ;
+	}
+} ;
+
+
+
+// Set a bunch of attributes given as an object
+domKit.attr = function attr( $element , object )
+{
+	var key ;
+	
+	for ( key in object )
+	{
+		if ( object[ key ] === null ) { $element.removeAttribute( key ) ; }
+		else { $element.setAttribute( key , object[ key ] ) ; }
+	}
+} ;
+
+
+
+// Set/unset a bunch of classes given as an object
+domKit.class = function class_( $element , object )
+{
+	var key ;
+	
+	for ( key in object )
+	{
+		if ( object[ key ] ) { $element.classList.add( key ) ; }
+		else { $element.classList.remove( key ) ; }
+	}
+} ;
+
+
+
+// Remove an element. A little shortcut that ease life...
+domKit.remove = function remove( $element ) { $element.parentNode.removeChild( $element ) ; } ;
+
+
+
+// Remove all children of an element
+domKit.empty = function empty( $element )
+{
+	// $element.innerHTML = '' ;	// <-- According to jsPerf, this is 96% slower
+	while ( $element.firstChild ) { $element.removeChild( $element.firstChild ) ; }
+} ;
+
+
+
+// Clone a source DOM tree and replace children of the destination
+domKit.cloneInto = function cloneInto( $source , $destination )
+{
+	domKit.empty( $destination ) ;
+	$destination.appendChild( $source.cloneNode( true ) ) ;
+} ;
+
+
+
+// Same than cloneInto() without cloning anything
+domKit.insertInto = function insertInto( $source , $destination )
+{
+	domKit.empty( $destination ) ;
+	$destination.appendChild( $source ) ;
+} ;
+
+
+
+// Move all children of a node into another, after removing existing target's children
+domKit.moveChildrenInto = function moveChildrenInto( $source , $destination )
+{
+	domKit.empty( $destination ) ;
+	while ( $source.firstChild ) { $destination.appendChild( $source.firstChild ) ; }
+} ;
+
+
+
+// Move all attributes of an element into the destination
+domKit.moveAttributes = function moveAttributes( $source , $destination )
+{
+	Array.from( $source.attributes ).forEach( function( attr ) {
+		var name = attr.name ;
+		var value = attr.value ;
+		
+		$source.removeAttribute( name ) ;
+		
+		// Do not copy namespaced attributes for instance,
+		// should probably protect this behind a third argument
+		if ( name !== 'xmlns' && name.indexOf( ':' ) === -1 && value )
+		{
+			//console.warn( 'moving: ' , name, value , $destination.getAttribute( name ) ) ;
+			$destination.setAttribute( name , value ) ;
+		}
+	} ) ;
+} ;
+
+
+
+domKit.styleToAttribute = function styleToAttribute( $element , property , blacklistedValues )
+{
+	if ( $element.style[ property ] && ( ! blacklistedValues || blacklistedValues.indexOf( $element.style[ property ] ) === -1 ) )
+	{
+		$element.setAttribute( property , $element.style[ property ] ) ;
+		$element.style[ property ] = null ;
+	}
+} ;
+
+
+
+// Children of this element get all their ID prefixed, any url(#id) references are patched accordingly
+domKit.prefixIds = function prefixIds( $element , prefix )
+{
+	var elements , replacement = {} ;
+	
+	elements = $element.querySelectorAll( '*' ) ;
+	
+	domKit.batch( domKit.prefixIds.idAttributePass , elements , prefix , replacement ) ;
+	domKit.batch( domKit.prefixIds.otherAttributesPass , elements , replacement ) ;
+} ;
+
+// Callbacks for domKit.prefixIds(), cleanly hidden behind its prefix
+
+domKit.prefixIds.idAttributePass = function idAttributePass( $element , prefix , replacement ) {
+	replacement[ $element.id ] = prefix + '.' + $element.id ;
+	$element.id = replacement[ $element.id ] ;
+} ;
+
+domKit.prefixIds.otherAttributesPass = function otherAttributesPass( $element , replacement ) {
+	domKit.batch( domKit.prefixIds.oneAttributeSubPass , $element.attributes , replacement ) ;
+} ;
+
+domKit.prefixIds.oneAttributeSubPass = function oneAttributeSubPass( attr , replacement ) {
+	
+	// We have to search all url(#id) like substring in the current attribute's value
+	attr.value = attr.value.replace( /url\(#([^)]+)\)/g , function( match , id ) {
+		
+		// No replacement? return the matched string
+		if ( ! replacement[ id ] ) { return match ; }
+		
+		// Or return the replacement ID
+		return 'url(#' + replacement[ id ] + ')' ;
+	} ) ;
+} ;
+
+
+
+domKit.removeAllTags = function removeAllTags( $container , tagName , onlyIfEmpty )
+{
+	Array.from( $container.getElementsByTagName( tagName ) ).forEach( function( $element ) {
+		if ( ! onlyIfEmpty || ! $element.firstChild ) { $element.parentNode.removeChild( $element ) ; }
+	} ) ;
+} ;
+
+
+
+domKit.removeAllAttributes = function removeAllAttributes( $container , attrName )
+{
+	// Don't forget to remove the ID of the container itself
+	$container.removeAttribute( attrName ) ;
+	
+	Array.from( $container.querySelectorAll( '[' + attrName + ']' ) ).forEach( function( $element ) {
+		$element.removeAttribute( attrName ) ;
+	} ) ;
+} ;
+
+
+
+domKit.preload = function preload( urls )
+{
+	if ( ! Array.isArray( urls ) ) { urls = [ urls ] ; }
+	
+	urls.forEach( function( url ) {
+		if ( domKit.preload.preloaded[ url ] ) { return ; }
+		domKit.preload.preloaded[ url ] = new Image() ;
+		domKit.preload.preloaded[ url ].src = url ;
+	} ) ;
+} ;
+
+domKit.preload.preloaded = {} ;
+
+
+
+/*
+	Filter namespaces:
+	
+	* options `object` where:
+		* blacklist `array` of `string` namespace of elements/attributes to remove
+		* whitelist `array` of `string` namespace to elements/attributes to keep
+		* primary `string` keep those elements but remove the namespace 
+*/
+domKit.filterByNamespace = function filterByNamespace( $container , options )
+{
+	var i , $child , namespace , tagName , split ;
+	
+	// Nothing to do? return now...
+	if ( ! options || typeof options !== 'object' ) { return ; }
+	
+	domKit.filterAttributesByNamespace( $container , options ) ;
+	
+	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- )
+	{
+		$child = $container.childNodes[ i ] ;
+		
+		if ( $child.nodeType === 1 )
+		{
+			if ( $child.tagName.indexOf( ':' ) !== -1 )
+			{
+				split = $child.tagName.split( ':' ) ;
+				namespace = split[ 0 ] ;
+				tagName = split[ 1 ] ;
+				
+				if ( namespace === options.primary )
+				{
+					$child.tagName = tagName ;
+					domKit.filterByNamespace( $child , options ) ;
+				}
+				else if ( options.whitelist )
+				{
+					if ( options.whitelist.indexOf( namespace ) !== -1 )
+					{
+						domKit.filterByNamespace( $child , options ) ;
+					}
+					else
+					{
+						$container.removeChild( $child ) ;
+					}
+				}
+				else if ( options.blacklist )
+				{
+					if ( options.blacklist.indexOf( namespace ) !== -1 )
+					{
+						$container.removeChild( $child ) ;
+					}
+					else
+					{
+						domKit.filterByNamespace( $child , options ) ;
+					}
+				}
+				else
+				{
+					domKit.filterByNamespace( $child , options ) ;
+				}
+			}
+			else
+			{
+				domKit.filterByNamespace( $child , options ) ;
+			}
+		}
+	}
+} ;
+
+
+
+// Filter attributes by namespace
+domKit.filterAttributesByNamespace = function filterAttributesByNamespace( $container , options )
+{
+	var i , attr , namespace , attrName , value , split ;
+	
+	// Nothing to do? return now...
+	if ( ! options || typeof options !== 'object' ) { return ; }
+	
+	for ( i = $container.attributes.length - 1 ; i >= 0 ; i -- )
+	{
+		attr = $container.attributes[ i ] ;
+		
+		if ( attr.name.indexOf( ':' ) !== -1 )
+		{
+			split = attr.name.split( ':' ) ;
+			namespace = split[ 0 ] ;
+			attrName = split[ 1 ] ;
+			value = attr.value ;
+			
+			if ( namespace === options.primary )
+			{
+				$container.removeAttributeNode( attr ) ;
+				$container.setAttribute( attrName , value ) ;
+			}
+			else if ( options.whitelist )
+			{
+				if ( options.whitelist.indexOf( namespace ) === -1 )
+				{
+					$container.removeAttributeNode( attr ) ;
+				}
+			}
+			else if ( options.blacklist )
+			{
+				if ( options.blacklist.indexOf( namespace ) !== -1 )
+				{
+					$container.removeAttributeNode( attr ) ;
+				}
+			}
+		}
+	}
+} ;
+
+
+
+// Remove comments
+domKit.removeComments = function removeComments( $container )
+{
+	var i , $child ;
+	
+	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- )
+	{
+		$child = $container.childNodes[ i ] ;
+		
+		if ( $child.nodeType === 8 )
+		{
+			$container.removeChild( $child ) ;
+		}
+		else if ( $child.nodeType === 1 )
+		{
+			domKit.removeComments( $child ) ;
+		}
+	}
+} ;
+
+
+
+// Remove white-space-only text-node
+domKit.removeWhiteSpaces = function removeWhiteSpaces( $container , onlyWhiteLines )
+{
+	var i , $child , $lastTextNode = null ;
+	
+	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- )
+	{
+		$child = $container.childNodes[ i ] ;
+		//console.log( '$child.nodeType' , $child.nodeType ) ;
+		
+		if ( $child.nodeType === 3 )
+		{
+			if ( onlyWhiteLines )
+			{
+				if ( $lastTextNode )
+				{
+					// When multiple text-node in a row
+					$lastTextNode.nodeValue = ( $child.nodeValue + $lastTextNode.nodeValue ).replace( /^\s*(\n[\t ]*)$/ , '$1' ) ;
+					$container.removeChild( $child ) ;
+				}
+				else
+				{
+					//console.log( "deb1: '" + $child.nodeValue + "'" ) ;
+					$child.nodeValue = $child.nodeValue.replace( /^\s*(\n[\t ]*)$/ , '$1' ) ;
+					$lastTextNode = $child ;
+					//console.log( "deb2: '" + $child.nodeValue + "'" ) ;
+				}
+			}
+			else
+			{
+				if ( ! /\S/.test( $child.nodeValue ) )
+				{
+					$container.removeChild( $child ) ;
+				}
+			}
+		}
+		else if ( $child.nodeType === 1 )
+		{
+			$lastTextNode = null ;
+			domKit.removeWhiteSpaces( $child , onlyWhiteLines ) ;
+		}
+		else
+		{
+			$lastTextNode = null ;
+		}
+	}
+} ;
+
+
+
+		/* Function useful for .batch() as callback */
+		/* ... to avoid defining again and again the same callback function */
+
+// Change id
+domKit.id = function id( $element , id ) { $element.id = id ; } ;
+
+// Like jQuery .text().
+domKit.text = function text( $element , text ) { $element.textContent = text ; } ;
+
+// Like jQuery .html().
+domKit.html = function html( $element , html ) { $element.innerHTML = html ; } ;
+
+
+
+}).call(this,require('_process'))
+},{"@cronvel/xmldom":6,"_process":11}],2:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -541,17 +1067,18 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 			if ( data.image.endsWith( '.svg' ) )
 			{
 				// Pre-create the <svg> tag
-				//$image = document.createElement( 'svg' ) ;	// <-- it doesn't works, it should be created with a NS
+				//$image = document.createElement( 'svg' ) ;	// <-- it doesn't work, it should be created with a NS
 				$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
 				//$image.setAttribute( 'xmlns' , 'http://www.w3.org/2000/svg' ) ;
 				$image.classList.add( 'svg' ) ;
 				
 				svgKit.load( self.cleanUrl( data.image ) , {
+					removeSvgStyle: true ,
 					removeSize: true ,
 					removeIds: true ,
 					removeComments: true ,
 					removeExoticNamespaces: true ,
-					removeDefaultStyles: true ,
+					//removeDefaultStyles: true ,
 					colorClass: true ,
 					as: $image
 				} ) ;
@@ -1069,13 +1596,38 @@ Dom.prototype.setSceneImage = function setSceneImage( data )
 
 
 
+Dom.prototype.clearSprite = function clearSprite( id )
+{
+	var sprite ;
+
+	if ( ! this.sprites[ id ] )
+	{
+		console.warn( 'Unknown sprite id: ' , id ) ;
+		return ;
+	}
+
+	this.clearSpriteObject( this.sprites[ id ] ) ;
+
+	delete this.sprites[ id ] ;
+} ;
+
+
+
+Dom.prototype.clearSpriteObject = function clearSpriteObject( sprite )
+{
+	sprite.$image.remove() ;
+	if ( sprite.$mask ) { sprite.$mask.remove() ; }
+} ;
+
+
+
 Dom.prototype.showSprite = function showSprite( id , data )
 {
-	var self = this , sprite , oldSprite ;
+	var self = this , sprite ;
 
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
-	oldSprite = this.sprites[ id ] ;
+	if ( this.sprites[ id ] ) { this.clearSpriteObject( this.sprites[ id ] ) ; }
 
 	sprite = this.sprites[ id ] = {
 		actionCallback: data.actionCallback ,
@@ -1084,77 +1636,107 @@ Dom.prototype.showSprite = function showSprite( id , data )
 		animation: null
 	} ;
 
-	sprite.$img = document.createElement( 'img' ) ;
-	sprite.$img.classList.add( 'sprite' ) ;
-
-	if ( data.maskUrl )
-	{
-		console.warn( 'has mask!' ) ;
-
-		svgKit.load( this.cleanUrl( data.maskUrl ) , {
-				class: { spriteMask: true , clickable: true } ,
-				css: data.style ,
-				removeSize: true
-			} ,
-			function( error , $svg ) {
-				if ( error ) { console.warn( error ) ; return ; }
-				sprite.$mask = $svg ;
-
-				// /!\ Duplicated code:
-
-				self.updateSprite( null , data , sprite ) ;
-
-				if ( oldSprite ) { oldSprite.$img.remove() ; }
-
-				self.$gfx.append( sprite.$img ) ;
-				self.$gfx.append( sprite.$mask ) ;
-			}
-		) ;
-
-		return ;
-	}
-
-	this.updateSprite( null , data , sprite ) ;
-
-	if ( oldSprite ) { oldSprite.$img.remove() ; }
-
-	this.$gfx.append( sprite.$img ) ;
+	this.updateSpriteObject( sprite , data ) ;
 } ;
 
 
 
-// internalSprite is used for internal update call
-Dom.prototype.updateSprite = function updateSprite( id , data , internalSprite )
+Dom.prototype.updateSprite = function updateSprite( id , data )
 {
-	var sprite , $element ;
+	if ( ! this.sprites[ id ] )
+	{
+		console.warn( 'Unknown sprite id: ' , id ) ;
+		return ;
+	}
+	
+	this.updateSpriteObject( this.sprites[ id ] , data ) ;
+} ;
 
+
+
+Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
+{
+	var $element ;
+	
 	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
 
-	if ( internalSprite )
-	{
-		sprite = internalSprite ;
-	}
-	else
-	{
-		if ( ! this.sprites[ id ] )
-		{
-			console.warn( 'Unknown sprite id: ' , id ) ;
-			return ;
-		}
-
-		sprite = this.sprites[ id ] ;
-	}
-
 	delete data.style.position ;
-
+	
+	// Load/replace the sprite image, if needed
 	if ( data.url )
 	{
-		sprite.$img.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
+		if ( data.url.endsWith( '.svg' ) )
+		{
+			// Always wipe any existing $image element and pre-create the <svg> tag
+			if ( sprite.$image ) { sprite.$image.remove() ; }
+			
+			sprite.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+			sprite.$image.classList.add( 'sprite' ) ;
+			sprite.$image.classList.add( 'svg' ) ;
+			
+			sprite.$image.style.height = '80%' ;
+			console.warn( 'sprite.$image style:' , sprite.$image.style , sprite.$image.style.height ) ;
+			
+			svgKit.load( this.cleanUrl( data.url ) , {
+				removeSvgStyle: true ,
+				//removeSize: true ,
+				//removeIds: true ,
+				removeComments: true ,
+				removeExoticNamespaces: true ,
+				//removeDefaultStyles: true ,
+				as: sprite.$image
+			//} ) ;
+			} , function( error , $svg ) {
+				console.warn( 'bobastic! sprite.$image style:' , sprite.$image.style , sprite.$image.style.height ) ;
+				//sprite.$image.style.height = '80%' ;
+			} ) ;
+		}
+		else
+		{
+			if ( ! sprite.$image || sprite.$image.tagName.toLowerCase() !== 'img' )
+			{
+				if ( sprite.$image ) { sprite.$image.remove() ; }
+				
+				sprite.$image = document.createElement( 'img' ) ;
+				sprite.$image.classList.add( 'sprite' ) ;
+			}
+			
+			sprite.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
+		}
+		
+		this.$gfx.append( sprite.$image ) ;
 	}
+	
+	// Load/replace the sprite mask, if needed
+	if ( data.maskUrl && data.maskUrl.endsWith( '.svg' ) )
+	{
+		console.warn( 'has mask!' ) ;
 
+		// Always wipe any existing $mask element and pre-create the <svg> tag
+		if ( sprite.$mask ) { sprite.$mask.remove() ; }
+		
+		sprite.$mask = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+		sprite.$mask.classList.add( 'sprite-mask' ) ;
+		sprite.$mask.classList.add( 'clickable' ) ;
+		
+		svgKit.load( this.cleanUrl( data.maskUrl ) , {
+			removeSvgStyle: true ,
+			removeSize: true ,
+			removeIds: true ,
+			removeComments: true ,
+			removeExoticNamespaces: true ,
+			//removeDefaultStyles: true ,
+			as: sprite.$mask
+		} ) ;
+		
+		this.$gfx.append( sprite.$mask ) ;
+	}
+	
+	// /!\ DEPRECATED /!\
+	// Click action
 	if ( data.action !== undefined )
 	{
-		$element = sprite.$mask || sprite.$img ;
+		$element = sprite.$mask || sprite.$image ;
 
 		if ( data.action && ! sprite.action )
 		{
@@ -1174,12 +1756,12 @@ Dom.prototype.updateSprite = function updateSprite( id , data , internalSprite )
 		
 		sprite.action = data.action || null ;
 	}
-
-	//treeExtend( { deep: true } , sprite , data ) ;
+	
+	// Copy new styles to sprite styles
 	Object.assign( sprite.style , data.style ) ;
-
+	
 	// Use data.style, NOT sprite.style: we have to set only new/updated styles
-	domKit.css( sprite.$img , data.style ) ;
+	domKit.css( sprite.$image , data.style ) ;
 
 	// Update the mask, if any
 	if ( sprite.$mask )
@@ -1222,7 +1804,7 @@ Dom.prototype.animateSprite = function animateSprite( spriteId , animationId )
 		frame = animation.frames[ frameIndex ] ;
 
 		// Update the sprite
-		self.updateSprite( null , frame , sprite ) ;
+		self.updateSpriteObject( sprite , frame ) ;
 
 		if ( ++ frameIndex < animation.frames.length )
 		{
@@ -1244,26 +1826,6 @@ Dom.prototype.animateSprite = function animateSprite( spriteId , animationId )
 Dom.prototype.defineAnimation = function defineAnimation( id , data )
 {
 	this.animations[ id ] = data ;
-} ;
-
-
-
-Dom.prototype.clearSprite = function clearSprite( id )
-{
-	var sprite ;
-
-	if ( ! this.sprites[ id ] )
-	{
-		console.warn( 'Unknown sprite id: ' , id ) ;
-		return ;
-	}
-
-	sprite = this.sprites[ id ] ;
-
-	sprite.$img.remove() ;
-	if ( sprite.$mask ) { sprite.$mask.remove() ; }
-
-	delete this.sprites[ id ] ;
 } ;
 
 
@@ -1367,7 +1929,7 @@ function soundFadeOut( element , callback )
 	element.__fadeTimer = setTimeout( soundFadeOut.bind( undefined , element , callback ) , SOUND_FADE_TIMEOUT ) ;
 }
 
-},{"dom-kit":6,"svg-kit":20}],2:[function(require,module,exports){
+},{"dom-kit":1,"svg-kit":22}],3:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -1545,7 +2107,7 @@ dom.ready( function() {
 
 
 
-},{"./ui/classic.js":4,"dom-kit":6,"nextgen-events":8,"url":21}],3:[function(require,module,exports){
+},{"./ui/classic.js":5,"dom-kit":1,"nextgen-events":8,"url":20}],4:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -1640,7 +2202,7 @@ toolkit.markup = function()
 } ;
 
 
-},{"string-kit/lib/escape.js":17,"string-kit/lib/format.js":18}],4:[function(require,module,exports){
+},{"string-kit/lib/escape.js":17,"string-kit/lib/format.js":18}],5:[function(require,module,exports){
 /*
 	Spellcast
 	
@@ -2273,535 +2835,9 @@ UI.exit = function exit()
 	//term.styleReset() ;
 } ;
 
-},{"../Dom.js":1,"../toolkit.js":3}],5:[function(require,module,exports){
+},{"../Dom.js":2,"../toolkit.js":4}],6:[function(require,module,exports){
 
-},{}],6:[function(require,module,exports){
-(function (process){
-/*
-	The Cedric's Swiss Knife (CSK) - CSK DOM toolbox
-
-	Copyright (c) 2015 - 2016 Cédric Ronvel 
-	
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-/* global NamedNodeMap */
-
-// Load modules
-
-var domParser , xmlSerializer ;
-
-if ( process.browser )
-{
-	domParser = new DOMParser() ;
-	xmlSerializer = new XMLSerializer() ;
-}
-else
-{
-	var xmldom = require( '@cronvel/xmldom' ) ;
-	domParser = new xmldom.DOMParser() ;
-	xmlSerializer = new xmldom.XMLSerializer() ;
-}
-
-
-
-var domKit = {} ;
-module.exports = domKit ;
-
-
-
-// Like jQuery's $(document).ready()
-domKit.ready = function ready( callback )
-{
-	document.addEventListener( 'DOMContentLoaded' , function internalCallback() {
-		document.removeEventListener( 'DOMContentLoaded' , internalCallback , false ) ;
-		callback() ;
-	} , false ) ;
-} ;
-
-
-
-domKit.fromXml = function fromXml( xml )
-{
-	return domParser.parseFromString( xml , 'application/xml' ) ;
-} ;
-
-
-
-domKit.toXml = function fromXml( $doc )
-{
-	return xmlSerializer.serializeToString( $doc ) ;
-} ;
-
-
-
-// Return a fragment from html code
-domKit.fromHtml = function fromHtml( html )
-{
-	var i , $doc , $fragment ;
-	
-	// Fragment allow us to return a collection that... well... is not a collection,
-	// and that's fine because the html code may contains multiple top-level element
-	$fragment = document.createDocumentFragment() ;
-	
-	$doc = document.createElement( 'div' ) ;	// whatever type...
-	
-	// either .innerHTML or .insertAdjacentHTML()
-	//$doc.innerHTML = html ;
-	$doc.insertAdjacentHTML( 'beforeend' , html ) ;
-	
-	for ( i = 0 ; i < $doc.children.length ; i ++ )
-	{
-		$fragment.appendChild( $doc.children[ i ] ) ;
-	}
-	
-	return $fragment ;
-} ;
-
-
-
-// Batch processing, like array, HTMLCollection, and so on...
-domKit.batch = function batch( method , elements )
-{
-	var i , args = Array.prototype.slice.call( arguments , 1 ) ;
-	
-	if ( elements instanceof Element )
-	{
-		args[ 0 ] = elements ;
-		method.apply( this , args ) ;
-	}
-	else if ( Array.isArray( elements ) )
-	{
-		for ( i = 0 ; i < elements.length ; i ++ )
-		{
-			args[ 0 ] = elements[ i ] ;
-			method.apply( this , args ) ;
-		}
-	}
-	else if ( elements instanceof NodeList || elements instanceof NamedNodeMap )
-	{
-		for ( i = 0 ; i < elements.length ; i ++ )
-		{
-			args[ 0 ] = elements[ i ] ;
-			method.apply( this , args ) ;
-		}
-	}
-} ;
-
-
-
-// Set a bunch of css properties given as an object
-domKit.css = function css( $element , object )
-{
-	var key ;
-	
-	for ( key in object )
-	{
-		$element.style[ key ] = object[ key ] ;
-	}
-} ;
-
-
-
-// Set a bunch of attributes given as an object
-domKit.attr = function attr( $element , object )
-{
-	var key ;
-	
-	for ( key in object )
-	{
-		if ( object[ key ] === null ) { $element.removeAttribute( key ) ; }
-		else { $element.setAttribute( key , object[ key ] ) ; }
-	}
-} ;
-
-
-
-// Set/unset a bunch of classes given as an object
-domKit.class = function class_( $element , object )
-{
-	var key ;
-	
-	for ( key in object )
-	{
-		if ( object[ key ] ) { $element.classList.add( key ) ; }
-		else { $element.classList.remove( key ) ; }
-	}
-} ;
-
-
-
-// Remove an element. A little shortcut that ease life...
-domKit.remove = function remove( $element ) { $element.parentNode.removeChild( $element ) ; } ;
-
-
-
-// Remove all children of an element
-domKit.empty = function empty( $element )
-{
-	// $element.innerHTML = '' ;	// <-- According to jsPerf, this is 96% slower
-	while ( $element.firstChild ) { $element.removeChild( $element.firstChild ) ; }
-} ;
-
-
-
-// Clone a source DOM tree and replace children of the destination
-domKit.cloneInto = function cloneInto( $source , $destination )
-{
-	domKit.empty( $destination ) ;
-	$destination.appendChild( $source.cloneNode( true ) ) ;
-} ;
-
-
-
-// Same than cloneInto() without cloning anything
-domKit.insertInto = function insertInto( $source , $destination )
-{
-	domKit.empty( $destination ) ;
-	$destination.appendChild( $source ) ;
-} ;
-
-
-
-// Move all children of a node into another, after removing existing target's children
-domKit.moveChildrenInto = function moveChildrenInto( $source , $destination )
-{
-	domKit.empty( $destination ) ;
-	while ( $source.firstChild ) { $destination.appendChild( $source.firstChild ) ; }
-} ;
-
-
-
-// Move all attributes of an element into the destination
-domKit.moveAttributes = function moveAttributes( $source , $destination )
-{
-	Array.from( $source.attributes ).forEach( function( attr ) {
-		var name = attr.name ;
-		var value = attr.value ;
-		
-		$source.removeAttribute( name ) ;
-		
-		// Do not copy namespaced attributes for instance,
-		// should probably protect this behind a third argument
-		if ( name !== 'xmlns' && name.indexOf( ':' ) === -1 && value )
-		{
-			//console.warn( 'moving: ' , name, value , $destination.getAttribute( name ) ) ;
-			$destination.setAttribute( name , value ) ;
-		}
-	} ) ;
-} ;
-
-
-
-domKit.styleToAttribute = function styleToAttribute( $element , property , blacklistedValues )
-{
-	if ( $element.style[ property ] && ( ! blacklistedValues || blacklistedValues.indexOf( $element.style[ property ] ) === -1 ) )
-	{
-		$element.setAttribute( property , $element.style[ property ] ) ;
-		$element.style[ property ] = null ;
-	}
-} ;
-
-
-
-// Children of this element get all their ID prefixed, any url(#id) references are patched accordingly
-domKit.prefixIds = function prefixIds( $element , prefix )
-{
-	var elements , replacement = {} ;
-	
-	elements = $element.querySelectorAll( '*' ) ;
-	
-	domKit.batch( domKit.prefixIds.idAttributePass , elements , prefix , replacement ) ;
-	domKit.batch( domKit.prefixIds.otherAttributesPass , elements , replacement ) ;
-} ;
-
-// Callbacks for domKit.prefixIds(), cleanly hidden behind its prefix
-
-domKit.prefixIds.idAttributePass = function idAttributePass( $element , prefix , replacement ) {
-	replacement[ $element.id ] = prefix + '.' + $element.id ;
-	$element.id = replacement[ $element.id ] ;
-} ;
-
-domKit.prefixIds.otherAttributesPass = function otherAttributesPass( $element , replacement ) {
-	domKit.batch( domKit.prefixIds.oneAttributeSubPass , $element.attributes , replacement ) ;
-} ;
-
-domKit.prefixIds.oneAttributeSubPass = function oneAttributeSubPass( attr , replacement ) {
-	
-	// We have to search all url(#id) like substring in the current attribute's value
-	attr.value = attr.value.replace( /url\(#([^)]+)\)/g , function( match , id ) {
-		
-		// No replacement? return the matched string
-		if ( ! replacement[ id ] ) { return match ; }
-		
-		// Or return the replacement ID
-		return 'url(#' + replacement[ id ] + ')' ;
-	} ) ;
-} ;
-
-
-
-domKit.removeAllTags = function removeAllTags( $container , tagName , onlyIfEmpty )
-{
-	Array.from( $container.getElementsByTagName( tagName ) ).forEach( function( $element ) {
-		if ( ! onlyIfEmpty || ! $element.firstChild ) { $element.parentNode.removeChild( $element ) ; }
-	} ) ;
-} ;
-
-
-
-domKit.removeAllAttributes = function removeAllAttributes( $container , attrName )
-{
-	// Don't forget to remove the ID of the container itself
-	$container.removeAttribute( attrName ) ;
-	
-	Array.from( $container.querySelectorAll( '[' + attrName + ']' ) ).forEach( function( $element ) {
-		$element.removeAttribute( attrName ) ;
-	} ) ;
-} ;
-
-
-
-domKit.preload = function preload( urls )
-{
-	if ( ! Array.isArray( urls ) ) { urls = [ urls ] ; }
-	
-	urls.forEach( function( url ) {
-		if ( domKit.preload.preloaded[ url ] ) { return ; }
-		domKit.preload.preloaded[ url ] = new Image() ;
-		domKit.preload.preloaded[ url ].src = url ;
-	} ) ;
-} ;
-
-domKit.preload.preloaded = {} ;
-
-
-
-/*
-	Filter namespaces:
-	
-	* options `object` where:
-		* blacklist `array` of `string` namespace of elements/attributes to remove
-		* whitelist `array` of `string` namespace to elements/attributes to keep
-		* primary `string` keep those elements but remove the namespace 
-*/
-domKit.filterByNamespace = function filterByNamespace( $container , options )
-{
-	var i , $child , namespace , tagName , split ;
-	
-	// Nothing to do? return now...
-	if ( ! options || typeof options !== 'object' ) { return ; }
-	
-	domKit.filterAttributesByNamespace( $container , options ) ;
-	
-	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- )
-	{
-		$child = $container.childNodes[ i ] ;
-		
-		if ( $child.nodeType === 1 )
-		{
-			if ( $child.tagName.indexOf( ':' ) !== -1 )
-			{
-				split = $child.tagName.split( ':' ) ;
-				namespace = split[ 0 ] ;
-				tagName = split[ 1 ] ;
-				
-				if ( namespace === options.primary )
-				{
-					$child.tagName = tagName ;
-					domKit.filterByNamespace( $child , options ) ;
-				}
-				else if ( options.whitelist )
-				{
-					if ( options.whitelist.indexOf( namespace ) !== -1 )
-					{
-						domKit.filterByNamespace( $child , options ) ;
-					}
-					else
-					{
-						$container.removeChild( $child ) ;
-					}
-				}
-				else if ( options.blacklist )
-				{
-					if ( options.blacklist.indexOf( namespace ) !== -1 )
-					{
-						$container.removeChild( $child ) ;
-					}
-					else
-					{
-						domKit.filterByNamespace( $child , options ) ;
-					}
-				}
-				else
-				{
-					domKit.filterByNamespace( $child , options ) ;
-				}
-			}
-			else
-			{
-				domKit.filterByNamespace( $child , options ) ;
-			}
-		}
-	}
-} ;
-
-
-
-// Filter attributes by namespace
-domKit.filterAttributesByNamespace = function filterAttributesByNamespace( $container , options )
-{
-	var i , attr , namespace , attrName , value , split ;
-	
-	// Nothing to do? return now...
-	if ( ! options || typeof options !== 'object' ) { return ; }
-	
-	for ( i = $container.attributes.length - 1 ; i >= 0 ; i -- )
-	{
-		attr = $container.attributes[ i ] ;
-		
-		if ( attr.name.indexOf( ':' ) !== -1 )
-		{
-			split = attr.name.split( ':' ) ;
-			namespace = split[ 0 ] ;
-			attrName = split[ 1 ] ;
-			value = attr.value ;
-			
-			if ( namespace === options.primary )
-			{
-				$container.removeAttributeNode( attr ) ;
-				$container.setAttribute( attrName , value ) ;
-			}
-			else if ( options.whitelist )
-			{
-				if ( options.whitelist.indexOf( namespace ) === -1 )
-				{
-					$container.removeAttributeNode( attr ) ;
-				}
-			}
-			else if ( options.blacklist )
-			{
-				if ( options.blacklist.indexOf( namespace ) !== -1 )
-				{
-					$container.removeAttributeNode( attr ) ;
-				}
-			}
-		}
-	}
-} ;
-
-
-
-// Remove comments
-domKit.removeComments = function removeComments( $container )
-{
-	var i , $child ;
-	
-	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- )
-	{
-		$child = $container.childNodes[ i ] ;
-		
-		if ( $child.nodeType === 8 )
-		{
-			$container.removeChild( $child ) ;
-		}
-		else if ( $child.nodeType === 1 )
-		{
-			domKit.removeComments( $child ) ;
-		}
-	}
-} ;
-
-
-
-// Remove white-space-only text-node
-domKit.removeWhiteSpaces = function removeWhiteSpaces( $container , onlyWhiteLines )
-{
-	var i , $child , $lastTextNode = null ;
-	
-	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- )
-	{
-		$child = $container.childNodes[ i ] ;
-		//console.log( '$child.nodeType' , $child.nodeType ) ;
-		
-		if ( $child.nodeType === 3 )
-		{
-			if ( onlyWhiteLines )
-			{
-				if ( $lastTextNode )
-				{
-					// When multiple text-node in a row
-					$lastTextNode.nodeValue = ( $child.nodeValue + $lastTextNode.nodeValue ).replace( /^\s*(\n[\t ]*)$/ , '$1' ) ;
-					$container.removeChild( $child ) ;
-				}
-				else
-				{
-					//console.log( "deb1: '" + $child.nodeValue + "'" ) ;
-					$child.nodeValue = $child.nodeValue.replace( /^\s*(\n[\t ]*)$/ , '$1' ) ;
-					$lastTextNode = $child ;
-					//console.log( "deb2: '" + $child.nodeValue + "'" ) ;
-				}
-			}
-			else
-			{
-				if ( ! /\S/.test( $child.nodeValue ) )
-				{
-					$container.removeChild( $child ) ;
-				}
-			}
-		}
-		else if ( $child.nodeType === 1 )
-		{
-			$lastTextNode = null ;
-			domKit.removeWhiteSpaces( $child , onlyWhiteLines ) ;
-		}
-		else
-		{
-			$lastTextNode = null ;
-		}
-	}
-} ;
-
-
-
-		/* Function useful for .batch() as callback */
-		/* ... to avoid defining again and again the same callback function */
-
-// Change id
-domKit.id = function id( $element , id ) { $element.id = id ; } ;
-
-// Like jQuery .text().
-domKit.text = function text( $element , text ) { $element.textContent = text ; } ;
-
-// Like jQuery .html().
-domKit.html = function html( $element , html ) { $element.innerHTML = html ; } ;
-
-
-
-}).call(this,require('_process'))
-},{"@cronvel/xmldom":5,"_process":11}],7:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -6321,7 +6357,7 @@ exports.format.hasFormatting = function hasFormatting( str )
 
 
 }).call(this,require("buffer").Buffer)
-},{"./ansi.js":16,"./inspect.js":19,"buffer":5}],19:[function(require,module,exports){
+},{"./ansi.js":16,"./inspect.js":19,"buffer":6}],19:[function(require,module,exports){
 (function (Buffer,process){
 /*
 	String Kit
@@ -6888,495 +6924,6 @@ inspectStyle.html = Object.assign( {} , inspectStyle.none , {
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")},require('_process'))
 },{"../../is-buffer/index.js":7,"./ansi.js":16,"./escape.js":17,"_process":11}],20:[function(require,module,exports){
-(function (process){
-/*
-	SVG Kit
-	
-	Copyright (c) 2017 Cédric Ronvel
-	
-	The MIT License (MIT)
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-// Load modules
-var fs = require( 'fs' ) ;
-var domKit = require( 'dom-kit' ) ;
-var escape = require( 'string-kit/lib/escape.js' ) ;
-
-function noop() {}
-
-
-
-var svgKit = {} ;
-module.exports = svgKit ;
-
-
-
-// List of svg tags that actually display things
-var drawingTags = [
-	'path' ,
-	'circle' ,
-	'ellipse' ,
-	'line' ,
-	'rect' ,
-	'polyline' ,
-	'polygone' ,
-	'text' ,
-	'textPath'
-] ;
-
-
-
-/*
-	Fix few <svg> things in order to inject it in the dom
-	
-	* $svg: the svg element
-	* options: options object, where:
-		* into: `DOMElement` an element where the .svg file should be loaded into
-		* as: `DOMElement` a <svg> element where the .svg file should replace, almost like the "into" option,
-		  useful when a <svg> tag should be created synchronously to start doing stuffs on it,
-		  and let the asynchronous loading works in the background
-		* all other options are passed to .patch()
-*/
-svgKit.inject = function inject( $svg , options )
-{
-	svgKit.patch( $svg , options ) ;
-	
-	if ( options.into ) { options.into.appendChild( $svg ) ; }
-	
-	if ( options.as && options.as.tagName.toLowerCase() === 'svg' )
-	{
-		domKit.moveAttributes( $svg , options.as ) ;
-		domKit.moveChildrenInto( $svg , options.as ) ;
-	}
-} ;
-
-
-
-/*
-	Fix few <svg> things.
-	
-	* $svg: the svg element
-	* options: options object, where:
-		* id: `string` the id attribute of the <svg> tag (recommanded)
-		* removeIds: `boolean` remove all 'id' attributes
-		* prefixIds: `string` prefix all IDs and patch url #ref
-		* hidden: `boolean` turn the svg hidden (useful to apply modification before the show)
-		* class: `string` or `object` (key=class, value=true/false) to add/remove on the <svg> tag
-		* removeSize: `boolean` remove the width and height attribute and style from the <svg> tag
-		* removeDefaultStyles: `boolean` used to removed meaningless style pollution
-		* css: `object` a css object to apply on the <svg> tag
-		* colorClass: `boolean` a very specialized option. It moves all stroke and fill color inline styles to attribute
-		  on all drawing elements and add the "primary" class to those that are class-less.
-		  Since CSS has a greater priority than attributes (but lesser than inline styles), this allows us to controle
-		  color using CSS.
-		* removeComments: `boolean` remove all comment nodes
-		* removeWhiteSpaces: `boolean` remove all white-space
-		* removeWhiteLines: `boolean` remove all empty lines
-		* removeExoticNamespaces: `boolean` remove all tag and attributes that have a namespace different than svg,
-		  the svg namespace is stripped
-*/
-svgKit.patch = function patch( $svg , options )
-{
-	var viewBox , width , height ;
-	
-	svgKit.lightCleanup( $svg ) ;
-	
-	// Fix id, if necessary
-	if ( options.id !== undefined )
-	{
-		if ( typeof options.id === 'string' ) { $svg.setAttribute( 'id' , options.id ) ; }
-		else if ( ! options.id ) { $svg.removeAttribute( 'id' ) ; }
-	}
-	
-	if ( options.class )
-	{
-		if ( typeof options.class === 'string' ) { $svg.classList.add( options.class ) ; }
-		else if ( typeof options.class === 'object' ) { domKit.class( $svg , options.class ) ; }
-	}
-	
-	if ( options.hidden ) { $svg.style.visibility = 'hidden' ; }
-	
-	if ( options.prefixIds ) { domKit.prefixIds( $svg , options.prefixIds ) ; }
-	if ( options.removeIds ) { domKit.removeAllAttributes( $svg , 'id' ) ; }
-	
-	if ( options.removeDefaultStyles ) { svgKit.removeDefaultStyles( $svg ) ; }
-	if ( options.removeComments ) { domKit.removeComments( $svg ) ; }
-	
-	if ( options.removeExoticNamespaces )
-	{
-		domKit.filterByNamespace( $svg , { primary: 'svg' , whitelist: [] } ) ;
-	}
-	
-	if ( options.removeSize )
-	{
-		// Save and remove the width and height attribute
-		width = $svg.getAttribute( 'width' ) || $svg.style.width ;
-		height = $svg.getAttribute( 'height' ) || $svg.style.height ;
-		
-		$svg.removeAttribute( 'height' ) ;
-		$svg.removeAttribute( 'width' ) ;
-		$svg.style.width = null ;
-		$svg.style.height = null ;
-		
-		// if the $svg don't have a viewBox attribute, set it now from the width and height (it works most of time)
-		if ( ! $svg.getAttribute( 'viewBox' ) && width && height )
-		{
-			viewBox = '0 0 ' + width + ' ' + height ;
-			//console.log( "viewBox:" , viewBox ) ;
-			$svg.setAttribute( 'viewBox' , viewBox ) ;
-		}
-	}
-	
-	if ( options.css ) { domKit.css( $svg , options.css ) ; }
-	
-	if ( options.colorClass ) { svgKit.colorClass( $svg ) ; }
-	
-	if ( options.removeWhiteSpaces ) { domKit.removeWhiteSpaces( $svg ) ; }
-	else if ( options.removeWhiteLines ) { domKit.removeWhiteSpaces( $svg , true ) ; }
-} ;
-
-
-
-svgKit.patchDocument = function patchDocument( $doc , options )
-{
-	var removeWhiteSpaces = options.removeWhiteSpaces ,
-		removeWhiteLines = options.removeWhiteLines ,
-		removeComments = options.removeComments ;
-	
-	delete options.removeWhiteSpaces ;
-	delete options.removeWhiteLines ;
-	delete options.removeComments ;
-	
-	if ( removeComments ) { domKit.removeComments( $doc ) ; }
-	
-	svgKit.patch( $doc.documentElement , options ) ;
-	
-	if ( removeWhiteSpaces ) { domKit.removeWhiteSpaces( $doc ) ; }
-	else if ( removeWhiteLines ) { domKit.removeWhiteSpaces( $doc , true ) ; }
-} ;
-
-
-
-svgKit.lightCleanup = function lightCleanup( $svg )
-{
-	domKit.removeAllTags( $svg , 'metadata' ) ;
-	domKit.removeAllTags( $svg , 'script' ) ;
-	domKit.removeAllTags( $svg , 'defs' , true ) ;	// all empty defs
-} ;
-
-
-
-svgKit.colorClass = function colorClass( $svg )
-{
-	drawingTags.forEach( function( tagName ) {
-		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( function( $element ) {
-			// Beware, $element.className does not work as expected for SVG
-			if ( ! $element.getAttribute( 'class' ) )
-			{
-				$element.classList.add( 'primary' ) ;
-			}
-			
-			// move style to attribute if they are not 'none'
-			domKit.styleToAttribute( $element , 'fill' , [ 'none' ] ) ;
-			domKit.styleToAttribute( $element , 'stroke' , [ 'none' ] ) ;
-		} ) ;
-	} ) ;
-} ;
-
-
-
-const defaultStyles = [
-	[ 'font-style' , 'normal' ] ,
-	[ 'font-weight' , 'normal' ] ,
-	[ 'font-variant' , 'normal' ] ,
-	[ 'font-stretch' , 'normal' ] ,
-	[ 'font-size' , 'medium' ] ,
-	[ 'line-height' , 'normal' ] ,
-	[ 'font-variant-ligatures' , 'normal' ] ,
-	//[ 'font-family' , 'sans-serif' ] ,
-	[ 'font-variant-position' , 'normal' ] ,
-	[ 'font-variant-caps' , 'normal' ] ,
-	[ 'font-variant-numeric' , 'normal' ] ,
-	[ 'font-variant-alternates' , 'normal' ] ,
-	[ 'font-variant-east-asian' , 'normal' ] ,
-	[ 'font-feature-settings' , 'normal' ] ,
-	[ 'text-indent' , '0' ] ,
-	[ 'text-align' , 'start' ] ,
-	[ 'text-decoration' , 'none' ] ,
-	[ 'text-decoration-line' , 'none' ] ,
-	[ 'text-decoration-style' , 'solid' ] ,
-	[ 'text-decoration-color' , '#000000' ] ,
-	[ 'letter-spacing' , 'normal' ] ,
-	[ 'word-spacing' , 'normal' ] ,
-	[ 'text-transform' , 'none' ] ,
-	[ 'writing-mode' , 'lr-tb' ] ,
-	[ 'direction' , 'ltr' ] ,
-	[ 'text-orientation' , 'mixed' ] ,
-	[ 'dominant-baseline' , 'auto' ] ,
-	[ 'baseline-shift' , 'baseline' ] ,
-	[ 'text-anchor' , 'start' ] ,
-	[ 'white-space' , 'normal' ] ,
-	[ 'shape-padding' , '0' ] ,
-	[ 'display' , 'inline' ] ,
-	[ 'visibility' , 'visible' ] ,
-	[ 'overflow' , 'visible' ] ,
-	[ 'opacity' , '1' ] ,
-	[ 'isolation' , 'auto' ] ,
-	[ 'mix-blend-mode' , 'normal' ] ,
-	[ 'color-interpolation' , 'sRGB' ] ,
-	[ 'color-interpolation-filters' , 'linearRGB' ] ,
-	[ 'solid-color' , '#000000' ] ,
-	[ 'solid-opacity' , '1' ] ,
-	[ 'vector-effect' , 'none' ] ,
-	[ 'fill-rule' , 'nonzero' ] ,
-	[ 'clip-rule' , 'nonzero' ] ,
-	[ 'color-rendering' , 'auto' ] ,
-	[ 'image-rendering' , 'auto' ] ,
-	[ 'shape-rendering' , 'auto' ] ,
-	[ 'text-rendering' , 'auto' ] ,
-	[ 'enable-background' , 'accumulate' ] ,
-	[ 'stroke-dasharray' , 'none' ] ,
-	[ 'stroke-dashoffset' , '0' ] ,
-	[ 'paint-order' , 'normal' ] ,
-	[ 'paint-order' , 'fill stroke markers' ] ,
-] ;
-
-// Remove styles set to a default/unused value
-svgKit.removeDefaultStyles = function removeDefaultStyles( $svg )
-{
-	drawingTags.forEach( function( tagName ) {
-		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( function( $element ) {
-			var styles = $element.getAttribute( 'style' ) ;
-			
-			defaultStyles.forEach( array => {
-				var k = array[ 0 ] ;
-				var v = array[ 1 ] ;
-				
-				styles = styles.replace(
-					new RegExp( '(^|;) *' + escape.regExp( k ) + ' *: *' + escape.regExp( v ) + ' *(?:;|$)' ) ,
-					( full , pre ) => pre
-				) ;
-			} ) ;
-			
-			$element.setAttribute( 'style' , styles ) ;
-		} ) ;
-	} ) ;
-} ;
-
-
-
-// Should remove all tags and attributes that have non-registered namespace,
-// e.g.: sodipodi, inkscape, etc...
-//svgKit.heavyCleanup = function heavyCleanup( svgElement ) {} ;
-
-
-
-/*
-	old (dom-kit 0.1.x) -> new (svg-kit 0.1.x)
-	function load( $container , url , options , callback ) -> load( url , options , callback )
-	$container -> options.into
-	options.noWidthHeightAttr -> options.removeSize
-*/
-/*
-	load( url , [options] , callback )
-	
-	* url: the URL of the .svg file
-	* $container: null or the DOM element where the <svg> tag will be put
-	* options: (optional) object of options, transmitted to .inject() and .patch()
-	* callback: completion callback, where:
-		* error: truthy if an error happened
-		* svg: the svg dom document
-*/
-svgKit.load = function load( url , options , callback )
-{
-	if ( typeof options === 'function' ) { callback = options ; options = {} ; }
-	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
-	
-	if ( typeof callback !== 'function' ) { callback = noop ; }
-	
-	if ( ! process.browser )
-	{
-		// Use Node.js 'fs' module
-		
-		if ( url.substring( 0 , 7 ) === 'file://' ) { url = url.slice( 7 ) ; }
-		
-		fs.readFile( url , 'utf8' , function( error , content ) {
-			
-			if ( error ) { callback( error ) ; return ; }
-			
-			
-			//var parser = new DOMParser() ;
-			//var $svg = parser.parseFromString( content , 'application/xml' ).documentElement ;
-			var $doc = domKit.fromXml( content ) ;
-			
-			if ( options.removeComments )
-			{
-				domKit.removeComments( $doc ) ;
-				delete options.removeComments ;
-			}
-			
-			var $svg = $doc.documentElement ;
-			
-			try {
-				svgKit.inject( $svg , options ) ;
-			}
-			catch ( error ) {
-				callback( error ) ;
-				return ;
-			}
-			
-			callback( undefined , $svg ) ;
-		} ) ;
-	}
-	else
-	{
-		// Use an AJAX HTTP Request
-		
-		svgKit.ajax( url , function( error , $doc ) {
-			
-			if ( error ) { callback( error ) ; return ; }
-			
-			if ( options.removeComments )
-			{
-				domKit.removeComments( $doc ) ;
-				delete options.removeComments ;
-			}
-			
-			var $svg = $doc.documentElement ;
-			
-			try {
-				svgKit.inject( $svg , options ) ;
-			}
-			catch ( error ) {
-				callback( error ) ;
-				return ;
-			}
-			
-			callback( undefined , $svg ) ;
-		} ) ;
-	}
-} ;
-
-
-
-svgKit.ajax = function ajax( url , callback )
-{
-	var xhr = new XMLHttpRequest() ;
-	
-	//console.warn( "ajax url:" , url ) ;
-	
-	xhr.responseType = 'document' ;
-	xhr.onreadystatechange = svgKit.ajax.ajaxStatus.bind( xhr , callback ) ;
-	xhr.open( 'GET', url ) ;
-	xhr.send() ;
-} ;
-
-
-
-svgKit.ajax.ajaxStatus = function ajaxStatus( callback )
-{
-	// From MDN: In the event of a communication error (such as the webserver going down),
-	// an exception will be thrown in the when attempting to access the 'status' property. 
-	
-	try {
-		if ( this.readyState === 4 )
-		{
-			if ( this.status === 200 )
-			{
-				callback( undefined , this.responseXML ) ;
-			}
-			else if ( this.status === 0 && this.responseXML )	// Yay, loading with file:// does not provide any status...
-			{
-				callback( undefined , this.responseXML ) ;
-			}
-			else
-			{
-				if ( this.status ) { callback( this.status ) ; }
-				else { callback( new Error( "[svg-kit] ajaxStatus(): Error with falsy status" ) ) ; }
-			}
-		}
-	}
-	catch ( error ) {
-		callback( error ) ;
-	}
-} ;
-
-
-
-// DEPRECATED?
-
-svgKit.toAreaArray = function toAreaArray( object )
-{
-	if ( object.xmin !== undefined && object.xmax !== undefined && object.ymin !== undefined && object.ymax !== undefined )
-	{
-		return [
-			object.xmin ,
-			object.ymin ,
-			object.xmax - object.xmin ,
-			object.ymax - object.ymin
-		] ;
-	}
-	else if ( object.x !== undefined && object.y !== undefined && object.width !== undefined && object.height !== undefined )
-	{
-		return [
-			object.x ,
-			object.y ,
-			object.width ,
-			object.height
-		] ;
-	}
-	else
-	{
-		return [ 0 , 0 , 100 , 100 ] ;
-	}
-} ;
-
-
-
-svgKit.standalone = function standalone( content , viewBox )
-{
-	var output = '<?xml version="1.0" encoding="UTF-8"?>\n' ;
-	
-	if ( ! Array.isArray( viewBox ) ) { viewBox = svgKit.toAreaArray( viewBox ) ; }
-	
-	output += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + viewBox.join( ' ' ) + '">\n' ;
-	
-	// ?
-    // width="500"
-    // height="500"
-    
-    output += content ;
-    output += '\n</svg>\n' ;
-    
-    return output ;
-} ;
-
-
-
-}).call(this,require('_process'))
-},{"_process":11,"dom-kit":6,"fs":5,"string-kit/lib/escape.js":17}],21:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8110,7 +7657,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":22,"punycode":12,"querystring":15}],22:[function(require,module,exports){
+},{"./util":21,"punycode":12,"querystring":15}],21:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -8128,5 +7675,501 @@ module.exports = {
   }
 };
 
-},{}]},{},[2])(2)
+},{}],22:[function(require,module,exports){
+(function (process){
+/*
+	SVG Kit
+	
+	Copyright (c) 2017 Cédric Ronvel
+	
+	The MIT License (MIT)
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+// Load modules
+var fs = require( 'fs' ) ;
+var domKit = require( 'dom-kit' ) ;
+var escape = require( 'string-kit/lib/escape.js' ) ;
+
+function noop() {}
+
+
+
+var svgKit = {} ;
+module.exports = svgKit ;
+
+
+
+// List of svg tags that actually display things
+var drawingTags = [
+	'path' ,
+	'circle' ,
+	'ellipse' ,
+	'line' ,
+	'rect' ,
+	'polyline' ,
+	'polygone' ,
+	'text' ,
+	'textPath'
+] ;
+
+
+
+/*
+	Fix few <svg> things in order to inject it in the dom
+	
+	* $svg: the svg element
+	* options: options object, where:
+		* into: `DOMElement` an element where the .svg file should be loaded into
+		* as: `DOMElement` a <svg> element where the .svg file should replace, almost like the "into" option,
+		  useful when a <svg> tag should be created synchronously to start doing stuffs on it,
+		  and let the asynchronous loading works in the background
+		* all other options are passed to .patch()
+*/
+svgKit.inject = function inject( $svg , options )
+{
+	svgKit.patch( $svg , options ) ;
+	
+	if ( options.into ) { options.into.appendChild( $svg ) ; }
+	
+	if ( options.as && options.as.tagName.toLowerCase() === 'svg' )
+	{
+		console.warn( 'as (inject) style:' , options.as.style.height ) ;
+		domKit.moveAttributes( $svg , options.as , true ) ;	// merge styles
+		domKit.moveChildrenInto( $svg , options.as ) ;
+	}
+} ;
+
+
+
+/*
+	Fix few <svg> things.
+	
+	* $svg: the svg element
+	* options: options object, where:
+		* id: `string` the id attribute of the <svg> tag (recommanded)
+		* removeIds: `boolean` remove all 'id' attributes
+		* prefixIds: `string` prefix all IDs and patch url #ref
+		* hidden: `boolean` turn the svg hidden (useful to apply modification before the show)
+		* class: `string` or `object` (key=class, value=true/false) to add/remove on the <svg> tag
+		* removeSize: `boolean` remove the width and height attribute and style from the <svg> tag
+		* removeSvgStyle: `boolean` remove the top-level style attribute of the <svg> tag
+		* removeDefaultStyles: `boolean` used to removed meaningless style pollution
+		* css: `object` a css object to apply on the <svg> tag
+		* colorClass: `boolean` a very specialized option. It moves all stroke and fill color inline styles to attribute
+		  on all drawing elements and add the "primary" class to those that are class-less.
+		  Since CSS has a greater priority than attributes (but lesser than inline styles), this allows us to controle
+		  color using CSS.
+		* removeComments: `boolean` remove all comment nodes
+		* removeWhiteSpaces: `boolean` remove all white-space
+		* removeWhiteLines: `boolean` remove all empty lines
+		* removeExoticNamespaces: `boolean` remove all tag and attributes that have a namespace different than svg,
+		  the svg namespace is stripped
+*/
+svgKit.patch = function patch( $svg , options )
+{
+	var viewBox , width , height ;
+	
+	svgKit.lightCleanup( $svg ) ;
+	
+	// Fix id, if necessary
+	if ( options.id !== undefined )
+	{
+		if ( typeof options.id === 'string' ) { $svg.setAttribute( 'id' , options.id ) ; }
+		else if ( ! options.id ) { $svg.removeAttribute( 'id' ) ; }
+	}
+	
+	if ( options.class )
+	{
+		if ( typeof options.class === 'string' ) { $svg.classList.add( options.class ) ; }
+		else if ( typeof options.class === 'object' ) { domKit.class( $svg , options.class ) ; }
+	}
+	
+	if ( options.hidden ) { $svg.style.visibility = 'hidden' ; }
+	
+	if ( options.prefixIds ) { domKit.prefixIds( $svg , options.prefixIds ) ; }
+	if ( options.removeIds ) { domKit.removeAllAttributes( $svg , 'id' ) ; }
+	
+	if ( options.removeSvgStyle ) { $svg.removeAttribute( 'style' ) ; }
+	if ( options.removeDefaultStyles ) { svgKit.removeDefaultStyles( $svg ) ; }
+	if ( options.removeComments ) { domKit.removeComments( $svg ) ; }
+	
+	if ( options.removeExoticNamespaces )
+	{
+		domKit.filterByNamespace( $svg , { primary: 'svg' , whitelist: [] } ) ;
+	}
+	
+	if ( options.removeSize )
+	{
+		// Save and remove the width and height attribute
+		width = $svg.getAttribute( 'width' ) || $svg.style.width ;
+		height = $svg.getAttribute( 'height' ) || $svg.style.height ;
+		
+		$svg.removeAttribute( 'height' ) ;
+		$svg.removeAttribute( 'width' ) ;
+		$svg.style.width = null ;
+		$svg.style.height = null ;
+		
+		// if the $svg don't have a viewBox attribute, set it now from the width and height (it works most of time)
+		if ( ! $svg.getAttribute( 'viewBox' ) && width && height )
+		{
+			viewBox = '0 0 ' + width + ' ' + height ;
+			//console.log( "viewBox:" , viewBox ) ;
+			$svg.setAttribute( 'viewBox' , viewBox ) ;
+		}
+	}
+	
+	if ( options.css ) { domKit.css( $svg , options.css ) ; }
+	
+	if ( options.colorClass ) { svgKit.colorClass( $svg ) ; }
+	
+	if ( options.removeWhiteSpaces ) { domKit.removeWhiteSpaces( $svg ) ; }
+	else if ( options.removeWhiteLines ) { domKit.removeWhiteSpaces( $svg , true ) ; }
+} ;
+
+
+
+svgKit.patchDocument = function patchDocument( $doc , options )
+{
+	var removeWhiteSpaces = options.removeWhiteSpaces ,
+		removeWhiteLines = options.removeWhiteLines ,
+		removeComments = options.removeComments ;
+	
+	delete options.removeWhiteSpaces ;
+	delete options.removeWhiteLines ;
+	delete options.removeComments ;
+	
+	if ( removeComments ) { domKit.removeComments( $doc ) ; }
+	
+	svgKit.patch( $doc.documentElement , options ) ;
+	
+	if ( removeWhiteSpaces ) { domKit.removeWhiteSpaces( $doc ) ; }
+	else if ( removeWhiteLines ) { domKit.removeWhiteSpaces( $doc , true ) ; }
+} ;
+
+
+
+svgKit.lightCleanup = function lightCleanup( $svg )
+{
+	domKit.removeAllTags( $svg , 'metadata' ) ;
+	domKit.removeAllTags( $svg , 'script' ) ;
+	domKit.removeAllTags( $svg , 'defs' , true ) ;	// all empty defs
+} ;
+
+
+
+svgKit.colorClass = function colorClass( $svg )
+{
+	drawingTags.forEach( function( tagName ) {
+		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( function( $element ) {
+			// Beware, $element.className does not work as expected for SVG
+			if ( ! $element.getAttribute( 'class' ) )
+			{
+				$element.classList.add( 'primary' ) ;
+			}
+			
+			// move style to attribute if they are not 'none'
+			domKit.styleToAttribute( $element , 'fill' , [ 'none' ] ) ;
+			domKit.styleToAttribute( $element , 'stroke' , [ 'none' ] ) ;
+		} ) ;
+	} ) ;
+} ;
+
+
+
+const defaultStyles = [
+	[ 'font-style' , 'normal' ] ,
+	[ 'font-weight' , 'normal' ] ,
+	[ 'font-variant' , 'normal' ] ,
+	[ 'font-stretch' , 'normal' ] ,
+	[ 'font-size' , 'medium' ] ,
+	[ 'line-height' , 'normal' ] ,
+	[ 'font-variant-ligatures' , 'normal' ] ,
+	//[ 'font-family' , 'sans-serif' ] ,
+	[ 'font-variant-position' , 'normal' ] ,
+	[ 'font-variant-caps' , 'normal' ] ,
+	[ 'font-variant-numeric' , 'normal' ] ,
+	[ 'font-variant-alternates' , 'normal' ] ,
+	[ 'font-variant-east-asian' , 'normal' ] ,
+	[ 'font-feature-settings' , 'normal' ] ,
+	[ 'text-indent' , '0' ] ,
+	[ 'text-align' , 'start' ] ,
+	[ 'text-decoration' , 'none' ] ,
+	[ 'text-decoration-line' , 'none' ] ,
+	[ 'text-decoration-style' , 'solid' ] ,
+	[ 'text-decoration-color' , '#000000' ] ,
+	[ 'letter-spacing' , 'normal' ] ,
+	[ 'word-spacing' , 'normal' ] ,
+	[ 'text-transform' , 'none' ] ,
+	[ 'writing-mode' , 'lr-tb' ] ,
+	[ 'direction' , 'ltr' ] ,
+	[ 'text-orientation' , 'mixed' ] ,
+	[ 'dominant-baseline' , 'auto' ] ,
+	[ 'baseline-shift' , 'baseline' ] ,
+	[ 'text-anchor' , 'start' ] ,
+	[ 'white-space' , 'normal' ] ,
+	[ 'shape-padding' , '0' ] ,
+	[ 'display' , 'inline' ] ,
+	[ 'visibility' , 'visible' ] ,
+	[ 'overflow' , 'visible' ] ,
+	[ 'opacity' , '1' ] ,
+	[ 'isolation' , 'auto' ] ,
+	[ 'mix-blend-mode' , 'normal' ] ,
+	[ 'color-interpolation' , 'sRGB' ] ,
+	[ 'color-interpolation-filters' , 'linearRGB' ] ,
+	[ 'solid-color' , '#000000' ] ,
+	[ 'solid-opacity' , '1' ] ,
+	[ 'vector-effect' , 'none' ] ,
+	[ 'fill-rule' , 'nonzero' ] ,
+	[ 'clip-rule' , 'nonzero' ] ,
+	[ 'color-rendering' , 'auto' ] ,
+	[ 'image-rendering' , 'auto' ] ,
+	[ 'shape-rendering' , 'auto' ] ,
+	[ 'text-rendering' , 'auto' ] ,
+	[ 'enable-background' , 'accumulate' ] ,
+	[ 'stroke-dasharray' , 'none' ] ,
+	[ 'stroke-dashoffset' , '0' ] ,
+	[ 'paint-order' , 'normal' ] ,
+	[ 'paint-order' , 'fill stroke markers' ] ,
+] ;
+
+// Remove styles set to a default/unused value
+svgKit.removeDefaultStyles = function removeDefaultStyles( $svg )
+{
+	drawingTags.forEach( function( tagName ) {
+		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( function( $element ) {
+			var styles = $element.getAttribute( 'style' ) ;
+			
+			defaultStyles.forEach( array => {
+				var k = array[ 0 ] ;
+				var v = array[ 1 ] ;
+				
+				styles = styles.replace(
+					new RegExp( '(^|;) *' + escape.regExp( k ) + ' *: *' + escape.regExp( v ) + ' *(?:;|$)' ) ,
+					( full , pre ) => pre
+				) ;
+			} ) ;
+			
+			$element.setAttribute( 'style' , styles ) ;
+		} ) ;
+	} ) ;
+} ;
+
+
+
+// Should remove all tags and attributes that have non-registered namespace,
+// e.g.: sodipodi, inkscape, etc...
+//svgKit.heavyCleanup = function heavyCleanup( svgElement ) {} ;
+
+
+
+/*
+	old (dom-kit 0.1.x) -> new (svg-kit 0.1.x)
+	function load( $container , url , options , callback ) -> load( url , options , callback )
+	$container -> options.into
+	options.noWidthHeightAttr -> options.removeSize
+*/
+/*
+	load( url , [options] , callback )
+	
+	* url: the URL of the .svg file
+	* $container: null or the DOM element where the <svg> tag will be put
+	* options: (optional) object of options, transmitted to .inject() and .patch()
+	* callback: completion callback, where:
+		* error: truthy if an error happened
+		* svg: the svg dom document
+*/
+svgKit.load = function load( url , options , callback )
+{
+	if ( typeof options === 'function' ) { callback = options ; options = {} ; }
+	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
+	
+	if ( typeof callback !== 'function' ) { callback = noop ; }
+	
+	if ( ! process.browser )
+	{
+		// Use Node.js 'fs' module
+		
+		if ( url.substring( 0 , 7 ) === 'file://' ) { url = url.slice( 7 ) ; }
+		
+		fs.readFile( url , 'utf8' , function( error , content ) {
+			
+			if ( error ) { callback( error ) ; return ; }
+			
+			
+			//var parser = new DOMParser() ;
+			//var $svg = parser.parseFromString( content , 'application/xml' ).documentElement ;
+			var $doc = domKit.fromXml( content ) ;
+			
+			if ( options.removeComments )
+			{
+				domKit.removeComments( $doc ) ;
+				delete options.removeComments ;
+			}
+			
+			var $svg = $doc.documentElement ;
+			
+			try {
+				svgKit.inject( $svg , options ) ;
+			}
+			catch ( error ) {
+				callback( error ) ;
+				return ;
+			}
+			
+			callback( undefined , $svg ) ;
+		} ) ;
+	}
+	else
+	{
+		// Use an AJAX HTTP Request
+		
+		console.warn( 'as (load before ajax) style:' , options.as && options.as.style.height ) ;
+		svgKit.ajax( url , function( error , $doc ) {
+			
+			if ( error ) { callback( error ) ; return ; }
+			
+			console.warn( 'as (load after ajax) style:' , options.as && options.as.style.height ) ;
+			if ( options.removeComments )
+			{
+				domKit.removeComments( $doc ) ;
+				delete options.removeComments ;
+			}
+			
+			var $svg = $doc.documentElement ;
+			
+			try {
+				svgKit.inject( $svg , options ) ;
+			}
+			catch ( error ) {
+				callback( error ) ;
+				return ;
+			}
+			
+			callback( undefined , $svg ) ;
+		} ) ;
+	}
+} ;
+
+
+
+svgKit.ajax = function ajax( url , callback )
+{
+	var xhr = new XMLHttpRequest() ;
+	
+	//console.warn( "ajax url:" , url ) ;
+	
+	xhr.responseType = 'document' ;
+	xhr.onreadystatechange = svgKit.ajax.ajaxStatus.bind( xhr , callback ) ;
+	xhr.open( 'GET', url ) ;
+	xhr.send() ;
+} ;
+
+
+
+svgKit.ajax.ajaxStatus = function ajaxStatus( callback )
+{
+	// From MDN: In the event of a communication error (such as the webserver going down),
+	// an exception will be thrown in the when attempting to access the 'status' property. 
+	
+	try {
+		if ( this.readyState === 4 )
+		{
+			if ( this.status === 200 )
+			{
+				callback( undefined , this.responseXML ) ;
+			}
+			else if ( this.status === 0 && this.responseXML )	// Yay, loading with file:// does not provide any status...
+			{
+				callback( undefined , this.responseXML ) ;
+			}
+			else
+			{
+				if ( this.status ) { callback( this.status ) ; }
+				else { callback( new Error( "[svg-kit] ajaxStatus(): Error with falsy status" ) ) ; }
+			}
+		}
+	}
+	catch ( error ) {
+		callback( error ) ;
+	}
+} ;
+
+
+
+// DEPRECATED?
+
+svgKit.toAreaArray = function toAreaArray( object )
+{
+	if ( object.xmin !== undefined && object.xmax !== undefined && object.ymin !== undefined && object.ymax !== undefined )
+	{
+		return [
+			object.xmin ,
+			object.ymin ,
+			object.xmax - object.xmin ,
+			object.ymax - object.ymin
+		] ;
+	}
+	else if ( object.x !== undefined && object.y !== undefined && object.width !== undefined && object.height !== undefined )
+	{
+		return [
+			object.x ,
+			object.y ,
+			object.width ,
+			object.height
+		] ;
+	}
+	else
+	{
+		return [ 0 , 0 , 100 , 100 ] ;
+	}
+} ;
+
+
+
+svgKit.standalone = function standalone( content , viewBox )
+{
+	var output = '<?xml version="1.0" encoding="UTF-8"?>\n' ;
+	
+	if ( ! Array.isArray( viewBox ) ) { viewBox = svgKit.toAreaArray( viewBox ) ; }
+	
+	output += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + viewBox.join( ' ' ) + '">\n' ;
+	
+	// ?
+    // width="500"
+    // height="500"
+    
+    output += content ;
+    output += '\n</svg>\n' ;
+    
+    return output ;
+} ;
+
+
+
+}).call(this,require('_process'))
+},{"_process":11,"dom-kit":1,"fs":6,"string-kit/lib/escape.js":23}],23:[function(require,module,exports){
+arguments[4][17][0].apply(exports,arguments)
+},{"dup":17}]},{},[3])(3)
 });
