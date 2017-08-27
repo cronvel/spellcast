@@ -29,7 +29,22 @@
 		#[return]
 		
 		[fake-next]
-            [label] $> Dumnomia
-            [button] dumnomia
+            [label] $> Kernow of Dumnonia
+            [button] kernow-of-dumnonia
             [on-trigger]
-				[message] $> Go to dumnomia!
+				[message] $> Go to Kernow of Dumnomia!
+		
+		[fake-next]
+            [label] $> Defnaint of Dumnonia
+            [button] defnaint-of-dumnonia
+            [on-trigger]
+				[message] $> Go to Defnaint of Dumnomia!
+		
+		[fake-next]
+            [label] $> Durotriges
+            [button] durotriges
+            [on-trigger]
+				[message] $> Go to Durotriges!
+
+
+
