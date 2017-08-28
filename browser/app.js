@@ -601,6 +601,8 @@ Dom.create = function create()
 	
 	self.newSegmentNeeded = false ;
 	self.onSelect = null ;
+	self.onHover = null ;
+	self.onLeave = null ;
 	self.toMainBuffer() ;
 
 	self.nextSoundChannel = 0 ;
@@ -660,22 +662,6 @@ Dom.prototype.initEvents = function initEvents()
 	this.$lobby.addEventListener( 'click' , function() { self.$lobby.classList.toggle( 'toggled' ) ; } ) ;
 	this.$status.addEventListener( 'click' , function() { self.$status.classList.toggle( 'toggled' ) ; } ) ;
 	this.$panel.addEventListener( 'click' , function() { self.$panel.classList.toggle( 'toggled' ) ; } ) ;
-	
-	/*	Does not works
-	// Display hint when hovering an element with a hint attribute
-	this.$body.addEventListener( 'mouseover' , function( event ) {
-		var $element = event.target ;
-		var hint = $element.getAttribute( 'hint' ) ;
-		
-		console.warn( 'yo kinneth' , hint , $element ) ;
-		
-		if ( hint )
-		{
-			self.setHint( hint ) ;
-			event.stopPropagation() ;
-		}
-    } ) ;
-    */
 } ;
 
 
@@ -1018,7 +1004,7 @@ Dom.prototype.addIndicators = function addIndicators( indicators , isStatus , ca
 
 
 
-Dom.prototype.createOnSelect = function createOnSelect( onSelect )
+Dom.prototype.createChoiceEventHandlers = function createChoiceEventHandlers( onSelect )
 {
 	var self = this ;
 	
@@ -1028,6 +1014,22 @@ Dom.prototype.createOnSelect = function createOnSelect( onSelect )
 		if ( ! index ) { return ; }
 		index = parseInt( index , 10 ) ;
 		onSelect( index ) ;
+	} ;
+	
+	this.onHover = function( event ) {
+		var $element = event.currentTarget ;
+		var hint = $element.getAttribute( 'data-hint' ) ;
+		if ( ! hint ) { return ; }
+		self.setHint( hint ) ;
+		event.stopPropagation() ;
+	} ;
+	
+	this.onLeave = function( event ) {
+		var $element = event.currentTarget ;
+		var hint = $element.getAttribute( 'data-hint' ) ;
+		if ( ! hint ) { return ; }
+		self.clearHint() ;
+		event.stopPropagation() ;
 	} ;
 } ;
 
@@ -1119,8 +1121,6 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 			$button.textContent = data.label ;
 		}
 		
-		$button.addEventListener( 'click' , self.onSelect , false ) ;
-		
 		self.$panel.appendChild( $button ) ;
 	} ) ;
 	
@@ -1150,6 +1150,7 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 			$uiButton.removeAttribute( 'data-select-index' ) ;
 			$uiButton.classList.add( 'disabled' ) ;
 			$uiButton.removeEventListener( 'click' , self.onSelect ) ;
+			$uiButton.removeEventListener( 'mouseover' , self.onHover ) ;
 		}
 	} ) ;
 	
@@ -1158,6 +1159,8 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 	// Reset
 	this.choices.length = 0 ;
 	this.onSelect = null ;
+	this.onHover = null ;
+	this.onLeave = null ;
 	
 	callback() ;
 } ;
@@ -1178,7 +1181,7 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 	
 	callback = callback || noop ;
 	
-	this.createOnSelect( onSelect ) ;
+	this.createChoiceEventHandlers( onSelect ) ;
 
 	choices.forEach( function( choice ) {
 		
@@ -1202,6 +1205,13 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 			
 			// Add the click event to the next-item
 			$uiButton.addEventListener( 'click' , self.onSelect ) ;
+			
+			if ( choice.label )
+			{
+				$uiButton.setAttribute( 'data-hint' , choice.label ) ;
+				$uiButton.addEventListener( 'mouseover' , self.onHover ) ;
+				$uiButton.addEventListener( 'mouseout' , self.onLeave ) ;
+			}
 			
 			return ;
 		}
@@ -1439,7 +1449,9 @@ Dom.prototype.disableChat = function disableChat()
 
 Dom.prototype.clearHint = function clearHint()
 {
-	domKit.empty( this.$hint ) ;
+	console.warn( 'clearHint()' ) ;
+	//domKit.empty( this.$hint ) ;
+	this.$hint.classList.add( 'empty' ) ;
 } ;
 
 
@@ -1447,8 +1459,10 @@ Dom.prototype.clearHint = function clearHint()
 Dom.prototype.setHint = function setHint( text , classes )
 {
 	console.warn( 'setHint()' , text ) ;
-	this.clearHint() ;
+	//this.clearHint() ;
+	//domKit.empty( this.$hint ) ;
 	this.$hint.textContent = text ;
+	this.$hint.classList.remove( 'empty' ) ;
 	if ( classes ) { domKit.class( this.$hint , classes ) ; }
 } ;
 
