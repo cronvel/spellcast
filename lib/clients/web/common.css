@@ -113,17 +113,25 @@ body {
 
 
 
-.sprite.svg.ui {
+.ui {
+	position: absolute;
+	height: 90%;
+	z-index: 10;
+	opacity: 1;
+	transition: all 1s ;
+	
 	/* "none" should be put on the <svg> tag itself, "painted" on the <path> tag */
 	pointer-events: none;
 }
 
-.sprite.svg.ui [button] {
+.ui [button] {
 	cursor: pointer;
 	pointer-events: painted;
 }
 
-.sprite.svg.ui [button]:hover {
-	/*filter: drop-shadow(0px 0px 50px red)*/
+.ui [area] {
+	pointer-events: painted;
 }
+
+/* .ui [button]:hover {} */
 

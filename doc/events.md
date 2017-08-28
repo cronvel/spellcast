@@ -208,6 +208,32 @@ Events emitted here are usually **userland** event, except few standard events:
   totally deleted, where:
 	* id `string` the sprite ID to delete
 
+* showUi (id, data): instructs the client (if it is capable) to show a UI or replace an existing UI, where:
+	* id `string` the UI ID
+	* data `object` data related to the UI, where:
+		* url `string` this is the URL of the image of the UI
+		* style `object` (optional) this is a CSS object to style the UI element
+		* area `object` (optional) an object where keys are area of the UI and value is an object,
+        	where keys are a status name and value a `boolean`
+
+* updateUi (id, updatedData): instructs the client (if it is capable) to update a currently displayed UI,
+  i.e. all current UI *data* properties will be deeply extended, where:
+	* id `string` the UI ID
+	* updatedData `object` the data extension related to the UI, where:
+		* url `string` (optional) this is the URL of the image of the UI
+		* style `object` (optional) this is a CSS object to style the whole UI element
+		* area `object` (optional) an object where keys are area of the UI and value is an object,
+        	where keys are a status name and value a `boolean`
+
+* animateUi (uiId, animationId): instructs the client (if it is capable) to animate a currently displayed UI, 
+  using a previously recorded animation, where:
+	* uiId `string` the UI ID to animate
+	* animationId `string` the animation ID to use
+
+* clearUi (id): instructs the client (if it is capable) to clear a currently displayed UI, the UI will be
+  totally deleted, where:
+	* id `string` the UI ID to delete
+
 
 
 ### output

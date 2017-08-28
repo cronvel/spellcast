@@ -7,52 +7,74 @@
 	[scene intro1]
 		[message] $> ^/Once upon a time...
 		
-		[show-sprite britain]
+		[show-ui britain]
 			url: /script/britain.svg
-			ui: true
 			style:
-				height: 70%
+				width: 50%
+				height: 90%
 				top: 50vh
-				left: 50vw
-				transform: translate( -50% , -50% )
+				right: 25vw
+				transform: translate( 50% , -50% )
 				transition: 1s
+			area:
+				dumnonia:
+					owned: true
+				durotriges:
+					owned: true
+				belgae:
+					owned: true
+				iceni:
+					enemy: true
 		
-		#[pause] 1
+		[pause] 2
 		
-		#[message] $> ... in Great Britain...
+		[update-ui britain]
+			area:
+				regnenses:
+					enemy: true
 		
-		#[update-sprite britain]
-		#	style:
-		#		height: 80%
+		[pause] 2
+		
+		#[fake-next]
+		#	[label] $> Dumnonia
+		#	[button] dumnonia
+		#	[on-trigger]
+		#		[message] $> Go to Dumnomia!
 		
 		[fake-next]
-            [label] $> Dumnonia
-            [button] dumnonia
-            [on-trigger]
-				[message] $> Go to Dumnomia!
-		
-		[fake-next]
-            [label] $> Durotriges
-            [button] durotriges
-            [on-trigger]
+			[label] $> Durotriges
+			[button] durotriges
+			[on-trigger]
 				[message] $> Go to Durotriges!
 
 		[fake-next]
-            [label] $> Belgae
-            [button] belgae
-            [on-trigger]
+			[label] $> Belgae
+			[button] belgae
+			[on-trigger]
 				[message] $> Go to Belgae!
 		
 		[fake-next]
-            [label] $> Atrebates
-            [button] atrebates
-            [on-trigger]
+			[label] $> Atrebates
+			[button] atrebates
+			[on-trigger]
 				[message] $> Go to Atrebates!
 		
+		[fake-next]
+			[label] $> Dobunni
+			[button] dobunni
+			[on-trigger]
+				[message] $> Go to Dobunni!
+		
+		[fake-next]
+			[label] $> Regnenses
+			[button] regnenses
+			[on-trigger]
+				[message] $> Go to Regnenses!
+		
 		#[fake-next]
-        #    [label] $> Far away
-        #    [button] far-away
-        #    [on-trigger]
+		#	[label] $> Far away
+		#	[button] far-away
+		#	[on-trigger]
 		#		[message] $> Go far away!
 		
 

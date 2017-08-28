@@ -605,6 +605,7 @@ Dom.create = function create()
 	self.nextSoundChannel = 0 ;
 
 	self.sprites = {} ;
+	self.ui = {} ;
 	self.animations = {} ;
 
 	self.sceneImageOnTimer = null ;
@@ -1615,18 +1616,25 @@ Dom.prototype.clearSprite = function clearSprite( id )
 		console.warn( 'Unknown sprite id: ' , id ) ;
 		return ;
 	}
-
-	this.clearSpriteObject( this.sprites[ id ] ) ;
-
+	
+	this.clearUiObject( this.sprites[ id ] ) ;
+	
 	delete this.sprites[ id ] ;
 } ;
 
 
 
-Dom.prototype.clearSpriteObject = function clearSpriteObject( sprite )
+Dom.prototype.clearUi = function clearUi( id )
 {
-	sprite.$image.remove() ;
-	if ( sprite.$mask ) { sprite.$mask.remove() ; }
+	if ( ! this.ui[ id ] )
+	{
+		console.warn( 'Unknown UI id: ' , id ) ;
+		return ;
+	}
+	
+	this.clearUiObject( this.ui[ id ] ) ;
+	
+	delete this.ui[ id ] ;
 } ;
 
 
@@ -1634,9 +1642,9 @@ Dom.prototype.clearSpriteObject = function clearSpriteObject( sprite )
 Dom.prototype.showSprite = function showSprite( id , data )
 {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
-
-	if ( this.sprites[ id ] ) { this.clearSpriteObject( this.sprites[ id ] ) ; }
-
+	
+	if ( this.sprites[ id ] ) { this.clearUiObject( this.sprites[ id ] ) ; }
+	
 	var sprite = this.sprites[ id ] = {
 		actionCallback: data.actionCallback ,
 		action: null ,
@@ -1644,8 +1652,28 @@ Dom.prototype.showSprite = function showSprite( id , data )
 		style: {} ,
 		animation: null
 	} ;
+	
+	this.updateUiObject( sprite , data ) ;
+} ;
 
-	this.updateSpriteObject( sprite , data ) ;
+
+
+Dom.prototype.showUi = function showUi( id , data )
+{
+	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+	
+	if ( this.ui[ id ] ) { this.clearUiObject( this.ui[ id ] ) ; }
+	
+	var ui = this.ui[ id ] = {
+		actionCallback: data.actionCallback ,
+		action: null ,
+		isUi: true ,
+		style: {} ,
+		areaStatus: {} ,
+		animation: null
+	} ;
+	
+	this.updateUiObject( ui , data ) ;
 } ;
 
 
@@ -1658,12 +1686,71 @@ Dom.prototype.updateSprite = function updateSprite( id , data )
 		return ;
 	}
 	
-	this.updateSpriteObject( this.sprites[ id ] , data ) ;
+	this.updateUiObject( this.sprites[ id ] , data ) ;
 } ;
 
 
 
-Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
+Dom.prototype.updateUi = function updateUi( id , data )
+{
+	if ( ! this.ui[ id ] )
+	{
+		console.warn( 'Unknown UI id: ' , id ) ;
+		return ;
+	}
+	
+	this.updateUiObject( this.ui[ id ] , data ) ;
+} ;
+
+
+
+Dom.prototype.animateSprite = function animateSprite( spriteId , animationId )
+{
+	if ( ! this.sprites[ spriteId ] )
+	{
+		console.warn( 'Unknown sprite id: ' , spriteId ) ;
+		return ;
+	}
+	
+	if ( ! this.animations[ animationId ] )
+	{
+		console.warn( 'Unknown animation id: ' , animationId ) ;
+		return ;
+	}
+	
+	this.animateUiObject( this.sprites[ spriteId ] , this.animations[ animationId ] ) ;
+} ;
+
+
+
+Dom.prototype.animateUi = function animateUi( uiId , animationId )
+{
+	if ( ! this.ui[ uiId ] )
+	{
+		console.warn( 'Unknown UI id: ' , uiId ) ;
+		return ;
+	}
+	
+	if ( ! this.animations[ animationId ] )
+	{
+		console.warn( 'Unknown animation id: ' , animationId ) ;
+		return ;
+	}
+	
+	this.animateUiObject( this.ui[ uiId ] , this.animations[ animationId ] ) ;
+} ;
+
+
+
+Dom.prototype.clearUiObject = function clearUiObject( ui )
+{
+	ui.$image.remove() ;
+	if ( ui.$mask ) { ui.$mask.remove() ; }
+} ;
+
+
+
+Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 {
 	var self = this , $element ;
 	
@@ -1671,17 +1758,33 @@ Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 
 	delete data.style.position ;
 	
-	// Load/replace the sprite image, if needed
+	// Load/replace the ui image, if needed
 	if ( data.url )
 	{
 		if ( data.url.endsWith( '.svg' ) )
 		{
 			// Always wipe any existing $image element and pre-create the <svg> tag
-			if ( sprite.$image ) { sprite.$image.remove() ; }
+			if ( ui.$image ) { ui.$image.remove() ; }
 			
-			sprite.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
-			sprite.$image.classList.add( 'sprite' ) ;
-			sprite.$image.classList.add( 'svg' ) ;
+			ui.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+			ui.$image.classList.add( 'svg' ) ;
+			
+			if ( ui.isUi )
+			{
+				// Stop event propagation
+				ui.onClick = function( event ) {
+					//ui.actionCallback( ui.action ) ;
+					event.stopPropagation() ;
+				} ;
+				
+				ui.$image.addEventListener( 'click' , ui.onClick ) ;
+				ui.$image.classList.add( 'ui' ) ;
+				this.uiLoadingCount ++ ;
+			}
+			else
+			{
+				ui.$image.classList.add( 'sprite' ) ;
+			}
 			
 			svgKit.load( this.cleanUrl( data.url ) , {
 				removeSvgStyle: true ,
@@ -1690,42 +1793,44 @@ Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 				removeComments: true ,
 				removeExoticNamespaces: true ,
 				//removeDefaultStyles: true ,
-				as: sprite.$image
+				as: ui.$image
 			} , function() {
 				
-				if ( sprite.isUi )
+				if ( ui.isUi )
 				{
-					self.setUiButtons( sprite.$image ) ;
+					self.setUiButtons( ui.$image ) ;
 					if ( -- self.uiLoadingCount <= 0 ) { self.emit( 'uiLoaded' ) ; }
 				}
 			} ) ;
 		}
 		else
 		{
-			if ( ! sprite.$image || sprite.$image.tagName.toLowerCase() !== 'img' )
+			if ( ! ui.$image || ui.$image.tagName.toLowerCase() !== 'img' )
 			{
-				if ( sprite.$image ) { sprite.$image.remove() ; }
+				if ( ui.$image ) { ui.$image.remove() ; }
 				
-				sprite.$image = document.createElement( 'img' ) ;
-				sprite.$image.classList.add( 'sprite' ) ;
+				ui.$image = document.createElement( 'img' ) ;
+				
+				// /!\ support UI that are not SVG??? /!\
+				ui.$image.classList.add( ui.isUi ? 'ui' : 'sprite' ) ;
 			}
 			
-			sprite.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
+			ui.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 		}
 		
-		this.$gfx.append( sprite.$image ) ;
+		this.$gfx.append( ui.$image ) ;
 	}
 	
-	// Load/replace the sprite mask, if needed
-	if ( data.maskUrl && data.maskUrl.endsWith( '.svg' ) )
+	// Load/replace the sprite/ui mask, if needed
+	if ( data.maskUrl && data.maskUrl.endsWith( '.svg' ) && ! ui.isUi )
 	{
 		console.warn( 'has mask!' ) ;
 
 		// Always wipe any existing $mask element and pre-create the <svg> tag
-		if ( sprite.$mask ) { sprite.$mask.remove() ; }
+		if ( ui.$mask ) { ui.$mask.remove() ; }
 		
-		sprite.$mask = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
-		sprite.$mask.classList.add( 'sprite-mask' ) ;
+		ui.$mask = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+		ui.$mask.classList.add( 'sprite-mask' ) ;
 		
 		svgKit.load( this.cleanUrl( data.maskUrl ) , {
 			removeSvgStyle: true ,
@@ -1734,110 +1839,116 @@ Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 			removeComments: true ,
 			removeExoticNamespaces: true ,
 			//removeDefaultStyles: true ,
-			as: sprite.$mask
+			as: ui.$mask
 		} ) ;
 		
-		this.$gfx.append( sprite.$mask ) ;
+		this.$gfx.append( ui.$mask ) ;
 	}
 	
 	// /!\ DEPRECATED /!\
 	// Click action
 	if ( data.action !== undefined )
 	{
-		$element = sprite.$mask || sprite.$image ;
+		$element = ui.$mask || ui.$image ;
 
-		if ( data.action && ! sprite.action )
+		if ( data.action && ! ui.action )
 		{
-			sprite.onClick = function( event ) {
-				sprite.actionCallback( sprite.action ) ;
+			ui.onClick = function( event ) {
+				ui.actionCallback( ui.action ) ;
 				event.stopPropagation() ;
 			} ;
 
 			$element.classList.add( 'button' ) ;
-			$element.addEventListener( 'click' , sprite.onClick ) ;
+			$element.addEventListener( 'click' , ui.onClick ) ;
 		}
-		else if ( ! data.action && sprite.action )
+		else if ( ! data.action && ui.action )
 		{
 			$element.classList.remove( 'button' ) ;
-			$element.removeEventListener( 'click' , sprite.onClick ) ;
+			$element.removeEventListener( 'click' , ui.onClick ) ;
 		}
 		
-		sprite.action = data.action || null ;
+		ui.action = data.action || null ;
 	}
 	
-	// UI
-	if ( data.ui !== undefined && ! data.ui !== ! sprite.isUi )
+	// Use data.style, NOT ui.style: we have to set only new/updated styles
+	if ( data.style )
 	{
-		sprite.isUi = !! data.ui ;
-		$element = sprite.$mask || sprite.$image ;
+		Object.assign( ui.style , data.style ) ;
+		domKit.css( ui.$image , data.style ) ;
 		
-		if ( data.ui )
+		// Update the mask, if any
+		if ( ui.$mask )
 		{
-			sprite.onClick = function( event ) {
-				//sprite.actionCallback( sprite.action ) ;
-				event.stopPropagation() ;
-			} ;
-			
-			this.uiLoadingCount ++ ;
-			$element.classList.add( 'ui' ) ;
-			$element.addEventListener( 'click' , sprite.onClick ) ;
-		}
-		else
-		{
-			$element.classList.remove( 'ui' ) ;
-			$element.removeEventListener( 'click' , sprite.onClick ) ;
+			console.warn( 'update mask!' ) ;
+			domKit.css( ui.$mask , data.style ) ;
 		}
 	}
 	
-	// Copy new styles to sprite styles
-	Object.assign( sprite.style , data.style ) ;
-	
-	// Use data.style, NOT sprite.style: we have to set only new/updated styles
-	domKit.css( sprite.$image , data.style ) ;
-
-	// Update the mask, if any
-	if ( sprite.$mask )
+	if ( data.area )
 	{
-		console.warn( 'update mask!' ) ;
-		domKit.css( sprite.$mask , data.style ) ;
+		this.updateUiAreaStatus( ui , data.area ) ;
 	}
 } ;
 
 
 
-Dom.prototype.animateSprite = function animateSprite( spriteId , animationId )
+Dom.prototype.updateUiAreaStatus = function updateUiAreaStatus( ui , areaStatus )
 {
-	var self = this , sprite , animation , frame , frameIndex = 0 ;
-
-	if ( ! this.sprites[ spriteId ] )
+	var area , status ;
+	
+	if ( ! ui.isUi ) { return ; }
+	
+	if ( this.uiLoadingCount )
 	{
-		console.warn( 'Unknown sprite id: ' , spriteId ) ;
+		this.once( 'uiLoaded' , this.updateUiAreaStatus.bind( this , ui , areaStatus ) ) ;
 		return ;
 	}
-
-	if ( ! this.animations[ animationId ] )
+	
+	for ( area in areaStatus )
 	{
-		console.warn( 'Unknown animation id: ' , animationId ) ;
-		return ;
+		if ( ! ui.areaStatus[ area ] ) { ui.areaStatus[ area ] = {} ; }
+		
+		Object.assign( ui.areaStatus[ area ] , areaStatus[ area ] ) ;
+		
+		Array.from( ui.$image.querySelectorAll( '[area=' + area + ']' ) ).forEach( function( $element ) {
+			var statusName ;
+			
+			for ( statusName in areaStatus[ area ] )
+			{
+				if ( areaStatus[ area ][ statusName ] )
+				{
+					$element.classList.add( 'status-' + statusName ) ;
+				}
+				else
+				{
+					$element.classList.remove( 'status-' + statusName ) ;
+				}
+			}
+		} ) ;
 	}
+} ;
 
-	sprite = this.sprites[ spriteId ] ;
-	animation = this.animations[ animationId ] ;
-	sprite.animation = animationId ;
 
+
+Dom.prototype.animateUiObject = function animateUiObject( ui , animation )
+{
+	var self = this , frame , frameIndex = 0 ;
+	
+	ui.animation = animation.id ;
+	
 	// What should be done if an animation is already running???
-
+	
 	//console.warn( "Animation: " , animation ) ;
-
+	
 	// If there is no frames, quit now
 	if ( ! Array.isArray( animation.frames ) || ! animation.frames.length ) { return ; }
-
+	
 	var nextFrame = function() {
 		frame = animation.frames[ frameIndex ] ;
-
-		// Update the sprite
-		self.updateSpriteObject( sprite , frame ) ;
-
+		
+		// Update the ui
+		self.updateUiObject( ui , frame ) ;
+		
 		if ( ++ frameIndex < animation.frames.length )
 		{
 			setTimeout( nextFrame , frame.duration * 1000 ) ;
@@ -1846,10 +1957,10 @@ Dom.prototype.animateSprite = function animateSprite( spriteId , animationId )
 		{
 			// This is the end of the animation...
 			// Restore something here?
-			sprite.animation = null ;
+			ui.animation = null ;
 		}
 	} ;
-
+	
 	nextFrame() ;
 } ;
 
@@ -1857,6 +1968,7 @@ Dom.prototype.animateSprite = function animateSprite( spriteId , animationId )
 
 Dom.prototype.defineAnimation = function defineAnimation( id , data )
 {
+	data.id = id ;
 	this.animations[ id ] = data ;
 } ;
 
@@ -1865,7 +1977,16 @@ Dom.prototype.defineAnimation = function defineAnimation( id , data )
 Dom.prototype.setUiButtons = function setUiButtons( $svg )
 {
 	Array.from( $svg.querySelectorAll( '[button]' ) ).forEach( function( $element ) {
-		$element.setAttribute( 'id' , 'button-' + $element.getAttribute( 'button' ) ) ;
+		var buttonName = $element.getAttribute( 'button' ) ;
+		
+		$element.setAttribute( 'id' , 'button-' + buttonName ) ;
+		
+		if ( ! $element.getAttribute( 'area' ) )
+		{
+			// Create a default area's name equals to the button's name, if not present
+			$element.setAttribute( 'area' , buttonName ) ;
+		}
+		
 		$element.classList.add( 'button' ) ;
 		$element.classList.add( 'disabled' ) ;
 	} ) ;
@@ -2361,6 +2482,11 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'updateSprite' , UI.updateSprite.bind( this ) ) ;
 	this.bus.on( 'animateSprite' , UI.animateSprite.bind( this ) ) ;
 	this.bus.on( 'clearSprite' , UI.clearSprite.bind( this ) ) ;
+	
+	this.bus.on( 'showUi' , UI.showUi.bind( this ) ) ;
+	this.bus.on( 'updateUi' , UI.updateUi.bind( this ) ) ;
+	this.bus.on( 'animateUi' , UI.animateUi.bind( this ) ) ;
+	this.bus.on( 'clearUi' , UI.clearUi.bind( this ) ) ;
 
 	this.bus.on( 'enterScene' , UI.enterScene.bind( this ) ) ;
 	this.bus.on( 'leaveScene' , UI.leaveScene.bind( this ) ) ;
@@ -2805,7 +2931,7 @@ UI.showSprite = function showSprite( id , data )
 
 UI.spriteActionCallback = function spriteActionCallback( action )
 {
-	console.warn( "action triggered: " , action ) ;
+	console.warn( "Sprite action triggered: " , action ) ;
 	this.bus.emit( 'action' , action ) ;
 } ;
 
@@ -2828,6 +2954,46 @@ UI.animateSprite = function animateSprite( spriteId , animationId )
 UI.clearSprite = function clearSprite( id )
 {
 	this.dom.clearSprite( id ) ;
+} ;
+
+
+
+UI.showUi = function showUi( id , data )
+{
+	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+
+	data.actionCallback = UI.uiActionCallback.bind( this ) ;
+
+	this.dom.showUi( id , data ) ;
+} ;
+
+
+
+UI.uiActionCallback = function uiActionCallback( action )
+{
+	console.warn( "UI action triggered: " , action ) ;
+	this.bus.emit( 'action' , action ) ;
+} ;
+
+
+
+UI.updateUi = function updateUi( id , data )
+{
+	this.dom.updateUi( id , data ) ;
+} ;
+
+
+
+UI.animateUi = function animateUi( uiId , animationId )
+{
+	this.dom.animateUi( uiId , animationId ) ;
+} ;
+
+
+
+UI.clearUi = function clearUi( id )
+{
+	this.dom.clearUi( id ) ;
 } ;
 
 

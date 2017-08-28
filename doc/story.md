@@ -67,8 +67,12 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Show-sprite Tag](#ref.io.show-sprite)
 		* [Update-sprite Tag](#ref.io.update-sprite)
 		* [Clear-sprite Tag](#ref.io.clear-sprite)
-		* [Animation Tag](#ref.io.animation)
 		* [Animate-sprite Tag](#ref.io.animate-sprite)
+		* [Show-ui Tag](#ref.io.show-ui)
+		* [Update-ui Tag](#ref.io.update-ui)
+		* [Clear-ui Tag](#ref.io.clear-ui)
+		* [Animate-ui Tag](#ref.io.animate-ui)
+		* [Animation Tag](#ref.io.animation)
 	* [Control Flow Tags](#ref.flow)
 		* [Conditional Tags](#ref.flow.conditional)
 			* [If Tag](#ref.flow.if)
@@ -1033,8 +1037,19 @@ TODO: documentation
 
 
 
-<a name="ref.io.animation"></a>
-## [animation *id*] / [animation *$var*]
+<a name="ref.io.animate-sprite"></a>
+## [animate-sprite *id*] / [animate-sprite *$var*]
+
+* types: run
+* attribute style: label or var
+* content type: string (the id of the animation)
+
+TODO: documentation
+
+
+
+<a name="ref.io.show-ui"></a>
+## [show-ui *id*] / [show-ui *$var*]
 
 * types: run
 * attribute style: label or var
@@ -1044,12 +1059,45 @@ TODO: documentation
 
 
 
-<a name="ref.io.animate-sprite"></a>
-## [animate-sprite *id*] / [animate-sprite *$var*]
+<a name="ref.io.update-ui"></a>
+## [update-ui *id*] / [update-ui *$var*]
+
+* types: run
+* attribute style: label or var
+* content type: object
+
+TODO: documentation
+
+
+
+<a name="ref.io.clear-ui"></a>
+## [clear-ui *id*] / [clear-ui *$var*]
+
+* types: run
+* attribute style: label or var
+* content type: none
+
+TODO: documentation
+
+
+
+<a name="ref.io.animate-ui"></a>
+## [animate-ui *id*] / [animate-ui *$var*]
 
 * types: run
 * attribute style: label or var
 * content type: string (the id of the animation)
+
+TODO: documentation
+
+
+
+<a name="ref.io.animation"></a>
+## [animation *id*] / [animation *$var*]
+
+* types: run
+* attribute style: label or var
+* content type: object
 
 TODO: documentation
 
