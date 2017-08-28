@@ -17,28 +17,19 @@
 				transform: translate( -50% , -50% )
 				transition: 1s
 		
-		[pause] 1
+		#[pause] 1
 		
-		[message] $> ... in Great Britain...
+		#[message] $> ... in Great Britain...
 		
-		[update-sprite britain]
-			style:
-				height: 80%
-		
-		#[pause] 2000
-		#[return]
+		#[update-sprite britain]
+		#	style:
+		#		height: 80%
 		
 		[fake-next]
-            [label] $> Kernow of Dumnonia
-            [button] kernow-of-dumnonia
+            [label] $> Dumnonia
+            [button] dumnonia
             [on-trigger]
-				[message] $> Go to Kernow of Dumnomia!
-		
-		[fake-next]
-            [label] $> Defnaint of Dumnonia
-            [button] defnaint-of-dumnonia
-            [on-trigger]
-				[message] $> Go to Defnaint of Dumnomia!
+				[message] $> Go to Dumnomia!
 		
 		[fake-next]
             [label] $> Durotriges
@@ -46,5 +37,23 @@
             [on-trigger]
 				[message] $> Go to Durotriges!
 
+		[fake-next]
+            [label] $> Belgae
+            [button] belgae
+            [on-trigger]
+				[message] $> Go to Belgae!
+		
+		[fake-next]
+            [label] $> Atrebates
+            [button] atrebates
+            [on-trigger]
+				[message] $> Go to Atrebates!
+		
+		#[fake-next]
+        #    [label] $> Far away
+        #    [button] far-away
+        #    [on-trigger]
+		#		[message] $> Go far away!
+		
 
 

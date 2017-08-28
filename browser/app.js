@@ -559,6 +559,7 @@ domKit.html = function html( $element , html ) { $element.innerHTML = html ; } ;
 
 var domKit = require( 'dom-kit' ) ;
 var svgKit = require( 'svg-kit' ) ;
+var Ngev = require( 'nextgen-events' ) ;
 
 
 
@@ -568,6 +569,8 @@ function noop() {}
 
 function Dom() { return Dom.create() ; }
 module.exports = Dom ;
+Dom.prototype = Object.create( Ngev.prototype ) ;
+Dom.prototype.constructor = Dom ;
 
 
 
@@ -606,7 +609,10 @@ Dom.create = function create()
 
 	self.sceneImageOnTimer = null ;
 	self.onChatSubmit = null ;
-
+	
+	// The number of UI loading in progress
+	self.uiLoadingCount = 0 ;
+	
 	self.initEvents() ;
 
 	return self ;
@@ -1050,19 +1056,19 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 	
 	panel.forEach( function( data ) {
 		
-		var $item , $image , buttonId = 'button-' + data.id ;
+		var $button , $image , buttonId = 'button-' + data.id ;
 		
 		// Do not create it if there is already a button with this ID
 		if ( document.getElementById( buttonId ) ) { return ; }
 		
-		$item = document.createElement( 'item' ) ;
-		$item.classList.add( 'item' ) ;
-		$item.classList.add( 'disabled' ) ;	// Disabled by default
-		$item.setAttribute( 'id' , buttonId ) ;
+		$button = document.createElement( 'item' ) ;
+		$button.classList.add( 'button' ) ;
+		$button.classList.add( 'disabled' ) ;	// Disabled by default
+		$button.setAttribute( 'id' , buttonId ) ;
 		
 		if ( data.image )
 		{
-			$item.classList.add( 'has-image' ) ;
+			$button.classList.add( 'has-image' ) ;
 			
 			if ( data.image.endsWith( '.svg' ) )
 			{
@@ -1098,16 +1104,16 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 				$image.setAttribute( 'title' , data.label ) ;
 			}
 			
-			$item.appendChild( $image ) ;
+			$button.appendChild( $image ) ;
 		}
 		else
 		{
-			$item.textContent = data.label ;
+			$button.textContent = data.label ;
 		}
 		
-		$item.addEventListener( 'click' , self.onSelect , false ) ;
+		$button.addEventListener( 'click' , self.onSelect , false ) ;
 		
-		self.$panel.appendChild( $item ) ;
+		self.$panel.appendChild( $button ) ;
 	} ) ;
 	
 	callback() ;
@@ -1152,6 +1158,12 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 
 Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 {
+	if ( this.uiLoadingCount )
+	{
+		this.once( 'uiLoaded' , this.addChoices.bind( this , choices , onSelect , callback ) ) ;
+		return ;
+	}
+	
 	var self = this , groupBreak = false ;
 	var choicesFragment = document.createDocumentFragment() ;
 	var $group = document.createElement( 'group' ) ;
@@ -1598,8 +1610,6 @@ Dom.prototype.setSceneImage = function setSceneImage( data )
 
 Dom.prototype.clearSprite = function clearSprite( id )
 {
-	var sprite ;
-
 	if ( ! this.sprites[ id ] )
 	{
 		console.warn( 'Unknown sprite id: ' , id ) ;
@@ -1623,15 +1633,14 @@ Dom.prototype.clearSpriteObject = function clearSpriteObject( sprite )
 
 Dom.prototype.showSprite = function showSprite( id , data )
 {
-	var self = this , sprite ;
-
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
 	if ( this.sprites[ id ] ) { this.clearSpriteObject( this.sprites[ id ] ) ; }
 
-	sprite = this.sprites[ id ] = {
+	var sprite = this.sprites[ id ] = {
 		actionCallback: data.actionCallback ,
 		action: null ,
+		isUi: false ,
 		style: {} ,
 		animation: null
 	} ;
@@ -1683,7 +1692,12 @@ Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 				//removeDefaultStyles: true ,
 				as: sprite.$image
 			} , function() {
-				self.svgButtonAttrToId( sprite.$image ) ;
+				
+				if ( sprite.isUi )
+				{
+					self.setUiButtons( sprite.$image ) ;
+					if ( -- self.uiLoadingCount <= 0 ) { self.emit( 'uiLoaded' ) ; }
+				}
 			} ) ;
 		}
 		else
@@ -1751,8 +1765,10 @@ Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 		sprite.action = data.action || null ;
 	}
 	
-	if ( data.ui !== undefined )
+	// UI
+	if ( data.ui !== undefined && ! data.ui !== ! sprite.isUi )
 	{
+		sprite.isUi = !! data.ui ;
 		$element = sprite.$mask || sprite.$image ;
 		
 		if ( data.ui )
@@ -1762,6 +1778,7 @@ Dom.prototype.updateSpriteObject = function updateSpriteObject( sprite , data )
 				event.stopPropagation() ;
 			} ;
 			
+			this.uiLoadingCount ++ ;
 			$element.classList.add( 'ui' ) ;
 			$element.addEventListener( 'click' , sprite.onClick ) ;
 		}
@@ -1845,10 +1862,12 @@ Dom.prototype.defineAnimation = function defineAnimation( id , data )
 
 
 
-Dom.prototype.svgButtonAttrToId = function svgButtonAttrToId( $svg )
+Dom.prototype.setUiButtons = function setUiButtons( $svg )
 {
 	Array.from( $svg.querySelectorAll( '[button]' ) ).forEach( function( $element ) {
 		$element.setAttribute( 'id' , 'button-' + $element.getAttribute( 'button' ) ) ;
+		$element.classList.add( 'button' ) ;
+		$element.classList.add( 'disabled' ) ;
 	} ) ;
 } ;
 
@@ -1953,7 +1972,7 @@ function soundFadeOut( element , callback )
 	element.__fadeTimer = setTimeout( soundFadeOut.bind( undefined , element , callback ) , SOUND_FADE_TIMEOUT ) ;
 }
 
-},{"dom-kit":1,"svg-kit":22}],3:[function(require,module,exports){
+},{"dom-kit":1,"nextgen-events":8,"svg-kit":22}],3:[function(require,module,exports){
 /*
 	Spellcast
 	

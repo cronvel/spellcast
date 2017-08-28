@@ -534,7 +534,7 @@ indicator widget.vbar inner-bar {
 
 
 
-#panel .item {
+#panel .button {
 	display: block;
 	width: 2em;
 	height: 2em;
@@ -547,20 +547,20 @@ indicator widget.vbar inner-bar {
 	cursor: pointer;
 }
 
-#panel .item .image {
+#panel .button .image {
 	width: 100%;
 	vertical-align: middle;
 }
 
-#panel .item.disabled {
+#panel .button.disabled {
 	cursor: auto;
 }
 
-#panel .item:not(.disabled):hover {
+#panel .button:not(.disabled):hover {
 	background-color: rgba(242, 235, 225);
 }
 
-#panel .item:not(.disabled):hover .image {
+#panel .button:not(.disabled):hover .image {
 	position: relative;
 	width: 110%;
 	top: -5%;
