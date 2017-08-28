@@ -586,6 +586,7 @@ Dom.create = function create()
 	self.$mainBuffer = document.querySelector( '#main-buffer' ) ;
 	self.$altBuffer = document.querySelector( '#alt-buffer' ) ;
 	self.$dialogWrapper = document.querySelector( '#dialog-wrapper' ) ;
+	self.$hint = document.querySelector( '#hint' ) ;
 	self.$lobby = document.querySelector( '#lobby' ) ;
 	self.$clientStatus = self.$lobby.querySelector( '.client-status' ) ;
 	self.$status = document.querySelector( '#status' ) ;
@@ -659,6 +660,22 @@ Dom.prototype.initEvents = function initEvents()
 	this.$lobby.addEventListener( 'click' , function() { self.$lobby.classList.toggle( 'toggled' ) ; } ) ;
 	this.$status.addEventListener( 'click' , function() { self.$status.classList.toggle( 'toggled' ) ; } ) ;
 	this.$panel.addEventListener( 'click' , function() { self.$panel.classList.toggle( 'toggled' ) ; } ) ;
+	
+	/*	Does not works
+	// Display hint when hovering an element with a hint attribute
+	this.$body.addEventListener( 'mouseover' , function( event ) {
+		var $element = event.target ;
+		var hint = $element.getAttribute( 'hint' ) ;
+		
+		console.warn( 'yo kinneth' , hint , $element ) ;
+		
+		if ( hint )
+		{
+			self.setHint( hint ) ;
+			event.stopPropagation() ;
+		}
+    } ) ;
+    */
 } ;
 
 
@@ -702,7 +719,7 @@ Dom.prototype.toMainBuffer = function toMainBuffer()
 		// This is not defined at startup
 		this.clearChoices() ;
 		this.clearMessages() ;
-		this.clearHints() ;
+		this.clearHint() ;
 		this.clearHistory() ;
 	}
 	
@@ -741,7 +758,6 @@ Dom.prototype.getSwitchedElements = function getSwitchedElements()
 	this.$history = this.$activeBuffer.querySelector( '.messages.history' ) ;
 	this.$activeMessages = this.$activeBuffer.querySelector( '.messages.active' ) ;
 	this.$choices = this.$activeBuffer.querySelector( '.choices' ) ;
-	this.$hint = this.$activeBuffer.querySelector( '.hint' ) ;
 	this.$chat = this.$activeBuffer.querySelector( '.chat' ) ;
 	this.$chatForm = this.$chat.querySelector( '.chat-form' ) ;
 	this.$chatInput = this.$chatForm.querySelector( '.chat-input' ) ;
@@ -787,15 +803,6 @@ Dom.prototype.clear = function clear( callback )
 	domKit.empty( this.$dialogWrapper ) ;
 	domKit.empty( this.$activeMessages ) ;
 	domKit.empty( this.$choices ) ;
-	callback() ;
-} ;
-
-
-
-Dom.prototype.clearHints = function clearHints( callback )
-{
-	callback = callback || noop ;
-	domKit.empty( this.$hint ) ;
 	callback() ;
 } ;
 
@@ -1437,6 +1444,17 @@ Dom.prototype.clearHint = function clearHint()
 
 
 
+Dom.prototype.setHint = function setHint( text , classes )
+{
+	console.warn( 'setHint()' , text ) ;
+	this.clearHint() ;
+	this.$hint.textContent = text ;
+	if ( classes ) { domKit.class( this.$hint , classes ) ; }
+} ;
+
+
+
+// /!\ DEPRECATED??? /!\
 Dom.prototype.setBigHint = function setBigHint( text , classes )
 {
 	var $hint = document.createElement( 'h2' ) ;
@@ -2267,6 +2285,19 @@ SpellcastClient.autoCreate() ;
 
 dom.ready( function() {
 	window.spellcastClient.run() ;
+	
+	// Debug
+	// Style sheet reloader (F9 key)
+	document.body.onkeypress = function( event ) {
+		if ( event.keyCode !== 120 ) { return ; }
+		
+		var href , sheets = document.querySelectorAll('link[rel=stylesheet]') ;
+		
+		for ( var i = 0 ; i < sheets.length ; i++ ) {
+			href = sheets[i].getAttribute('href').split('?')[0] + '?' + Math.random() ;
+			sheets[i].setAttribute( 'href' , href ) ;
+		}
+	} ;
 } ) ;
 
 

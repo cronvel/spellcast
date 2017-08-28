@@ -35,10 +35,6 @@
 				<!-- Contain all choices -->
 			</div>
 
-			<div class="hint">
-				<!-- Contain hints -->
-			</div>
-
 			<div class="chat">
 				<!-- Chatbox -->
 				<form class="chat-form">
@@ -79,6 +75,10 @@
 		<!-- Contain alert and modal dialog -->
 	</div>
 
+	<div id="hint" class="hint">
+		<!-- Contain hints -->
+	</div>
+
 	<div id="status" class="status empty">
 		<!-- The game status bar -->
 	</div>
@@ -94,17 +94,4 @@
 
 	<script src="app.js"></script>
 </body>
-	<script>
-		// Style sheet reloader (F9 key)
-		document.body.onkeypress = function( event ) {
-			if ( event.keyCode !== 120 ) { return ; }
-			
-			var href , sheets = document.querySelectorAll('link[rel=stylesheet]') ;
-			
-			for ( var i = 0 ; i < sheets.length ; i++ ) {
-				href = sheets[i].getAttribute('href').split('?')[0] + '?' + Math.random() ;
-				sheets[i].setAttribute( 'href' , href ) ;
-			}
-		} ;
-	</script>
 </html>

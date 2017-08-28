@@ -5,7 +5,13 @@
 [chapter intro]
 	
 	[scene intro1]
-		[message] $> ^/Once upon a time...
+		[message]
+			$> My King, this is your kingdom in green...
+			$> Your highness rules the Dumnonia province, the Durotriges province and the Belgae province.
+		[message]
+			$> In grey are province where britton people lives without any ruler.
+		[message]
+			$> In red, our saxon ennemies occupy the Iceni province and the Trinovantes province...
 		
 		[show-ui britain]
 			url: /script/britain.svg
@@ -25,57 +31,59 @@
 					owned: true
 				iceni:
 					enemy: true
+				trinovantes:
+					enemy: true
 		
-		[pause] 2
+		[pause] 5
+		
+		[message]
+			$> But we heard that they have landed 3 days ago in the Regnenses province with a small army.
+			$> Those lands have probably fallen already.
 		
 		[update-ui britain]
 			area:
 				regnenses:
 					enemy: true
 		
+		[pause] 5
+		
+		[message]
+			$> From the Belgae province, we can raise soldiers and fortify our lands (green),
+			$> rally more brittons to our cause (grey),
+			$> or strike the saxons at Regnenses before they strengthen (red).
+		
+		[next fortify]
+			[label] $> Fortify our position in Durotriges
+			[button] durotriges
+
+		[next fortify]
+			[label] $> Fortify our position in Belgae
+			[button] belgae
+		
+		[next claim]
+			[label] $> Claim the Atrebates province
+			[button] atrebates
+		
+		[next claim]
+			[label] $> Claim the Dobunni province
+			[button] dobunni
+		
+		[next strike]
+			[label] $> Strike the saxon at Regnenses
+			[button] regnenses
+		
+	[scene fortify]
+		[message]
+			$> Great! I will raise an army in your name and fortify the country.
 		[pause] 2
 		
-		#[fake-next]
-		#	[label] $> Dumnonia
-		#	[button] dumnonia
-		#	[on-trigger]
-		#		[message] $> Go to Dumnomia!
+	[scene claim]
+		[message]
+			$> With our Greatness at our side, there is no doubt that the brittons of that land will rally us!
+		[pause] 2
 		
-		[fake-next]
-			[label] $> Durotriges
-			[button] durotriges
-			[on-trigger]
-				[message] $> Go to Durotriges!
-
-		[fake-next]
-			[label] $> Belgae
-			[button] belgae
-			[on-trigger]
-				[message] $> Go to Belgae!
+	[scene strike]
+		[message]
+			$> The saxons must be pushed back to the sea!
+		[pause] 2
 		
-		[fake-next]
-			[label] $> Atrebates
-			[button] atrebates
-			[on-trigger]
-				[message] $> Go to Atrebates!
-		
-		[fake-next]
-			[label] $> Dobunni
-			[button] dobunni
-			[on-trigger]
-				[message] $> Go to Dobunni!
-		
-		[fake-next]
-			[label] $> Regnenses
-			[button] regnenses
-			[on-trigger]
-				[message] $> Go to Regnenses!
-		
-		#[fake-next]
-		#	[label] $> Far away
-		#	[button] far-away
-		#	[on-trigger]
-		#		[message] $> Go far away!
-		
-
-
