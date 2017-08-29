@@ -1016,13 +1016,11 @@ Dom.prototype.createChoiceEventHandlers = function createChoiceEventHandlers( on
 	} ;
 	
 	this.onLeave = function( event ) {
-		console.warn( 'button mouse leave' ) ;
 		self.clearHint() ;
 		//event.stopPropagation() ; // useless for mouseleave events
 	} ;
 	
 	this.onEnter = function( event ) {
-		console.warn( 'button mouse enter' ) ;
 		var $element = event.currentTarget ;
 		var hint = $element.getAttribute( 'data-button-hint' ) ;
 		if ( ! hint ) { return ; }
@@ -1450,8 +1448,6 @@ Dom.prototype.clearHint = function clearHint()
 {
 	var self = this ;
 	
-	console.warn( 'clearHint()' ) ;
-	
 	if ( this.hintTimer !== null ) { clearTimeout( this.hintTimer ) ; this.hintTimer = null ; }
 	
 	//domKit.empty( this.$hint ) ;
@@ -1467,8 +1463,6 @@ Dom.prototype.clearHint = function clearHint()
 Dom.prototype.setHint = function setHint( text , classes )
 {
 	var self = this ;
-	
-	console.warn( 'setHint()' , text ) ;
 	
 	if ( this.hintTimer !== null ) { clearTimeout( this.hintTimer ) ; this.hintTimer = null ; }
 	
@@ -2062,7 +2056,6 @@ Dom.prototype.setUiPassiveHints = function setUiPassiveHints( $svg )
 	var self = this ;
 	
 	Array.from( $svg.querySelectorAll( '[hint]' ) ).forEach( function( $element ) {
-		console.warn( "what?" ) ;
 		var hint = $element.getAttribute( 'hint' ) ;
 		
 		$element.setAttribute( 'data-passive-hint' , hint ) ;
