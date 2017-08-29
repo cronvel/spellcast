@@ -53,11 +53,11 @@
 			$> or strike the saxons at Regnenses before they strengthen (red).
 		
 		[next fortify]
-			[label] $> Fortify our position in Durotriges
+			[label] $> Fortify our position in the Durotriges province
 			[button] durotriges
 
 		[next fortify]
-			[label] $> Fortify our position in Belgae
+			[label] $> Fortify our position in the Belgae province
 			[button] belgae
 		
 		[next claim]
@@ -69,7 +69,7 @@
 			[button] dobunni
 		
 		[next strike]
-			[label] $> Strike the saxon at Regnenses
+			[label] $> Strike the saxon in the Regnenses province
 			[button] regnenses
 		
 	[scene fortify]

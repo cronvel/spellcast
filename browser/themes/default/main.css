@@ -572,14 +572,15 @@ indicator widget.vbar inner-bar {
 #hint {
 	display: block;
 	position: absolute;
-	bottom: 2em;
+	bottom: 6vh;
 	z-index: 100;
 	left: 50%;
 	transform: translateX(-50%);
 	
 	padding: 0.1em 0.5em;
+	text-align: center;
 	
-	font-size: 2em;
+	font-size: 1em;
 	color: #eee;
 	font-weight: 700;
 	text-shadow: 0 0 1px #555;
@@ -593,6 +594,16 @@ indicator widget.vbar inner-bar {
 
 #hint.empty {
 	opacity: 0;
+}
+
+#hint.passive {
+	font-size: 1.25em;
+	color: #bce;
+}
+
+#hint.active {
+	font-size: 1.6em;
+	color: #fea;
 }
 
 

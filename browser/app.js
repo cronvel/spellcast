@@ -553,8 +553,6 @@ domKit.html = function html( $element , html ) { $element.innerHTML = html ; } ;
 
 "use strict" ;
 
-/* global window */
-
 
 
 var domKit = require( 'dom-kit' ) ;
@@ -1018,18 +1016,17 @@ Dom.prototype.createChoiceEventHandlers = function createChoiceEventHandlers( on
 	} ;
 	
 	this.onLeave = function( event ) {
-		var $element = event.currentTarget ;
-		var hint = $element.getAttribute( 'data-button-hint' ) ;
-		if ( ! hint ) { return ; }
+		console.warn( 'button mouse leave' ) ;
 		self.clearHint() ;
 		//event.stopPropagation() ; // useless for mouseleave events
 	} ;
 	
 	this.onEnter = function( event ) {
+		console.warn( 'button mouse enter' ) ;
 		var $element = event.currentTarget ;
 		var hint = $element.getAttribute( 'data-button-hint' ) ;
 		if ( ! hint ) { return ; }
-		self.setHint( hint ) ;
+		self.setHint( hint , { active : true } ) ;
 		//event.stopPropagation() ;	// useless for mouseenter events
 	} ;
 } ;
@@ -1132,7 +1129,7 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback )
 
 Dom.prototype.clearChoices = function clearChoices( callback )
 {
-	var self = this , i , len , $item , $uiButton ;
+	var self = this , $uiButton ;
 	
 	callback = callback || noop ;
 	
@@ -1491,7 +1488,10 @@ Dom.prototype.setHint = function setHint( text , classes )
 	this.$hint.textContent = text ;
 	this.$hint.classList.remove( 'empty' ) ;
 	
-	if ( classes ) { domKit.class( this.$hint , classes ) ; }
+	domKit.class( this.$hint , {
+		passive : !! classes.passive ,
+		active : !! classes.active
+	} ) ;
 	
 	this.hintTimer = setTimeout( this.clearHint.bind( this ) , 3000 ) ;
 } ;
@@ -1861,6 +1861,7 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 				if ( ui.isUi )
 				{
 					self.setUiButtons( ui.$image ) ;
+					self.setUiPassiveHints( ui.$image ) ;
 					if ( -- self.uiLoadingCount <= 0 ) { self.emit( 'uiLoaded' ) ; }
 				}
 			} ) ;
@@ -1956,7 +1957,7 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 
 Dom.prototype.updateUiAreaStatus = function updateUiAreaStatus( ui , areaStatus )
 {
-	var area , status ;
+	var area ;
 	
 	if ( ! ui.isUi ) { return ; }
 	
@@ -1972,7 +1973,7 @@ Dom.prototype.updateUiAreaStatus = function updateUiAreaStatus( ui , areaStatus 
 		
 		Object.assign( ui.areaStatus[ area ] , areaStatus[ area ] ) ;
 		
-		Array.from( ui.$image.querySelectorAll( '[area=' + area + ']' ) ).forEach( function( $element ) {
+		Array.from( ui.$image.querySelectorAll( '[area=' + area + ']' ) ).forEach( function( $element ) {	// jshint ignore:line
 			var statusName ;
 			
 			for ( statusName in areaStatus[ area ] )
@@ -2051,6 +2052,34 @@ Dom.prototype.setUiButtons = function setUiButtons( $svg )
 		
 		$element.classList.add( 'button' ) ;
 		$element.classList.add( 'disabled' ) ;
+	} ) ;
+} ;	
+
+
+
+Dom.prototype.setUiPassiveHints = function setUiPassiveHints( $svg )
+{
+	var self = this ;
+	
+	Array.from( $svg.querySelectorAll( '[hint]' ) ).forEach( function( $element ) {
+		console.warn( "what?" ) ;
+		var hint = $element.getAttribute( 'hint' ) ;
+		
+		$element.setAttribute( 'data-passive-hint' , hint ) ;
+		$element.classList.add( 'passive-hint' ) ;
+		
+		$element.addEventListener( 'mouseleave' , function( event ) {
+			self.clearHint() ;
+			//event.stopPropagation() ; // useless for mouseleave events
+		} ) ;
+		
+		$element.addEventListener( 'mouseenter' , function( event ) {
+			var $element = event.currentTarget ;
+			var hint = $element.getAttribute( 'data-passive-hint' ) ;
+			if ( ! hint ) { return ; }
+			self.setHint( hint , { passive: true } ) ;
+			//event.stopPropagation() ; // useless for mouseenter events
+		} ) ;
 	} ) ;
 } ;
 
