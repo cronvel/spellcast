@@ -34,7 +34,7 @@
 				trinovantes:
 					enemy: true
 		
-		[pause] 5
+		[pause] 2
 		
 		[message]
 			$> But we heard that they have landed 3 days ago in the Regnenses province with a small army.
@@ -45,7 +45,7 @@
 				regnenses:
 					enemy: true
 		
-		[pause] 5
+		[pause] 2
 		
 		[message]
 			$> From the Belgae province, we can raise soldiers and fortify our lands (green),

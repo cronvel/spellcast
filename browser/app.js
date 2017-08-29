@@ -601,8 +601,8 @@ Dom.create = function create()
 	
 	self.newSegmentNeeded = false ;
 	self.onSelect = null ;
-	self.onHover = null ;
 	self.onLeave = null ;
+	self.onEnter = null ;
 	self.toMainBuffer() ;
 
 	self.nextSoundChannel = 0 ;
@@ -611,6 +611,7 @@ Dom.create = function create()
 	self.ui = {} ;
 	self.animations = {} ;
 
+	self.hintTimer = null ;
 	self.sceneImageOnTimer = null ;
 	self.onChatSubmit = null ;
 	
@@ -1016,20 +1017,20 @@ Dom.prototype.createChoiceEventHandlers = function createChoiceEventHandlers( on
 		onSelect( index ) ;
 	} ;
 	
-	this.onHover = function( event ) {
-		var $element = event.currentTarget ;
-		var hint = $element.getAttribute( 'data-hint' ) ;
-		if ( ! hint ) { return ; }
-		self.setHint( hint ) ;
-		event.stopPropagation() ;
-	} ;
-	
 	this.onLeave = function( event ) {
 		var $element = event.currentTarget ;
-		var hint = $element.getAttribute( 'data-hint' ) ;
+		var hint = $element.getAttribute( 'data-button-hint' ) ;
 		if ( ! hint ) { return ; }
 		self.clearHint() ;
-		event.stopPropagation() ;
+		//event.stopPropagation() ; // useless for mouseleave events
+	} ;
+	
+	this.onEnter = function( event ) {
+		var $element = event.currentTarget ;
+		var hint = $element.getAttribute( 'data-button-hint' ) ;
+		if ( ! hint ) { return ; }
+		self.setHint( hint ) ;
+		//event.stopPropagation() ;	// useless for mouseenter events
 	} ;
 } ;
 
@@ -1150,7 +1151,8 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 			$uiButton.removeAttribute( 'data-select-index' ) ;
 			$uiButton.classList.add( 'disabled' ) ;
 			$uiButton.removeEventListener( 'click' , self.onSelect ) ;
-			$uiButton.removeEventListener( 'mouseover' , self.onHover ) ;
+			$uiButton.removeEventListener( 'mouseleave' , self.onLeave ) ;
+			$uiButton.removeEventListener( 'mouseenter' , self.onEnter ) ;
 		}
 	} ) ;
 	
@@ -1159,8 +1161,8 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 	// Reset
 	this.choices.length = 0 ;
 	this.onSelect = null ;
-	this.onHover = null ;
 	this.onLeave = null ;
+	this.onEnter = null ;
 	
 	callback() ;
 } ;
@@ -1208,9 +1210,9 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 			
 			if ( choice.label )
 			{
-				$uiButton.setAttribute( 'data-hint' , choice.label ) ;
-				$uiButton.addEventListener( 'mouseover' , self.onHover ) ;
-				$uiButton.addEventListener( 'mouseout' , self.onLeave ) ;
+				$uiButton.setAttribute( 'data-button-hint' , choice.label ) ;
+				$uiButton.addEventListener( 'mouseleave' , self.onLeave ) ;
+				$uiButton.addEventListener( 'mouseenter' , self.onEnter ) ;
 			}
 			
 			return ;
@@ -1449,21 +1451,49 @@ Dom.prototype.disableChat = function disableChat()
 
 Dom.prototype.clearHint = function clearHint()
 {
+	var self = this ;
+	
 	console.warn( 'clearHint()' ) ;
+	
+	if ( this.hintTimer !== null ) { clearTimeout( this.hintTimer ) ; this.hintTimer = null ; }
+	
 	//domKit.empty( this.$hint ) ;
 	this.$hint.classList.add( 'empty' ) ;
+	
+	this.hintTimer = setTimeout( function() {
+		domKit.empty( self.$hint ) ;
+	} , 3000 ) ;
 } ;
 
 
 
 Dom.prototype.setHint = function setHint( text , classes )
 {
+	var self = this ;
+	
 	console.warn( 'setHint()' , text ) ;
+	
+	if ( this.hintTimer !== null ) { clearTimeout( this.hintTimer ) ; this.hintTimer = null ; }
+	
 	//this.clearHint() ;
 	//domKit.empty( this.$hint ) ;
+	
+	if ( this.$hint.textContent )
+	{
+		this.$hint.classList.add( 'empty' ) ;
+		this.hintTimer = setTimeout( function() {
+			domKit.empty( self.$hint ) ;
+			self.setHint( text , classes ) ;
+		} , 300 ) ;
+		return ;
+	}
+	
 	this.$hint.textContent = text ;
 	this.$hint.classList.remove( 'empty' ) ;
+	
 	if ( classes ) { domKit.class( this.$hint , classes ) ; }
+	
+	this.hintTimer = setTimeout( this.clearHint.bind( this ) , 3000 ) ;
 } ;
 
 
