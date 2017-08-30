@@ -124,12 +124,12 @@ body {
 	pointer-events: none;
 }
 
-.ui [button] {
+.ui .button:not(.disabled) {
 	cursor: pointer;
 	pointer-events: painted;
 }
 
-.ui [area] {
+.ui .button , .ui [area] {
 	pointer-events: painted;
 }
 
