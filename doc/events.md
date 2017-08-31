@@ -145,8 +145,8 @@ Events emitted here are usually **userland** event, except few standard events:
 	  * *table*: display button as a table, using [group-break] parameter tag to create a new row
 * nextTriggered (nextIndex, roleIds, special): a next action was triggered, `nextIndex` contains its index in the
   `nextList` event's argument `nexts`, and `roleIds`, if not null, is an array of IDs of roles that activated it (if relevant),
-  provided in the last `roleList` event, in the `roles` argument. The last argument `special`, if set, it contains a code:
-  special trigger conditions. Codes:
+  provided in the last `roleList` event, in the `roles` argument. If the last argument `special` is set, it contains a
+  special trigger conditions code:
 	* auto: next was triggered automatically (e.g. by an [auto] tag timeout)
 
 * split: roles/players are split in 2 or more groups

@@ -277,13 +277,23 @@ body.gfx-toggled main , body.gfx-toggled #lobby , body.gfx-toggled #panel , body
 /* Make the scrollbar visible again */
 .history:hover { padding-right: 0; }
 
-segment {
+segment , inter-segment {
 	display: block;
 	margin-top: 1em;
 }
 
 p {
 	margin: 0.2em 0em;
+}
+
+p.chosen {
+	margin: 0.2em 0em 0.2em 1em;
+	color: #29b0b0;
+	font-weight: 700;
+}
+
+p.chosen:before {
+	content: '> ';
 }
 
 
