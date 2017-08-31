@@ -9,10 +9,10 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="43.656mm"
-   height="43.656mm"
+   width="43.65625mm"
+   height="43.656246mm"
    version="1.1"
-   viewBox="0 0 43.656284 43.656292"
+   viewBox="-5 0 43.656536 43.56"
    id="svg16"
    sodipodi:docname="close.svg"
    inkscape:version="0.92+devel unknown">
@@ -32,19 +32,27 @@
      inkscape:window-height="741"
      id="namedview18"
      showgrid="true"
-     inkscape:zoom="12.945529"
-     inkscape:cx="26.30792"
-     inkscape:cy="14.515803"
+     inkscape:zoom="1.6181911"
+     inkscape:cx="271.79091"
+     inkscape:cy="78.176336"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg16">
+     inkscape:current-layer="svg16"
+     viewbox-x="-5"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     viewbox-height="43.56">
     <inkscape:grid
        type="xygrid"
        id="grid22"
        spacingx="1.0583403"
        spacingy="1.0583403"
-       empspacing="4" />
+       empspacing="4"
+       originx="-4.3385312"
+       originy="0.66140711" />
   </sodipodi:namedview>
   <metadata
      id="metadata10">
@@ -59,14 +67,14 @@
     </rdf:RDF>
   </metadata>
   <path
-     d="M 0,39.422925 V 5.555926 C 0,1.3226261 0,1.3226261 4.2332999,1.3226261 H 38.100301 c 4.2333,0 4.2333,1e-5 4.2333,4.2332999 v 33.866999 c 0,4.2333 2e-6,4.2333 -4.2333,4.2333 H 4.2332999 C 0,43.656225 0,39.393468 0,39.422925 Z"
-     style="fill:#ff6464;stroke:#d0d0d0;stroke-width:1.32290006;stroke-linecap:square;stroke-linejoin:round;paint-order:markers stroke fill"
+     d="M -4.3385314,38.761767 V 4.8947685 c 0,-4.23329994 0,-4.23329994 4.23329986,-4.23329994 H 33.76177 c 4.2333,0 4.2333,1e-5 4.2333,4.23329994 V 38.761767 c 0,4.2333 2e-6,4.2333 -4.2333,4.2333 H -0.10523154 c -4.23329986,0 -4.23329986,-4.262757 -4.23329986,-4.2333 z"
+     style="fill:#e55;stroke:#ccc;stroke-width:1.32290006;stroke-linecap:square;stroke-linejoin:round;paint-order:markers stroke fill"
      id="path12"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="sssssssss" />
   <path
-     d="m 4.2333612,35.189564 4.2333,4.2333 12.7000008,-12.7 12.7,12.7 4.2333,-4.2333 -12.7,-12.7 12.7,-12.6999995 -4.2333,-4.2332997 -12.7,12.6999992 L 8.4666612,5.5562648 4.2333612,9.7895645 16.933362,22.489564 Z"
-     style="fill:#ffffff;stroke:#d0d0d0;stroke-width:1.32290006;stroke-linecap:square;stroke-linejoin:round;paint-order:markers stroke fill"
+     d="m -0.10517024,34.528406 4.23330004,4.2333 12.7000012,-12.7 12.7,12.7 4.2333,-4.2333 -12.7,-12.7 12.7,-12.699999 -4.2333,-4.2332997 -12.7,12.6999987 L 4.1281298,4.8951073 -0.10517024,9.128407 12.594831,21.828406 Z"
+     style="fill:#eee;stroke:#ccc;stroke-width:1.32292545;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:markers stroke fill"
      id="path14"
      inkscape:connector-curvature="0" />
 </svg>

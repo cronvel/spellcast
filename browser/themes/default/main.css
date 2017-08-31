@@ -100,6 +100,27 @@ body[data-image-position="left"] #main-buffer {
 	transition: opacity 0.5s , right 0.3s;
 }
 
+#button-close-alt {
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 1.5em;
+	width: 1.5em;
+	background-image: url("/icons/close.svg");
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	cursor: pointer ;
+}
+
+#button-close-alt.disabled {
+	display: none;
+}
+
+#button-close-alt:not(.disabled):hover {
+	filter: contrast( 150% ) brightness( 150% ) ;
+}
+
 #alt-buffer.inactive {
 	opacity: 0 !important;
 	pointer-events: none !important;
@@ -571,7 +592,7 @@ indicator widget.vbar inner-bar {
 
 #hint {
 	display: block;
-	position: absolute;
+	position: fixed;
 	bottom: 6vh;
 	z-index: 100;
 	left: 50%;

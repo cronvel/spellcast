@@ -24,15 +24,20 @@
 				transition: 1s
 			area:
 				dumnonia:
-					owned: true
+					status:
+						owned: true
 				durotriges:
-					owned: true
+					status:
+						owned: true
 				belgae:
-					owned: true
+					status:
+						owned: true
 				iceni:
-					enemy: true
+					status:
+						enemy: true
 				trinovantes:
-					enemy: true
+					status:
+						enemy: true
 		
 		[pause] 2
 		
@@ -43,7 +48,10 @@
 		[update-ui britain]
 			area:
 				regnenses:
-					enemy: true
+					status:
+						enemy: true
+				#far-away:
+				#	hint: Northern lands
 		
 		[pause] 2
 		

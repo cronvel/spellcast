@@ -583,6 +583,7 @@ Dom.create = function create()
 	self.$main = document.querySelector( 'main' ) ;
 	self.$mainBuffer = document.querySelector( '#main-buffer' ) ;
 	self.$altBuffer = document.querySelector( '#alt-buffer' ) ;
+	self.$closeAltButton = document.querySelector( '#button-close-alt' ) ;
 	self.$dialogWrapper = document.querySelector( '#dialog-wrapper' ) ;
 	self.$hint = document.querySelector( '#hint' ) ;
 	self.$lobby = document.querySelector( '#lobby' ) ;
@@ -712,6 +713,7 @@ Dom.prototype.toMainBuffer = function toMainBuffer()
 	this.$importantMessages = null ;
 	this.$mainBuffer.classList.remove( 'inactive' ) ;
 	this.$altBuffer.classList.add( 'inactive' ) ;
+	this.$closeAltButton.classList.add( 'inactive' ) ;
 	
 	this.getSwitchedElements() ;
 	
@@ -729,6 +731,7 @@ Dom.prototype.toAltBuffer = function toAltBuffer()
 	this.$activeBuffer = this.$altBuffer ;
 	this.$mainBuffer.classList.add( 'inactive' ) ;
 	this.$altBuffer.classList.remove( 'inactive' ) ;
+	this.$closeAltButton.classList.remove( 'inactive' ) ;
 	
 	this.getSwitchedElements() ;
 	
@@ -1137,10 +1140,9 @@ Dom.prototype.clearChoices = function clearChoices( callback )
 		
 		var buttonId = 'button-' + choice.button ;
 		
-		if (
-			( $uiButton = document.getElementById( buttonId ) ) &&
-			$uiButton.getAttribute( 'data-select-index' )
-		)
+		$uiButton = document.getElementById( buttonId ) ;
+		
+		if ( $uiButton )
 		{
 			//console.warn( 'remove' , 'button-' + choice.button ) ;
 			$uiButton.removeAttribute( 'data-select-index' ) ;
@@ -1190,7 +1192,8 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback )
 		if (
 			choice.button &&
 			( $uiButton = document.getElementById( 'button-' + choice.button ) ) &&
-			! $uiButton.getAttribute( 'data-select-index' )
+			! $uiButton.getAttribute( 'data-select-index' ) &&
+			! $uiButton.classList.contains( 'inactive' )
 		)
 		{
 			// groupBreak remainder
@@ -1725,7 +1728,7 @@ Dom.prototype.showUi = function showUi( id , data )
 		action: null ,
 		isUi: true ,
 		style: {} ,
-		areaStatus: {} ,
+		area: {} ,
 		animation: null
 	} ;
 	
@@ -1943,13 +1946,13 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 	
 	if ( data.area )
 	{
-		this.updateUiAreaStatus( ui , data.area ) ;
+		this.updateUiArea( ui , data.area ) ;
 	}
 } ;
 
 
 
-Dom.prototype.updateUiAreaStatus = function updateUiAreaStatus( ui , areaStatus )
+Dom.prototype.updateUiArea = function updateUiArea( ui , areaData )
 {
 	var area ;
 	
@@ -1957,28 +1960,47 @@ Dom.prototype.updateUiAreaStatus = function updateUiAreaStatus( ui , areaStatus 
 	
 	if ( this.uiLoadingCount )
 	{
-		this.once( 'uiLoaded' , this.updateUiAreaStatus.bind( this , ui , areaStatus ) ) ;
+		this.once( 'uiLoaded' , this.updateUiArea.bind( this , ui , areaData ) ) ;
 		return ;
 	}
 	
-	for ( area in areaStatus )
+	for ( area in areaData )
 	{
-		if ( ! ui.areaStatus[ area ] ) { ui.areaStatus[ area ] = {} ; }
+		if ( ! ui.area[ area ] ) { ui.area[ area ] = {} ; }
+		if ( ! ui.area[ area ].status ) { ui.area[ area ].status = {} ; }
 		
-		Object.assign( ui.areaStatus[ area ] , areaStatus[ area ] ) ;
+		if ( areaData[ area ].hint !== undefined ) { ui.area[ area ].hint = areaData[ area ].hint || null ; }
+		if ( areaData[ area ].status ) { Object.assign( ui.area[ area ].status , areaData[ area ].status ) ; }
 		
 		Array.from( ui.$image.querySelectorAll( '[area=' + area + ']' ) ).forEach( function( $element ) {	// jshint ignore:line
 			var statusName ;
 			
-			for ( statusName in areaStatus[ area ] )
+			if ( areaData[ area ].hint !== undefined )
 			{
-				if ( areaStatus[ area ][ statusName ] )
+				if ( areaData[ area ].hint )
 				{
-					$element.classList.add( 'status-' + statusName ) ;
+					$element.setAttribute( 'data-passive-hint' , areaData[ area ].hint ) ;
+					$element.classList.add( 'passive-hint' ) ;
 				}
 				else
 				{
-					$element.classList.remove( 'status-' + statusName ) ;
+					$element.removeAttribute( 'data-passive-hint' ) ;
+					$element.classList.remove( 'passive-hint' ) ;
+				}
+			}
+			
+			if ( areaData[ area ].status )
+			{
+				for ( statusName in areaData[ area ].status )
+				{
+					if ( areaData[ area ].status[ statusName ] )
+					{
+						$element.classList.add( 'status-' + statusName ) ;
+					}
+					else
+					{
+						$element.classList.remove( 'status-' + statusName ) ;
+					}
 				}
 			}
 		} ) ;

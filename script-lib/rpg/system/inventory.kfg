@@ -54,7 +54,9 @@
 		
 		[message] $> Inventory
 		
-		[next] $> (Done)
+		[next]
+			[label] $> (Done)
+			[button] close-alt
 		
 		[foreach $local.equippedItems => $local.index : $local.item]
 			[next inventory-object]
@@ -79,7 +81,10 @@
 	# Called by inventory-menu
 	[scene inventory-object]
 		
-		[next inventory-menu] $> (Done)
+		[next inventory-menu]
+			[label] $> (Done)
+			[button] close-alt
+		
 		
 		[fake-next]
 			[label] $> Examine
@@ -158,7 +163,10 @@
 		
 		[message] $> Grab what?
 		
-		[next] $> (Done)
+		[next]
+			[label] $> (Done)
+			[button] close-alt
+		
 		
 		[foreach $stack => $local.index : $local.item]
 			[next grab-object]
@@ -173,7 +181,10 @@
 	# Called by grab-menu
 	[scene grab-object]
 		
-		[next grab-menu] $> (Done)
+		[next grab-menu]
+			[label] $> (Done)
+			[button] close-alt
+		
 		
 		[message]
 			$> ^_${item.label//uc1}^:
@@ -222,7 +233,9 @@
 		#[debug info] $performer.items
 		#[debug info] $local.items
 		
-		[next] $local.abortLabel
+		[next]
+			[label] $local.abortLabel
+			[button] close-alt
 		
 		[foreach $local.items => $local.index : $local.item]
 			[next]
@@ -245,7 +258,9 @@
 		
 		[message] $> Which usage?
 		
-		[next] $> (Abort)
+		[next]
+			[label] $> (Abort)
+			[button] close-alt
 		
 		[foreach $performer.usageTypes => $local.usage]
 			[next]
@@ -273,7 +288,9 @@
 		#[debug info] $performer.items
 		#[debug info] $local.equippedItems
 		
-		[next] $> (Abort)
+		[next]
+			[label] $> (Abort)
+			[button] close-alt
 		
 		[foreach $local.equippedItems => $local.index : $local.item]
 			[next]
@@ -304,7 +321,9 @@
 		
 		[message] $> Which slot?
 		
-		[next] $> (Abort)
+		[next]
+			[label] $> (Abort)
+			[button] close-alt
 		
 		[foreach $performer.slots => $local.slot : $local.count]
 			[next]
@@ -341,6 +360,7 @@
 		
 		[next]
 			[label] $> (Done)
+			[button] close-alt
 			[on-trigger]
 				[return] true
 		
