@@ -78,8 +78,7 @@ body[data-image-position="left"] #main-buffer {
 #alt-buffer {
 	position: fixed;
 	z-index: 1;
-	padding-top: 0.5em;
-	padding-bottom: 0.5em;
+	padding: 0;
 	
 	/*
 		top % are based upon container size, translate % are based upon the object size:
@@ -90,8 +89,6 @@ body[data-image-position="left"] #main-buffer {
 	
 	right: 7.5%;
 	width: 35%;
-	max-height: 80vh;
-	overflow: auto;
 	box-sizing: border-box;
 	/*background-color: rgba(220,220,200,0.6);*/
 	background-color: rgba(232, 225, 215, 0.7);
@@ -100,10 +97,18 @@ body[data-image-position="left"] #main-buffer {
 	transition: opacity 0.5s , right 0.3s;
 }
 
+#alt-buffer .buffer-wrapper {
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+	
+	max-height: 80vh;
+	overflow: auto;
+	box-sizing: border-box;
+}
+
 #button-close-alt {
-	position: absolute;
-	top: 0;
-	right: 0;
+	margin-left: auto;
+	margin-right: 0;
 	height: 1.5em;
 	width: 1.5em;
 	background-image: url("/icons/close.svg");

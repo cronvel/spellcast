@@ -725,9 +725,7 @@ Dom.prototype.toMainBuffer = function toMainBuffer()
 // return true if switched
 Dom.prototype.toAltBuffer = function toAltBuffer()
 {
-	console.warn( "To Alt Buffer?" ) ;
 	if ( this.$activeBuffer === this.$altBuffer ) { return ; }
-	console.warn( "To Alt Buffer!" ) ;
 	
 	this.$activeBuffer = this.$altBuffer ;
 	this.$importantMessages = this.$activeSegment ;
@@ -754,7 +752,6 @@ Dom.prototype.getSwitchedElements = function getSwitchedElements()
 	
 	this.$activeSegment = this.$activeMessages.querySelector( 'segment:last-child' ) ;
 	
-	console.warn( "Will trigger new segment" ) ;
 	if ( ! this.$activeSegment ) { this.newSegment() ; }
 	else { this.newSegmentOnContent() ; }
 } ;
@@ -825,7 +822,6 @@ Dom.prototype.newSegment = function newSegment( type )
 	
 	this.newSegmentNeeded = null ;
 	
-	console.warn( "New segment creation" , type ) ;
 	//var $lastSegment = this.$activeSegment ;
 	
 	if ( isInterSegment )
@@ -885,7 +881,6 @@ Dom.prototype.moveToHistory = function moveToHistory()
 Dom.prototype.newSegmentOnContent = function newSegmentOnContent( type )
 {
 	type = type || 'segment' ;
-	console.warn( "New segment on next content" , type ) ;
 	this.newSegmentNeeded = type ;
 } ;
 
@@ -2930,7 +2925,6 @@ UI.nextTriggered = function nextTriggered( nextIndex )
 	
 	this.dom.newSegmentOnContent( 'inter-segment' ) ;
 	
-	console.warn( 'selected' , selected ) ;
 	if ( selected.label && ! selected.button )
 	{
 		this.dom.addSelectedChoice( selected.label ) ;
