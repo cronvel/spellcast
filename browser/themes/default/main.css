@@ -89,11 +89,7 @@ body[data-image-position="left"] #main-buffer {
 	
 	right: 7.5%;
 	width: 35%;
-	box-sizing: border-box;
-	/*background-color: rgba(220,220,200,0.6);*/
-	background-color: rgba(232, 225, 215, 0.7);
 	opacity: 1;
-	box-shadow: 0px 0px 10px 1px #000;
 	transition: opacity 0.5s , right 0.3s;
 }
 
@@ -101,16 +97,24 @@ body[data-image-position="left"] #main-buffer {
 	padding-top: 0.5em;
 	padding-bottom: 0.5em;
 	
+	/*background-color: rgba(220,220,200,0.6);*/
+	background-color: rgba(232, 225, 215, 0.7);
+	box-shadow: 0px 0px 10px 1px #000;
+	
 	max-height: 80vh;
 	overflow: auto;
 	box-sizing: border-box;
 }
 
 #button-close-alt {
+	position: relative;
+	z-index: 1;
 	margin-left: auto;
 	margin-right: 0;
 	height: 1.5em;
 	width: 1.5em;
+	top: 0.75em;
+	left: 0.75em;
 	background-image: url("/icons/close.svg");
 	background-position: center;
 	background-repeat: no-repeat;
