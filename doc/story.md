@@ -143,11 +143,19 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Status Tag](#ref.ui.status)
 		* [Panel Tag](#ref.ui.panel)
 		* [Add to panel Tag](#ref.ui.add-to-panel)
+	* [Chatbot/Interpreter tags](#ref.chatbot)
+		* [Interpreter Tag](#ref.chatbot.interpreter)
+			* [Query Tag](#ref.chatbot.query)
+				* [Pattern Tag](#ref.chatbot.pattern)
+				* [Reply Tag](#ref.chatbot.reply)
+		* [Request Tag](#ref.chatbot.request)
 	* [Misc Tags](#ref.misc)
 		* [Module Tag](#ref.misc.module)
 		* [System Tag](#ref.misc.system)
 		* [Pause Tag](#ref.misc.pause)
 		* [Js Tag](#ref.misc.js)
+		* [Generator Tag](#ref.misc.generator)
+		* [Generate Tag](#ref.misc.generate)
 		* [Debug Tag](#ref.misc.debug)
 		* [Debugf Tag](#ref.misc.debugf)
 
@@ -2501,6 +2509,70 @@ TODO.
 
 
 
+<a name="ref.chatbot"></a>
+# Chatbot/Interpreter Tags
+
+Spellcast supports chatbot/interpreter features.
+
+TODO.
+
+
+
+<a name="ref.chatbot.interpreter"></a>
+## [interpreter *label*]
+
+* types: init
+* attribute style: label
+* content type: tags
+
+TODO.
+
+
+
+<a name="ref.chatbot.query"></a>
+### [query]
+
+* types: init
+* attribute style: none
+* content type: tags
+
+TODO.
+
+
+
+<a name="ref.chatbot.pattern"></a>
+#### [pattern]
+
+* types: init
+* attribute style: none
+* content type: string
+
+TODO.
+
+
+
+<a name="ref.chatbot.reply"></a>
+#### [reply]
+
+* types: init
+* attribute style: none
+* content type: tags
+
+TODO.
+
+
+
+<a name="ref.chatbot.request"></a>
+## [request]
+
+* types: run
+* attribute style: request syntax
+* content type: string
+
+TODO.
+
+
+
 <a name="ref.misc"></a>
 # Misc Tags
 
@@ -2587,6 +2659,32 @@ Example:
 Hello Zang'dar!
 Hello Oz!
 ```
+
+
+
+<a name="ref.misc.generator"></a>
+## [generator *label*]
+
+* types: init
+* attribute style: label
+* content type: object
+
+This creates a text/name generator.
+
+TODO.
+
+
+
+<a name="ref.misc.generate"></a>
+## [generate *$var*]
+
+* types: run
+* attribute style: var
+* content type: string (the name/id of the generator)
+
+This generate a random text/name using the generator provided in the tag content, and put it inside a variable.
+
+TODO.
 
 
 
