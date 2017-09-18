@@ -239,6 +239,8 @@ Events emitted here are usually **userland** event, except few standard events:
 	* data `object` data related to the marker, where:
 		* url `string` this is the URL of the image of the marker
 		* style `object` (optional) this is a CSS object to style the marker element
+		* ui: `string` the UI ID where to put the marker
+		* location: `string` the UI area where to put the marker
 
 * updateMarker (id, updatedData): instructs the client (if it is capable) to update a currently displayed marker,
   i.e. all current marker *data* properties will be deeply extended, where:
@@ -246,6 +248,8 @@ Events emitted here are usually **userland** event, except few standard events:
 	* updatedData `object` the data extension related to the marker, where:
 		* url `string` (optional) this is the URL of the image of the marker
 		* style `object` (optional) this is a CSS object to style the whole marker element
+		* ui: `string` the UI ID where to put the marker
+		* location: `string` the UI area where to put the marker
 
 * animateMarker (markerId, animationId): instructs the client (if it is capable) to animate a currently displayed marker, 
   using a previously recorded animation, where:

@@ -1556,7 +1556,9 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 
 Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiId , uiArea )
 {
-	var self = this , ui , $area , areaBBox , cx , cy , markerBBox , shouldNotBeNull = false ;
+	var self = this , ui , $area , areaBBox , cx , cy ,
+		offsetX , offsetY ,
+		markerBBox , shouldNotBeNull = false ;
 	
 	if ( this.uiLoadingCount )
 	{
@@ -1589,6 +1591,9 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 	var moveToArea = function() {
 		markerBBox = marker.$image.getBBox() ;
 		
+		// Hacky... For some reason, even after a setTimeout of 0ms, the marker's BBox is null,
+		// it seems that some asynchronous things are happening, but we don't have any API to know
+		// when the nested SVG is ready (i.e. have a BBox ready)
 		if ( shouldNotBeNull && ! markerBBox.width && ! markerBBox.height )
 		{
 			console.warn( 'NULL marker BBox!' , markerBBox ) ;
@@ -1600,6 +1605,21 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 		
 		marker.$image.setAttribute( 'x' , cx ) ;
 		marker.$image.setAttribute( 'y' , cy - markerBBox.height ) ;
+	}
+	
+	moveToArea = function() {
+		if ( offsetX = parseInt( marker.$image.getAttribute( 'offsetX' ) , 10 ) )
+		{
+			cx += offsetX ;
+		}
+		
+		if ( offsetY = parseInt( marker.$image.getAttribute( 'offsetY' ) , 10 ) )
+		{
+			cy += offsetY ;
+		}
+		
+		marker.$image.setAttribute( 'x' , cx ) ;
+		marker.$image.setAttribute( 'y' , cy ) ;
 	}
 	
 	if ( marker.$image.ownerSVGElement !== ui.$image )

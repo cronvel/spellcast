@@ -8,7 +8,7 @@
 			stroke-width: 1;
 			transition: all 500ms 0s;
 		}
-
+		
 		path.button:not(.disabled) , g.button:not(.disabled) path {
 			fill: #c0c0c0;
 		}
@@ -39,6 +39,18 @@
 		
 		path.status-enemy.button:not(.disabled):hover , g.status-enemy.button:not(.disabled):hover path {
 			fill: #ffe0e0;
+		}
+		
+		.marker path {
+			stroke: #4c4c4c;
+		}
+		
+		.marker path.primary {
+			fill: #0083d7;
+		}
+		
+		.marker path.secondary {
+			fill: #aebfc0;
 		}
 	</style>
 	
