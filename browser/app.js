@@ -1284,8 +1284,9 @@ Dom.prototype.showMarker = function showMarker( id , data )
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'marker' ,
+		ui: null ,
+		location: null ,
 		style: {} ,
-		area: {} ,
 		animation: null
 	} ;
 	
@@ -1471,7 +1472,10 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 			ui.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 		}
 		
-		this.$gfx.append( ui.$image ) ;
+		if ( ui.type !== 'marker' )
+		{
+			this.$gfx.append( ui.$image ) ;
+		}
 	}
 	
 	// Load/replace the sprite/ui mask, if needed
@@ -1541,6 +1545,70 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 	{
 		this.updateUiArea( ui , data.area ) ;
 	}
+	
+	if ( data.ui || data.location )
+	{
+		this.updateMarkerLocation( ui , data.ui , data.location ) ;
+	}
+} ;
+
+
+
+Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiId , uiArea )
+{
+	var self = this , ui , $area , areaBBox , cx , cy , markerBBox , shouldNotBeNull = false ;
+	
+	if ( this.uiLoadingCount )
+	{
+		this.once( 'uiLoaded' , this.updateMarkerLocation.bind( this , marker , uiId , uiArea ) ) ;
+		return ;
+	}
+	
+	if ( ! this.ui[ uiId ] )
+	{
+		console.warn( 'Unknown UI id: ' , uiId ) ;
+		return ;
+	}
+	
+	ui = this.ui[ uiId ] ;
+	$area = ui.$image.querySelector( '[area=' + uiArea + ']' ) ;
+	
+	if ( ! $area )
+	{
+		console.warn( 'UI ' + uiId + ': area not found' , uiArea ) ;
+		return ;
+	}
+	
+	areaBBox = $area.getBBox() ;
+	cx = areaBBox.x + areaBBox.width / 2 ;
+	cy = areaBBox.y + areaBBox.height / 2 ;
+	
+	console.warn( 'ui BBox' , ui.$image.getBBox() ) ;
+	console.warn( 'area BBox' , areaBBox , cx , cy ) ;
+	
+	var moveToArea = function() {
+		markerBBox = marker.$image.getBBox() ;
+		
+		if ( shouldNotBeNull && ! markerBBox.width && ! markerBBox.height )
+		{
+			console.warn( 'NULL marker BBox!' , markerBBox ) ;
+			setTimeout( moveToArea , 10 ) ;
+			return ;
+		}
+		
+		console.warn( 'marker BBox' , markerBBox ) ;
+		
+		marker.$image.setAttribute( 'x' , cx ) ;
+		marker.$image.setAttribute( 'y' , cy - markerBBox.height ) ;
+	}
+	
+	if ( marker.$image.ownerSVGElement !== ui.$image )
+	{
+		ui.$image.append( marker.$image ) ;
+		shouldNotBeNull = true ;
+	}
+	
+	moveToArea() ;
 } ;
 
 
@@ -1567,22 +1635,6 @@ Dom.prototype.updateUiArea = function updateUiArea( ui , areaData )
 		
 		Array.from( ui.$image.querySelectorAll( '[area=' + area + ']' ) ).forEach( function( $element ) {	// jshint ignore:line
 			var statusName ;
-			
-			/*
-			if ( true )
-			{
-				var bbox = $element.getBBox() ;
-				var cx = bbox.x + bbox.width / 2 ;
-				var cy = bbox.y + bbox.height / 2 ;
-				console.warn( 'BBox' , bbox , cx , cy ) ;
-				cx += 900 ;
-				cy += 200 ;
-				var $p = document.createElement( 'p' ) ;
-				$p.innerHTML = area ;
-				$p.setAttribute( 'style' , 'position: absolute; z-index: 1000; color: #f00; top:' + cy + 'px; left:' + cx + 'px;' ) ;
-				self.$gfx.appendChild( $p ) ;
-			}
-			*/
 			
 			if ( areaData[ area ].hint !== undefined )
 			{

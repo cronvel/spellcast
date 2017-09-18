@@ -53,6 +53,11 @@
 				#far-away:
 				#	hint: Northern lands
 		
+		[show-marker here]
+			url: /icons/flag.svg
+			ui: britain
+			location: belgae
+		
 		[pause] 2
 		
 		[message]

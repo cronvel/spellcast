@@ -73,10 +73,12 @@ body {
 
 
 
+/* Sprite */
+
 .sprite {
 	position: absolute;
 	height: 50%;
-	z-index: 2;
+	z-index: 30;
 	opacity: 1;
 	transition: all 1s ;
 	pointer-events: none;
@@ -113,6 +115,8 @@ body {
 
 
 
+/* UI, board, etc... */
+
 .ui {
 	position: absolute;
 	height: 90%;
@@ -134,4 +138,30 @@ body {
 }
 
 /* .ui [button]:hover {} */
+
+
+
+/* UI marker, board piece, etc... */
+
+.marker {
+	position: absolute;
+	/*height: 90%;*/
+	z-index: 20;
+	opacity: 1;
+	transition: all 1s ;
+	
+	/* "none" should be put on the <svg> tag itself, "painted" on the <path> tag */
+	pointer-events: none;
+}
+
+.marker .button:not(.disabled) {
+	cursor: pointer;
+	pointer-events: painted;
+}
+
+.marker .button {
+	pointer-events: painted;
+}
+
+/* .marker [button]:hover {} */
 
