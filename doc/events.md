@@ -234,6 +234,28 @@ Events emitted here are usually **userland** event, except few standard events:
   totally deleted, where:
 	* id `string` the UI ID to delete
 
+* showMarker (id, data): instructs the client (if it is capable) to show a marker or replace an existing marker, where:
+	* id `string` the marker ID
+	* data `object` data related to the marker, where:
+		* url `string` this is the URL of the image of the marker
+		* style `object` (optional) this is a CSS object to style the marker element
+
+* updateMarker (id, updatedData): instructs the client (if it is capable) to update a currently displayed marker,
+  i.e. all current marker *data* properties will be deeply extended, where:
+	* id `string` the marker ID
+	* updatedData `object` the data extension related to the marker, where:
+		* url `string` (optional) this is the URL of the image of the marker
+		* style `object` (optional) this is a CSS object to style the whole marker element
+
+* animateMarker (markerId, animationId): instructs the client (if it is capable) to animate a currently displayed marker, 
+  using a previously recorded animation, where:
+	* markerId `string` the marker ID to animate
+	* animationId `string` the animation ID to use
+
+* clearMarker (id): instructs the client (if it is capable) to clear a currently displayed marker, the marker will be
+  totally deleted, where:
+	* id `string` the marker ID to delete
+
 
 
 ### output
