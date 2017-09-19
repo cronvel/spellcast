@@ -41,6 +41,10 @@
 			fill: #ffe0e0;
 		}
 		
+		.marker {
+			transition: all 0.5s;
+		}
+		
 		.marker path {
 			stroke: #4c4c4c;
 		}
