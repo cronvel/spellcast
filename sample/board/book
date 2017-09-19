@@ -39,6 +39,11 @@
 					status:
 						enemy: true
 		
+		[show-marker here]
+			url: /icons/flag.svg
+			ui: britain
+			location: belgae
+		
 		[pause] 2
 		
 		[message]
@@ -53,11 +58,6 @@
 				#far-away:
 				#	hint: Northern lands
 		
-		[show-marker here]
-			url: /icons/flag.svg
-			ui: britain
-			location: belgae
-		
 		[pause] 2
 		
 		[message]
@@ -65,38 +65,92 @@
 			$> rally more brittons to our cause (grey),
 			$> or strike the saxons at Regnenses before they strengthen (red).
 		
-		[next fortify]
+		[next fortify-durotriges]
 			[label] $> Fortify our position in the Durotriges province
 			[button] durotriges
 
-		[next fortify]
+		[next fortify-belgae]
 			[label] $> Fortify our position in the Belgae province
 			[button] belgae
 		
-		[next claim]
+		[next claim-atrebates]
 			[label] $> Claim the Atrebates province
 			[button] atrebates
 		
-		[next claim]
+		[next claim-dobunni]
 			[label] $> Claim the Dobunni province
 			[button] dobunni
 		
-		[next strike]
+		[next strike-regnenses]
 			[label] $> Strike the saxon in the Regnenses province
 			[button] regnenses
 		
-	[scene fortify]
+	[scene fortify-durotriges]
 		[message]
-			$> Great! I will raise an army in your name and fortify the country.
+			$> Great! I will raise an army in your name and fortify the province.
 		[pause] 2
 		
-	[scene claim]
+		[update-marker here]
+			location: durotriges
+		
+	[scene fortify-belgae]
 		[message]
-			$> With our Greatness at our side, there is no doubt that the brittons of that land will rally us!
+			$> Great! I will raise an army in your name and fortify the province.
 		[pause] 2
 		
-	[scene strike]
+	[scene claim-atrebates]
+		[message]
+			$> With our Greatness at our side, there is no doubt that the brittons of the Atrebates lands will rally us!
+		
+		[pause] 2
+		
+		[message]
+			$> As expected, the people of the Atrebates province have rallied us!
+		
+		[update-ui britain]
+			area:
+				atrebates:
+					status:
+						owned: true
+		
+		[update-marker here]
+			location: atrebates
+		
+	[scene claim-dobunni]
+		[message]
+			$> With our Greatness at our side, there is no doubt that the brittons of the Dobunni lands will rally us!
+		
+		[pause] 2
+		
+		[message]
+			$> As expected, the people of the Dobunni province have rallied us!
+		
+		[update-ui britain]
+			area:
+				dobunni:
+					status:
+						owned: true
+		
+		[update-marker here]
+			location: dobunni
+		
+	[scene strike-regnenses]
 		[message]
 			$> The saxons must be pushed back to the sea!
+		
 		[pause] 2
+		
+		[message]
+			$> That was a fierce battle, but we carried the day and the saxons abandoned the Regnenses province.
+			$> Those lands are now part of your kingdom!
+		
+		[update-ui britain]
+			area:
+				regnenses:
+					status:
+						owned: true
+						enemy: false
+		
+		[update-marker here]
+			location: regnenses
 		

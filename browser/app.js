@@ -1241,13 +1241,13 @@ Dom.prototype.showSprite = function showSprite( id , data )
 	
 	if ( this.sprites[ id ] ) { this.clearUiObject( this.sprites[ id ] ) ; }
 	
-	var sprite = this.sprites[ id ] = {
+	var sprite = this.sprites[ id ] = this.createUiObject( {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'sprite' ,
 		style: {} ,
 		animation: null
-	} ;
+	} ) ;
 	
 	this.updateUiObject( sprite , data ) ;
 } ;
@@ -1260,14 +1260,14 @@ Dom.prototype.showUi = function showUi( id , data )
 	
 	if ( this.ui[ id ] ) { this.clearUiObject( this.ui[ id ] ) ; }
 	
-	var ui = this.ui[ id ] = {
+	var ui = this.ui[ id ] = this.createUiObject( {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'ui' ,
 		style: {} ,
 		area: {} ,
 		animation: null
-	} ;
+	} ) ;
 	
 	this.updateUiObject( ui , data ) ;
 } ;
@@ -1280,7 +1280,7 @@ Dom.prototype.showMarker = function showMarker( id , data )
 	
 	if ( this.marker[ id ] ) { this.clearUiObject( this.marker[ id ] ) ; }
 	
-	var marker = this.marker[ id ] = {
+	var marker = this.marker[ id ] = this.createUiObject( {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'marker' ,
@@ -1288,7 +1288,7 @@ Dom.prototype.showMarker = function showMarker( id , data )
 		location: null ,
 		style: {} ,
 		animation: null
-	} ;
+	} ) ;
 	
 	this.updateUiObject( marker , data ) ;
 } ;
@@ -1391,6 +1391,17 @@ Dom.prototype.animateMarker = function animateMarker( markerId , animationId )
 
 
 
+Dom.prototype.createUiObject = function createUiObject( data )
+{
+	var ui = new Ngev() ;
+	Object.assign( ui , data ) ;
+	ui.defineStates( 'loaded' , 'loading' ) ;
+	
+	return ui ;
+} ;
+
+
+
 Dom.prototype.clearUiObject = function clearUiObject( ui )
 {
 	ui.$image.remove() ;
@@ -1453,9 +1464,16 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 				{
 					self.setUiButtons( ui.$image ) ;
 					self.setUiPassiveHints( ui.$image ) ;
+					ui.emit( 'loaded' ) ;
 					if ( -- self.uiLoadingCount <= 0 ) { self.emit( 'uiLoaded' ) ; }
 				}
+				else
+				{
+					ui.emit( 'loaded' ) ;
+				}
 			} ) ;
+			
+			ui.emit( 'loading' ) ;
 		}
 		else
 		{
@@ -1554,94 +1572,15 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 
 
 
-Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiId , uiArea )
-{
-	var self = this , ui , $area , areaBBox , cx , cy ,
-		offsetX , offsetY ,
-		markerBBox , shouldNotBeNull = false ;
-	
-	if ( this.uiLoadingCount )
-	{
-		this.once( 'uiLoaded' , this.updateMarkerLocation.bind( this , marker , uiId , uiArea ) ) ;
-		return ;
-	}
-	
-	if ( ! this.ui[ uiId ] )
-	{
-		console.warn( 'Unknown UI id: ' , uiId ) ;
-		return ;
-	}
-	
-	ui = this.ui[ uiId ] ;
-	$area = ui.$image.querySelector( '[area=' + uiArea + ']' ) ;
-	
-	if ( ! $area )
-	{
-		console.warn( 'UI ' + uiId + ': area not found' , uiArea ) ;
-		return ;
-	}
-	
-	areaBBox = $area.getBBox() ;
-	cx = areaBBox.x + areaBBox.width / 2 ;
-	cy = areaBBox.y + areaBBox.height / 2 ;
-	
-	console.warn( 'ui BBox' , ui.$image.getBBox() ) ;
-	console.warn( 'area BBox' , areaBBox , cx , cy ) ;
-	
-	var moveToArea = function() {
-		markerBBox = marker.$image.getBBox() ;
-		
-		// Hacky... For some reason, even after a setTimeout of 0ms, the marker's BBox is null,
-		// it seems that some asynchronous things are happening, but we don't have any API to know
-		// when the nested SVG is ready (i.e. have a BBox ready)
-		if ( shouldNotBeNull && ! markerBBox.width && ! markerBBox.height )
-		{
-			console.warn( 'NULL marker BBox!' , markerBBox ) ;
-			setTimeout( moveToArea , 10 ) ;
-			return ;
-		}
-		
-		console.warn( 'marker BBox' , markerBBox ) ;
-		
-		marker.$image.setAttribute( 'x' , cx ) ;
-		marker.$image.setAttribute( 'y' , cy - markerBBox.height ) ;
-	}
-	
-	moveToArea = function() {
-		if ( offsetX = parseInt( marker.$image.getAttribute( 'offsetX' ) , 10 ) )
-		{
-			cx += offsetX ;
-		}
-		
-		if ( offsetY = parseInt( marker.$image.getAttribute( 'offsetY' ) , 10 ) )
-		{
-			cy += offsetY ;
-		}
-		
-		marker.$image.setAttribute( 'x' , cx ) ;
-		marker.$image.setAttribute( 'y' , cy ) ;
-	}
-	
-	if ( marker.$image.ownerSVGElement !== ui.$image )
-	{
-		ui.$image.append( marker.$image ) ;
-		shouldNotBeNull = true ;
-	}
-	
-	moveToArea() ;
-} ;
-
-
-
 Dom.prototype.updateUiArea = function updateUiArea( ui , areaData )
 {
 	var self = this , area ;
 	
 	if ( ui.type !== 'ui' ) { return ; }
 	
-	if ( this.uiLoadingCount )
+	if ( ! ui.hasState( 'loaded' ) )
 	{
-		this.once( 'uiLoaded' , this.updateUiArea.bind( this , ui , areaData ) ) ;
+		ui.once( 'loaded' , this.updateUiArea.bind( this , ui , areaData ) ) ;
 		return ;
 	}
 	
@@ -1685,6 +1624,84 @@ Dom.prototype.updateUiArea = function updateUiArea( ui , areaData )
 				}
 			}
 		} ) ;
+	}
+} ;
+
+
+
+Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiId , areaId )
+{
+	var self = this , ui , $area , areaBBox , posX , posY ,
+		markerViewBox , width , height , originX , originY ;
+	
+	
+	// First, check that everything is ready and OK...
+	if ( ! marker.hasState( 'loaded' ) )
+	{
+		marker.once( 'loaded' , this.updateMarkerLocation.bind( this , marker , uiId , areaId ) ) ;
+		return ;
+	}
+	
+	if ( ! uiId ) { uiId = marker.ui ; }
+	if ( ! areaId ) { areaId = marker.location ; }
+	
+	if ( ! this.ui[ uiId ] )
+	{
+		console.warn( 'Unknown UI id: ' , uiId ) ;
+		return ;
+	}
+	
+	ui = this.ui[ uiId ] ;
+	
+	if ( ! ui.hasState( 'loaded' ) )
+	{
+		ui.once( 'loaded' , this.updateMarkerLocation.bind( this , marker , uiId , areaId ) ) ;
+		return ;
+	}
+	
+	$area = ui.$image.querySelector( '[area=' + areaId + ']' ) ;
+	
+	if ( ! $area )
+	{
+		console.warn( 'UI ' + uiId + ': area not found' , areaId ) ;
+		return ;
+	}
+	
+	
+	// Once everything is ok, update the marker
+	marker.ui = uiId ;
+	marker.location = areaId ;
+	
+	
+	// Get or compute the area active point
+	areaBBox = $area.getBBox() ;
+	posX = areaBBox.x + areaBBox.width / 2 ;
+	posY = areaBBox.y + areaBBox.height / 2 ;
+	
+	
+	// Now, compute the SVG marker position
+	markerViewBox = svgKit.getViewBox( marker.$image ) ;
+	width = parseFloat( marker.$image.getAttribute( 'width' ) ) || markerViewBox.width ;
+	height = parseFloat( marker.$image.getAttribute( 'height' ) ) || markerViewBox.height ;
+	
+	if ( ! isNaN( originX = parseFloat( marker.$image.getAttribute( 'originX' ) ) ) )
+	{
+		posX -= ( ( originX - markerViewBox.x ) / markerViewBox.width ) * width ;
+	}
+	
+	if ( ! isNaN( originY = parseFloat( marker.$image.getAttribute( 'originY' ) ) ) )
+	{
+		posY -= ( ( originY - markerViewBox.y ) / markerViewBox.height ) * height ;
+	}
+	
+	marker.$image.setAttribute( 'x' , posX ) ;
+	marker.$image.setAttribute( 'y' , posY ) ;
+	
+	
+	// Append the SVG to the UI now, if needed
+	if ( marker.$image.ownerSVGElement !== ui.$image )
+	{
+		ui.$image.append( marker.$image ) ;
 	}
 } ;
 
@@ -3481,7 +3498,7 @@ function isSlowBuffer (obj) {
 
 
 
-function NextGenEvents() { return Object.create( NextGenEvents.prototype ) ; }
+function NextGenEvents() {}
 module.exports = NextGenEvents ;
 NextGenEvents.prototype.__prototypeUID__ = 'nextgen-events/NextGenEvents' ;
 NextGenEvents.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
@@ -5228,28 +5245,30 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message )
 
 },{"./NextGenEvents.js":8}],10:[function(require,module,exports){
 module.exports={
-  "_from": "nextgen-events@^0.10.0",
-  "_id": "nextgen-events@0.10.0",
+  "_from": "nextgen-events@0.10.2",
+  "_id": "nextgen-events@0.10.2",
   "_inBundle": false,
-  "_integrity": "sha1-9H1NIOwRS/mfSPjEmujUq2Ni7s0=",
+  "_integrity": "sha512-P6efDoVOOJjVLOhwINq+aqhC2B3a9IxojbWMn9fTv2coDiyRaaGLSgWsm84wQHlQeuqVgqiLEE+xiHXf3EVN6w==",
   "_location": "/nextgen-events",
   "_phantomChildren": {},
   "_requested": {
-    "type": "range",
+    "type": "version",
     "registry": true,
-    "raw": "nextgen-events@^0.10.0",
+    "raw": "nextgen-events@0.10.2",
     "name": "nextgen-events",
     "escapedName": "nextgen-events",
-    "rawSpec": "^0.10.0",
+    "rawSpec": "0.10.2",
     "saveSpec": null,
-    "fetchSpec": "^0.10.0"
+    "fetchSpec": "0.10.2"
   },
   "_requiredBy": [
-    "/"
+    "#USER",
+    "/",
+    "/terminal-kit"
   ],
-  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.10.0.tgz",
-  "_shasum": "f47d4d20ec114bf99f48f8c49ae8d4ab6362eecd",
-  "_spec": "nextgen-events@^0.10.0",
+  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.10.2.tgz",
+  "_shasum": "d0a3f4e620cae40061874d920afd0cc40c31cebe",
+  "_spec": "nextgen-events@0.10.2",
   "_where": "/home/cedric/inside/github/spellcast",
   "author": {
     "name": "Cédric Ronvel"
@@ -5277,12 +5296,12 @@ module.exports={
   "deprecated": false,
   "description": "The next generation of events handling for javascript! New: abstract away the network!",
   "devDependencies": {
-    "browserify": "^14.3.0",
+    "browserify": "^14.4.0",
     "expect.js": "^0.3.1",
     "jshint": "^2.9.2",
     "mocha": "^2.5.3",
     "uglify-js-es6": "^2.8.9",
-    "ws": "^2.2.3"
+    "ws": "^3.2.0"
   },
   "directories": {
     "test": "test"
@@ -5313,7 +5332,7 @@ module.exports={
   "scripts": {
     "test": "mocha -R dot"
   },
-  "version": "0.10.0"
+  "version": "0.10.2"
 }
 
 },{}],11:[function(require,module,exports){
@@ -7948,6 +7967,31 @@ svgKit.ajax.ajaxStatus = function ajaxStatus( callback )
 	catch ( error ) {
 		callback( error ) ;
 	}
+} ;
+
+
+
+svgKit.getViewBox = function getViewBox( $svg )
+{
+	var raw = $svg.getAttribute( 'viewBox' ) ;
+	
+	if ( ! raw ) { return null ; }
+	
+	var array = raw.split( / +/ ) ;
+	
+	return {
+		x: parseFloat( array[ 0 ] , 10 ) ,
+		y: parseFloat( array[ 1 ] , 10 ) ,
+		width: parseFloat( array[ 2 ] , 10 ) ,
+		height: parseFloat( array[ 3 ] , 10 )
+	} ;
+} ;
+
+
+
+svgKit.setViewBox = function setViewBox( $svg , viewBox )
+{
+	$svg.setAttribute( 'viewBox' , viewBox.x + ' ' + viewBox.y + ' ' + viewBox.width + ' ' + viewBox.height ) ;
 } ;
 
 

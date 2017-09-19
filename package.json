@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.37.17",
+  "version": "0.37.18",
   "description": "Make: your own adventure!",
   "main": "lib/Book.js",
   "engines": {
@@ -26,12 +26,12 @@
     "logfella": "^0.3.55",
     "math-kit": "^0.11.12",
     "minimist": "^1.2.0",
-    "nextgen-events": "^0.10.0",
+    "nextgen-events": "^0.10.2",
     "nomi-ninja": "^0.1.1",
     "semver": "^5.4.1",
     "server-kit": "^0.5.0",
     "string-kit": "^0.6.2",
-    "svg-kit": "^0.1.17",
+    "svg-kit": "^0.1.19",
     "terminal-kit": "^1.13.11",
     "tree-kit": "^0.5.26"
   },
