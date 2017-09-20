@@ -32,9 +32,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.49497475"
-     inkscape:cx="741.42594"
-     inkscape:cy="481.95999"
+     inkscape:zoom="0.7"
+     inkscape:cx="670.42332"
+     inkscape:cy="183.18391"
      inkscape:document-units="px"
      inkscape:current-layer="svg8"
      inkscape:document-rotation="0"
@@ -67,7 +67,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -294,4 +294,15 @@
      d="m 213.73411,44.275511 -2.2849,-1.296327 -2.31599,1.239918 0.52681,-2.573656 -1.89492,-1.819486 2.61049,-0.294279 1.14487,-2.364423 1.08656,2.391781 2.60249,0.358193 -1.93896,1.772481 z"
      inkscape:transform-center-x="-0.014836259"
      inkscape:transform-center-y="-0.35962849" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:7.27604151px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="217.8176"
+     y="88.89077"
+     id="text97"><tspan
+       sodipodi:role="line"
+       id="tspan95"
+       x="217.8176"
+       y="88.89077"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.8777771px;font-family:'Oleo Script';-inkscape-font-specification:'Oleo Script';fill:#808080;fill-opacity:1;stroke-width:0.26458332px">Make your own adventure!</tspan></text>
 </svg>
