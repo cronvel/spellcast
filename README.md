@@ -1,5 +1,4 @@
 
-
 ![Spellcast Logo](https://raw.githubusercontent.com/cronvel/spellcast/master/media/logo/full.png)
 
 **Spellcast** is a scripting language, an interpreter/server, plus a terminal and a web clients with powerful capabilities.
