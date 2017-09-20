@@ -2,7 +2,7 @@
 
 # Spellcast!
 
-![Spellcast Logo](https://raw.githubusercontent.com/cronvel/spellcast/master/media/icons/spellcast-logo.png)
+![Spellcast Logo](https://raw.githubusercontent.com/cronvel/spellcast/master/media/logo/big.png)
 
 Make: your own adventure!
 
