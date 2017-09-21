@@ -1415,7 +1415,8 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 	var self = this , $element ;
 	
 	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
-
+	
+	// Forbidden styles:
 	delete data.style.position ;
 	
 	// Load/replace the ui image, if needed
