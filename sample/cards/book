@@ -1,0 +1,22 @@
+
+[[doctype spellcast/book]]
+#[[assets ./]]
+
+[chapter intro]
+	
+	[scene intro1]
+		
+		[show-card my-card]
+			url: /sprites/shaman.png
+			style:
+				height: 90%
+				top: 50vh
+				right: 25vw
+				transform: translate( 50% , -50% )
+				transition: 1s
+		
+		[pause] 2
+		
+		[update-card my-card]
+			key: value
+		

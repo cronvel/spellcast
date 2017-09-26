@@ -81,8 +81,9 @@ Dom.create = function create()
 	self.nextSoundChannel = 0 ;
 
 	self.sprites = {} ;
-	self.ui = {} ;
-	self.marker = {} ;
+	self.uis = {} ;
+	self.markers = {} ;
+	self.cards = {} ;
 	self.animations = {} ;
 
 	self.hintTimer = null ;
@@ -1207,30 +1208,45 @@ Dom.prototype.clearSprite = function clearSprite( id )
 
 Dom.prototype.clearUi = function clearUi( id )
 {
-	if ( ! this.ui[ id ] )
+	if ( ! this.uis[ id ] )
 	{
 		console.warn( 'Unknown UI id: ' , id ) ;
 		return ;
 	}
 	
-	this.clearUiObject( this.ui[ id ] ) ;
+	this.clearUiObject( this.uis[ id ] ) ;
 	
-	delete this.ui[ id ] ;
+	delete this.uis[ id ] ;
 } ;
 
 
 
 Dom.prototype.clearMarker = function clearMarker( id )
 {
-	if ( ! this.marker[ id ] )
+	if ( ! this.markers[ id ] )
 	{
 		console.warn( 'Unknown Marker id: ' , id ) ;
 		return ;
 	}
 	
-	this.clearUiObject( this.marker[ id ] ) ;
+	this.clearUiObject( this.markers[ id ] ) ;
 	
-	delete this.marker[ id ] ;
+	delete this.markers[ id ] ;
+} ;
+
+
+
+Dom.prototype.clearCard = function clearCard( id )
+{
+	if ( ! this.cards[ id ] )
+	{
+		console.warn( 'Unknown Card id: ' , id ) ;
+		return ;
+	}
+	
+	this.clearUiObject( this.cards[ id ] ) ;
+	
+	delete this.cards[ id ] ;
 } ;
 
 
@@ -1258,9 +1274,9 @@ Dom.prototype.showUi = function showUi( id , data )
 {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 	
-	if ( this.ui[ id ] ) { this.clearUiObject( this.ui[ id ] ) ; }
+	if ( this.uis[ id ] ) { this.clearUiObject( this.uis[ id ] ) ; }
 	
-	var ui = this.ui[ id ] = this.createUiObject( {
+	var ui = this.uis[ id ] = this.createUiObject( {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'ui' ,
@@ -1278,14 +1294,33 @@ Dom.prototype.showMarker = function showMarker( id , data )
 {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 	
-	if ( this.marker[ id ] ) { this.clearUiObject( this.marker[ id ] ) ; }
+	if ( this.markers[ id ] ) { this.clearUiObject( this.markers[ id ] ) ; }
 	
-	var marker = this.marker[ id ] = this.createUiObject( {
+	var marker = this.markers[ id ] = this.createUiObject( {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'marker' ,
 		ui: null ,
 		location: null ,
+		style: {} ,
+		animation: null
+	} ) ;
+	
+	this.updateUiObject( marker , data ) ;
+} ;
+
+
+
+Dom.prototype.showCard = function showCard( id , data )
+{
+	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+	
+	if ( this.cards[ id ] ) { this.clearUiObject( this.cards[ id ] ) ; }
+	
+	var marker = this.cards[ id ] = this.createUiObject( {
+		actionCallback: data.actionCallback ,
+		action: null ,
+		type: 'card' ,
 		style: {} ,
 		animation: null
 	} ) ;
@@ -1310,26 +1345,39 @@ Dom.prototype.updateSprite = function updateSprite( id , data )
 
 Dom.prototype.updateUi = function updateUi( id , data )
 {
-	if ( ! this.ui[ id ] )
+	if ( ! this.uis[ id ] )
 	{
 		console.warn( 'Unknown UI id: ' , id ) ;
 		return ;
 	}
 	
-	this.updateUiObject( this.ui[ id ] , data ) ;
+	this.updateUiObject( this.uis[ id ] , data ) ;
 } ;
 
 
 
 Dom.prototype.updateMarker = function updateMarker( id , data )
 {
-	if ( ! this.marker[ id ] )
+	if ( ! this.markers[ id ] )
 	{
 		console.warn( 'Unknown marker id: ' , id ) ;
 		return ;
 	}
 	
-	this.updateUiObject( this.marker[ id ] , data ) ;
+	this.updateUiObject( this.markers[ id ] , data ) ;
+} ;
+
+
+
+Dom.prototype.updateCard = function updateCard( id , data )
+{
+	if ( ! this.cards[ id ] )
+	{
+		console.warn( 'Unknown card id: ' , id ) ;
+		return ;
+	}
+	
+	this.updateUiObject( this.cards[ id ] , data ) ;
 } ;
 
 
@@ -1355,7 +1403,7 @@ Dom.prototype.animateSprite = function animateSprite( spriteId , animationId )
 
 Dom.prototype.animateUi = function animateUi( uiId , animationId )
 {
-	if ( ! this.ui[ uiId ] )
+	if ( ! this.uis[ uiId ] )
 	{
 		console.warn( 'Unknown UI id: ' , uiId ) ;
 		return ;
@@ -1367,16 +1415,16 @@ Dom.prototype.animateUi = function animateUi( uiId , animationId )
 		return ;
 	}
 	
-	this.animateUiObject( this.ui[ uiId ] , this.animations[ animationId ] ) ;
+	this.animateUiObject( this.uis[ uiId ] , this.animations[ animationId ] ) ;
 } ;
 
 
 
 Dom.prototype.animateMarker = function animateMarker( markerId , animationId )
 {
-	if ( ! this.marker[ markerId ] )
+	if ( ! this.markers[ markerId ] )
 	{
-		console.warn( 'Unknown UI id: ' , markerId ) ;
+		console.warn( 'Unknown marker id: ' , markerId ) ;
 		return ;
 	}
 	
@@ -1386,7 +1434,26 @@ Dom.prototype.animateMarker = function animateMarker( markerId , animationId )
 		return ;
 	}
 	
-	this.animateUiObject( this.marker[ markerId ] , this.animations[ animationId ] ) ;
+	this.animateUiObject( this.markers[ markerId ] , this.animations[ animationId ] ) ;
+} ;
+
+
+
+Dom.prototype.animateCard = function animateCard( cardId , animationId )
+{
+	if ( ! this.cards[ cardId ] )
+	{
+		console.warn( 'Unknown card id: ' , cardId ) ;
+		return ;
+	}
+	
+	if ( ! this.animations[ animationId ] )
+	{
+		console.warn( 'Unknown animation id: ' , animationId ) ;
+		return ;
+	}
+	
+	this.animateUiObject( this.cards[ cardId ] , this.animations[ animationId ] ) ;
 } ;
 
 
@@ -1654,13 +1721,13 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 	if ( ! uiId ) { uiId = marker.ui ; }
 	if ( ! areaId ) { areaId = marker.location ; }
 	
-	if ( ! this.ui[ uiId ] )
+	if ( ! this.uis[ uiId ] )
 	{
 		console.warn( 'Unknown UI id: ' , uiId ) ;
 		return ;
 	}
 	
-	ui = this.ui[ uiId ] ;
+	ui = this.uis[ uiId ] ;
 	
 	if ( ! ui.hasState( 'loaded' ) )
 	{
@@ -2329,6 +2396,11 @@ UI.prototype.initBus = function initBus()
 	this.bus.on( 'animateMarker' , UI.animateMarker.bind( this ) ) ;
 	this.bus.on( 'clearMarker' , UI.clearMarker.bind( this ) ) ;
 
+	this.bus.on( 'showCard' , UI.showCard.bind( this ) ) ;
+	this.bus.on( 'updateCard' , UI.updateCard.bind( this ) ) ;
+	this.bus.on( 'animateCard' , UI.animateCard.bind( this ) ) ;
+	this.bus.on( 'clearCard' , UI.clearCard.bind( this ) ) ;
+
 	this.bus.on( 'enterScene' , UI.enterScene.bind( this ) ) ;
 	this.bus.on( 'leaveScene' , UI.leaveScene.bind( this ) ) ;
 	this.bus.on( 'nextList' , UI.nextList.bind( this ) ) ;
@@ -2883,6 +2955,46 @@ UI.animateMarker = function animateMarker( markerId , animationId )
 UI.clearMarker = function clearMarker( id )
 {
 	this.dom.clearMarker( id ) ;
+} ;
+
+
+
+UI.showCard = function showCard( id , data )
+{
+	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+
+	data.actionCallback = UI.cardActionCallback.bind( this ) ;
+
+	this.dom.showCard( id , data ) ;
+} ;
+
+
+
+UI.cardActionCallback = function cardActionCallback( action )
+{
+	console.warn( "Card action triggered: " , action ) ;
+	this.bus.emit( 'action' , action ) ;
+} ;
+
+
+
+UI.updateCard = function updateCard( id , data )
+{
+	this.dom.updateCard( id , data ) ;
+} ;
+
+
+
+UI.animateCard = function animateCard( cardId , animationId )
+{
+	this.dom.animateCard( cardId , animationId ) ;
+} ;
+
+
+
+UI.clearCard = function clearCard( id )
+{
+	this.dom.clearCard( id ) ;
 } ;
 
 

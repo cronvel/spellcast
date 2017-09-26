@@ -165,3 +165,24 @@ body {
 
 /* .marker [button]:hover {} */
 
+
+
+/* Cards */
+
+.card {
+	position: absolute;
+	height: 50%;
+	z-index: 30;
+	opacity: 1;
+	transition: all 1s ;
+	pointer-events: none;
+}
+
+.card.button {
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+
+
+

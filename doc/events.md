@@ -260,6 +260,28 @@ Events emitted here are usually **userland** event, except few standard events:
   totally deleted, where:
 	* id `string` the marker ID to delete
 
+* showCard (id, data): instructs the client (if it is capable) to show a card or replace an existing card, where:
+	* id `string` the card ID
+	* data `object` data related to the card, where:
+		* url `string` this is the URL of the image of the card
+		* style `object` (optional) this is a CSS object to style the card element
+
+* updateCard (id, updatedData): instructs the client (if it is capable) to update a currently displayed card,
+  i.e. all current card *data* properties will be deeply extended, where:
+	* id `string` the card ID
+	* updatedData `object` the data extension related to the card, where:
+		* url `string` (optional) this is the URL of the image of the card
+		* style `object` (optional) this is a CSS object to style the card element
+
+* animateCard (cardId, animationId): instructs the client (if it is capable) to animate a currently displayed card, 
+  using a previously recorded animation, where:
+	* cardId `string` the card ID to animate
+	* animationId `string` the animation ID to use
+
+* clearCard (id): instructs the client (if it is capable) to clear a currently displayed card, the card will be
+  totally deleted, where:
+	* id `string` the card ID to delete
+
 
 
 ### output
