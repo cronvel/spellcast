@@ -1473,7 +1473,7 @@ Dom.prototype.clearUiObject = function clearUiObject( ui )
 {
 	if ( ui.type === 'card' )
 	{
-		ui.$container.remove() ;
+		ui.$wrapper.remove() ;
 	}
 	else
 	{
@@ -1486,30 +1486,30 @@ Dom.prototype.clearUiObject = function clearUiObject( ui )
 
 Dom.prototype.createCardMarkup = function createCardMarkup( card )
 {
-	var flipper , front , back ;
+	// /!\ Turn <img> into background image? /!\
 	
-	card.$container = document.createElement( 'div' ) ;
-	card.$container.classList.add( 'card' ) ;
+	card.$wrapper = document.createElement( 'div' ) ;
+	card.$wrapper.classList.add( 'card-wrapper' ) ;
 	
-	flipper = document.createElement( 'div' ) ;
-	flipper.classList.add( 'flipper' ) ;
-	card.$container.append( flipper ) ;
+	card.$card = document.createElement( 'div' ) ;
+	card.$card.classList.add( 'card' ) ;
+	card.$wrapper.append( card.$card ) ;
 	
-	front = document.createElement( 'div' ) ;
-	front.classList.add( 'front' ) ;
-	flipper.append( front ) ;
+	card.$front = document.createElement( 'div' ) ;
+	card.$front.classList.add( 'front' ) ;
+	card.$card.append( card.$front ) ;
 	
 	card.$image = document.createElement( 'img' ) ;
 	card.$image.classList.add( 'image' ) ;
-	front.append( card.$image ) ;
+	card.$front.append( card.$image ) ;
 	
-	back = document.createElement( 'div' ) ;
-	back.classList.add( 'back' ) ;
-	flipper.append( back ) ;
+	card.$back = document.createElement( 'div' ) ;
+	card.$back.classList.add( 'back' ) ;
+	card.$card.append( card.$back ) ;
 	
 	card.$backImage = document.createElement( 'img' ) ;
 	card.$backImage.classList.add( 'image' ) ;
-	back.append( card.$backImage ) ;
+	card.$back.append( card.$backImage ) ;
 } ;
 
 
@@ -1523,12 +1523,13 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 	// Forbidden styles:
 	delete data.style.position ;
 	
+	// /!\ Heavy clean-up needed: should be moved in its own function? /!\
 	if ( ui.type === 'card' )
 	{
-		if ( ! ui.$container )
+		if ( ! ui.$wrapper )
 		{
 			this.createCardMarkup( ui ) ;
-			this.$gfx.append( ui.$container ) ;
+			this.$gfx.append( ui.$wrapper ) ;
 		}
 		
 		if ( data.url )
@@ -1536,8 +1537,6 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 			ui.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 		}
 		
-		// TMP:
-		data.backUrl = '/textures/card-back.png' ;
 		if ( data.backUrl )
 		{
 			ui.$backImage.setAttribute( 'src' , this.cleanUrl( data.backUrl ) ) ;
@@ -1546,7 +1545,7 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 		if ( data.style )
 		{
 			Object.assign( ui.style , data.style ) ;
-			domKit.css( ui.$container , data.style ) ;
+			domKit.css( ui.$wrapper , data.style ) ;
 		}
 		
 		return ;

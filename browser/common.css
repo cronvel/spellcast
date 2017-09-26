@@ -169,7 +169,7 @@ body {
 
 /* Cards */
 
-.card {
+.card-wrapper {
 	position: absolute;
 	height: 50%;
 	z-index: 30;
@@ -180,22 +180,16 @@ body {
 	perspective: 1000px;
 }
 
-/* flip the pane when hovered */
-.card.back-face .flipper {
-	transform: rotateY(180deg);
-}
-
-.card, .card .front, .card .back {
-	width: 320px;
-	height: 480px;
-}
-
-/* flip speed goes here */
-.card .flipper {
-	transition: 0.6s;
+.card {
+	transition: all 0.5s ;
 	transform-style: preserve-3d;
 
 	position: relative;
+}
+
+.card , .card .front, .card .back {
+	width: 320px;
+	height: 480px;
 }
 
 /* hide back of pane during swap */
@@ -216,6 +210,15 @@ body {
 
 /* back, initially hidden pane */
 .card .back {
+	transform: rotateY(180deg);
+}
+
+.card .front .image {
+	width: 100%;
+}
+
+/* the 3D rotation */
+.card-wrapper.flipped .card , .card-wrapper:hover .card {
 	transform: rotateY(180deg);
 }
 

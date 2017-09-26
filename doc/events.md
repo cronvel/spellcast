@@ -264,6 +264,7 @@ Events emitted here are usually **userland** event, except few standard events:
 	* id `string` the card ID
 	* data `object` data related to the card, where:
 		* url `string` this is the URL of the image of the card
+		* backUrl `string` this is the URL of the back image of the card
 		* style `object` (optional) this is a CSS object to style the card element
 
 * updateCard (id, updatedData): instructs the client (if it is capable) to update a currently displayed card,
@@ -271,6 +272,7 @@ Events emitted here are usually **userland** event, except few standard events:
 	* id `string` the card ID
 	* updatedData `object` the data extension related to the card, where:
 		* url `string` (optional) this is the URL of the image of the card
+		* backUrl `string` this is the URL of the back image of the card
 		* style `object` (optional) this is a CSS object to style the card element
 
 * animateCard (cardId, animationId): instructs the client (if it is capable) to animate a currently displayed card, 
