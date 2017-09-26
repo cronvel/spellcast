@@ -30,3 +30,8 @@ by [Lorc](http://lorcblog.blogspot.fr)
 CC BY 3.0,
 Found at [game-icons.net](http://game-icons.net)
 Change made
+
+textures/card-back.png:
+CC0
+Found at [Pixabay](https://pixabay.com/)
+

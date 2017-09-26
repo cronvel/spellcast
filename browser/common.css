@@ -174,15 +174,50 @@ body {
 	height: 50%;
 	z-index: 30;
 	opacity: 1;
-	transition: all 1s ;
-	pointer-events: none;
+	transition: all 0.5s ;
+	/*pointer-events: none;*/
+	
+	perspective: 1000px;
 }
 
-.card.button {
-	cursor: pointer;
-	pointer-events: auto;
+/* flip the pane when hovered */
+.card.back-face .flipper {
+	transform: rotateY(180deg);
 }
 
+.card, .card .front, .card .back {
+	width: 320px;
+	height: 480px;
+}
+
+/* flip speed goes here */
+.card .flipper {
+	transition: 0.6s;
+	transform-style: preserve-3d;
+
+	position: relative;
+}
+
+/* hide back of pane during swap */
+.card .front, .card .back {
+	backface-visibility: hidden;
+
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+/* front pane, placed above back */
+.card .front {
+	z-index: 2;
+	/* for firefox 31 */
+	transform: rotateY(0deg);
+}
+
+/* back, initially hidden pane */
+.card .back {
+	transform: rotateY(180deg);
+}
 
 
 

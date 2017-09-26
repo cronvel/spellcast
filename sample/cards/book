@@ -8,6 +8,7 @@
 		
 		[show-card my-card]
 			url: /sprites/shaman.png
+			backUrl: /textures/card-back.png
 			style:
 				height: 90%
 				top: 50vh
@@ -20,3 +21,4 @@
 		[update-card my-card]
 			key: value
 		
+		[next intro1]
