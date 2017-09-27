@@ -688,12 +688,18 @@ indicator widget.vbar inner-bar {
 	left: 10px;
 }
 
-.card .description {
+.card .card-image {
+	order: 1;
 }
 
-.card .title {
+.card .content-title {
+	order: 2;
 	font-size: 1.3em;
 	font-weight: 700;
+}
+
+.card .content-description {
+	order: 3;
 }
 
 

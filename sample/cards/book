@@ -9,11 +9,12 @@
 		[show-card my-card]
 			url: /sprites/shaman.png
 			backUrl: /textures/card-back.png
-			states:
+			status:
 				face-down: true
-			title: $> Druidess
-			description:
-				$> The druidess is a great support unit, that can heal and boost allies.
+			content:
+				title: $> The Druidess
+				description:
+					$> The Druidess is a great support unit, that can heal and boost allies.
 			imageStyle:
 				backgroundSize: contain
 			style:
@@ -25,7 +26,7 @@
 		[pause] 2
 		
 		[update-card my-card]
-			states:
+			status:
 				face-down: false
 		
 		[next intro1]

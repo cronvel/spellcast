@@ -204,6 +204,8 @@ body {
 .card .front {
 	z-index: 2;
 	transform: rotateY(0deg);
+	display: flex;
+	flex-direction: column;
 }
 
 /* back face */
@@ -231,7 +233,8 @@ body {
 }
 
 /* the 3D rotation/flip */
-.card-wrapper.state-face-down .card {
+/*.card-wrapper:hover .card ,*/ /* <-- for testing purpose */
+.card-wrapper.status-face-down .card {
 	transform: rotateY(180deg);
 }
 

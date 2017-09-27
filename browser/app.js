@@ -1323,7 +1323,8 @@ Dom.prototype.showCard = function showCard( id , data )
 		type: 'card' ,
 		style: {} ,
 		imageStyle: {} ,
-		animation: null
+		animation: null ,
+		contents: {}
 	} ) ;
 	
 	this.updateCardObject( marker , data ) ;
@@ -1802,6 +1803,8 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 
 Dom.prototype.updateCardObject = function updateCardObject( card , data )
 {
+	var contentName , $content , content ;
+	
 	if ( ! card.$wrapper )
 	{
 		this.createCardMarkup( card ) ;
@@ -1820,8 +1823,24 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data )
 		card.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
 	}
 	
-	if ( data.title ) { card.$title.textContent = data.title ; }
-	if ( data.description ) { card.$description.textContent = data.description ; }
+	if ( data.content )
+	{
+		for ( contentName in data.content )
+		{
+			content = data.content[ contentName ] ;
+			$content = card.contents[ contentName ] ;
+			
+			if ( ! $content )
+			{
+				$content = card.contents[ contentName ] = document.createElement( 'div' ) ;
+				$content.classList.add( 'content-' + contentName ) ;
+				card.$front.append( $content ) ;
+			}
+			
+			$content.textContent = content ;
+			$content.setAttribute( 'value' , content ) ;
+		}
+	}
 	
 	if ( data.style )
 	{
@@ -1835,19 +1854,19 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data )
 		domKit.css( card.$image , data.imageStyle ) ;
 	}
 	
-	if ( data.states )
+	if ( data.status )
 	{
-		for ( stateName in data.states )
+		for ( statusName in data.status )
 		{
-			var stateName ;
+			var statusName ;
 			
-			if ( data.states[ stateName ] )
+			if ( data.status[ statusName ] )
 			{
-				card.$wrapper.classList.add( 'state-' + stateName ) ;
+				card.$wrapper.classList.add( 'status-' + statusName ) ;
 			}
 			else
 			{
-				card.$wrapper.classList.remove( 'state-' + stateName ) ;
+				card.$wrapper.classList.remove( 'status-' + statusName ) ;
 			}
 		}
 	}
@@ -1872,18 +1891,6 @@ Dom.prototype.createCardMarkup = function createCardMarkup( card )
 	card.$image = document.createElement( 'div' ) ;
 	card.$image.classList.add( 'card-image' ) ;
 	card.$front.append( card.$image ) ;
-	
-	card.$title = document.createElement( 'div' ) ;
-	card.$title.classList.add( 'title' ) ;
-	card.$front.append( card.$title ) ;
-	
-	card.$description = document.createElement( 'div' ) ;
-	card.$description.classList.add( 'description' ) ;
-	card.$front.append( card.$description ) ;
-	
-	card.$stats = document.createElement( 'div' ) ;
-	card.$stats.classList.add( 'stats' ) ;
-	card.$front.append( card.$stats ) ;
 	
 	card.$back = document.createElement( 'div' ) ;
 	card.$back.classList.add( 'back' ) ;
