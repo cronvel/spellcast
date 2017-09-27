@@ -1322,10 +1322,11 @@ Dom.prototype.showCard = function showCard( id , data )
 		action: null ,
 		type: 'card' ,
 		style: {} ,
+		imageStyle: {} ,
 		animation: null
 	} ) ;
 	
-	this.updateUiObject( marker , data ) ;
+	this.updateCardObject( marker , data ) ;
 } ;
 
 
@@ -1377,7 +1378,7 @@ Dom.prototype.updateCard = function updateCard( id , data )
 		return ;
 	}
 	
-	this.updateUiObject( this.cards[ id ] , data ) ;
+	this.updateCardObject( this.cards[ id ] , data ) ;
 } ;
 
 
@@ -1484,36 +1485,6 @@ Dom.prototype.clearUiObject = function clearUiObject( ui )
 
 
 
-Dom.prototype.createCardMarkup = function createCardMarkup( card )
-{
-	// /!\ Turn <img> into background image? /!\
-	
-	card.$wrapper = document.createElement( 'div' ) ;
-	card.$wrapper.classList.add( 'card-wrapper' ) ;
-	
-	card.$card = document.createElement( 'div' ) ;
-	card.$card.classList.add( 'card' ) ;
-	card.$wrapper.append( card.$card ) ;
-	
-	card.$front = document.createElement( 'div' ) ;
-	card.$front.classList.add( 'front' ) ;
-	card.$card.append( card.$front ) ;
-	
-	card.$image = document.createElement( 'img' ) ;
-	card.$image.classList.add( 'image' ) ;
-	card.$front.append( card.$image ) ;
-	
-	card.$back = document.createElement( 'div' ) ;
-	card.$back.classList.add( 'back' ) ;
-	card.$card.append( card.$back ) ;
-	
-	card.$backImage = document.createElement( 'img' ) ;
-	card.$backImage.classList.add( 'image' ) ;
-	card.$back.append( card.$backImage ) ;
-} ;
-
-
-
 Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 {
 	var self = this , $element ;
@@ -1522,34 +1493,6 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data )
 	
 	// Forbidden styles:
 	delete data.style.position ;
-	
-	// /!\ Heavy clean-up needed: should be moved in its own function? /!\
-	if ( ui.type === 'card' )
-	{
-		if ( ! ui.$wrapper )
-		{
-			this.createCardMarkup( ui ) ;
-			this.$gfx.append( ui.$wrapper ) ;
-		}
-		
-		if ( data.url )
-		{
-			ui.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
-		}
-		
-		if ( data.backUrl )
-		{
-			ui.$backImage.setAttribute( 'src' , this.cleanUrl( data.backUrl ) ) ;
-		}
-		
-		if ( data.style )
-		{
-			Object.assign( ui.style , data.style ) ;
-			domKit.css( ui.$wrapper , data.style ) ;
-		}
-		
-		return ;
-	}
 	
 	// Load/replace the ui image, if needed
 	if ( data.url )
@@ -1853,6 +1796,102 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 	{
 		ui.$image.append( marker.$image ) ;
 	}
+} ;
+
+
+
+Dom.prototype.updateCardObject = function updateCardObject( card , data )
+{
+	if ( ! card.$wrapper )
+	{
+		this.createCardMarkup( card ) ;
+		this.$gfx.append( card.$wrapper ) ;
+	}
+	
+	if ( data.url )
+	{
+		//card.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
+		card.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
+	}
+	
+	if ( data.backUrl )
+	{
+		//card.$backImage.setAttribute( 'src' , this.cleanUrl( data.backUrl ) ) ;
+		card.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
+	}
+	
+	if ( data.title ) { card.$title.textContent = data.title ; }
+	if ( data.description ) { card.$description.textContent = data.description ; }
+	
+	if ( data.style )
+	{
+		Object.assign( card.style , data.style ) ;
+		domKit.css( card.$wrapper , data.style ) ;
+	}
+	
+	if ( data.imageStyle )
+	{
+		Object.assign( card.imageStyle , data.imageStyle ) ;
+		domKit.css( card.$image , data.imageStyle ) ;
+	}
+	
+	if ( data.states )
+	{
+		for ( stateName in data.states )
+		{
+			var stateName ;
+			
+			if ( data.states[ stateName ] )
+			{
+				card.$wrapper.classList.add( 'state-' + stateName ) ;
+			}
+			else
+			{
+				card.$wrapper.classList.remove( 'state-' + stateName ) ;
+			}
+		}
+	}
+} ;
+
+
+
+Dom.prototype.createCardMarkup = function createCardMarkup( card )
+{
+	// The wrapper is the placeholder, hover effects happen on it
+	card.$wrapper = document.createElement( 'div' ) ;
+	card.$wrapper.classList.add( 'card-wrapper' ) ;
+	
+	card.$card = document.createElement( 'div' ) ;
+	card.$card.classList.add( 'card' ) ;
+	card.$wrapper.append( card.$card ) ;
+	
+	card.$front = document.createElement( 'div' ) ;
+	card.$front.classList.add( 'front' ) ;
+	card.$card.append( card.$front ) ;
+	
+	card.$image = document.createElement( 'div' ) ;
+	card.$image.classList.add( 'card-image' ) ;
+	card.$front.append( card.$image ) ;
+	
+	card.$title = document.createElement( 'div' ) ;
+	card.$title.classList.add( 'title' ) ;
+	card.$front.append( card.$title ) ;
+	
+	card.$description = document.createElement( 'div' ) ;
+	card.$description.classList.add( 'description' ) ;
+	card.$front.append( card.$description ) ;
+	
+	card.$stats = document.createElement( 'div' ) ;
+	card.$stats.classList.add( 'stats' ) ;
+	card.$front.append( card.$stats ) ;
+	
+	card.$back = document.createElement( 'div' ) ;
+	card.$back.classList.add( 'back' ) ;
+	card.$card.append( card.$back ) ;
+	
+	card.$backImage = document.createElement( 'div' ) ;
+	card.$backImage.classList.add( 'card-image' ) ;
+	card.$back.append( card.$backImage ) ;
 } ;
 
 

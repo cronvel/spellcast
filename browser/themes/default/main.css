@@ -674,6 +674,30 @@ indicator widget.vbar inner-bar {
 
 
 
+			/* Cards */
+
+
+
+.card {
+	padding: 10px;
+	border-radius: 5px;
+}
+
+.card .front , .card .back {
+	top: 10px;
+	left: 10px;
+}
+
+.card .description {
+}
+
+.card .title {
+	font-size: 1.3em;
+	font-weight: 700;
+}
+
+
+
 			/* Dialog box */
 
 
