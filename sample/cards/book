@@ -10,23 +10,40 @@
 			url: /sprites/shaman.png
 			backUrl: /textures/card-back.png
 			status:
-				face-down: true
+				location: hand
+				face: down
 			content:
 				title: $> The Druidess
 				description:
 					$> The Druidess is a great support unit, that can heal and boost allies.
 			imageStyle:
 				backgroundSize: contain
-			style:
-				top: 50vh
-				right: 25vw
-				transform: translate( 50% , -50% )
-				transition: 1s
 		
-		[pause] 2
+		[next intro2]
+		
+	[scene intro2]
 		
 		[update-card my-card]
 			status:
-				face-down: false
+				location: showing
+				face: up
 		
-		[next intro1]
+		[next intro3]
+	
+	[scene intro3]
+		
+		[update-card my-card]
+			status:
+				location: hand
+				face: down
+		
+		[next intro4]
+		
+	[scene intro4]
+		
+		[update-card my-card]
+			status:
+				location: showing
+				face: twist-up
+		
+		[next intro3]

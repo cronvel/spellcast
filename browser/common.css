@@ -65,6 +65,11 @@ body {
 
 
 #gfx {
+	position: fixed;
+	height: 100vh;
+	width: 100vw;
+	overflow: hidden;
+	
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
@@ -182,20 +187,21 @@ body {
 
 .card {
 	position: relative;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
 	background-color: #fff;
 	transition: all 0.5s ;
 	transform-style: preserve-3d;
-}
-
-.card-wrapper , .card , .card .front, .card .back {
-	width: 320px;
-	height: 480px;
 }
 
 /* hide back of pane during swap */
 .card .front, .card .back {
 	position: absolute;
 	backface-visibility: hidden;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
 	top: 0;
 	left: 0;
 }
@@ -218,24 +224,22 @@ body {
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
-	width: 100%;
-	height: 240px;
 }
 
-.front .card-image {
+.card .front .card-image {
 	width: 100%;
-	height: 240px;
+	height: 50%;
 }
 
-.back .card-image {
+.card .back .card-image {
 	width: 100%;
-	height: 480px;
+	height: 100%;
 }
 
 /* the 3D rotation/flip */
 /*.card-wrapper:hover .card ,*/ /* <-- for testing purpose */
-.card-wrapper.status-face-down .card {
-	transform: rotateY(180deg);
+.card-wrapper[status-face="down"] .card {
+	transform: rotateY(-180deg);
 }
 
 

@@ -1803,7 +1803,7 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 
 Dom.prototype.updateCardObject = function updateCardObject( card , data )
 {
-	var contentName , $content , content ;
+	var contentName , content , $content , statusName , status ;
 	
 	if ( ! card.$wrapper )
 	{
@@ -1813,13 +1813,11 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data )
 	
 	if ( data.url )
 	{
-		//card.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 		card.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
 	}
 	
 	if ( data.backUrl )
 	{
-		//card.$backImage.setAttribute( 'src' , this.cleanUrl( data.backUrl ) ) ;
 		card.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
 	}
 	
@@ -1838,7 +1836,30 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data )
 			}
 			
 			$content.textContent = content ;
-			$content.setAttribute( 'value' , content ) ;
+			$content.setAttribute( 'content' , content ) ;
+		}
+	}
+	
+	if ( data.status )
+	{
+		for ( statusName in data.status )
+		{
+			status = data.status[ statusName ] ;
+			
+			if ( status )
+			{
+				card.$wrapper.classList.add( 'status-' + statusName ) ;
+				
+				if ( typeof status === 'number' || typeof status === 'string' )
+				{
+					card.$wrapper.setAttribute( 'status-' + statusName , status ) ;
+				}
+			}
+			else
+			{
+				card.$wrapper.classList.remove( 'status-' + statusName ) ;
+				card.$wrapper.removeAttribute( 'status-' + statusName ) ;
+			}
 		}
 	}
 	
@@ -1852,23 +1873,6 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data )
 	{
 		Object.assign( card.imageStyle , data.imageStyle ) ;
 		domKit.css( card.$image , data.imageStyle ) ;
-	}
-	
-	if ( data.status )
-	{
-		for ( statusName in data.status )
-		{
-			var statusName ;
-			
-			if ( data.status[ statusName ] )
-			{
-				card.$wrapper.classList.add( 'status-' + statusName ) ;
-			}
-			else
-			{
-				card.$wrapper.classList.remove( 'status-' + statusName ) ;
-			}
-		}
 	}
 } ;
 

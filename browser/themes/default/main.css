@@ -31,7 +31,7 @@ body {
 
 
 .scene-image {
-	position: fixed;
+	position: absolute;
 	z-index: 0;
 	top: 0;
 	left: 0;
@@ -679,13 +679,14 @@ indicator widget.vbar inner-bar {
 
 
 .card {
-	padding: 10px;
 	border-radius: 5px;
 }
 
 .card .front , .card .back {
 	top: 10px;
 	left: 10px;
+	width: calc( 100% - 20px ) ;
+	height: calc( 100% - 20px ) ;
 }
 
 .card .card-image {
@@ -700,6 +701,30 @@ indicator widget.vbar inner-bar {
 
 .card .content-description {
 	order: 3;
+}
+
+
+.card-wrapper {
+	width: 50vmin;
+	height: 75vmin;
+	top: 50vh;
+	right: 25vw;
+	transform: translate( 50% , -50% );
+}
+
+.card-wrapper[status-location="showing"] {
+}
+
+.card-wrapper[status-location="hand"] {
+	/* Beware: translate % are based upon the size before scaling */
+	transform: scale( 0.5 , 0.5 ) translate( 100% , -100% ) ;
+	top: 95vh;
+	right: 25vw;
+}
+
+.card-wrapper[status-face="twist-up"] .card {
+	transform: rotateY(+360deg);
+	transition: all 2s;
 }
 
 
@@ -794,9 +819,9 @@ indicator widget.vbar inner-bar {
 
 .disabled img {
 	-webkit-filter: grayscale(100%) contrast(30%) opacity(50%);
-    -moz-filter: grayscale(100%) contrast(30%) opacity(50%);
-    -ms-filter: grayscale(100%) contrast(30%) opacity(50%);
-    -o-filter: grayscale(100%) contrast(30%) opacity(50%);
+	-moz-filter: grayscale(100%) contrast(30%) opacity(50%);
+	-ms-filter: grayscale(100%) contrast(30%) opacity(50%);
+	-o-filter: grayscale(100%) contrast(30%) opacity(50%);
 	filter: grayscale(100%) contrast(30%) opacity(50%);
 	/*opacity: 0.5;*/
 }
