@@ -174,6 +174,17 @@ body {
 
 /* Cards */
 
+.card-location {
+	display: flex;
+	position: absolute;
+	z-index: 40;
+	pointer-events: none;
+}
+
+.card-slot {
+	position: relative; /* So cards will be positioned relative to this div */
+}
+
 /* The wrapper is the placeholder, hover effects happen on it */
 .card-wrapper {
 	position: absolute;

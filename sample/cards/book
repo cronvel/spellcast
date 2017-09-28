@@ -9,6 +9,7 @@
 		[show-card my-card]
 			url: /sprites/shaman.png
 			backUrl: /textures/card-back.png
+			location: hand
 			status:
 				location: hand
 				face: down
@@ -33,6 +34,7 @@
 	[scene down]
 		
 		[update-card my-card]
+			location: hand
 			status:
 				location: hand
 				face: down
@@ -42,6 +44,7 @@
 	[scene up]
 		
 		[update-card my-card]
+			location: showing
 			status:
 				location: showing
 				face: up
@@ -51,6 +54,7 @@
 	[scene spin-up]
 		
 		[update-card my-card]
+			location: showing
 			status:
 				location: showing
 				face: spin-up
@@ -60,6 +64,7 @@
 	[scene wheel-up]
 		
 		[update-card my-card]
+			location: showing
 			status:
 				location: showing
 				face: wheel-up
@@ -69,6 +74,7 @@
 	[scene wheel-up2]
 		
 		[update-card my-card]
+			location: showing
 			status:
 				location: showing
 				face: wheel-up2

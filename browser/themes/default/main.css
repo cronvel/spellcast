@@ -678,6 +678,20 @@ indicator widget.vbar inner-bar {
 
 
 
+.card-location-showing {
+	width: 30vw;
+	height: 60vh;
+	top: 20vh;
+	right: 10vw;
+}
+
+.card-location-hand {
+	width: 30vw;
+	height: 30vh;
+	bottom: 0;
+	right: 10vw;
+}
+
 .card {
 	border-radius: 5px;
 }
