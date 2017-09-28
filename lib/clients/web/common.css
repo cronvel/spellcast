@@ -191,7 +191,7 @@ body {
 	height: 100%;
 	box-sizing: border-box;
 	background-color: #fff;
-	transition: all 0.5s ;
+	transition: all 1s ;
 	transform-style: preserve-3d;
 }
 

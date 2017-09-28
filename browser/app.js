@@ -1858,7 +1858,11 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data )
 			else
 			{
 				card.$wrapper.classList.remove( 'status-' + statusName ) ;
-				card.$wrapper.removeAttribute( 'status-' + statusName ) ;
+				
+				if ( card.$wrapper.hasAttribute( 'status-' + statusName ) )
+				{
+					card.$wrapper.removeAttribute( 'status-' + statusName ) ;
+				}
 			}
 		}
 	}

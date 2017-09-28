@@ -4,7 +4,7 @@
 
 [chapter intro]
 	
-	[scene intro1]
+	[scene intro]
 		
 		[show-card my-card]
 			url: /sprites/shaman.png
@@ -19,31 +19,59 @@
 			imageStyle:
 				backgroundSize: contain
 		
-		[next intro2]
+		[goto choice]
 		
-	[scene intro2]
+	[scene choice]
 		
-		[update-card my-card]
-			status:
-				location: showing
-				face: up
+		[message] $> Select your animation choice.
 		
-		[next intro3]
-	
-	[scene intro3]
+		[next down] $> face down
+		[next up] $> up
+		[next spin-up] $> spin face up
+		[next wheel-up] $> wheel face up
+		
+	[scene down]
 		
 		[update-card my-card]
 			status:
 				location: hand
 				face: down
 		
-		[next intro4]
+		[goto choice]
 		
-	[scene intro4]
+	[scene up]
 		
 		[update-card my-card]
 			status:
 				location: showing
-				face: twist-up
+				face: up
 		
-		[next intro3]
+		[goto choice]
+	
+	[scene spin-up]
+		
+		[update-card my-card]
+			status:
+				location: showing
+				face: spin-up
+		
+		[goto choice]
+	
+	[scene wheel-up]
+		
+		[update-card my-card]
+			status:
+				location: showing
+				face: wheel-up
+		
+		[goto choice]
+	
+	[scene wheel-up2]
+		
+		[update-card my-card]
+			status:
+				location: showing
+				face: wheel-up2
+		
+		[goto choice]
+	
