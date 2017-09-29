@@ -1806,27 +1806,24 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 
 Dom.prototype.updateCardObject = function updateCardObject( card , data )
 {
-	var contentName , content , $content , statusName , status ;
+	var self = this , contentName , content , $content , statusName , status ;
 	
 	if ( ! card.$wrapper )
 	{
 		this.createCardMarkup( card ) ;
-		this.$gfx.append( card.$wrapper ) ;
+		//this.$gfx.append( card.$wrapper ) ;
 	}
 	
 	if ( data.url )
 	{
 		card.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
+		delete data.url ;
 	}
 	
 	if ( data.backUrl )
 	{
 		card.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
-	}
-	
-	if ( data.location )
-	{
-		this.moveCardTo( card , data.location ) ;
+		delete data.backUrl ;
 	}
 	
 	if ( data.content )
@@ -1846,9 +1843,20 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data )
 			$content.textContent = content ;
 			$content.setAttribute( 'content' , content ) ;
 		}
+		
+		delete data.content ;
 	}
 	
-	/*
+	// Location insert it in the DOM, need a callback to ensure that transition effects will happen
+	if ( data.location && card.location !== data.location )
+	{
+		this.moveCardTo( card , data.location , function() {
+			self.updateCardObject( card , data ) ;
+		} ) ;
+		delete data.location ;
+		return ;
+	}
+	
 	if ( data.status )
 	{
 		for ( statusName in data.status )
@@ -1875,7 +1883,6 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data )
 			}
 		}
 	}
-	*/
 	
 	if ( data.style )
 	{
@@ -2037,11 +2044,11 @@ function stringifyTransform( object )
 
 
 
-Dom.prototype.moveCardTo = function moveCardTo( card , locationName )
+Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 {
 	var $location , $slot , $oldSlot ;
 	
-	if ( card.location === locationName ) { return ; }
+	if ( card.location === locationName ) { callback() ; return ; }
 	
 	$location = this.cardLocations[ locationName ] ;
 	$oldSlot = card.$locationSlot ;
@@ -2060,8 +2067,6 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName )
 	$location.append( $slot ) ;
 	
 	
-	// ---
-	
 	var targetTransform = { translateX: 0 , translateY: 0 } ;
 	
 	// Card size
@@ -2070,10 +2075,11 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName )
 	var slotWidth = parseFloat( window.getComputedStyle( $slot ).width ) ;
 	var slotHeight = parseFloat( window.getComputedStyle( $slot ).height ) ;
 	
+	// Scale transform
 	targetTransform.scaleX = slotWidth / cardWidth ;
 	targetTransform.scaleY = slotHeight / cardHeight ;
 	
-	// Compensate, because the origin is in the middle
+	// Translation compensation due to scaling, since the origin is in the middle
 	targetTransform.translateX -= ( cardWidth - slotWidth ) / 2 ;
 	targetTransform.translateY -= ( cardHeight - slotHeight ) / 2 ;
 	
@@ -2082,52 +2088,41 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName )
 	
 	console.warn( 'targetTransform:' , targetTransform ) ;
 	
-	if ( $oldSlot )
+	
+	// If there is no older position, then just put the card on its slot immediately
+	if ( ! $oldSlot )
 	{
-		var slotBbox = $slot.getBoundingClientRect() ;
-		var oldSlotBbox = $oldSlot.getBoundingClientRect() ;
-		
-		//console.warn( 'bboxes' , slotBbox ,  oldSlotBbox ) ;
-		
-		var sourceTransform = {
-			translateX: oldSlotBbox.x - slotBbox.x - localTransform.translateY ,
-			translateY: oldSlotBbox.y - slotBbox.y - localTransform.translateX ,
-			scaleX: localTransform.scaleX ,
-			scaleY: localTransform.scaleY ,
-		} ;
-		
-		card.$wrapper.style.transform = stringifyTransform( sourceTransform ) ;
+		card.$wrapper.style.transform = stringifyTransform( targetTransform ) ;
 		$slot.append( card.$wrapper ) ;
-		$oldSlot.remove() ;
-		
-		setTimeout( function() {
-			card.$wrapper.style.transform = stringifyTransform( targetTransform ) ;
-		} , 1000 ) ;
-		
+		callback() ;
 		return ;
 	}
 	
-	card.$wrapper.style.transform = stringifyTransform( targetTransform ) ;
 	
-	/*
-	var cardCurrentRect = card.$wrapper.getBoundingClientRect() ;
-	var cardTransform = parseMatrix( window.getComputedStyle( card.$wrapper ).transform ) ;
-	console.warn( "rect & transform:" , cardCurrentRect , window.getComputedStyle( card.$wrapper , null ).transform , cardTransform ) ;
-	if ( cardTransform ) { console.warn( "decomp:" , decompose( cardTransform ) , stringifyTransform( decompose( cardTransform ) ) ) ; }
-	*/
+	// Compute the FLIP (First Last Invert Play)
+	var slotBbox = $slot.getBoundingClientRect() ;
+	var oldSlotBbox = $oldSlot.getBoundingClientRect() ;
 	
-	// ---
+	console.warn( 'bboxes' , slotBbox ,  oldSlotBbox ) ;
 	
-	var finish = function() {
-		if ( $oldSlot ) { $oldSlot.remove() ; }
+	// Old/new difference
+	var sourceTransform = {
+		translateX: oldSlotBbox.left + localTransform.translateX - slotBbox.left ,
+		translateY: oldSlotBbox.top + localTransform.translateY - slotBbox.top ,
+		scaleX: localTransform.scaleX ,
+		scaleY: localTransform.scaleY ,
 	} ;
 	
-	
-	// ... Animate the card to the new slot
-	// ... Move the DOM of the card to the new slot
-	
+	card.$wrapper.style.transform = stringifyTransform( sourceTransform ) ;
 	$slot.append( card.$wrapper ) ;
-	finish() ;
+	$oldSlot.remove() ;
+	
+	// Do not initiate the new transform value in the same synchronous flow,
+	// it would not animate anything
+	setTimeout( function() {
+		card.$wrapper.style.transform = stringifyTransform( targetTransform ) ;
+		callback() ;
+	} , 10 ) ;
 } ;
 
 
