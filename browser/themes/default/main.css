@@ -685,11 +685,35 @@ indicator widget.vbar inner-bar {
 	right: 10vw;
 }
 
+.card-location-showing .card-slot{
+	width: 40vh;
+	height: 60vh;
+}
+
 .card-location-hand {
 	width: 30vw;
 	height: 30vh;
 	bottom: 0;
 	right: 10vw;
+}
+
+.card-location-hand .card-slot{
+	width: 20vh;
+	height: 30vh;
+}
+
+/*
+.card-location .card-slot{
+	perspective: 1000px;
+}*/
+
+/* This is the true size, that will be scaled using CSS transform to fit the slot */
+.card-wrapper {
+	width: 50vmin;
+	height: 75vmin;
+	pointer-events: auto;
+/*	transform: translate( 10px ) rotate( 10deg ) ;*/
+/*	transform: translate( 10px ) rotateY( 20deg ) rotateZ( 20deg ) ;*/
 }
 
 .card {
@@ -718,13 +742,6 @@ indicator widget.vbar inner-bar {
 }
 
 
-.card-wrapper {
-	width: 50vmin;
-	height: 75vmin;
-	top: 50vh;
-	right: 25vw;
-	transform: translate( 50% , -50% );
-}
 
 .card-wrapper[status-location="showing"] {
 }
