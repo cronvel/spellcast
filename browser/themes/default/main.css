@@ -685,9 +685,13 @@ indicator widget.vbar inner-bar {
 	right: 10vw;
 }
 
-.card-location-showing .card-slot{
+.card-location-showing .card-slot {
 	width: 40vh;
 	height: 60vh;
+}
+
+.card-location-showing .card-slot:last-child {
+	min-width: 40vh;
 }
 
 .card-location-hand {
@@ -697,9 +701,13 @@ indicator widget.vbar inner-bar {
 	right: 10vw;
 }
 
-.card-location-hand .card-slot{
+.card-location-hand .card-slot {
 	width: 20vh;
 	height: 30vh;
+}
+
+.card-location-hand .card-slot:last-child {
+	min-width: 20vh;
 }
 
 /*
@@ -718,6 +726,7 @@ indicator widget.vbar inner-bar {
 
 .card {
 	border-radius: 5px;
+	border: solid 1px #777;
 }
 
 .card .front , .card .back {

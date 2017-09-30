@@ -1312,6 +1312,8 @@ Dom.prototype.showMarker = function showMarker( id , data )
 
 
 
+var cardAutoIncrement = 0 ;
+
 Dom.prototype.showCard = function showCard( id , data )
 {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
@@ -1324,6 +1326,7 @@ Dom.prototype.showCard = function showCard( id , data )
 		type: 'card' ,
 		location: 'showing' ,
 		$locationSlot: null ,
+		order: cardAutoIncrement ++ ,	// used as flex's order
 		style: {} ,
 		imageStyle: {} ,
 		animation: null ,
@@ -2047,14 +2050,23 @@ function stringifyTransform( object )
 
 Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 {
-	var $location , $oldLocation , $slot , $oldSlot , direction , oldDirection ;
+	var $location , $oldLocation , oldLocationName , $slot , $oldSlot , direction , oldDirection ,
+		siblingCards , siblingSlotRectsBefore , siblingSlotRectsAfter ,
+		slotSize , slotBbox , oldSlotBbox ;
+	
+	// Timeout value used to enable FLIP transition
+	var flipTimeout = 10 ;
 	
 	if ( card.location === locationName ) { callback() ; return ; }
 	
 	$location = this.cardLocations[ locationName ] ;
 	$oldSlot = card.$locationSlot ;
 	
-	if ( card.location ) { $oldLocation = this.cardLocations[ card.location ] ; }
+	if ( card.location )
+	{
+		oldLocationName = card.location ;
+		$oldLocation = this.cardLocations[ card.location ] ;
+	}
 	
 	if ( ! $location )
 	{
@@ -2064,44 +2076,103 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 		this.$gfx.append( $location ) ;
 	}
 	
-	card.location = locationName ;
-	$slot = card.$locationSlot = document.createElement( 'div' ) ;
-	$slot.classList.add( 'card-slot' ) ;
-	$location.append( $slot ) ;
-	
-	
-	var targetTransform = { translateX: 0 , translateY: 0 } ;
+	if ( ! $oldSlot )
+	{
+		// Chrome requires it to be rendered for computed styles to work, otherwise: brace yourself, the NaN are coming!
+		this.$gfx.append( card.$wrapper ) ;
+		console.warn( 'naabs?' ) ;
+	}
 	
 	// Computed styles
 	var cardComputedStyle = window.getComputedStyle( card.$wrapper ) ;
 	var locationComputedStyle = window.getComputedStyle( $location ) ;
-	var slotComputedStyle = window.getComputedStyle( $slot ) ;
 	
 	// Card size
 	var cardWidth = parseFloat( cardComputedStyle.width ) ;
 	var cardHeight = parseFloat( cardComputedStyle.height ) ;
-	var slotWidth = parseFloat( slotComputedStyle.width ) ;
-	var slotHeight = parseFloat( slotComputedStyle.height ) ;
 	
-	// Location direction
-	switch ( locationComputedStyle.flexDirection )
+	card.location = locationName ;
+	$slot = card.$locationSlot = document.createElement( 'div' ) ;
+	$slot.classList.add( 'card-slot' ) ;
+	$slot.style.order = card.order ;
+	//$slot.style.zIndex = card.order ;	// Not needed, rendering preserve ordering, not DOM precedence, so it's ok
+	
+	// Before appending, save all rects of existing sibling slots
+	console.warn( '(old)LocationName' , locationName , oldLocationName ) ;
+	siblingCards = Object.values( this.cards )
+		.filter( e => e !== card && ( e.location === locationName || e.location === oldLocationName ) ) ;
+	
+	siblingSlotRectsBefore = siblingCards.map( e => e.$locationSlot.getBoundingClientRect() ) ;
+	
+	
+	// We should preserve the :last-child pseudo selector, since there isn't any :last-ordered-child for flex-box...
+	if ( $location.lastChild && parseFloat( $location.lastChild.style.order ) > card.order )
 	{
-		case 'column' :
-		case 'column-reverse' :
-			direction = 'column' ;
-			break ;
-		default :
-			direction = 'row' ;
+		// The last item has a greater order, so we prepend instead
+		$location.prepend( $slot ) ;
+	}
+	else
+	{
+		$location.append( $slot ) ;
 	}
 	
-	// Scale transform
-	if ( direction === 'row' ) { targetTransform.scaleX = targetTransform.scaleY = slotHeight / cardHeight ; }
-	else { targetTransform.scaleX = targetTransform.scaleY = slotWidth / cardWidth ; }
+	if ( $oldSlot )
+	{
+		oldSlotBbox = $oldSlot.getBoundingClientRect() ;
+		$oldSlot.remove() ;
+	}
 	
-	/*
-	targetTransform.scaleX = slotWidth / cardWidth ;
-	targetTransform.scaleY = slotHeight / cardHeight ;
-	*/
+	
+	// Get slots rects after
+	siblingSlotRectsAfter = siblingCards.map( e => e.$locationSlot.getBoundingClientRect() ) ;
+	
+	// Immediately compute the translation delta and the FLIP for siblings
+	siblingCards.forEach( ( siblingCard , index ) => {
+		var beforeRect = siblingSlotRectsBefore[ index ] ,
+			afterRect = siblingSlotRectsAfter[ index ] ;
+		
+		var transitionStr = siblingCard.$wrapper.style.transition ;
+		var transformStr = siblingCard.$wrapper.style.transform ;
+		
+		// Get the local transform, and patch it!
+		var transformDelta = Object.assign( {} , siblingCard.localTransform ) ;
+		transformDelta.translateX += beforeRect.left - afterRect.left ;
+		transformDelta.translateY += beforeRect.top - beforeRect.top ;
+		
+		// First, disable transitions, so the transform will apply now!
+		siblingCard.$wrapper.style.transition = 'none' ;
+		siblingCard.$wrapper.style.transform = stringifyTransform( transformDelta ) ;
+		
+		setTimeout( () => {
+			// Re-enable transitions, restore the transform value
+			siblingCard.$wrapper.style.transition = transitionStr ;
+			siblingCard.$wrapper.style.transform = transformStr ;
+		} , flipTimeout ) ;
+	} ) ;
+	
+	
+	var targetTransform = { translateX: 0 , translateY: 0 } ;
+	
+	// Scale transform
+	switch ( locationComputedStyle.flexDirection )
+	{
+		case 'row' :
+		case 'row-reverse' :
+			slotSize = parseFloat( locationComputedStyle.height ) ;
+			targetTransform.scaleX = targetTransform.scaleY = slotSize / cardHeight ;
+			break ;
+		case 'column' :
+		case 'column-reverse' :
+			slotSize = parseFloat( locationComputedStyle.width ) ;
+			targetTransform.scaleX = targetTransform.scaleY = slotSize / cardWidth ;
+			break ;
+		default :
+			slotSize = parseFloat( locationComputedStyle.height ) ;
+			targetTransform.scaleX = targetTransform.scaleY = slotSize / cardHeight ;
+			console.warn( 'flex-direction' , locationComputedStyle.flexDirection ) ;
+	}
+	
+	console.warn( 'naabs!' , cardWidth , cardHeight , slotSize ) ;
 	
 	// Translation compensation due to scaling, since the origin is in the middle
 	targetTransform.translateX -= ( cardWidth - cardWidth * targetTransform.scaleX ) / 2 ;
@@ -2138,9 +2209,7 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 	}
 	
 	// Compute the FLIP (First Last Invert Play)
-	var slotBbox = $slot.getBoundingClientRect() ;
-	var oldSlotBbox = $oldSlot.getBoundingClientRect() ;
-	
+	slotBbox = $slot.getBoundingClientRect() ;
 	console.warn( 'bboxes' , slotBbox ,  oldSlotBbox ) ;
 	
 	// Old/new difference
@@ -2153,14 +2222,13 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 	
 	card.$wrapper.style.transform = stringifyTransform( sourceTransform ) ;
 	$slot.append( card.$wrapper ) ;
-	$oldSlot.remove() ;
 	
 	// Do not initiate the new transform value in the same synchronous flow,
 	// it would not animate anything
-	setTimeout( function() {
+	setTimeout( () => {
 		card.$wrapper.style.transform = stringifyTransform( targetTransform ) ;
 		callback() ;
-	} , 10 ) ;
+	} , flipTimeout ) ;
 } ;
 
 
