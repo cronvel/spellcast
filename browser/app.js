@@ -1245,7 +1245,7 @@ Dom.prototype.clearCard = function clearCard( id )
 		return ;
 	}
 	
-	this.clearUiObject( this.cards[ id ] ) ;
+	this.clearCardObject( this.cards[ id ] ) ;
 	
 	delete this.cards[ id ] ;
 } ;
@@ -1303,7 +1303,6 @@ Dom.prototype.showMarker = function showMarker( id , data )
 		type: 'marker' ,
 		ui: null ,
 		location: null ,
-		$locationSlot: null ,
 		style: {} ,
 		animation: null
 	} ) ;
@@ -1317,13 +1316,14 @@ Dom.prototype.showCard = function showCard( id , data )
 {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 	
-	if ( this.cards[ id ] ) { this.clearUiObject( this.cards[ id ] ) ; }
+	if ( this.cards[ id ] ) { this.clearCardObject( this.cards[ id ] ) ; }
 	
 	var marker = this.cards[ id ] = this.createUiObject( {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'card' ,
 		location: 'showing' ,
+		$locationSlot: null ,
 		style: {} ,
 		imageStyle: {} ,
 		animation: null ,
@@ -1476,15 +1476,8 @@ Dom.prototype.createUiObject = function createUiObject( data )
 
 Dom.prototype.clearUiObject = function clearUiObject( ui )
 {
-	if ( ui.type === 'card' )
-	{
-		ui.$wrapper.remove() ;
-	}
-	else
-	{
-		ui.$image.remove() ;
-		if ( ui.$mask ) { ui.$mask.remove() ; }
-	}
+	ui.$image.remove() ;
+	if ( ui.$mask ) { ui.$mask.remove() ; }
 } ;
 
 
@@ -1804,6 +1797,14 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 
 
 
+Dom.prototype.clearCardObject = function clearCardObject( card )
+{
+	if ( card.$locationSlot ) { card.$locationSlot.remove() ; }
+	card.$wrapper.remove() ;
+} ;
+
+
+
 Dom.prototype.updateCardObject = function updateCardObject( card , data )
 {
 	var self = this , contentName , content , $content , statusName , status ;
@@ -2046,12 +2047,14 @@ function stringifyTransform( object )
 
 Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 {
-	var $location , $slot , $oldSlot ;
+	var $location , $oldLocation , $slot , $oldSlot , direction , oldDirection ;
 	
 	if ( card.location === locationName ) { callback() ; return ; }
 	
 	$location = this.cardLocations[ locationName ] ;
 	$oldSlot = card.$locationSlot ;
+	
+	if ( card.location ) { $oldLocation = this.cardLocations[ card.location ] ; }
 	
 	if ( ! $location )
 	{
@@ -2069,19 +2072,40 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 	
 	var targetTransform = { translateX: 0 , translateY: 0 } ;
 	
+	// Computed styles
+	var cardComputedStyle = window.getComputedStyle( card.$wrapper ) ;
+	var locationComputedStyle = window.getComputedStyle( $location ) ;
+	var slotComputedStyle = window.getComputedStyle( $slot ) ;
+	
 	// Card size
-	var cardWidth = parseFloat( window.getComputedStyle( card.$wrapper ).width ) ;
-	var cardHeight = parseFloat( window.getComputedStyle( card.$wrapper ).height ) ;
-	var slotWidth = parseFloat( window.getComputedStyle( $slot ).width ) ;
-	var slotHeight = parseFloat( window.getComputedStyle( $slot ).height ) ;
+	var cardWidth = parseFloat( cardComputedStyle.width ) ;
+	var cardHeight = parseFloat( cardComputedStyle.height ) ;
+	var slotWidth = parseFloat( slotComputedStyle.width ) ;
+	var slotHeight = parseFloat( slotComputedStyle.height ) ;
+	
+	// Location direction
+	switch ( locationComputedStyle.flexDirection )
+	{
+		case 'column' :
+		case 'column-reverse' :
+			direction = 'column' ;
+			break ;
+		default :
+			direction = 'row' ;
+	}
 	
 	// Scale transform
+	if ( direction === 'row' ) { targetTransform.scaleX = targetTransform.scaleY = slotHeight / cardHeight ; }
+	else { targetTransform.scaleX = targetTransform.scaleY = slotWidth / cardWidth ; }
+	
+	/*
 	targetTransform.scaleX = slotWidth / cardWidth ;
 	targetTransform.scaleY = slotHeight / cardHeight ;
+	*/
 	
 	// Translation compensation due to scaling, since the origin is in the middle
-	targetTransform.translateX -= ( cardWidth - slotWidth ) / 2 ;
-	targetTransform.translateY -= ( cardHeight - slotHeight ) / 2 ;
+	targetTransform.translateX -= ( cardWidth - cardWidth * targetTransform.scaleX ) / 2 ;
+	targetTransform.translateY -= ( cardHeight - cardHeight * targetTransform.scaleY ) / 2 ;
 	
 	var localTransform = card.localTransform ;
 	card.localTransform = targetTransform ;
@@ -2098,6 +2122,20 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 		return ;
 	}
 	
+	
+	// Computed styles
+	var oldLocationComputedStyle = window.getComputedStyle( $oldLocation ) ;
+	
+	// Old location direction
+	switch ( oldLocationComputedStyle.flexDirection )
+	{
+		case 'column' :
+		case 'column-reverse' :
+			oldDirection = 'column' ;
+			break ;
+		default :
+			oldDirection = 'row' ;
+	}
 	
 	// Compute the FLIP (First Last Invert Play)
 	var slotBbox = $slot.getBoundingClientRect() ;

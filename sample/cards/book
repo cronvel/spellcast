@@ -5,8 +5,15 @@
 [chapter intro]
 	
 	[scene intro]
+		[set $cards] <Array>
+		[goto new-card]
 		
-		[show-card my-card]
+	[scene new-card]
+		
+		[set $card] $> card${cards.length}
+		[append $cards] $card
+		
+		[show-card $card]
 			url: /sprites/shaman.png
 			backUrl: /textures/card-back.png
 			location: hand
@@ -25,14 +32,22 @@
 		
 		[message] $> Select your animation choice.
 		
+		[next next-card] $> next card
 		[next down] $> face down
 		[next up] $> up
 		[next spin-up] $> spin face up
 		[next wheel-up] $> wheel face up
+		[next new-card] $> new card
+		
+	[scene next-card]
+		[set $local.index] $= ( ( $cards.indexOf -> $card ) + 1 ) % $cards.length
+		[set $card] $cards[$local.index]
+		
+		[goto choice]
 		
 	[scene down]
 		
-		[update-card my-card]
+		[update-card $card]
 			location: hand
 			status:
 				face: down
@@ -41,7 +56,7 @@
 		
 	[scene up]
 		
-		[update-card my-card]
+		[update-card $card]
 			location: showing
 			status:
 				face: up
@@ -50,7 +65,7 @@
 	
 	[scene spin-up]
 		
-		[update-card my-card]
+		[update-card $card]
 			location: showing
 			status:
 				face: spin-up
@@ -59,7 +74,7 @@
 	
 	[scene wheel-up]
 		
-		[update-card my-card]
+		[update-card $card]
 			location: showing
 			status:
 				face: wheel-up
@@ -68,7 +83,7 @@
 	
 	[scene wheel-up2]
 		
-		[update-card my-card]
+		[update-card $card]
 			location: showing
 			status:
 				face: wheel-up2
