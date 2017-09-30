@@ -710,18 +710,11 @@ indicator widget.vbar inner-bar {
 	min-width: 20vh;
 }
 
-/*
-.card-location .card-slot{
-	perspective: 1000px;
-}*/
-
 /* This is the true size, that will be scaled using CSS transform to fit the slot */
 .card-wrapper {
 	width: 50vmin;
 	height: 75vmin;
 	pointer-events: auto;
-/*	transform: translate( 10px ) rotate( 10deg ) ;*/
-/*	transform: translate( 10px ) rotateY( 20deg ) rotateZ( 20deg ) ;*/
 }
 
 .card {
@@ -750,49 +743,20 @@ indicator widget.vbar inner-bar {
 	order: 3;
 }
 
-
-
-.card-wrapper[status-location="showing"] {
-}
-
-.card-wrapper[status-location="hand"] {
-	/* Beware: translate % are based upon the size before scaling */
-	transform: scale( 0.5 , 0.5 ) translate( 100% , -100% ) ;
-	top: 95vh;
-	right: 25vw;
-}
-
-.card-wrapper[status-face="down"] .card {
+.card-wrapper[pose="face-down"] .card {
 	transform: rotateY(-180deg) rotateZ(0deg);
 	transition: all 1s;
 }
 
-.card-wrapper[status-face="spin-up"] .card {
+.card-wrapper[pose="spin-face-up"] .card {
 	transform: rotateY(360deg) rotateZ(0deg);
 	transition: all 2s;
 }
 
-.card-wrapper[status-face="wheel-up"] .card {
+.card-wrapper[pose="wheel-face-up"] .card {
 	transform: rotateY(0deg) rotateZ(360deg);
 	transition: all 2s;
 }
-
-/* gotcha: animations are not transitioned to their first frame
-@keyframes card-wheel-up-animation {
-	0% {
-		transform: rotateY(0deg) rotateZ(0deg);
-	}
-	100% {
-		transform: rotateY(0deg) rotateZ(360deg);
-	}
-}
-
-.card-wrapper[status-face="wheel-up2"] .card {
-	animation-name: card-wheel-up-animation;
-	animation-duration: 2s;
-	animation-timing-function: ease-in-out;
-}
-*/
 
 
 

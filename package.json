@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.37.30",
+  "version": "0.37.31",
   "description": "Make: your own adventure!",
   "main": "lib/Book.js",
   "engines": {
@@ -17,7 +17,7 @@
     "async-kit": "^2.2.3",
     "babel-tower": "^0.12.7",
     "chokidar": "^1.7.0",
-    "dom-kit": "^0.3.6",
+    "dom-kit": "^0.3.7",
     "doormen": "^0.6.9",
     "fs-kit": "^0.2.5",
     "glob": "^7.1.2",

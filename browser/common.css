@@ -250,9 +250,7 @@ body {
 
 /* the 3D rotation/flip */
 /*.card-wrapper:hover .card ,*/ /* <-- for testing purpose */
-.card-wrapper[status-face="down"] .card {
+.card-wrapper[pose="face-down"] .card {
 	transform: rotateY(-180deg);
 }
-
-
 
