@@ -130,7 +130,9 @@
 	[emit blast] Gnoll
 
 [spell random]
-	[set $successes] $= random-trial-successes 0.5 100
+	[set $successes] $= random-trial-successes 100 0.5
+	#[set $successes] $= n-successes-roll 100 2 1
+	#[set $successes] $= quantity-roll 2 1
 	[message] $> Successes: ${successes}
 
 [spell js]
