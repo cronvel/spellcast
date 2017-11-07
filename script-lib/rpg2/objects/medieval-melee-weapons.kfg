@@ -1,0 +1,215 @@
+
+[[doctype spellcast/book]]
+
+[item-model sword]
+	class: object
+	label: sword
+	slotType: hand
+	slotCount: 1
+	ownStats:
+		price: 310
+	usages:
+		melee-fighting:
+			# When the weapon is used
+			primary:
+				params:
+					criticalHitFlavor: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} cuts ${target.label} in half for ${damages} hp.
+				compound:
+					attack: (+) 4
+					defense: (+) 4
+					damages: (+) 7
+					anti-ranged: (+) 3
+			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
+			extraSlot:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 3
+			# Bonuses when the weapon is used as a support for the primary weapon
+			support:
+				compound:
+					attack: (+) 3
+					defense: (+) 2
+
+
+
+[item-model dagger]
+	class: object
+	label: dagger
+	slotType: hand
+	slotCount: 1
+	ownStats:
+		price: 85
+	usages:
+		melee-fighting:
+			# When the weapon is used
+			primary:
+				params:
+					criticalHitFlavor: $$> ^r${performer.label//uc1} stabs ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} deadly stabs ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 2
+					defense: (+) 1
+					damages: (+) 4
+					anti-ranged: (+) 1
+			# Bonuses when the weapon is used as a support for the primary weapon
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+
+
+
+[item-model axe]
+	class: object
+	label: axe
+	slotType: hand
+	slotCount: 1
+	ownStats:
+		price: 140
+	usages:
+		melee-fighting:
+			primary:
+				params:
+					criticalHitFlavor: $$> ^r${performer.label//uc1} chops ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 4
+					defense: (+) 2
+					damages: (+) 9
+					anti-ranged: (+) 2
+			extraSlot:
+				compound:
+					attack: (+) 1
+					damages: (+) 3
+			support:
+				compound:
+					attack: (+) 3
+					defense: (+) 1
+	
+
+
+[item-model staff]
+	class: object
+	label: staff
+	slotType: hand
+	slotCount: 1
+	ownStats:
+		price: 40
+	usages:
+		melee-fighting:
+			# When the weapon is used
+			primary:
+				params:
+					criticalHitFlavor: $$> ^r${performer.label//uc1} thumps ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} deadly thumps ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 1
+					anti-ranged: (+) 1
+			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
+			extraSlot:
+				compound:
+					attack: (+) 4
+					defense: (+) 4
+					damages: (+) 3
+					anti-ranged: (+) 3
+			# Bonuses when the weapon is used as a support for the primary weapon
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+
+
+
+[item-model spear]
+	class: object
+	label: spear
+	slotType: hand
+	slotCount: 1
+	ownStats:
+		price: 95
+	usages:
+		melee-fighting:
+			# Mostly a two-handed weapon, but can still be used with a shield
+			primary:
+				params:
+					criticalHitFlavor: $$> ^r${performer.label//uc1} punctures ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 1
+					defense: (+) 3
+					damages: (+) 3
+					anti-ranged: (+) 2
+			extraSlot:
+				compound:
+					attack: (+) 2
+					defense: (+) 4
+					damages: (+) 4
+					anti-ranged: (+) 3
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+
+
+
+[item-model giant-club]
+	class: object
+	label: giant club
+	slotType: hand
+	slotCount: 1
+	ownStats:
+		price: 55
+	usages:
+		melee-fighting:
+			primary:
+				params:
+					menuLabel: $> crush
+					criticalHitFlavor: $$> ^r${performer.label//uc1} pounds ${target.label} for ${damages} hp.
+					fatalHitFlavor: $$> ^r${performer.label//uc1} crushes ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 9
+					# To slow to prevent ranged attack efficiently
+					anti-ranged: (+) -3
+			extraSlot:
+				compound:
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 6
+					anti-ranged: (+) 1
+			support:
+				compound:
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 2
+
+
+
+# a.k.a. parrying dagger
+[item-model main-gauche]
+	class: object
+	label: main gauche
+	slotType: hand
+	slotCount: 1
+	ownStats:
+		price: 75
+	usages:
+		melee-fighting:
+			primary:
+				params:
+					criticalHitFlavor: $$> ^r${performer.label//uc1} cut ${target.label} for ${damages} hp.
+				compound:
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 4
+					anti-ranged: (+) 1
+			support:
+				compound:
+					attack: (+) 1
+					defense: (+) 2
+
+
+

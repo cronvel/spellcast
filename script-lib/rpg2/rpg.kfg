@@ -1,0 +1,9 @@
+
+[[doctype spellcast/book]]
+
+[module] @@system/*.kfg
+[module] @@characters/*.kfg
+[module] @@objects/*.kfg
+[module] @@abilities/*.kfg
+[module] @@units/*.kfg
+

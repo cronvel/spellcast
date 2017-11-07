@@ -1,0 +1,34 @@
+
+[[doctype spellcast/book]]
+
+[entity-model human]
+	class: character
+	label: the human
+	params:
+		xpReward: 5
+	stats:
+		fighting: 8
+		shooting: 8
+		strength: 8
+		resilience: 8
+
+
+
+[entity-model dog]
+	class: character
+	label: the dog
+	params:
+		xpReward: 5
+	stats:
+		fighting: 14
+		shooting: 0
+		strength: 9
+		resilience: 10
+	compound:
+		attack: (+) 1
+		defense: (+) -1
+	innateItems:
+		innate:
+			- fangs
+		hand: null
+

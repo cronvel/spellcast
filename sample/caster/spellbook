@@ -130,10 +130,20 @@
 	[emit blast] Gnoll
 
 [spell random]
-	[set $successes] $= random-trial-successes 100 0.5
-	#[set $successes] $= n-successes-roll 100 2 1
-	#[set $successes] $= quantity-roll 2 1
+	[set $chance] $= success-chance 2 1 ( overPower: 4 / 2 , base: 1 / 7 )
+	[message] $> Chance: ${chance}
+	
+	[set $successes] $= random-trial-successes 100 $chance
 	[message] $> Successes: ${successes}
+	
+	[set $successes] $= n-successes-roll 100 2 1
+	[message] $> Successes: ${successes}
+	
+	[set $quantity] $= quantity-roll 2 1 ( base: 20 )
+	[message] $> Quantity: ${quantity}
+	
+	[set $score] $= score-roll 100
+	[message] $> Score: ${score}
 
 [spell js]
 	[message]

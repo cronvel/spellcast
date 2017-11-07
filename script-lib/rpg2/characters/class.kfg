@@ -1,0 +1,36 @@
+
+[[doctype spellcast/book]]
+
+[entity-class character]
+	usageTypes:
+		- melee-fighting
+		- ranged-fighting
+		- battle-ability
+#		- spell
+	params:
+		xpReward: 1
+	slots:
+		innate: Infinity
+		ability: Infinity
+		hand: 2
+		body: 1
+		head: 1
+		cloak: 1
+		ring: 2
+	stats:
+		fighting: 0
+		shooting: 0
+		spellcasting: 0
+		strength: 0
+		resilience: 0
+	status:
+		hp: 100
+		mana: 100
+		xp: 0
+		bodyMalus: 0
+		spiritMalus: 0
+	innateItems:
+		hand:
+			- fists
+
+

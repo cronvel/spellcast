@@ -1,0 +1,68 @@
+
+[[doctype spellcast/book]]
+
+
+
+[entity-model goblin]
+	class: character
+	label:
+		- the pesky goblin
+		- the dirty goblin
+		- the mad goblin
+		- the maniac goblin
+		- the goofy goblin
+		- the irritating goblin
+		- the irksome goblin
+		- the bald-headed goblin
+		- the insane goblin
+		- the angry goblin
+		- the shaggy goblin
+		- the hairy goblin
+		- the stinking goblin
+		- the green goblin
+		- the brown goblin
+		- the glaucous goblin
+		- the tiny goblin
+		- the edgy goblin
+		- the restless goblin
+		- the shivering goblin
+		- the malicious goblin
+		- the nasty goblin
+		- the disgusting goblin
+		- the ugly goblin
+	params:
+		xpReward: 2
+		charge: 0.2
+		battleCry: 0.05
+		battleCryFlavor:
+			- $$> ^+${performer.label//uc1} shouts “Bleed him to death!”
+			- $$> ^+${performer.label//uc1} shouts “Catch him!”
+			- $$> ^+${performer.label//uc1} cries “I don't want do die!”
+	stats:
+		fighting: 7
+		shooting: 6
+		strength: 5
+		resilience: 5
+	equippedItems:
+		hand:
+			- spear
+
+
+
+[entity-model elf]
+	class: character
+	label: the elf
+	params:
+		xpReward: 8
+	stats:
+		fighting: 12
+		shooting: 16
+		strength: 10
+		resilience: 10
+	usages:
+		ranged-fighting:
+			attack: (+) 4
+	equippedItems:
+		hand:
+			- arc
+
