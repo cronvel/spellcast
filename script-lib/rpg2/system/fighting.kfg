@@ -15,6 +15,20 @@
 				image: /icons/catch.svg
 				id: hand-equip
 		
+		[set $initiativeRoll]
+			criticalFactor: 2
+			criticalChance: 0.05
+		
+		[set $attackRoll]
+			overPower: 2.5
+			criticalFactor: 2
+			criticalChance: 0.05
+		
+		[set $rangedAttackRoll]
+			overPower: 2
+			criticalFactor: 3
+			criticalChance: 0.05
+		
 		[set $fight] <Object>
 
 		[set $fight.foes] <Array>
@@ -66,13 +80,18 @@
 	[fn initiative]
 		[foreach $fight.turns => $local.entity]
 			#[set $local.entity.adhoc.fight.initiativeScore] $= $local.entity.actual.stats.fighting + ( 2 D 8 )
-			[set $local.entity.adhoc.fight.initiativeScore] $= score-roll $local.entity.actual.stats.fighting
-			[message] $> Initiative: ${local.entity.adhoc.fight.initiativeScore} (${local.entity.actual.stats.fighting})
-
+			
+			# Build the bare score
+			[set $local.initiativeScore] $= $local.entity.actual.stats.fighting
+			
 			[if $local.entity.adhoc.fight.offensiveness > 0]
-				[add $local.entity.adhoc.fight.initiativeScore] 2
+				[mul $local.initiativeScore] 1.2
 			[elseif $local.entity.adhoc.fight.offensiveness < 0]
-				[sub $local.entity.adhoc.fight.initiativeScore] 3
+				[mul $local.initiativeScore] 0.8
+			
+			# Roll it!
+			[set $local.entity.adhoc.fight.initiativeScore] $= score-roll $local.initiativeScore $initiativeRoll
+			#[message] $> Initiative: ${local.entity.adhoc.fight.initiativeScore} (${local.entity.actual.stats.fighting})
 
 		#[sort $fight.turns] $= - $this.adhoc.fight.initiativeScore
 		[sort $fight.turns] $= $this.right.adhoc.fight.initiativeScore - $this.left.adhoc.fight.initiativeScore
@@ -507,35 +526,39 @@
 		#[if ! $performer.npc]
 		#	[message] $> ^KAttack: ${performer.actualUsages.melee-fighting.compound.attack}
 
-		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
-		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
+		#[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
+		#[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
+
+		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack
+		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense
 
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 
 		[if $performer.adhoc.fight.offensiveness > 0]
-			[add $local.attackScore] 2
+			[mul $local.attackScore] 1.2
 			# Less sensible to the pressure when attacking
 			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 4 )
 		[elseif $performer.adhoc.fight.offensiveness < 0]
-			[sub $local.attackScore] 3
+			[mul $local.attackScore] 0.8
 			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 		[else]
 			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 
 		[if $target.adhoc.fight.offensiveness > 0]
-			[sub $local.defenseScore] 3
+			[mul $local.defenseScore] 0.8
 			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 		[elseif $target.adhoc.fight.offensiveness < 0]
-			[add $local.defenseScore] 2
+			[mul $local.defenseScore] 1.2
 			# Less sensible to the pressure when defending
 			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
 		[else]
 			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 
 		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
-
-		[if $local.attackScore > $local.defenseScore]
+		
+		
+		[if success-roll $local.attackScore $local.defenseScore $attackRoll]
 			[call deal-damages]
 
 			[call effects]
@@ -566,8 +589,11 @@
 			[return]
 
 
-		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
-		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
+		#[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
+		#[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
+		
+		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack
+		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense
 
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] 6
@@ -579,15 +605,15 @@
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 
 		# A charge is always offensive!
-		[add $local.attackScore] 2
+		[mul $local.attackScore] 1.2
 		# Charge is less sensible to the pressure
 		[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 4 )
 
 		[if $target.adhoc.fight.offensiveness > 0]
-			[sub $local.defenseScore] 3
+			[mul $local.defenseScore] 0.8
 			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 		[elseif $target.adhoc.fight.offensiveness < 0]
-			[add $local.defenseScore] 2
+			[mul $local.defenseScore] 1.2
 			# Less sensible to the pressure when defending
 			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
 		[else]
@@ -597,14 +623,14 @@
 
 		[message] $> ${performer.label//uc1} charges ${target.label}!
 
-		[if $local.attackScore > $local.defenseScore]
+		[if success-roll $local.attackScore $local.defenseScore $attackRoll]
 			[call deal-damages]
 
 			[if $fight.deadlyPush]
 				[call deadly-push]
-		[elseif ( $local.attackScore = $local.defenseScore ) && $fight.deadlyPush]
-			[message] $> ${target.label//uc1} blocks ${performer.label}.
-			[call deadly-push]
+		#[elseif ( $local.attackScore = $local.defenseScore ) && $fight.deadlyPush]
+		#	[message] $> ${target.label//uc1} blocks ${performer.label}.
+		#	[call deadly-push]
 		[else]
 			[fortune]
 				- $> ${performer.label//uc1} misses ${target.label}.
@@ -648,8 +674,11 @@
 		# We are in close range, we have to test first with the closeRange stat,
 		# against the best of the opponent melee-fighting attack or defense stat.
 		[if $fight.distance = 0]
-			[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.close-ranged + ( 2 D 8 )
-			[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.anti-ranged + ( 2 D 8 )
+			#[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.close-ranged + ( 2 D 8 )
+			#[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.anti-ranged + ( 2 D 8 )
+			
+			[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.close-ranged
+			[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.anti-ranged
 
 			#[message] $> Close range A: ${local.attackScore} vs ${local.defenseScore}
 			#[message] $> Pressure: ${performer.adhoc.fight.pressure}
@@ -657,10 +686,10 @@
 			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 
 			[if $target.adhoc.fight.offensiveness > 0]
-				[sub $local.defenseScore] 3
+				[mul $local.defenseScore] 0.8
 				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 			[elseif $target.adhoc.fight.offensiveness < 0]
-				[add $local.defenseScore] 2
+				[mul $local.defenseScore] 1.2
 				# Less sensible to the pressure when defending
 				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
 			[else]
@@ -668,12 +697,17 @@
 
 			#[message] $> Close range B: ${local.attackScore} vs ${local.defenseScore}
 
-			[if $local.attackScore <= $local.defenseScore]
+			#[if $local.attackScore <= $local.defenseScore]
+			[if ! ( success-roll $local.attackScore $local.defenseScore $attackRoll )]
 				[message] $> ${target.label//uc1} prevents ${performer.label} from attacking from afar.
 				[return]
 
-		[set $local.aimingScore] $= $performer.actualUsages.ranged-fighting.compound.aiming + ( 2 D 12 )
-		[set $local.guardScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed ) + ( 2 D 12 )
+		#[set $local.aimingScore] $= $performer.actualUsages.ranged-fighting.compound.aiming + ( 2 D 12 )
+		#[set $local.guardScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed ) + ( 2 D 12 )
+		
+		# /!\ FIXME
+		[set $local.aimingScore] $= $performer.actualUsages.ranged-fighting.compound.aiming
+		[set $local.guardScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed )
 
 		#[message] $> Aiming A: ${local.aimingScore} vs ${local.guardScore}
 		#[message] $> Pressure: ${performer.adhoc.fight.pressure}
@@ -682,7 +716,8 @@
 
 		#[message] $> Aiming B: ${local.aimingScore} vs ${local.guardScore}
 
-		[if $local.aimingScore < $local.guardScore]
+		#[if $local.aimingScore < $local.guardScore]
+		[if success-roll $local.aimingScore $local.guardScore $rangedAttackRoll]
 			[message] $> ${performer.label//uc1} misses ${target.label}.
 			[return]
 
@@ -692,7 +727,9 @@
 
 		[add $local.guardScore] $target.actualUsages.ranged-fighting.compound.guard
 
-		[if $local.aimingScore < $local.guardScore]
+		#[if $local.aimingScore < $local.guardScore]
+		# /!\ FIXME: double success roll, reduce greatly chance to hit
+		[if success-roll $local.aimingScore $local.guardScore $rangedAttackRoll]
 			[if $target.actualUsages.ranged-fighting.params.guardFlavor is-set?]
 				[apply $target.actualUsages.ranged-fighting.params.guardFlavor => $local.flavor] $
 				[message] $local.flavor
@@ -700,10 +737,14 @@
 				[message] $> ${performer.label//uc1} misses ${target.label}.
 			[return]
 
-		[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.attack + ( 2 D 12 )
-		[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense + ( 2 D 12 )
+		#[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.attack + ( 2 D 12 )
+		#[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense + ( 2 D 12 )
+		
+		[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.attack
+		[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense
 
 		# The longer the distance, the better the chance to evade the ranged-fighting
+		# /!\ FIXME:
 		[sub $local.attackScore] $= $fight.distance \\ 8
 
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
@@ -713,10 +754,10 @@
 		#[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 
 		[if $target.adhoc.fight.offensiveness > 0]
-			[sub $local.defenseScore] 3
+			[mul $local.defenseScore] 0.8
 			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 		[elseif $target.adhoc.fight.offensiveness < 0]
-			[add $local.defenseScore] 2
+			[mul $local.defenseScore] 1.2
 			# Less sensible to the pressure when defending
 			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
 		[else]
@@ -724,7 +765,7 @@
 
 		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
 
-		[if $local.attackScore > $local.defenseScore]
+		[if success-roll $local.attackScore $local.defenseScore $rangedAttackRoll]
 			[call deal-damages]
 				faces: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 6 10
 				usage: $performer.actualUsages.ranged-fighting
