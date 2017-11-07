@@ -555,8 +555,7 @@
 		[else]
 			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 
-		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
-		
+		[message] $> Melee: ${local.attackScore} vs ${local.defenseScore}
 		
 		[if success-roll $local.attackScore $local.defenseScore $attackRoll]
 			[call deal-damages]
@@ -619,7 +618,7 @@
 		[else]
 			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
 
-		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
+		[message] $> Charge: ${local.attackScore} vs ${local.defenseScore}
 
 		[message] $> ${performer.label//uc1} charges ${target.label}!
 
@@ -707,29 +706,33 @@
 		
 		# /!\ FIXME
 		[set $local.aimingScore] $= $performer.actualUsages.ranged-fighting.compound.aiming
-		[set $local.guardScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed )
+		[set $local.movingScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed )
 
 		#[message] $> Aiming A: ${local.aimingScore} vs ${local.guardScore}
 		#[message] $> Pressure: ${performer.adhoc.fight.pressure}
 
 		[sub $local.aimingScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 
-		#[message] $> Aiming B: ${local.aimingScore} vs ${local.guardScore}
 
 		#[if $local.aimingScore < $local.guardScore]
-		[if success-roll $local.aimingScore $local.guardScore $rangedAttackRoll]
-			[message] $> ${performer.label//uc1} misses ${target.label}.
-			[return]
-
 		#[message] $> Guard: ${target.actualUsages.ranged-fighting.compound.guard}
 		#[debug info] $target.equippedItems.hand[0]
 		#[debug info] $target.actualUsages.ranged-fighting
 
-		[add $local.guardScore] $target.actualUsages.ranged-fighting.compound.guard
+		[set $local.guardScore] $= $local.movingScore + $target.actualUsages.ranged-fighting.compound.guard
+		
+		[set $local.aiming] $= multi-step-success-roll $local.aimingScore ( $local.movingScore , $local.guardScore ) $rangedAttackRoll
+		[message] $> Aiming: ${local.aimingScore} vs ${local.movingScore} / ${local.guardScore} => ${local.aiming}
+		
+		[if ! $local.aiming]
+			[message] fail 1
+			[message] $> ${performer.label//uc1} misses ${target.label}.
+			[return]
 
 		#[if $local.aimingScore < $local.guardScore]
 		# /!\ FIXME: double success roll, reduce greatly chance to hit
-		[if success-roll $local.aimingScore $local.guardScore $rangedAttackRoll]
+		[if $local.aiming = 1]
+			[message] fail 2
 			[if $target.actualUsages.ranged-fighting.params.guardFlavor is-set?]
 				[apply $target.actualUsages.ranged-fighting.params.guardFlavor => $local.flavor] $
 				[message] $local.flavor
