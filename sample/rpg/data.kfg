@@ -64,18 +64,18 @@
 					criticalHitFlavor: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
 					fatalHitFlavor: $$> ^r${performer.label//uc1} cut ${target.label} in half for ${damages} hp.
 				compound:
-					attack: (+) 8
-					defense: (+) 8
-					damages: (+) 14
+					attack: (*) 1.75
+					defense: (*) 1.75
+					damages: (*) 2.6
 			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
 			extraSlot:
 				compound:
-					attack: (+) 3
-					defense: (+) 3
-					damages: (+) 6
+					attack: (*) 1.2
+					defense: (*) 1.2
+					damages: (*) 1.5
 			# Bonuses when the weapon is used as a support for the primary weapon
 			support:
 				compound:
-					attack: (+) 5
-					defense: (+) 4
+					attack: (*) 1.4
+					defense: (*) 1.3
 

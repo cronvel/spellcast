@@ -40,10 +40,10 @@
 		
 		#[message] $> ^KSpellcasting: ${args.usage.compound.spellcasting}
 		
-		[if $args.bonus is-set?]
-			[add $local.castScore] $args.bonus
+		[if $args.bonusFactor is-set?]
+			[mul $local.castScore] $args.bonusFactor
 		
-		#[message] $> ${local.castScore} vs ${local.vsScore} ${args.bonus}
+		#[message] $> ${local.castScore} vs ${local.vsScore} ${args.bonusFactor}
 		#[debug info] $> ${args.performer.actual.stats.spellcasting}
 		
 		# Update malus now, that the score is already computed
