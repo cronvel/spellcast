@@ -15,32 +15,42 @@
 				image: /icons/catch.svg
 				id: hand-equip
 		
+		# It would be nice to have true constants support in KFG
 		[set $const]
 			# Multiplier
 			offensivenessBonus: 1.15
 			offensivenessMalus: 0.8
+			
 			# Exponential base, should multiply 20 or 40 times to go down to 1/2
 			lowPressure: 0.983
 			pressure: 0.966
-		
-		[set $initiativeRoll]
-			criticalFactor: 2
-			criticalChance: 0.05
-		
-		[set $attackRoll]
-			overPower: 2.5
-			criticalFactor: 2
-			criticalChance: 0.05
-		
-		[set $rangedAttackRoll]
-			overPower: 2
-			criticalFactor: 3
-			criticalChance: 0.05
-		
-		[set $wrestlingAttackRoll]
-			overPower: 3
-			criticalFactor: 1.5
-			criticalChance: 0.05
+			
+			antiAimingBase: 5
+			antiAimingFactor: 1
+			
+			initiativeRoll:
+				criticalFactor: 2
+				criticalChance: 0.05
+			
+			meleeAttackRoll:
+				overPower: 2.5
+				criticalFactor: 2
+				criticalChance: 0.05
+			
+			rangedAimingRoll:
+				overPower: 1.5
+				criticalFactor: 2
+				criticalChance: 0.05
+			
+			rangedAttackRoll:
+				overPower: 2
+				criticalFactor: 3
+				criticalChance: 0.05
+			
+			wrestlingAttackRoll:
+				overPower: 3
+				criticalFactor: 1.5
+				criticalChance: 0.05
 		
 		[set $fight] <Object>
 
@@ -103,7 +113,7 @@
 				[mul $local.initiativeScore] $const.offensivenessMalus
 			
 			# Roll it!
-			[set $local.entity.adhoc.fight.initiativeScore] $= score-roll $local.initiativeScore $initiativeRoll
+			[set $local.entity.adhoc.fight.initiativeScore] $= score-roll $local.initiativeScore $const.initiativeRoll
 			#[message] $> Initiative: ${local.entity.adhoc.fight.initiativeScore} (${local.entity.actual.stats.fighting})
 
 		#[sort $fight.turns] $= - $this.adhoc.fight.initiativeScore
@@ -570,7 +580,7 @@
 
 		[message] $> Melee: ${local.attackScore} vs ${local.defenseScore}
 		
-		[if success-roll $local.attackScore $local.defenseScore $attackRoll]
+		[if success-roll $local.attackScore $local.defenseScore $const.meleeAttackRoll]
 			[call deal-damages]
 
 			[call effects]
@@ -635,7 +645,7 @@
 
 		[message] $> ${performer.label//uc1} charges ${target.label}!
 
-		[if success-roll $local.attackScore $local.defenseScore $attackRoll]
+		[if success-roll $local.attackScore $local.defenseScore $const.meleeAttackRoll]
 			[call deal-damages]
 
 			[if $fight.deadlyPush]
@@ -707,10 +717,10 @@
 			[else]
 				[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 
-			#[message] $> Close range B: ${local.attackScore} vs ${local.defenseScore}
+			[message] $> Close range: ${local.attackScore} vs ${local.defenseScore}
 
 			#[if $local.attackScore <= $local.defenseScore]
-			[if ! ( success-roll $local.attackScore $local.defenseScore $attackRoll )]
+			[if ! ( success-roll $local.attackScore $local.defenseScore $const.meleeAttackRoll )]
 				[message] $> ${target.label//uc1} prevents ${performer.label} from attacking from afar.
 				[return]
 
@@ -719,7 +729,7 @@
 		
 		# /!\ FIXME
 		[set $local.aimingScore] $= $performer.actualUsages.ranged-fighting.compound.aiming
-		[set $local.movingScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed )
+		[set $local.antiAimingScore] $= $const.antiAimingBase + ( $const.antiAimingFactor * ( $fight.distance + ( abs $target.adhoc.fight.speed ) ) )
 
 		#[message] $> Aiming A: ${local.aimingScore} vs ${local.guardScore}
 		#[message] $> Pressure: ${performer.adhoc.fight.pressure}
@@ -732,17 +742,18 @@
 		#[debug info] $target.equippedItems.hand[0]
 		#[debug info] $target.actualUsages.ranged-fighting
 
-		[set $local.guardScore] $= $local.movingScore + $target.actualUsages.ranged-fighting.compound.guard
+		[set $local.guardScore] $= $target.actualUsages.ranged-fighting.compound.guard
 		
-		[set $local.aiming] $= multi-step-success-roll $local.aimingScore ( $local.movingScore , $local.guardScore ) $rangedAttackRoll
-		[message] $> Aiming: ${local.aimingScore} vs ${local.movingScore} / ${local.guardScore} => ${local.aiming}
+		# We use a correlated-success-rolls to avoid decreasing the chance to hit by performing two uncorrelated rolls
+		[set $local.aiming] $= correlated-success-rolls $local.aimingScore ( $local.antiAimingScore , $local.guardScore ) $rangedAimingRoll
+		[message] $> Aiming: ${local.aimingScore} vs ${local.antiAimingScore} / ${local.guardScore} => ${local.aiming[0]} / ${local.aiming[1]}
 		
-		[if ! $local.aiming]
+		[if ! $local.aiming[0]]
 			[message] fail 1
 			[message] $> ${performer.label//uc1} misses ${target.label}.
 			[return]
 
-		[if $local.aiming = 1]
+		[if ! $local.aiming[1]]
 			[message] fail 2
 			[if $target.actualUsages.ranged-fighting.params.guardFlavor is-set?]
 				[apply $target.actualUsages.ranged-fighting.params.guardFlavor => $local.flavor] $
@@ -758,8 +769,8 @@
 		[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense
 
 		# The longer the distance, the better the chance to evade the ranged-fighting
-		# /!\ FIXME:
-		[sub $local.attackScore] $= $fight.distance \\ 8
+		# /!\ FIXME?
+		[sub $local.attackScore] $= $fight.distance / 8
 
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		[message] $> Ranged: ${local.attackScore} vs ${local.defenseScore}
@@ -779,7 +790,7 @@
 
 		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
 
-		[if success-roll $local.attackScore $local.defenseScore $rangedAttackRoll]
+		[if success-roll $local.attackScore $local.defenseScore $const.rangedAttackRoll]
 			[call deal-damages]
 				#faces: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 6 10
 				criticalFactor: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 2 3
@@ -1103,7 +1114,7 @@
 				[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 
 			#[if $local.attackScore > $local.defenseScore]
-			[if success-roll $local.attackScore $local.defenseScore $attackRoll]
+			[if success-roll $local.attackScore $local.defenseScore $const.meleeAttackRoll]
 				[call deal-damages]
 					target: $target
 					hitFlavor: $args.hitFlavor
@@ -1155,7 +1166,7 @@
 			#[message] Defensive: bonus!
 
 		#[if $local.attackScore > $local.defenseScore]
-		[if success-roll $local.attackScore $local.defenseScore $wrestlingRoll]
+		[if success-roll $local.attackScore $local.defenseScore $const.wrestlingAttackRoll]
 			[set $target.status.hp] 0
 			[apply $fight.deadlyPush.flavor => $local.flavor] $
 			[message] $local.flavor

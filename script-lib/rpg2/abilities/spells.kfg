@@ -121,10 +121,10 @@
 								radius: 1.8
 				compoundVariation: spell
 				compound:
-					close-ranged: (*) 2.4
-					aiming: (*) 4
-					attack: (*) 4
-					damages: (*) 5
+					close-ranged: (*) 6
+					aiming: (*) 8
+					attack: (*) 10
+					damages: (*) 10
 
 
 

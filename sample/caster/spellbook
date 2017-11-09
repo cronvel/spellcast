@@ -136,7 +136,7 @@
 	[set $successes] $= random-trial-successes 100 $chance
 	[message] $> Successes: ${successes}
 	
-	[set $successes] $= n-successes-roll 100 2 1
+	[set $successes] $= n-success-rolls 100 2 1
 	[message] $> Successes: ${successes}
 	
 	[set $quantity] $= quantity-roll 2 1 ( base: 20 )
