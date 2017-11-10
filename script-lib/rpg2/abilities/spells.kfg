@@ -122,7 +122,7 @@
 				compoundVariation: spell
 				compound:
 					close-ranged: (*) 1.5
-					aiming: (*) 2.5
+					aiming: (*) 3.5
 					attack: (*) 2.5
 					damages: (*) 2.5
 

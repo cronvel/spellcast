@@ -30,28 +30,18 @@
 			
 			initiativeRoll:
 				overPower: 1.5
-				#criticalFactor: 2
-				#criticalChance: 0.05
 			
 			meleeAttackRoll:
 				overPower: 2.5
-				#criticalFactor: 2
-				#criticalChance: 0.05
 			
 			rangedAimingRoll:
 				overPower: 1.5
-				#criticalFactor: 2
-				#criticalChance: 0.05
 			
 			rangedAttackRoll:
 				overPower: 3
-				#criticalFactor: 3
-				#criticalChance: 0.05
 			
 			wrestlingAttackRoll:
 				overPower: 3
-				#criticalFactor: 1.5
-				#criticalChance: 0.05
 		
 		[set $fight] <Object>
 
@@ -731,7 +721,7 @@
 		# /!\ FIXME
 		[set $local.aimingScore] $= $performer.actualUsages.ranged-fighting.compound.aiming
 		[set $local.antiAimingScore] $= $const.antiAimingBase + ( $const.antiAimingFactor * ( $fight.distance + ( abs $target.adhoc.fight.speed ) ) )
-
+		
 		#[message] $> Aiming A: ${local.aimingScore} vs ${local.guardScore}
 		#[message] $> Pressure: ${performer.adhoc.fight.pressure}
 

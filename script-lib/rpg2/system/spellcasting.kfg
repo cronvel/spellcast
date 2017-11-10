@@ -6,10 +6,8 @@
 	[fn cast]
 		
 		# It would be nice to have true constants support in KFG
-		[set $const]
-			castRoll:
-				overPower: 2
-		
+		[set $local.castRoll]
+			overPower: 8
 		
 		[if $args.performer.status.mana <= 0]
 			[message] $> ${args.performer.label//uc1} has no mana left.
@@ -67,7 +65,7 @@
 		# Update malus now, after the score computation
 		[call rpg:common/update-malus] $performer
 		
-		[if success-roll $local.castScore $local.vsScore $const.castRoll]
+		[if ! ( success-roll $local.castScore $local.vsScore $local.castRoll )]
 			[message] $> ${args.performer.label//uc1} miscasts ^/${args.item.label}^:!
 			[return] false
 		
