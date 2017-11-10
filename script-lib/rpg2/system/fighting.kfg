@@ -29,28 +29,29 @@
 			antiAimingFactor: 1
 			
 			initiativeRoll:
-				criticalFactor: 2
-				criticalChance: 0.05
+				overPower: 1.5
+				#criticalFactor: 2
+				#criticalChance: 0.05
 			
 			meleeAttackRoll:
 				overPower: 2.5
-				criticalFactor: 2
-				criticalChance: 0.05
+				#criticalFactor: 2
+				#criticalChance: 0.05
 			
 			rangedAimingRoll:
 				overPower: 1.5
-				criticalFactor: 2
-				criticalChance: 0.05
+				#criticalFactor: 2
+				#criticalChance: 0.05
 			
 			rangedAttackRoll:
-				overPower: 2
-				criticalFactor: 3
-				criticalChance: 0.05
+				overPower: 3
+				#criticalFactor: 3
+				#criticalChance: 0.05
 			
 			wrestlingAttackRoll:
 				overPower: 3
-				criticalFactor: 1.5
-				criticalChance: 0.05
+				#criticalFactor: 1.5
+				#criticalChance: 0.05
 		
 		[set $fight] <Object>
 
@@ -792,8 +793,6 @@
 
 		[if success-roll $local.attackScore $local.defenseScore $const.rangedAttackRoll]
 			[call deal-damages]
-				#faces: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 6 10
-				criticalFactor: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 2 3
 				usage: $performer.actualUsages.ranged-fighting
 
 			[call effects]
@@ -861,9 +860,8 @@
 		[if ! $args.usage]
 			[set $args.usage] $performer.actualUsages.melee-fighting
 
-		#[set $local.faces] $= $args.faces ? $args.faces 6
-		[set $local.criticalFactor] $= $args.criticalFactor ? $args.criticalFactor 2
-
+		[message] $> Critical factor: ${args.usage.compound.criticalFactor}
+		
 		# Damage level
 		[if $args.damages is-real?]
 			[set $local.attackScore] $= $args.damages
@@ -873,24 +871,24 @@
 			[set $local.attackScore] $= $args.usage.compound.damages
 			#[if ! $performer.npc]
 			#	[message] $> ^KD: ${args.usage.compound.damages}
-
-			# Attacker offensiveness is used only when not using fixed damage base
-			[if $performer.adhoc.fight.offensiveness > 0]
-				[mul $local.attackScore] $const.offensivenessBonus
-			[elseif $performer.adhoc.fight.offensiveness < 0]
-				[mul $local.attackScore] $const.offensivenessMalus
+			
+			[if $args.usage.compound.offensivenessDamageMod]
+				# Attacker offensiveness is used only when not using fixed damage base
+				[if $performer.adhoc.fight.offensiveness > 0]
+					[mul $local.attackScore] $const.offensivenessBonus
+				[elseif $performer.adhoc.fight.offensiveness < 0]
+					[mul $local.attackScore] $const.offensivenessMalus
 
 		[if $args.bonusFactor is-real?]
 			[mul $local.attackScore] $args.bonusFactor
 
-
 		[set $local.defenseScore] $= $target.actual.stats.resilience
 
-		# Always used?
-		[if $target.adhoc.fight.offensiveness > 0]
-			[mul $local.defenseScore] $const.offensivenessMalus
-		[elseif $target.adhoc.fight.offensiveness < 0]
-			[mul $local.defenseScore] $const.offensivenessBonus
+		[if $args.usage.compound.offensivenessDamageMod]
+			[if $target.adhoc.fight.offensiveness > 0]
+				[mul $local.defenseScore] $const.offensivenessMalus
+			[elseif $target.adhoc.fight.offensiveness < 0]
+				[mul $local.defenseScore] $const.offensivenessBonus
 
 		[message] $> Damages: ${local.attackScore} vs ${local.defenseScore}
 
@@ -898,7 +896,7 @@
 			$= quantity-roll $local.attackScore $local.defenseScore (
 			$=   base: 15
 			$=   overPower: 2
-			$=   criticalFactor: $local.criticalFactor
+			$=   criticalFactor: $args.usage.compound.criticalFactor
 			$=   criticalChance: 0.05
 			$=   lowerDivide: false
 			$=   round: true

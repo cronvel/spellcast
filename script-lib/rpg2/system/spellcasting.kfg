@@ -5,19 +5,34 @@
 	
 	[fn cast]
 		
+		# It would be nice to have true constants support in KFG
+		[set $const]
+			castRoll:
+				overPower: 2
+		
+		
 		[if $args.performer.status.mana <= 0]
 			[message] $> ${args.performer.label//uc1} has no mana left.
 			[return] false
 		
 		# First, mana consumption
-		[set $local.castScore] $= $args.usage.compound.mana + ( 2 D 4 )
-		[set $local.vsScore] $= $args.usage.params.manaLevel + ( 2 D 4 )
+		#[set $local.castScore] $= $args.usage.compound.mana + ( 2 D 4 )
+		#[set $local.vsScore] $= $args.usage.params.manaLevel + ( 2 D 4 )
 		
-		[set $local.mana] $= ( ( $local.vsScore - $local.castScore ) + ( random ) ) - 0.5
+		[set $local.castScore] $= $args.usage.compound.mana
+		[set $local.vsScore] $= $args.usage.params.manaLevel
 		
-		# This is the magic formula that transform consumption levels into real mana point loss, with the correct feeling
-		# mana-level = +20 is needed for an instant mana lost
-		[set $local.mana] $= round ( 10 * ( 2 ^ ( $local.mana / 6 ) ) )
+		[message] $> Mana ${local.castScore} vs ${local.vsScore}
+		
+		[set $local.mana]
+			$= quantity-roll $local.attackScore $local.defenseScore (
+			$=   base: 10
+			$=   overPower: 2
+			$=   criticalFactor: 1.5
+			$=   criticalChance: 0.05
+			$=   lowerDivide: true
+			$=   round: true
+			$= )
 		
 		[sub $args.performer.status.mana] $local.mana
 		
@@ -35,21 +50,24 @@
 		
 		
 		# Then spellcasting
-		[set $local.castScore] $= $args.usage.compound.spellcasting + ( 2 D 8 )
-		[set $local.vsScore] $= $args.usage.params.spellLevel + ( 2 D 8 )
+		#[set $local.castScore] $= $args.usage.compound.spellcasting + ( 2 D 8 )
+		#[set $local.vsScore] $= $args.usage.params.spellLevel + ( 2 D 8 )
 		
-		#[message] $> ^KSpellcasting: ${args.usage.compound.spellcasting}
+		[set $local.castScore] $= $args.usage.compound.spellcasting
+		[set $local.vsScore] $= $args.usage.params.spellLevel
 		
 		[if $args.bonusFactor is-set?]
 			[mul $local.castScore] $args.bonusFactor
 		
+		[message] $> Casting ${local.castScore} vs ${local.vsScore}
+		
 		#[message] $> ${local.castScore} vs ${local.vsScore} ${args.bonusFactor}
 		#[debug info] $> ${args.performer.actual.stats.spellcasting}
 		
-		# Update malus now, that the score is already computed
+		# Update malus now, after the score computation
 		[call rpg:common/update-malus] $performer
 		
-		[if $local.castScore < $local.vsScore]
+		[if success-roll $local.castScore $local.vsScore $const.castRoll]
 			[message] $> ${args.performer.label//uc1} miscasts ^/${args.item.label}^:!
 			[return] false
 		

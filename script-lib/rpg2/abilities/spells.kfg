@@ -107,7 +107,7 @@
 							defenseType: ranged-fighting
 							mods:
 								# Attack modifier applied over the regular attack value
-								attack: (*) 0.85
+								attack: (*) 0.8
 								# Damage modifier applied over the regular damage value
 								damages: (*) 0.6
 							missFlavor: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
@@ -121,10 +121,10 @@
 								radius: 1.8
 				compoundVariation: spell
 				compound:
-					close-ranged: (*) 6
-					aiming: (*) 8
-					attack: (*) 10
-					damages: (*) 10
+					close-ranged: (*) 1.5
+					aiming: (*) 2.5
+					attack: (*) 2.5
+					damages: (*) 2.5
 
 
 
@@ -143,7 +143,7 @@
 					hitFlavor: $$> ^rThe ice blade hits ${target.label} for ${damages} hp.^:
 					criticalHitFlavor: $$> ^rThe ice blade freezes and slashes ${target.label} for ${damages} hp.^:
 					fatalHitFlavor: $$> ^rThe ice blade freezes and cuts ${target.label} in half for ${damages} hp.^:
-				compoundVariation: battle-damage-spell
+				compoundVariation: fighting-spell
 				compound:
 					attack: (*) 1.5
 					damages: (*) 2
