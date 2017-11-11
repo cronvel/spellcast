@@ -16,21 +16,21 @@
 					criticalHitFlavor: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
 					fatalHitFlavor: $$> ^r${performer.label//uc1} cuts ${target.label} in half for ${damages} hp.
 				compound:
-					attack: (*) 1.3
-					defense: (*) 1.3
-					damages: (*) 1.6
-					anti-ranged: (*) 1.2
+					attack: (+) 4
+					defense: (+) 4
+					damages: (+) 7
+					anti-ranged: (+) 3
 			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
 			extraSlot:
 				compound:
-					attack: (*) 1.05
-					defense: (*) 1.05
-					damages: (*) 1.2
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 3
 			# Bonuses when the weapon is used as a support for the primary weapon
 			support:
 				compound:
-					attack: (*) 1.2
-					defense: (*) 1.15
+					attack: (+) 3
+					defense: (+) 2
 
 
 
@@ -49,15 +49,15 @@
 					criticalHitFlavor: $$> ^r${performer.label//uc1} stabs ${target.label} for ${damages} hp.
 					fatalHitFlavor: $$> ^r${performer.label//uc1} deadly stabs ${target.label} for ${damages} hp.
 				compound:
-					attack: (*) 1.15
-					defense: (*) 1.05
-					damages: (*) 1.3
-					anti-ranged: (*) 1.05
+					attack: (+) 2
+					defense: (+) 1
+					damages: (+) 4
+					anti-ranged: (+) 1
 			# Bonuses when the weapon is used as a support for the primary weapon
 			support:
 				compound:
-					attack: (*) 1.05
-					defense: (*) 1.05
+					attack: (+) 1
+					defense: (+) 1
 
 
 
@@ -74,18 +74,18 @@
 				params:
 					criticalHitFlavor: $$> ^r${performer.label//uc1} chops ${target.label} for ${damages} hp.
 				compound:
-					attack: (*) 1.3
-					defense: (*) 1.15
-					damages: (*) 1.85
-					anti-ranged: (*) 1.15
+					attack: (+) 4
+					defense: (+) 2
+					damages: (+) 9
+					anti-ranged: (+) 2
 			extraSlot:
 				compound:
-					attack: (*) 1.05
-					damages: (*) 1.2
+					attack: (+) 1
+					damages: (+) 3
 			support:
 				compound:
-					attack: (*) 1.2
-					defense: (*) 1.05
+					attack: (+) 3
+					defense: (+) 1
 	
 
 
@@ -104,22 +104,22 @@
 					criticalHitFlavor: $$> ^r${performer.label//uc1} thumps ${target.label} for ${damages} hp.
 					fatalHitFlavor: $$> ^r${performer.label//uc1} deadly thumps ${target.label} for ${damages} hp.
 				compound:
-					attack: (*) 1.05
-					defense: (*) 1.05
-					damages: (*) 1.05
-					anti-ranged: (*) 1.05
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 1
+					anti-ranged: (+) 1
 			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
 			extraSlot:
 				compound:
-					attack: (*) 1.3
-					defense: (*) 1.3
-					damages: (*) 1.2
-					anti-ranged: (*) 1.2
+					attack: (+) 4
+					defense: (+) 4
+					damages: (+) 3
+					anti-ranged: (+) 3
 			# Bonuses when the weapon is used as a support for the primary weapon
 			support:
 				compound:
-					attack: (*) 1.05
-					defense: (*) 1.05
+					attack: (+) 1
+					defense: (+) 1
 
 
 
@@ -137,20 +137,20 @@
 				params:
 					criticalHitFlavor: $$> ^r${performer.label//uc1} punctures ${target.label} for ${damages} hp.
 				compound:
-					attack: (*) 1.05
-					defense: (*) 1.2
-					damages: (*) 1.2
-					anti-ranged: (*) 1.15
+					attack: (+) 1
+					defense: (+) 3
+					damages: (+) 3
+					anti-ranged: (+) 2
 			extraSlot:
 				compound:
-					attack: (*) 1.15
-					defense: (*) 1.3
-					damages: (*) 1.3
-					anti-ranged: (*) 1.2
+					attack: (+) 2
+					defense: (+) 4
+					damages: (+) 4
+					anti-ranged: (+) 3
 			support:
 				compound:
-					attack: (*) 1.05
-					defense: (*) 1.05
+					attack: (+) 1
+					defense: (+) 1
 
 
 
@@ -169,22 +169,22 @@
 					criticalHitFlavor: $$> ^r${performer.label//uc1} pounds ${target.label} for ${damages} hp.
 					fatalHitFlavor: $$> ^r${performer.label//uc1} crushes ${target.label} for ${damages} hp.
 				compound:
-					attack: (*) 1.15
-					defense: (*) 1.15
-					damages: (*) 1.85
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 9
 					# To slow to prevent ranged attack efficiently
-					anti-ranged: (*) 0.8
+					anti-ranged: (+) -3
 			extraSlot:
 				compound:
-					attack: (*) 1.05
-					defense: (*) 1.05
-					damages: (*) 1.5
-					anti-ranged: (*) 1.05
+					attack: (+) 1
+					defense: (+) 1
+					damages: (+) 6
+					anti-ranged: (+) 1
 			support:
 				compound:
-					attack: (*) 1.15
-					defense: (*) 1.15
-					damages: (*) 1.15
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 2
 
 
 
@@ -202,14 +202,14 @@
 				params:
 					criticalHitFlavor: $$> ^r${performer.label//uc1} cut ${target.label} for ${damages} hp.
 				compound:
-					attack: (*) 1.15
-					defense: (*) 1.15
-					damages: (*) 1.3
-					anti-ranged: (*) 1.05
+					attack: (+) 2
+					defense: (+) 2
+					damages: (+) 4
+					anti-ranged: (+) 1
 			support:
 				compound:
-					attack: (*) 1.05
-					defense: (*) 1.15
+					attack: (+) 1
+					defense: (+) 2
 
 
 

@@ -15,9 +15,9 @@
 					criticalHitFlavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
 					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
-					attack: (+) 2
-					defense: (+) 2
-					damages: (+) 4
+					attack: (*) 1.15
+					defense: (*) 1.15
+					damages: (*) 1.3
 		ranged-fighting:
 			primary:
 				params:
@@ -26,10 +26,10 @@
 					criticalHitFlavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
 					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
-					#close-ranged: (+) 1
-					attack: (+) 5
-					aiming: (+) 0
-					damages: (+) 4
+					#close-ranged: (*) 1
+					attack: (*) 1.4
+					aiming: (*) 1
+					damages: (*) 1.3
 
 
 
@@ -50,10 +50,10 @@
 					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compoundVariation: firearm
 				compound:
-					close-ranged: (+) -6
-					attack: (+) 25
-					aiming: (+) 2
-					damages: (+) 18
+					close-ranged: (*) 0.65
+					attack: (*) 5.5
+					aiming: (*) 1.15
+					damages: (*) 3.5
 
 
 
@@ -75,9 +75,9 @@
 					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compoundVariation: firearm
 				compound:
-					close-ranged: (+) 6
-					attack: (+) 25
-					aiming: (+) 8
-					damages: (+) 18
+					close-ranged: (*) 1.5
+					attack: (*) 5.5
+					aiming: (*) 1.7
+					damages: (*) 3.5
 		
 

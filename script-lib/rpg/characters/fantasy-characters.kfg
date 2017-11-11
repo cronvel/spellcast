@@ -40,9 +40,9 @@
 			- $$> ^+${performer.label//uc1} cries “I don't want do die!”
 	stats:
 		fighting: 7
-		shooting: 6
-		strength: 5
-		resilience: 5
+		shooting: 7
+		strength: 6
+		resilience: 6
 	equippedItems:
 		hand:
 			- spear
@@ -61,7 +61,7 @@
 		resilience: 10
 	usages:
 		ranged-fighting:
-			attack: (+) 4
+			attack: (*) 1.3
 	equippedItems:
 		hand:
 			- arc

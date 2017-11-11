@@ -18,10 +18,10 @@
 					fatalHitFlavor: $$> ^rThe firebolt burns ${target.label} to death for ${damages} hp.^:
 				compoundVariation: spell
 				compound:
-					close-ranged: (+) 10
-					aiming: (+) 20
-					attack: (+) 20
-					damages: (+) 16
+					close-ranged: (*) 1.4
+					aiming: (*) 3.5
+					attack: (*) 2.5
+					damages: (*) 1.7
 
 
 
@@ -42,10 +42,10 @@
 					fatalHitFlavor: $$> ^rThe electric arc blasts ${target.label} for ${damages} hp.^:
 				compoundVariation: spell
 				compound:
-					close-ranged: (+) 12
-					aiming: (+) 18
-					attack: (+) 30
-					damages: (+) 12
+					close-ranged: (*) 1.5
+					aiming: (*) 3.5
+					attack: (*) 3.5
+					damages: (*) 1.4
 
 
 
@@ -72,12 +72,12 @@
 							fatalHitFlavor: $$> ^rThe raw energy explosion blasts ${target.label} for ${damages} hp.^:
 							filter:
 								type: radius
-								excludeSelf: true
+								excludeSelf: yes
 								radius: 2.8
 				compoundVariation: spell
 				compound:
-					attack: (+) 30
-					damages: (+) 24
+					attack: (*) 3.5
+					damages: (*) 2.5
 
 
 
@@ -107,24 +107,24 @@
 							defenseType: ranged-fighting
 							mods:
 								# Attack modifier applied over the regular attack value
-								attack: (-) 2
+								attack: (*) 0.8
 								# Damage modifier applied over the regular damage value
-								damages: (-) 8
+								damages: (*) 0.6
 							missFlavor: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
 							hitFlavor: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
 							criticalHitFlavor: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
 							fatalHitFlavor: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
 							filter:
 								type: radius
-								excludeSelf: true
-								excludeTarget: true
+								excludeSelf: yes
+								excludeTarget: yes
 								radius: 1.8
 				compoundVariation: spell
 				compound:
-					close-ranged: (+) 12
-					aiming: (+) 20
-					attack: (+) 20
-					damages: (+) 24
+					close-ranged: (*) 1.5
+					aiming: (*) 3.5
+					attack: (*) 2.5
+					damages: (*) 2.5
 
 
 
@@ -143,10 +143,10 @@
 					hitFlavor: $$> ^rThe ice blade hits ${target.label} for ${damages} hp.^:
 					criticalHitFlavor: $$> ^rThe ice blade freezes and slashes ${target.label} for ${damages} hp.^:
 					fatalHitFlavor: $$> ^rThe ice blade freezes and cuts ${target.label} in half for ${damages} hp.^:
-				compoundVariation: battle-damage-spell
+				compoundVariation: fighting-spell
 				compound:
-					attack: (+) 6
-					damages: (+) 10
+					attack: (*) 1.5
+					damages: (*) 2
 
 
 
@@ -164,14 +164,14 @@
 					menuLabel: $> cast heal wound
 					speed: 0
 					offensiveness: -1
-					targeting: true
-					targetAllies: true
+					targeting: yes
+					targetAllies: yes
 					effects:
 						-	type: healing
 							flavor: $$> ^g${performer.label//uc1} heals ${target.label} for ${healing} hp.^:
 				compoundVariation: spell
 				compound:
-					healing: (+) 10
+					healing: (*) 2
 
 
 

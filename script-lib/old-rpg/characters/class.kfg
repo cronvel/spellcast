@@ -27,8 +27,8 @@
 		hp: 100
 		mana: 100
 		xp: 0
-		bodyBonusFactor: 1
-		spiritBonusFactor: 1
+		bodyMalus: 0
+		spiritMalus: 0
 	innateItems:
 		hand:
 			- fists

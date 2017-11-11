@@ -9,5 +9,5 @@
 	ownStats:
 		price: 210
 	compound:
-		attack: (*) 1.05
+		attack: (+) 1
 

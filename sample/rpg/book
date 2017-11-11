@@ -3,7 +3,7 @@
 [[locales locales/*]]
 #[[assets ./]]
 
-[module] @@{rpg2}/rpg.kfg
+[module] @@{rpg}/rpg.kfg
 [module] @@data.kfg
 
 

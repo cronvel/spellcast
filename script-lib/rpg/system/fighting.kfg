@@ -15,6 +15,35 @@
 				image: /icons/catch.svg
 				id: hand-equip
 		
+		# It would be nice to have true constants support in KFG
+		[set $const]
+			# Multiplier
+			offensivenessBonus: 1.15
+			offensivenessMalus: 0.8
+			
+			# Exponential base, should multiply 20 or 40 times to go down to 1/2
+			lowPressure: 0.983
+			pressure: 0.966
+			
+			antiAimingBase: 5
+			antiAimingFactor: 1
+			
+			initiativeRoll:
+				criticalFactor: 2
+				criticalChance: 0.05
+			
+			meleeAttackRoll:
+				overPower: 2.5
+			
+			rangedAimingRoll:
+				overPower: 1.5
+			
+			rangedAttackRoll:
+				overPower: 3
+			
+			wrestlingAttackRoll:
+				overPower: 3
+		
 		[set $fight] <Object>
 
 		[set $fight.foes] <Array>
@@ -56,8 +85,6 @@
 		[set $fight.deadlyPush] $args.deadlyPush
 
 		[call initiative]
-		#[next initiative]
-		#[goto new-turn]
 
 		[call fight-loop]
 
@@ -65,20 +92,23 @@
 
 	[fn initiative]
 		[foreach $fight.turns => $local.entity]
-			[set $local.entity.adhoc.fight.initiativeScore] $= $local.entity.actual.stats.fighting + ( 2 D 8 )
-
+			# Build the bare score
+			[set $local.initiativeScore] $= $local.entity.actual.stats.fighting
+			
 			[if $local.entity.adhoc.fight.offensiveness > 0]
-				[add $local.entity.adhoc.fight.initiativeScore] 2
+				[mul $local.initiativeScore] $const.offensivenessBonus
 			[elseif $local.entity.adhoc.fight.offensiveness < 0]
-				[sub $local.entity.adhoc.fight.initiativeScore] 3
+				[mul $local.initiativeScore] $const.offensivenessMalus
+			
+			# Roll it!
+			[set $local.entity.adhoc.fight.initiativeScore] $= score-roll $local.initiativeScore $const.initiativeRoll
+			#[message] $> Initiative: ${local.entity.adhoc.fight.initiativeScore} (${local.entity.actual.stats.fighting})
 
-		#[sort $fight.turns] $= - $this.adhoc.fight.initiativeScore
 		[sort $fight.turns] $= $this.right.adhoc.fight.initiativeScore - $this.left.adhoc.fight.initiativeScore
 
 		#[debug info] $fight.turns
 		[message] $> ^yThe distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
 		[message] $> ${fight.turns[0].label//uc1} takes the initiative.
-		#[goto new-turn]
 
 
 
@@ -90,8 +120,7 @@
 
 		[while true]
 
-			# Former scene end-turn:
-
+			# Check if we continue...
 			[if $fight.turnCount]
 				[set $fight.turnIndex] $= ( $fight.turnIndex + 1 ) % $fight.turns.length
 
@@ -111,8 +140,7 @@
 				[return]
 
 
-			# Former scene new-turn:
-
+			# Prepare the new turn
 			[set $fight.entityTurn] $= $fight.turns[$fight.turnIndex]
 
 			[if $fight.entityTurn.status.hp <= 0]
@@ -182,7 +210,7 @@
 	[fn pressure]
 		[reduce $fight.aliveEntities , 0 => $args.adhoc.fight.pressure]
 			$= $this.previous + ( ( $this.current.adhoc.fight.pressTarget = $args ) ? $this.current.adhoc.fight.pressValue 0 )
-		# Pressure has a max level, because when the target is saturated,
+		# Pressure has a max level, because when the target is "saturated",
 		# extra opponents are not able to reach the target properly:
 		# both the target and its opponents get some malus, therefore the pressure is capped to 18 (4 charging opponents)
 		[set $args.adhoc.fight.pressure] $= min ( max 0 ( $args.adhoc.fight.pressure - 6 ) ) 18
@@ -213,13 +241,9 @@
 				x: $= ( $fight.distance / 2 ) + 2
 				y: $= $index + $offset
 
-		#[sort $fight.aliveFoes] $= $this.adhoc.fight.position.y + ( $this.adhoc.fight.position.x / 1000 )
 		[sort $fight.aliveFoes]
 			$= ( $this.left.adhoc.fight.position.y + ( $this.left.adhoc.fight.position.x / 1000 ) )
 			$= - ( $this.right.adhoc.fight.position.y + ( $this.right.adhoc.fight.position.x / 1000 ) )
-
-		#[map $fight.aliveFoes => $tmp] $this.adhoc.fight
-		#[debug info] $tmp
 
 		# Same for allies
 
@@ -245,7 +269,6 @@
 				x: $= ( - ( $fight.distance / 2 ) ) - 2
 				y: $= $index + $offset
 
-		#[sort $fight.aliveAllies] $= $this.adhoc.fight.position.y + ( $this.adhoc.fight.position.x / 1000 )
 		[sort $fight.aliveAllies]
 			$= ( $this.left.adhoc.fight.position.y + ( $this.left.adhoc.fight.position.x / 1000 ) )
 			$= - ( $this.right.adhoc.fight.position.y + ( $this.right.adhoc.fight.position.x / 1000 ) )
@@ -458,10 +481,8 @@
 
 
 	[scene pc-battle-ability]
-		#[gosub pc-targeting]
 		[call battle-ability]
 			performer: $fight.entityTurn
-			#target: $fight.target
 		[return]
 
 
@@ -498,42 +519,39 @@
 				performer: $performer
 				item: $item
 				usage: $performer.actualUsages.melee-fighting
-				bonus: $= - ( ceil ( $performer.adhoc.fight.pressure / 4 ) )
+				bonusFactor: $= $const.lowPressure ^ $performer.adhoc.fight.pressure
 			[if ! $local.casted]
 				[return]
 
-		#[if ! $performer.npc]
-		#	[message] $> ^KAttack: ${performer.actualUsages.melee-fighting.compound.attack}
-
-		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
-		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
+		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack
+		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense
 
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 
 		[if $performer.adhoc.fight.offensiveness > 0]
-			[add $local.attackScore] 2
+			[mul $local.attackScore] $const.offensivenessBonus
 			# Less sensible to the pressure when attacking
-			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 4 )
+			[mul $local.attackScore] $= $const.lowPressure ^ $performer.adhoc.fight.pressure
 		[elseif $performer.adhoc.fight.offensiveness < 0]
-			[sub $local.attackScore] 3
-			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
+			[mul $local.attackScore] $const.offensivenessMalus
+			[mul $local.attackScore] $= $const.pressure ^ $performer.adhoc.fight.pressure
 		[else]
-			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
+			[mul $local.attackScore] $= $const.pressure ^ $performer.adhoc.fight.pressure
 
 		[if $target.adhoc.fight.offensiveness > 0]
-			[sub $local.defenseScore] 3
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+			[mul $local.defenseScore] $const.offensivenessMalus
+			[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 		[elseif $target.adhoc.fight.offensiveness < 0]
-			[add $local.defenseScore] 2
+			[mul $local.defenseScore] $const.offensivenessBonus
 			# Less sensible to the pressure when defending
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
+			[mul $local.defenseScore] $= $const.lowPressure ^ $target.adhoc.fight.pressure
 		[else]
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+			[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 
-		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
-
-		[if $local.attackScore > $local.defenseScore]
+		#[message] $> Melee: ${local.attackScore} vs ${local.defenseScore}
+		
+		[if success-roll $local.attackScore $local.defenseScore $const.meleeAttackRoll]
 			[call deal-damages]
 
 			[call effects]
@@ -564,8 +582,8 @@
 			[return]
 
 
-		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack + ( 2 D 8 )
-		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense + ( 2 D 8 )
+		[set $local.attackScore] $= $performer.actualUsages.melee-fighting.compound.attack
+		[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.defense
 
 		[set $performer.adhoc.fight.pressTarget] $target
 		[set $performer.adhoc.fight.pressValue] 6
@@ -577,32 +595,29 @@
 		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
 
 		# A charge is always offensive!
-		[add $local.attackScore] 2
+		[mul $local.attackScore] $const.offensivenessBonus
 		# Charge is less sensible to the pressure
-		[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 4 )
+		[mul $local.attackScore] $= $const.lowPressure ^ $performer.adhoc.fight.pressure
 
 		[if $target.adhoc.fight.offensiveness > 0]
-			[sub $local.defenseScore] 3
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+			[mul $local.defenseScore] $const.offensivenessMalus
+			[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 		[elseif $target.adhoc.fight.offensiveness < 0]
-			[add $local.defenseScore] 2
+			[mul $local.defenseScore] $const.offensivenessBonus
 			# Less sensible to the pressure when defending
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
+			[mul $local.defenseScore] $= $const.lowPressure ^ $target.adhoc.fight.pressure
 		[else]
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+			[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 
-		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
+		#[message] $> Charge: ${local.attackScore} vs ${local.defenseScore}
 
 		[message] $> ${performer.label//uc1} charges ${target.label}!
 
-		[if $local.attackScore > $local.defenseScore]
+		[if success-roll $local.attackScore $local.defenseScore $const.meleeAttackRoll]
 			[call deal-damages]
 
 			[if $fight.deadlyPush]
 				[call deadly-push]
-		[elseif ( $local.attackScore = $local.defenseScore ) && $fight.deadlyPush]
-			[message] $> ${target.label//uc1} blocks ${performer.label}.
-			[call deadly-push]
 		[else]
 			[fortune]
 				- $> ${performer.label//uc1} misses ${target.label}.
@@ -639,58 +654,57 @@
 				performer: $performer
 				item: $item
 				usage: $performer.actualUsages.ranged-fighting
-				bonus: $= - ( ceil ( $performer.adhoc.fight.pressure / 4 ) )
+				bonusFactor: $= $const.lowPressure ^ $performer.adhoc.fight.pressure
 			[if ! $local.casted]
 				[return]
 
 		# We are in close range, we have to test first with the closeRange stat,
-		# against the best of the opponent melee-fighting attack or defense stat.
+		# against the anti-ranged stat
 		[if $fight.distance = 0]
-			[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.close-ranged + ( 2 D 8 )
-			[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.anti-ranged + ( 2 D 8 )
+			
+			[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.close-ranged
+			[set $local.defenseScore] $= $target.actualUsages.melee-fighting.compound.anti-ranged
 
 			#[message] $> Close range A: ${local.attackScore} vs ${local.defenseScore}
 			#[message] $> Pressure: ${performer.adhoc.fight.pressure}
 
-			[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
+			[mul $local.attackScore] $= $const.pressure ^ $performer.adhoc.fight.pressure
 
 			[if $target.adhoc.fight.offensiveness > 0]
-				[sub $local.defenseScore] 3
-				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+				[mul $local.defenseScore] $const.offensivenessMalus
+				[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 			[elseif $target.adhoc.fight.offensiveness < 0]
-				[add $local.defenseScore] 2
+				[mul $local.defenseScore] $const.offensivenessBonus
 				# Less sensible to the pressure when defending
-				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
+				[mul $local.defenseScore] $= $const.lowPressure ^ $target.adhoc.fight.pressure
 			[else]
-				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+				[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 
-			#[message] $> Close range B: ${local.attackScore} vs ${local.defenseScore}
+			#[message] $> Close range: ${local.attackScore} vs ${local.defenseScore}
 
-			[if $local.attackScore <= $local.defenseScore]
+			[if ! ( success-roll $local.attackScore $local.defenseScore $const.meleeAttackRoll )]
 				[message] $> ${target.label//uc1} prevents ${performer.label} from attacking from afar.
 				[return]
 
-		[set $local.aimingScore] $= $performer.actualUsages.ranged-fighting.compound.aiming + ( 2 D 12 )
-		[set $local.guardScore] $= ( $fight.distance / 2 ) + ( abs $target.adhoc.fight.speed ) + ( 2 D 12 )
-
+		[set $local.aimingScore] $= $performer.actualUsages.ranged-fighting.compound.aiming
+		[set $local.antiAimingScore] $= $const.antiAimingBase + ( $const.antiAimingFactor * ( $fight.distance + ( abs $target.adhoc.fight.speed ) ) )
+		
 		#[message] $> Aiming A: ${local.aimingScore} vs ${local.guardScore}
 		#[message] $> Pressure: ${performer.adhoc.fight.pressure}
 
-		[sub $local.aimingScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
-
-		#[message] $> Aiming B: ${local.aimingScore} vs ${local.guardScore}
-
-		[if $local.aimingScore < $local.guardScore]
+		[mul $local.aimingScore] $= $const.pressure ^ $performer.adhoc.fight.pressure
+		
+		[set $local.guardScore] $= $target.actualUsages.ranged-fighting.compound.guard
+		
+		# We use a correlated-success-rolls to avoid decreasing the chance to hit by performing two uncorrelated rolls
+		[set $local.aiming] $= correlated-success-rolls $local.aimingScore ( $local.antiAimingScore , $local.guardScore ) $rangedAimingRoll
+		#[message] $> Aiming: ${local.aimingScore} vs ${local.antiAimingScore} / ${local.guardScore} => ${local.aiming[0]} / ${local.aiming[1]}
+		
+		[if ! $local.aiming[0]]
 			[message] $> ${performer.label//uc1} misses ${target.label}.
 			[return]
 
-		#[message] $> Guard: ${target.actualUsages.ranged-fighting.compound.guard}
-		#[debug info] $target.equippedItems.hand[0]
-		#[debug info] $target.actualUsages.ranged-fighting
-
-		[add $local.guardScore] $target.actualUsages.ranged-fighting.compound.guard
-
-		[if $local.aimingScore < $local.guardScore]
+		[if ! $local.aiming[1]]
 			[if $target.actualUsages.ranged-fighting.params.guardFlavor is-set?]
 				[apply $target.actualUsages.ranged-fighting.params.guardFlavor => $local.flavor] $
 				[message] $local.flavor
@@ -698,33 +712,31 @@
 				[message] $> ${performer.label//uc1} misses ${target.label}.
 			[return]
 
-		[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.attack + ( 2 D 12 )
-		[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense + ( 2 D 12 )
+		[set $local.attackScore] $= $performer.actualUsages.ranged-fighting.compound.attack
+		[set $local.defenseScore] $= $target.actualUsages.ranged-fighting.compound.defense
 
-		# The longer the distance, the better the chance to evade the ranged-fighting
-		[sub $local.attackScore] $= $fight.distance \\ 8
+		# /!\ FIXME?
+		[add $local.defenseScore] $= $fight.distance / 5
 
 		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
-		#[message] $> A: ${local.attackScore} vs ${local.defenseScore}
+		#[message] $> Ranged: ${local.attackScore} vs ${local.defenseScore}
 
 		# Attack score of ranged-fighting do not depend much on the character but on the weapon
-		#[sub $local.attackScore] $= ceil ( $performer.adhoc.fight.pressure / 2 )
 
 		[if $target.adhoc.fight.offensiveness > 0]
-			[sub $local.defenseScore] 3
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+			[mul $local.defenseScore] $const.offensivenessMalus
+			[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 		[elseif $target.adhoc.fight.offensiveness < 0]
-			[add $local.defenseScore] 2
+			[mul $local.defenseScore] $const.offensivenessBonus
 			# Less sensible to the pressure when defending
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
+			[mul $local.defenseScore] $= $const.lowPressure ^ $target.adhoc.fight.pressure
 		[else]
-			[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+			[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 
 		#[message] $> B: ${local.attackScore} vs ${local.defenseScore}
 
-		[if $local.attackScore > $local.defenseScore]
+		[if success-roll $local.attackScore $local.defenseScore $const.rangedAttackRoll]
 			[call deal-damages]
-				faces: $= ( $performer.primary.ranged-fighting.class = "ability" ) ? 6 10
 				usage: $performer.actualUsages.ranged-fighting
 
 			[call effects]
@@ -773,7 +785,7 @@
 				performer: $performer
 				item: $item
 				usage: $local.usage
-				bonus: $= - ( ceil ( $performer.adhoc.fight.pressure / 4 ) )
+				bonusFactor: $= $const.lowPressure ^ $performer.adhoc.fight.pressure
 			[if ! $local.casted]
 				[return]
 
@@ -792,46 +804,43 @@
 		[if ! $args.usage]
 			[set $args.usage] $performer.actualUsages.melee-fighting
 
-		[set $local.faces] $= $args.faces ? $args.faces 6
-
+		#[message] $> Critical factor: ${args.usage.compound.criticalFactor}
+		
 		# Damage level
 		[if $args.damages is-real?]
-			[set $local.attackScore] $= $args.damages + ( 2 D $local.faces )
-			#[if ! $performer.npc]
-			#	[message] $> ^KD: ${args.damages}
+			[set $local.attackScore] $= $args.damages
 		[else]
-			[set $local.attackScore] $= $args.usage.compound.damages + ( 2 D $local.faces )
-			#[if ! $performer.npc]
-			#	[message] $> ^KD: ${args.usage.compound.damages}
+			[set $local.attackScore] $= $args.usage.compound.damages
+			
+			[if $args.usage.compound.offensivenessDamageMod]
+				# Attacker offensiveness is used only when not using fixed damage base
+				[if $performer.adhoc.fight.offensiveness > 0]
+					[mul $local.attackScore] $const.offensivenessBonus
+				[elseif $performer.adhoc.fight.offensiveness < 0]
+					[mul $local.attackScore] $const.offensivenessMalus
 
-			# Attacker offensiveness is used only when not using fixed damage base
-			[if $performer.adhoc.fight.offensiveness > 0]
-				[add $local.attackScore] 2
-			[elseif $performer.adhoc.fight.offensiveness < 0]
-				[sub $local.attackScore] 3
+		[if $args.bonusFactor is-real?]
+			[mul $local.attackScore] $args.bonusFactor
 
+		[set $local.defenseScore] $= $target.actual.stats.resilience
 
-		[set $local.defenseScore] $= $target.actual.stats.resilience + ( 2 D $local.faces )
+		[if $args.usage.compound.offensivenessDamageMod]
+			[if $target.adhoc.fight.offensiveness > 0]
+				[mul $local.defenseScore] $const.offensivenessMalus
+			[elseif $target.adhoc.fight.offensiveness < 0]
+				[mul $local.defenseScore] $const.offensivenessBonus
 
-		# Always used?
-		[if $target.adhoc.fight.offensiveness > 0]
-			[sub $local.defenseScore] 3
-		[elseif $target.adhoc.fight.offensiveness < 0]
-			[add $local.defenseScore] 2
+		#[message] $> Damages: ${local.attackScore} vs ${local.defenseScore}
 
-		#[message] $> ${local.attackScore} vs ${local.defenseScore}
-
-		[set $damages] $= ( ( $local.attackScore - $local.defenseScore ) + ( random ) ) - 0.5
-
-
-		[if $args.bonus is-real?]
-			[add $damages] $args.bonus
-
-		#[message] $> damages: ${damages}
-
-		# This is the magic formula that transform damage levels into real hit point loss, with the correct feeling
-		# damage-level = +20 is needed for an instant death
-		[set $damages] $= round ( 10 * ( 2 ^ ( $damages / 6 ) ) )
+		[set $damages]
+			$= quantity-roll $local.attackScore $local.defenseScore (
+			$=   base: 15
+			$=   overPower: 2
+			$=   criticalFactor: $args.usage.compound.criticalFactor
+			$=   criticalChance: 0.05
+			$=   lowerDivide: false
+			$=   round: true
+			$= )
 
 		#[message] $> damages: ${damages}
 
@@ -892,37 +901,31 @@
 		#[if $target.status.hp >= 100]
 		#	[return]
 
-		[set $local.faces] $= $args.faces ? $args.faces 4
-
-		# Heal level
+		# Healing score
 		[if $args.healing is-real?]
-			[set $local.healScore] $= $args.healing + ( 2 D $local.faces )
+			[set $local.healingScore] $= $args.healing
 		[else]
-			[set $local.healScore] $= $args.usage.compound.healing + ( 2 D $local.faces )
+			[set $local.healingScore] $= $args.usage.compound.healing
 
-		[set $local.defenseScore] $= $target.actual.stats.resilience + ( 2 D $local.faces )
+		[set $local.defenseScore] $= $target.actual.stats.resilience
 
-		#[message] $> ^K${local.healScore} vs ${local.defenseScore}
-
-		[set $healing] $= ( ( $local.healScore - $local.defenseScore ) + ( random ) ) - 0.5
-
-
-		[if $args.bonus is-real?]
-			[add $healing] $args.bonus
-
-		#[message] $> ^Khealing: ${healing}
-
-		# This is the magic formula that transform heal levels into real hit point gain.
-		# If the target has +10 resilience over another one, it gets two times less healing.
-		[set $healing] $= round ( 10 * ( 2 ^ ( $healing / 10 ) ) )
-
+		[if $args.bonusFactor is-real?]
+			[mul $healingScore] $args.bonusFactor
+		
+		[set $healing]
+			$= quantity-roll $local.healingScore $local.defenseScore (
+			$=   base: 10
+			$=   overPower: 1
+			$=   criticalFactor: $args.usage.compound.criticalFactor
+			$=   criticalChance: 0.05
+			$=   lowerDivide: true
+			$=   round: true
+			$= )
+		
 		#[message] $> ^Khealing: ${healing}
 
 		# Cap the healing
 		[set $healing] $= min $healing ( 100 - $target.status.hp )
-
-		#[if $healing <= 0]
-		#	[return]
 
 		[add $target.status.hp] $healing
 
@@ -1024,22 +1027,24 @@
 
 		[foreach $args.entities => $target]
 
-			[set $local.attackScore] $= $args.attack + ( 2 D 8 )
-			[set $local.defenseScore] $= $target.actualUsages[$args.defenseType].compound.defense + ( 2 D 8 )
+			[set $local.attackScore] $= $args.attack
+			[set $local.defenseScore] $= $target.actualUsages[$args.defenseType].compound.defense
 
 			[call pressure] $target
 
 			[if $target.adhoc.fight.offensiveness > 0]
-				[sub $local.defenseScore] 3
-				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
+				[mul $local.defenseScore] $const.offensivenessMalus
+				[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
 			[elseif $target.adhoc.fight.offensiveness < 0]
-				[add $local.defenseScore] 2
+				[mul $local.defenseScore] $const.offensivenessBonus
 				# Less sensible to the pressure when defending
-				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 4 )
+				[mul $local.defenseScore] $= $const.lowPressure ^ $target.adhoc.fight.pressure
 			[else]
-				[sub $local.defenseScore] $= ceil ( $target.adhoc.fight.pressure / 2 )
-
-			[if $local.attackScore > $local.defenseScore]
+				[mul $local.defenseScore] $= $const.pressure ^ $target.adhoc.fight.pressure
+			
+			#[message] $> Attack-effect: ${local.attackScore} vs ${local.defenseScore}
+			
+			[if success-roll $local.attackScore $local.defenseScore $const.meleeAttackRoll]
 				[call deal-damages]
 					target: $target
 					hitFlavor: $args.hitFlavor
@@ -1067,31 +1072,26 @@
 
 	[fn deadly-push]
 		[set $local.attackScore]
-			$= ( ( max $performer.actual.stats.strength ( $performer.actual.stats.fighting - 3 ) )
-			$= + $fight.deadlyPush.bonus )
-			$= + ( 2 D 6 )
-		[set $local.defenseScore] $= $target.actual.stats.strength + ( 2 D 6 )
+			$= ( max $performer.actual.stats.strength ( $performer.actual.stats.fighting - 3 ) )
+			$= * $fight.deadlyPush.bonusFactor
+		[set $local.defenseScore] $= $target.actual.stats.strength
 		
-		[sub $local.attackScore] $= $performer.adhoc.fight.pressure / 4
-		[sub $local.defenseScore] $= $target.adhoc.fight.pressure / 4
+		[mul $local.attackScore] $= $const.lowPressure ^ $performer.adhoc.fight.pressure
+		[mul $local.defenseScore] $= $const.lowPressure ^ $target.adhoc.fight.pressure
 
 		#[message] $> Attacker ${performer.label} offensiveness: ${performer.adhoc.fight.offensiveness}
 		[if $performer.adhoc.fight.offensiveness > 0]
-			[add $local.attackScore] 2
-			#[message] Offensive: bonus!
+			[mul $local.attackScore] $const.offensivenessBonus
 		[elseif $performer.adhoc.fight.offensiveness < 0]
-			[sub $local.attackScore] 3
-			#[message] Defensive: malus!
+			[mul $local.attackScore] $const.offensivenessMalus
 
 		#[message] $> Defender ${target.label} offensiveness: ${target.adhoc.fight.offensiveness}
 		[if $target.adhoc.fight.offensiveness > 0]
-			[sub $local.defenseScore] 3
-			#[message] Offensive: malus!
+			[mul $local.defenseScore] $const.offensivenessMalus
 		[elseif $target.adhoc.fight.offensiveness < 0]
-			[add $local.defenseScore] 2
-			#[message] Defensive: bonus!
+			[mul $local.defenseScore] $const.offensivenessBonus
 
-		[if $local.attackScore > $local.defenseScore]
+		[if success-roll $local.attackScore $local.defenseScore $const.wrestlingAttackRoll]
 			[set $target.status.hp] 0
 			[apply $fight.deadlyPush.flavor => $local.flavor] $
 			[message] $local.flavor
