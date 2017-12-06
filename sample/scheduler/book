@@ -1,0 +1,23 @@
+
+[[doctype spellcast/book]]
+
+
+
+[entity-model entity]
+	class: entity
+	label: Entity
+
+
+
+[chapter intro]
+	
+	[scene intro1]
+		
+		[create-entity $e1] entity
+		[create-entity $e2] entity
+		
+		[create-scheduler $s]
+		[add-to-scheduler $s]
+		
+		[debug] $s
+		
