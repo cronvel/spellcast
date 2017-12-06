@@ -13,11 +13,30 @@
 	
 	[scene intro1]
 		
-		[create-entity $e1] entity
-		[create-entity $e2] entity
+		[create-entity $alice]
+			model: entity
+			label: Alice
 		
-		[create-scheduler $s]
-		[add-to-scheduler $s]
+		[create-entity $bob]
+			model: entity
+			label: Bob
 		
-		[debug] $s
+		[create-scheduler $scheduler]
 		
+		[add-to-scheduler $scheduler]
+			entity: $alice
+			readyingDuration: 10
+		
+		[add-to-scheduler $scheduler]
+			entity: $bob
+			readyingDuration: 8
+		
+		[on $scheduler ready]
+			[message] $> Received the ^/ready^ event for: ${args.entity.label}
+			#[debug] $args
+		
+		#[debug] $scheduler
+		
+		[advance-scheduler $scheduler]
+		
+		[pause] 1
