@@ -33,10 +33,24 @@
 		
 		[on $scheduler ready]
 			[message] $> Received the ^/ready^ event for: ${args.entity.label}
-			#[debug] $args
+			[pause] 1
+			[message] $> ready listener, after pause
+			[schedule-action $scheduler]
+				entity: $args.entity
+				action: talk
+			[message] $> ready listener, after [schedule-action]
+		
+		[on $scheduler started]
+			[message] $> Received the ^/started^ event for: ${args.entity.label}, action: ${args.action}
+			[pause] 1
+			[message] $> started listener, after pause
 		
 		#[debug] $scheduler
 		
+		[message] $> main, before [advance-scheduler]
 		[advance-scheduler $scheduler]
+		[message] $> main, after [advance-scheduler]
 		
 		[pause] 1
+		
+		
