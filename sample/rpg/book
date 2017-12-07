@@ -47,7 +47,7 @@
 		#		color: #650fbe
 		#		image: /icons/mana.svg
 		
-		#[debug info] $roles.hero.entity.equippedItems.hand
+		#[debug info] $roles.hero.entity.equipped-items.hand
 		#[debug info] $roles.hero.entity.actual
 		#[debug info] $roles.hero.entity
 		
@@ -112,14 +112,14 @@
 			model: goblin
 			label: the goblin boss
 			params:
-				xpReward: 5
+				xp-reward: 5
 			stats:
 				fighting: 12
 				strength: 10
 				resilience: 12
 			stances:
 				offensiveness: -1
-			equippedItems:
+			equipped-items:
 				hand:
 					- spear
 					- shield
@@ -158,8 +158,8 @@
 				- $roles.hero.entity
 			foes:
 				- guardian
-			deadlyPush:
-				bonusFactor: 1
+			deadly-push:
+				bonus-factor: 1
 				flavor:
 					$$> ^R${performer.label//uc1} pushes ${target.label} and ${target.label} falls off the cliff!
 		
@@ -178,8 +178,8 @@
 				- $roles.hero.entity
 			foes:
 				- guardian
-			deadlyPush:
-				bonusFactor: 1.5
+			deadly-push:
+				bonus-factor: 1.5
 				flavor:
 					$$> ^RAs ${performer.label} charges, ${target.label} slips from the wooden beam!
 					$$> ${target.label//uc1} falls into the chasm!

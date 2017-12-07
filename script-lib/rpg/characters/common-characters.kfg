@@ -5,7 +5,7 @@
 	class: character
 	label: the human
 	params:
-		xpReward: 5
+		xp-reward: 5
 	stats:
 		fighting: 8
 		shooting: 8
@@ -18,7 +18,7 @@
 	class: character
 	label: the dog
 	params:
-		xpReward: 5
+		xp-reward: 5
 	stats:
 		fighting: 14
 		shooting: 0
@@ -27,7 +27,7 @@
 	compound:
 		attack: (+) 1
 		defense: (+) -1
-	innateItems:
+	innate-items:
 		innate:
 			- fangs
 		hand: null

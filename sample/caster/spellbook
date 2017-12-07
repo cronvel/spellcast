@@ -130,7 +130,7 @@
 	[emit blast] Gnoll
 
 [spell random]
-	[set $chance] $= success-chance 2 1 ( overPower: 4 / 2 , base: 1 / 7 )
+	[set $chance] $= success-chance 2 1 ( over-power: 4 / 2 , base: 1 / 7 )
 	[message] $> Chance: ${chance}
 	
 	[set $successes] $= random-trial-successes 100 $chance

@@ -4,9 +4,9 @@
 [item-model ring-of-fighting-spirit]
 	class: object
 	label: ring of fighting spirit
-	slotType: ring
-	slotCount: 1
-	ownStats:
+	slot-type: ring
+	slot-count: 1
+	own-stats:
 		price: 210
 	compound:
 		attack: (*) 1.05

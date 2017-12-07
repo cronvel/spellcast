@@ -4,24 +4,24 @@
 [item-model sword]
 	class: object
 	label: sword
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 310
 	usages:
 		melee-fighting:
 			# When the weapon is used
 			primary:
 				params:
-					criticalHitFlavor: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
-					fatalHitFlavor: $$> ^r${performer.label//uc1} cuts ${target.label} in half for ${damages} hp.
+					critical-hit-flavor: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.label//uc1} cuts ${target.label} in half for ${damages} hp.
 				compound:
 					attack: (*) 1.3
 					defense: (*) 1.3
 					damages: (*) 1.6
 					anti-ranged: (*) 1.2
 			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
-			extraSlot:
+			extra-slot:
 				compound:
 					attack: (*) 1.05
 					defense: (*) 1.05
@@ -37,17 +37,17 @@
 [item-model dagger]
 	class: object
 	label: dagger
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 85
 	usages:
 		melee-fighting:
 			# When the weapon is used
 			primary:
 				params:
-					criticalHitFlavor: $$> ^r${performer.label//uc1} stabs ${target.label} for ${damages} hp.
-					fatalHitFlavor: $$> ^r${performer.label//uc1} deadly stabs ${target.label} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${performer.label//uc1} stabs ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.label//uc1} deadly stabs ${target.label} for ${damages} hp.
 				compound:
 					attack: (*) 1.15
 					defense: (*) 1.05
@@ -64,21 +64,21 @@
 [item-model axe]
 	class: object
 	label: axe
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 140
 	usages:
 		melee-fighting:
 			primary:
 				params:
-					criticalHitFlavor: $$> ^r${performer.label//uc1} chops ${target.label} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${performer.label//uc1} chops ${target.label} for ${damages} hp.
 				compound:
 					attack: (*) 1.3
 					defense: (*) 1.15
 					damages: (*) 1.85
 					anti-ranged: (*) 1.15
-			extraSlot:
+			extra-slot:
 				compound:
 					attack: (*) 1.05
 					damages: (*) 1.2
@@ -92,24 +92,24 @@
 [item-model staff]
 	class: object
 	label: staff
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 40
 	usages:
 		melee-fighting:
 			# When the weapon is used
 			primary:
 				params:
-					criticalHitFlavor: $$> ^r${performer.label//uc1} thumps ${target.label} for ${damages} hp.
-					fatalHitFlavor: $$> ^r${performer.label//uc1} deadly thumps ${target.label} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${performer.label//uc1} thumps ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.label//uc1} deadly thumps ${target.label} for ${damages} hp.
 				compound:
 					attack: (*) 1.05
 					defense: (*) 1.05
 					damages: (*) 1.05
 					anti-ranged: (*) 1.05
 			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
-			extraSlot:
+			extra-slot:
 				compound:
 					attack: (*) 1.3
 					defense: (*) 1.3
@@ -126,22 +126,22 @@
 [item-model spear]
 	class: object
 	label: spear
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 95
 	usages:
 		melee-fighting:
 			# Mostly a two-handed weapon, but can still be used with a shield
 			primary:
 				params:
-					criticalHitFlavor: $$> ^r${performer.label//uc1} punctures ${target.label} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${performer.label//uc1} punctures ${target.label} for ${damages} hp.
 				compound:
 					attack: (*) 1.05
 					defense: (*) 1.2
 					damages: (*) 1.2
 					anti-ranged: (*) 1.15
-			extraSlot:
+			extra-slot:
 				compound:
 					attack: (*) 1.15
 					defense: (*) 1.3
@@ -157,24 +157,24 @@
 [item-model giant-club]
 	class: object
 	label: giant club
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 55
 	usages:
 		melee-fighting:
 			primary:
 				params:
-					menuLabel: $> crush
-					criticalHitFlavor: $$> ^r${performer.label//uc1} pounds ${target.label} for ${damages} hp.
-					fatalHitFlavor: $$> ^r${performer.label//uc1} crushes ${target.label} for ${damages} hp.
+					menu-label: $> crush
+					critical-hit-flavor: $$> ^r${performer.label//uc1} pounds ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.label//uc1} crushes ${target.label} for ${damages} hp.
 				compound:
 					attack: (*) 1.15
 					defense: (*) 1.15
 					damages: (*) 1.85
 					# To slow to prevent ranged attack efficiently
 					anti-ranged: (*) 0.8
-			extraSlot:
+			extra-slot:
 				compound:
 					attack: (*) 1.05
 					defense: (*) 1.05
@@ -192,15 +192,15 @@
 [item-model main-gauche]
 	class: object
 	label: main gauche
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 75
 	usages:
 		melee-fighting:
 			primary:
 				params:
-					criticalHitFlavor: $$> ^r${performer.label//uc1} cut ${target.label} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${performer.label//uc1} cut ${target.label} for ${damages} hp.
 				compound:
 					attack: (*) 1.15
 					defense: (*) 1.15

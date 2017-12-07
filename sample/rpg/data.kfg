@@ -23,7 +23,7 @@
 		- crossbow
 		- bow
 		- giant-club
-	equippedItems:
+	equipped-items:
 		ability:
 			- fireball
 #			- ice-blade
@@ -37,38 +37,38 @@
 	class: character
 	label: the guardian
 	params:
-		xpReward: 10
+		xp-reward: 10
 		charge: 0.5
 	stats:
 		fighting: 14
 		shooting: 6
 		strength: 16
 		resilience: 16
-	equippedItems:
+	equipped-items:
 		hand:
 			- giant-club
 
 [item-model excalibur]
 	class: object
 	label: Excalibur
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 5500
 	usages:
 		melee-fighting:
 			# When the weapon is used
 			primary:
 				params:
-					menuLabel: $> use the Sacred Sword Excalibur
-					criticalHitFlavor: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
-					fatalHitFlavor: $$> ^r${performer.label//uc1} cut ${target.label} in half for ${damages} hp.
+					menu-label: $> use the Sacred Sword Excalibur
+					critical-hit-flavor: $$> ^r${performer.label//uc1} slashes ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.label//uc1} cut ${target.label} in half for ${damages} hp.
 				compound:
 					attack: (*) 1.75
 					defense: (*) 1.75
 					damages: (*) 2.6
 			# Bonuses when the weapon is held with both hands (i.e. taking advantage of an extra empty slot of the same kind)
-			extraSlot:
+			extra-slot:
 				compound:
 					attack: (*) 1.2
 					defense: (*) 1.2

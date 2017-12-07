@@ -31,10 +31,10 @@
 		- the disgusting goblin
 		- the ugly goblin
 	params:
-		xpReward: 2
+		xp-reward: 2
 		charge: 0.2
-		battleCry: 0.05
-		battleCryFlavor:
+		battle-cry: 0.05
+		battle-cry-flavor:
 			- $$> ^+${performer.label//uc1} shouts “Bleed him to death!”
 			- $$> ^+${performer.label//uc1} shouts “Catch him!”
 			- $$> ^+${performer.label//uc1} cries “I don't want do die!”
@@ -43,7 +43,7 @@
 		shooting: 7
 		strength: 6
 		resilience: 6
-	equippedItems:
+	equipped-items:
 		hand:
 			- spear
 
@@ -53,7 +53,7 @@
 	class: character
 	label: the elf
 	params:
-		xpReward: 8
+		xp-reward: 8
 	stats:
 		fighting: 12
 		shooting: 16
@@ -62,7 +62,7 @@
 	usages:
 		ranged-fighting:
 			attack: (*) 1.3
-	equippedItems:
+	equipped-items:
 		hand:
 			- arc
 

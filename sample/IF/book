@@ -12,7 +12,7 @@
 	label: coin
 	description: A coin.
 	params:
-		examineFlavor: A silver coin.
+		examine-flavor: A silver coin.
 
 
 

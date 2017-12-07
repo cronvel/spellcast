@@ -4,16 +4,16 @@
 [item-model javelin]
 	class: object
 	label: javelin
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 70
 	usages:
 		melee-fighting:
 			primary:
 				params:
-					criticalHitFlavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
 					attack: (*) 1.15
 					defense: (*) 1.15
@@ -21,10 +21,10 @@
 		ranged-fighting:
 			primary:
 				params:
-					menuLabel: $> throw a javelin
-					projectileLabel: $> javelin
-					criticalHitFlavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+					menu-label: $> throw a javelin
+					projectile-label: $> javelin
+					critical-hit-flavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
 					#close-ranged: (*) 1
 					attack: (*) 1.4
@@ -36,19 +36,19 @@
 [item-model bow]
 	class: object
 	label: bow
-	slotType: hand
-	slotCount: 2
-	ownStats:
+	slot-type: hand
+	slot-count: 2
+	own-stats:
 		price: 160
 	usages:
 		ranged-fighting:
 			primary:
 				params:
-					projectileLabel: $> arrow
-					menuLabel: $> shoot an arrow
-					criticalHitFlavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
-				compoundVariation: firearm
+					projectile-label: $> arrow
+					menu-label: $> shoot an arrow
+					critical-hit-flavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+				compound-variation: firearm
 				compound:
 					close-ranged: (*) 0.65
 					attack: (*) 5.5
@@ -60,20 +60,20 @@
 [item-model crossbow]
 	class: object
 	label: crossbow
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 230
 	usages:
 		ranged-fighting:
 			primary:
 				params:
 					reload: true
-					projectileLabel: $> bolt
-					menuLabel: $> shoot a bolt
-					criticalHitFlavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatalHitFlavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
-				compoundVariation: firearm
+					projectile-label: $> bolt
+					menu-label: $> shoot a bolt
+					critical-hit-flavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+				compound-variation: firearm
 				compound:
 					close-ranged: (*) 1.5
 					attack: (*) 5.5

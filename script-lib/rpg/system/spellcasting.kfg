@@ -6,26 +6,26 @@
 	[fn cast]
 		
 		# It would be nice to have true constants support in KFG
-		[set $local.castRoll]
-			overPower: 8
+		[set $local.cast-roll]
+			over-power: 8
 		
 		[if $args.performer.status.mana <= 0]
 			[message] $> ${args.performer.label//uc1} has no mana left.
 			[return] false
 		
 		# First, mana consumption
-		[set $local.castScore] $= $args.usage.compound.mana
-		[set $local.vsScore] $= $args.usage.params.manaLevel
+		[set $local.cast-score] $= $args.usage.compound.mana
+		[set $local.vs-score] $= $args.usage.params.mana-level
 		
-		#[message] $> Mana ${local.castScore} vs ${local.vsScore}
+		#[message] $> Mana ${local.cast-score} vs ${local.vs-score}
 		
 		[set $local.mana]
-			$= quantity-roll $local.attackScore $local.defenseScore (
+			$= quantity-roll $local.attack-score $local.defense-score (
 			$=   base: 10
-			$=   overPower: 2
-			$=   criticalFactor: 1.5
-			$=   criticalChance: 0.05
-			$=   lowerDivide: true
+			$=   over-power: 2
+			$=   critical-factor: 1.5
+			$=   critical-chance: 0.05
+			$=   lower-divide: true
 			$=   round: true
 			$= )
 		
@@ -45,20 +45,20 @@
 		
 		
 		# Then spellcasting
-		[set $local.castScore] $= $args.usage.compound.spellcasting
-		[set $local.vsScore] $= $args.usage.params.spellLevel
+		[set $local.cast-score] $= $args.usage.compound.spellcasting
+		[set $local.vs-score] $= $args.usage.params.spell-level
 		
-		[if $args.bonusFactor is-set?]
-			[mul $local.castScore] $args.bonusFactor
+		[if $args.bonus-factor is-set?]
+			[mul $local.cast-score] $args.bonus-factor
 		
-		#[message] $> Casting ${local.castScore} vs ${local.vsScore}
+		#[message] $> Casting ${local.cast-score} vs ${local.vs-score}
 		
 		#[debug info] $> ${args.performer.actual.stats.spellcasting}
 		
 		# Update malus now, after the score computation
 		[call rpg:common/update-malus] $performer
 		
-		[if ! ( success-roll $local.castScore $local.vsScore $local.castRoll )]
+		[if ! ( success-roll $local.cast-score $local.vs-score $local.cast-roll )]
 			[message] $> ${args.performer.label//uc1} miscasts ^/${args.item.label}^:!
 			[return] false
 		

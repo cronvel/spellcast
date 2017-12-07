@@ -45,10 +45,10 @@
 			[set $performer] $args.performer
 			[set $stack] $args.stack
 		
-		[filter $performer.equippedItemList => $local.equippedItems] $= $this.class = "object"
-		[filter $performer.items => $local.unequippedItems] $= $this.class = "object"
+		[filter $performer.equipped-item-list => $local.equipped-items] $= $this.class = "object"
+		[filter $performer.items => $local.unequipped-items] $= $this.class = "object"
 		
-		[if ( ! $local.equippedItems.length ) && ( ! $local.unequippedItems.length )]
+		[if ( ! $local.equipped-items.length ) && ( ! $local.unequipped-items.length )]
 			[message] $> Empty inventory
 			[return]
 		
@@ -58,22 +58,22 @@
 			[label] $> (Done)
 			[button] close-alt
 		
-		[foreach $local.equippedItems => $local.index : $local.item]
+		[foreach $local.equipped-items => $local.index : $local.item]
 			[next inventory-object]
 				[args]
 					index: $local.index
-				[label] $> ${local.item.label} (${local.item.slotType})
+				[label] $> ${local.item.label} (${local.item.slot-type})
 				[on-trigger]
-					[set $item] $local.equippedItems[$args.index]
+					[set $item] $local.equipped-items[$args.index]
 					[set $equipped] true
 		
-		[foreach $local.unequippedItems => $local.index : $local.item]
+		[foreach $local.unequipped-items => $local.index : $local.item]
 			[next inventory-object]
 				[args]
 					index: $local.index
 				[label] $> ${local.item.label}
 				[on-trigger]
-					[set $item] $local.unequippedItems[$args.index]
+					[set $item] $local.unequipped-items[$args.index]
 					[set $equipped] false
 	
 	
@@ -89,14 +89,14 @@
 		[fake-next]
 			[label] $> Examine
 			[on-trigger]
-				[if $item.params.examineFlavor]
-					[message] $item.params.examineFlavor
+				[if $item.params.examine-flavor]
+					[message] $item.params.examine-flavor
 				[else]
 					[message] $> There is nothing special.
 		
 		[if $equipped]
 			[message]
-				$> ^_${item.label//uc1}^ (equipped: ${item.slotType})
+				$> ^_${item.label//uc1}^ (equipped: ${item.slot-type})
 			[next inventory-object]
 				[label] $> Unequip ${item.label}
 				[on-trigger]
@@ -148,14 +148,14 @@
 		
 		#[filter $args.stack => $local.items] $= $this.class = "object"
 		
-		[if ( $stack.length = 0 ) || $onlyOne]
+		[if ( $stack.length = 0 ) || $only-one]
 			# Immediately exit
 			[return]
 		
 		[if ( $stack.length = 1 ) && $first]
 			# Immediately go to grab-object
 			[set $first] false
-			[set $onlyOne] true
+			[set $only-one] true
 			[set $item] $stack[0]
 			[goto grab-object]
 		
@@ -194,8 +194,8 @@
 		[fake-next once]
 			[label] $> Examine
 			[on-trigger]
-				[if $item.params.examineFlavor]
-					[message] $item.params.examineFlavor
+				[if $item.params.examine-flavor]
+					[message] $item.params.examine-flavor
 				[else]
 					[message] $> There is nothing special.
 		
@@ -217,11 +217,11 @@
 		
 		[if $performer.primary[$usage]]
 			[set $local.currentPrimary] $performer.primary[$usage]
-			[set $local.abortLabel] $> Keep using: ${local.currentPrimary.label} (${local.currentPrimary.class})
+			[set $local.abort-label] $> Keep using: ${local.currentPrimary.label} (${local.currentPrimary.class})
 		[else]
-			[set $local.abortLabel] $> (Abort)
+			[set $local.abort-label] $> (Abort)
 		
-		[filter $performer.equippedItemList => $local.items]
+		[filter $performer.equipped-item-list => $local.items]
 			$= ( $this.usages[$usage] is-set? ) && ( $this != $performer.primary[$usage] )
 		
 		[filter $performer.items => $local.moreItems]
@@ -229,12 +229,12 @@
 		
 		[concat $local.items] $local.moreItems
 		
-		#[debug info] $performer.equippedItemList
+		#[debug info] $performer.equipped-item-list
 		#[debug info] $performer.items
 		#[debug info] $local.items
 		
 		[next]
-			[label] $local.abortLabel
+			[label] $local.abort-label
 			[button] close-alt
 		
 		[foreach $local.items => $local.index : $local.item]
@@ -262,7 +262,7 @@
 			[label] $> (Abort)
 			[button] close-alt
 		
-		[foreach $performer.usageTypes => $local.usage]
+		[foreach $performer.usage-types => $local.usage]
 			[next]
 				[args]
 					usage: $local.usage
@@ -281,35 +281,35 @@
 		
 		[message] $> Equip / unequip what?
 		
-		[set $local.equippedItems] $performer.equippedItems[$slot]
-		[filter $performer.items => $local.unequippedItems] $= ( $this.class = "object" ) && ( $this.slotType = $slot )
+		[set $local.equipped-items] $performer.equipped-items[$slot]
+		[filter $performer.items => $local.unequipped-items] $= ( $this.class = "object" ) && ( $this.slot-type = $slot )
 		
-		#[debug info] $performer.equippedItemList
+		#[debug info] $performer.equipped-item-list
 		#[debug info] $performer.items
-		#[debug info] $local.equippedItems
+		#[debug info] $local.equipped-items
 		
 		[next]
 			[label] $> (Abort)
 			[button] close-alt
 		
-		[foreach $local.equippedItems => $local.index : $local.item]
+		[foreach $local.equipped-items => $local.index : $local.item]
 			[next]
 				[args]
 					index: $local.index
 				[label] $> Unequip ${local.item.label} (${local.item.class})
 				[on-trigger]
-					[set $local.item] $local.equippedItems[$args.index]
+					[set $local.item] $local.equipped-items[$args.index]
 					[unequip $performer]
 						item: $local.item
 					[return] true
 		
-		[foreach $local.unequippedItems => $local.index : $local.item]
+		[foreach $local.unequipped-items => $local.index : $local.item]
 			[next]
 				[args]
 					index: $local.index
 				[label] $> Equip ${local.item.label} (${local.item.class})
 				[on-trigger]
-					[set $local.item] $local.unequippedItems[$args.index]
+					[set $local.item] $local.unequipped-items[$args.index]
 					[equip $performer]
 						item: $local.item
 					[return] true
@@ -378,9 +378,9 @@
 			[if $local.item.class != "object"]
 				[continue]
 			
-			[if ( $args.buy-price is-number? ) && ( $local.item.ownStats.price is-number? )]
+			[if ( $args.buy-price is-number? ) && ( $local.item.own-stats.price is-number? )]
 				[set $local.verb] buy
-				[set $local.price] $= ceil ( $local.item.ownStats.price * $args.buy-price )
+				[set $local.price] $= ceil ( $local.item.own-stats.price * $args.buy-price )
 				[set $local.price-string] $> (${local.price}[$:cash-unit])
 			[else]
 				[set $local.verb] grab
@@ -411,9 +411,9 @@
 			[if $local.item.class != "object"]
 				[continue]
 			
-			[if ( $args.sell-price is-number? ) && ( $local.item.ownStats.price is-number? )]
+			[if ( $args.sell-price is-number? ) && ( $local.item.own-stats.price is-number? )]
 				[set $local.verb] sell
-				[set $local.price] $= floor ( $local.item.ownStats.price * $args.sell-price )
+				[set $local.price] $= floor ( $local.item.own-stats.price * $args.sell-price )
 				[set $local.price-string] $> (${local.price}[$:cash-unit])
 			[else]
 				[set $local.verb] drop

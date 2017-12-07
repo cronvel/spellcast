@@ -2,70 +2,70 @@
 [[doctype spellcast/book]]
 
 [usage-compound-stats melee-fighting]
-	attack: $= $stats.fighting * $status.bodyBonusFactor
-	defense: $= $stats.fighting * $status.bodyBonusFactor
-	damages: $= $stats.strength * $status.bodyBonusFactor
+	attack: $= $stats.fighting * $status.body-bonus-factor
+	defense: $= $stats.fighting * $status.body-bonus-factor
+	damages: $= $stats.strength * $status.body-bonus-factor
 	# Compared with an opponent closeRange when he try to use a ranged weapon at close range
-	anti-ranged: $= $stats.fighting * $status.bodyBonusFactor
-	criticalFactor: 2
-	offensivenessDamageMod: yes
+	anti-ranged: $= $stats.fighting * $status.body-bonus-factor
+	critical-factor: 2
+	offensiveness-damage-mod: yes
 
 # Basic ranged-fighting throwing, without a launcher: javelins, spears, etc.
 [usage-compound-stats ranged-fighting]
-	aiming: $= $stats.shooting * ( $status.bodyBonusFactor ^ 0.5 )
+	aiming: $= $stats.shooting * ( $status.body-bonus-factor ^ 0.5 )
 	# Guard is the defensive anti-aiming stat, mostly provided by shields
 	guard: $= $stats.fighting ^° 0.333
 	# When used in close range, a ranged attack should win the close-range pass, using this stat
-	close-ranged: $= ( avg $stats.shooting $stats.fighting ) * $status.bodyBonusFactor
-	attack: $= $stats.shooting * ( $status.bodyBonusFactor ^ 0.5 )
-	defense: $= $stats.fighting * $status.bodyBonusFactor
-	damages: $= $stats.strength * $status.bodyBonusFactor
-	criticalFactor: 2.5
-	offensivenessDamageMod: no
+	close-ranged: $= ( avg $stats.shooting $stats.fighting ) * $status.body-bonus-factor
+	attack: $= $stats.shooting * ( $status.body-bonus-factor ^ 0.5 )
+	defense: $= $stats.fighting * $status.body-bonus-factor
+	damages: $= $stats.strength * $status.body-bonus-factor
+	critical-factor: 2.5
+	offensiveness-damage-mod: no
 
 # Missile launcher variation: bow, crossbow, guns, etc.
 # Those weapons rely less on the character stats than on the item stats.
 [usage-compound-stats ranged-fighting firearm]
 	attack: $= $stats.shooting ^° 0.333
 	damages: $= $stats.shooting ^° 0.333
-	criticalFactor: 2.5
-	offensivenessDamageMod: no
+	critical-factor: 2.5
+	offensiveness-damage-mod: no
 
 # Spell variation
 [usage-compound-stats melee-fighting spell]
-	spellcasting: $= $stats.spellcasting * $status.spiritBonusFactor
+	spellcasting: $= $stats.spellcasting * $status.spirit-bonus-factor
 	mana: $= $stats.spellcasting
-	attack: $= ( $stats.spellcasting * $status.spiritBonusFactor ) ^° 0.333
-	damages: $= ( $stats.spellcasting * $status.spiritBonusFactor ) ^° 0.5
-	criticalFactor: 1.5
-	offensivenessDamageMod: no
+	attack: $= ( $stats.spellcasting * $status.spirit-bonus-factor ) ^° 0.333
+	damages: $= ( $stats.spellcasting * $status.spirit-bonus-factor ) ^° 0.5
+	critical-factor: 1.5
+	offensiveness-damage-mod: no
 
 # Spells like Ice Blade uses the character fighting for attack, but spellcasting for damages
 [usage-compound-stats melee-fighting fighting-spell]
-	spellcasting: $= $stats.spellcasting * $status.spiritBonusFactor
+	spellcasting: $= $stats.spellcasting * $status.spirit-bonus-factor
 	mana: $= $stats.spellcasting
-	damages: $= ( $stats.spellcasting * $status.spiritBonusFactor ) ^° 0.5
-	criticalFactor: 2
-	offensivenessDamageMod: yes
+	damages: $= ( $stats.spellcasting * $status.spirit-bonus-factor ) ^° 0.5
+	critical-factor: 2
+	offensiveness-damage-mod: yes
 
 [usage-compound-stats ranged-fighting spell]
-	spellcasting: $= $stats.spellcasting * $status.spiritBonusFactor
+	spellcasting: $= $stats.spellcasting * $status.spirit-bonus-factor
 	mana: $= $stats.spellcasting
-	close-ranged: $= ( $stats.spellcasting * $status.spiritBonusFactor ) ^° 0.5
-	aiming: $= ( $stats.spellcasting * $status.spiritBonusFactor ) ^° 0.5
-	attack: $= ( $stats.spellcasting * $status.spiritBonusFactor ) ^° 0.333
-	damages: $= ( $stats.spellcasting * $status.spiritBonusFactor ) ^° 0.5
-	criticalFactor: 1.5
-	offensivenessDamageMod: no
+	close-ranged: $= ( $stats.spellcasting * $status.spirit-bonus-factor ) ^° 0.5
+	aiming: $= ( $stats.spellcasting * $status.spirit-bonus-factor ) ^° 0.5
+	attack: $= ( $stats.spellcasting * $status.spirit-bonus-factor ) ^° 0.333
+	damages: $= ( $stats.spellcasting * $status.spirit-bonus-factor ) ^° 0.5
+	critical-factor: 1.5
+	offensiveness-damage-mod: no
 
 [usage-compound-stats battle-ability] <Object>
 
 [usage-compound-stats battle-ability spell]
-	spellcasting: $= $stats.spellcasting * $status.spiritBonusFactor
+	spellcasting: $= $stats.spellcasting * $status.spirit-bonus-factor
 	mana: $= $stats.spellcasting
-	attack: $= ( $stats.spellcasting * $status.spiritBonusFactor ) ^° 0.333
-	damages: $= ( $stats.spellcasting * $status.spiritBonusFactor ) ^° 0.5
-	healing: $= ( $stats.spellcasting * $status.spiritBonusFactor ) ^° 0.5
-	criticalFactor: 1.5
-	offensivenessDamageMod: no
+	attack: $= ( $stats.spellcasting * $status.spirit-bonus-factor ) ^° 0.333
+	damages: $= ( $stats.spellcasting * $status.spirit-bonus-factor ) ^° 0.5
+	healing: $= ( $stats.spellcasting * $status.spirit-bonus-factor ) ^° 0.5
+	critical-factor: 1.5
+	offensiveness-damage-mod: no
 

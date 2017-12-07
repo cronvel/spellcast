@@ -4,9 +4,9 @@
 [item-model shield]
 	class: object
 	label: shield
-	slotType: hand
-	slotCount: 1
-	ownStats:
+	slot-type: hand
+	slot-count: 1
+	own-stats:
 		price: 210
 	usages:
 		melee-fighting:
@@ -22,7 +22,7 @@
 		ranged-fighting:
 			support:
 				params:
-					guardFlavor: $$> ${target.label//uc1}'s shield prevents him from ${performer.label}'s ${projectile.label}.
+					guard-flavor: $$> ${target.label//uc1}'s shield prevents him from ${performer.label}'s ${projectile.label}.
 				compound:
 					defense: (*) 2.3
 					guard: (*) 10
