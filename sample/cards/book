@@ -15,15 +15,15 @@
 		
 		[show-card $card]
 			url: /sprites/shaman.png
-			backUrl: /textures/card-back.png
+			back-url: /textures/card-back.png
 			location: hand
 			pose: face-down
 			content:
 				title: $> The Druidess
 				description:
 					$> The Druidess is a great support unit, that can heal and boost allies.
-			imageStyle:
-				backgroundSize: contain
+			image-style:
+				background-size: contain
 		
 		[goto choice]
 		

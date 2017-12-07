@@ -65,7 +65,7 @@
 		[show-sprite druidess]
 			url: /sprites/shaman.png
 			action: /drink
-			maskUrl: /sprites/shaman.mask.svg
+			mask-url: /sprites/shaman.mask.svg
 			style:
 				height: 70%
 				right: 0
