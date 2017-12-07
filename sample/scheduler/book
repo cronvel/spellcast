@@ -25,11 +25,11 @@
 		
 		[add-to-scheduler $scheduler]
 			entity: $alice
-			readyingDuration: 10
+			readying-duration: 10
 		
 		[add-to-scheduler $scheduler]
 			entity: $bob
-			readyingDuration: 8
+			readying-duration: 8
 		
 		[on $scheduler ready]
 			[message] $> Received the ^/ready^ event for: ${args.entity.label}

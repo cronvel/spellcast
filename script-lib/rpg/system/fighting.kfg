@@ -21,7 +21,7 @@
 			offensiveness-bonus: 1.15
 			offensiveness-malus: 0.8
 			
-			# Exponential base, should multiply 20 or 40 times to go down to 1/2
+			# Exponential base, should multiply 40/20 times to go down to 0.5
 			low-pressure: 0.983
 			pressure: 0.966
 			
