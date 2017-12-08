@@ -24,33 +24,54 @@
 		[create-scheduler $scheduler]
 		
 		[add-to-scheduler $scheduler]
-			entity: $alice
+			target: $alice
 			readying-duration: 10
 		
 		[add-to-scheduler $scheduler]
-			entity: $bob
+			target: $bob
 			readying-duration: 8
 		
+		[on $scheduler elapsed]
+			[message] $> Received the ^/elapsed^ event, time elapsed: ${args}
+		
 		[on $scheduler ready]
-			[message] $> Received the ^/ready^ event for: ${args.entity.label}
+			[message] $> Received the ^/ready^ event for: ${args.target.label}
 			[pause] 1
 			[message] $> ready listener, after pause
 			[schedule-action $scheduler]
-				entity: $args.entity
+				target: $args.target
 				action: talk
 			[message] $> ready listener, after [schedule-action]
 		
 		[on $scheduler started]
-			[message] $> Received the ^/started^ event for: ${args.entity.label}, action: ${args.action}
+			[message] $> Received the ^/started^ event for: ${args.target.label}, action: ${args.action}
 			[pause] 1
 			[message] $> started listener, after pause
 		
+		[on $scheduler prepared]
+			[message] $> Received the ^/prepared^ event for: ${args.target.label}, action: ${args.action}
+			[pause] 1
+			[message] $> prepared listener, after pause
+		
+		[on $scheduler released]
+			[message] $> Received the ^/released^ event for: ${args.target.label}, action: ${args.action}
+			[pause] 1
+			[message] $> released listener, after pause
+		
+		[on $scheduler recovered]
+			[message] $> Received the ^/recovered^ event for: ${args.target.label}, action: ${args.action}
+			[pause] 1
+			[message] $> recovered listener, after pause
+		
 		#[debug] $scheduler
 		
-		[message] $> main, before [advance-scheduler]
-		[advance-scheduler $scheduler]
-		[message] $> main, after [advance-scheduler]
+		[set $count] 0
 		
-		[pause] 1
+		[while $count <= 5]
+			[inc $count]
+			[message] $> main, before [advance-scheduler] #${count}
+			[advance-scheduler $scheduler]
+			[message] $> main, after [advance-scheduler] #${count}
+			[pause] 1
 		
 		
