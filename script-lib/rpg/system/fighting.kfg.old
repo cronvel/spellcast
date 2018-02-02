@@ -50,8 +50,6 @@
 		[set $fight.allies] <Array>
 		[set $fight.turns] <Array>
 		[set $fight.distance] $= ( $args.distance is-set? ) ? ( floor ( abs $args.distance ) 2 ) 0
-		
-		[create-scheduler $fight.scheduler]
 
 		[foreach $args.foes => $local.index : $local.foe]
 			[if ! ( $local.foe is-entity? )]
@@ -60,15 +58,11 @@
 			[append $fight.turns] $local.foe
 			[set $local.foe.adhoc.fight]
 				side: foes
-				deprecated-cooldown: 0
+				cooldown: 0
 				offensiveness: $= ( $local.foe.stances.offensiveness is-set? ) ? $local.foe.stances.offensiveness 0
 				press-target: null
 				pressure: 0
 				speed: 0
-				cooldown: $= 100 / $local.foe.actual.stats.fighting
-			[add-to-scheduler $fight.scheduler]
-				target: $local.foe
-				readying-duration: $local.foe.adhoc.fight.cooldown
 
 		[foreach $args.allies => $local.index : $local.ally]
 			[if ! ( $local.ally is-entity? )]
@@ -77,15 +71,11 @@
 			[append $fight.turns] $local.ally
 			[set $local.ally.adhoc.fight]
 				side: allies
-				deprecated-cooldown: 0
+				cooldown: 0
 				offensiveness: $= ( $local.ally.stances.offensiveness is-set? ) ? $local.ally.stances.offensiveness 0
 				press-target: null
 				pressure: 0
 				speed: 0
-				cooldown: $= 100 / $local.ally.actual.stats.fighting
-			[add-to-scheduler $fight.scheduler]
-				target: $local.ally
-				readying-duration: $local.ally.adhoc.fight.cooldown
 
 		#[debug info] $fight.allies
 		#[debug info] $fight.foes
@@ -96,8 +86,7 @@
 
 		[call initiative]
 
-		#[call fight-loop]
-		[call scheduler-loop]
+		[call fight-loop]
 
 
 
@@ -123,7 +112,6 @@
 
 
 
-	# DEPRECATED
 	[fn fight-loop]
 
 		[set $fight.turn-count] 0
@@ -158,8 +146,8 @@
 			[if $fight.entity-turn.status.hp <= 0]
 				[continue]
 
-			[if $fight.entity-turn.adhoc.fight.deprecated-cooldown > 0]
-				[dec $fight.entity-turn.adhoc.fight.deprecated-cooldown]
+			[if $fight.entity-turn.adhoc.fight.cooldown > 0]
+				[dec $fight.entity-turn.adhoc.fight.cooldown]
 				[continue]
 
 			[call battle-lines]
@@ -171,77 +159,8 @@
 
 
 
-	[fn scheduler-loop]
-		
-		[set $fight.round] 0
-		[set $fight.round-time] 0
-		
-		[on $fight.scheduler elapsed]
-			[message] $> elapsed: ${args}
-			[add $fight-round-time] $args
-			
-			# We need to inject a fight-continue check
-			
-			[if $fight.round-time > 50]
-				[inc $fight.round]
-				[set $fight.round-time] 0
-				[call manage-distance]
-
-			[filter $fight.foes => $fight.alive-foes] $= $this.status.hp > 0
-			[filter $fight.allies => $fight.alive-allies] $= $this.status.hp > 0
-
-			[if ! $fight.alive-allies.length]
-				[call lost]
-				[return]
-			[elseif ! $fight.alive-foes.length]
-				[call win]
-				[return]
-			
-			[call battle-lines]
-
-		
-		[on $fight.scheduler ready]
-			[message] $> ready: ${args.target.label}
-			
-			[set $fight.entity-turn] $= $args.target
-			
-			# /!\ should we remove it from the scheduler?
-			[if $fight.entity-turn.status.hp <= 0]
-				[continue]
-
-			[if $fight.entity-turn.npc]
-				[call npc-turn]
-			[else]
-				[gosub pc-turn]
-			
-			[schedule-action $fight.scheduler]
-				target: $args.target
-				# Action should be splitted later
-				action: done
-
-		
-		[on $fight.scheduler started]
-			[message] $> started: ${args.target.label}
-		
-		[on $fight.scheduler prepared]
-			[message] $> prepared: ${args.target.label}
-		
-		[on $fight.scheduler released]
-			[message] $> released: ${args.target.label}
-		
-		[on $fight.scheduler recovered]
-			[message] $> recovered: ${args.target.label}
-		
-		[while true]
-			[advance-scheduler $fight.scheduler 10]
-			#[pause 1]
-			[message] After pause...
-
-
-
-	#[fn next-round]
-	[fn manage-distance]
-		#[inc $fight.round]
+	[fn next-round]
+		[inc $fight.round]
 
 		# Manage distance
 		[if $fight.distance > 0]
