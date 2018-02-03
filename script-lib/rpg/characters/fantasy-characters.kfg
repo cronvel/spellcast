@@ -41,6 +41,7 @@
 	stats:
 		fighting: 7
 		shooting: 7
+		quickness: 8
 		strength: 6
 		resilience: 6
 	equipped-items:
@@ -57,6 +58,7 @@
 	stats:
 		fighting: 12
 		shooting: 16
+		quickness: 10
 		strength: 10
 		resilience: 10
 	usages:

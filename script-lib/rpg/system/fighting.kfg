@@ -60,15 +60,14 @@
 			[append $fight.turns] $local.foe
 			[set $local.foe.adhoc.fight]
 				side: foes
-				deprecated-cooldown: 0
 				offensiveness: $= ( $local.foe.stances.offensiveness is-set? ) ? $local.foe.stances.offensiveness 0
 				press-target: null
 				pressure: 0
 				speed: 0
-				cooldown: $= 100 / $local.foe.actual.stats.fighting
+				alertness: $= 100 / $local.foe.actual.stats.fighting
 			[add-to-scheduler $fight.scheduler]
 				target: $local.foe
-				readying-duration: $local.foe.adhoc.fight.cooldown
+				readying-duration: $local.foe.adhoc.fight.alertness
 
 		[foreach $args.allies => $local.index : $local.ally]
 			[if ! ( $local.ally is-entity? )]
@@ -77,15 +76,14 @@
 			[append $fight.turns] $local.ally
 			[set $local.ally.adhoc.fight]
 				side: allies
-				deprecated-cooldown: 0
 				offensiveness: $= ( $local.ally.stances.offensiveness is-set? ) ? $local.ally.stances.offensiveness 0
 				press-target: null
 				pressure: 0
 				speed: 0
-				cooldown: $= 100 / $local.ally.actual.stats.fighting
+				alertness: $= 100 / $local.ally.actual.stats.fighting
 			[add-to-scheduler $fight.scheduler]
 				target: $local.ally
-				readying-duration: $local.ally.adhoc.fight.cooldown
+				readying-duration: $local.ally.adhoc.fight.alertness
 
 		#[debug info] $fight.allies
 		#[debug info] $fight.foes
@@ -116,21 +114,17 @@
 			#[message] $> ready: ${args.target.label}
 			
 			[set $fight.entity-turn] $= $args.target
+			[set $local.performer] $= $args.target
 			
 			# /!\ should we remove it from the scheduler?
-			[if $fight.entity-turn.status.hp <= 0]
+			[if $local.performer.status.hp <= 0]
 				[return]
 
-			[if $fight.entity-turn.npc]
-				[call npc-turn]
+			[if $local.performer.npc]
+				[call npc-turn] $local.performer
 			[else]
-				[gosub pc-turn]
+				[gosub pc-turn] $local.performer
 			
-			[schedule-action $fight.scheduler]
-				target: $args.target
-				# Action should be splitted later
-				action: done
-
 		#[on $fight.scheduler started]
 		#	[message] $> started: ${args.target.label}
 		
@@ -282,6 +276,7 @@
 	[fn npc-turn]
 
 		[call npc-targeting]
+		#[call npc-targeting => $local.target]
 
 		[set $performer] $fight.entity-turn
 
@@ -298,6 +293,7 @@
 			[call charge]
 				performer: $performer
 				target: $fight.target
+			
 			[return]
 
 		[call melee-fighting]
@@ -319,7 +315,10 @@
 			[concat $local.possible-targets] $fight.alive-allies
 
 		[set $local.index] $= random ( $local.possible-targets.length - 1 )
+		
+		# Which one?
 		[set $fight.target] $local.possible-targets[$local.index]
+		#[return] $local.possible-targets[$local.index]
 
 
 
@@ -493,9 +492,8 @@
 	[fn melee-fighting]
 		[set $performer] $args.performer
 		[set $target] $args.target
-
 		[set $item] $performer.primary.melee-fighting
-
+	
 		[set $performer.adhoc.fight.speed] $= $performer.adhoc.fight.offensiveness ??? 2 4 6
 
 		[if $fight.distance > 0]
@@ -509,7 +507,22 @@
 			[else]
 				[message] $> ${performer.label//uc1} marches toward the opposing crew.
 
+			[schedule-action $fight.scheduler]
+				subject: $performer
+				action: melee-fighting
+				action-data:
+					target: $target
+				readying-duration: $performer.adhoc.fight.alertness
+				preparing-duration: $= $performer.actual-usages.melee-fighting.compound.prepare-time
+				releasing-duration: $= $performer.actual-usages.melee-fighting.compound.release-time
+				recovering-duration: $= $performer.actual-usages.melee-fighting.compound.recovery-time
+			
 			[return]
+	
+	[fn melee-fighting-release]
+		[set $performer] $args.performer
+		[set $target] $args.target
+		[set $item] $performer.primary.melee-fighting
 
 		[set $performer.adhoc.fight.press-target] $target
 		[set $performer.adhoc.fight.press-value] $= $performer.adhoc.fight.offensiveness ??? 3 4 6

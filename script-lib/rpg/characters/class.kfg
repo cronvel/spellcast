@@ -7,8 +7,10 @@
 		- ranged-fighting
 		- battle-ability
 #		- spell
+	
 	params:
 		xp-reward: 1
+	
 	slots:
 		innate: Infinity
 		ability: Infinity
@@ -17,18 +19,25 @@
 		head: 1
 		cloak: 1
 		ring: 2
+	
 	stats:
-		fighting: 0
-		shooting: 0
-		spellcasting: 0
-		strength: 0
-		resilience: 0
+		# Global stats
+		quickness: 1
+		strength: 1
+		resilience: 1
+		
+		# Domain stats
+		fighting: 1
+		shooting: 1
+		spellcasting: 1
+	
 	status:
 		hp: 100
 		mana: 100
 		xp: 0
 		body-bonus-factor: 1
 		spirit-bonus-factor: 1
+	
 	innate-items:
 		hand:
 			- fists

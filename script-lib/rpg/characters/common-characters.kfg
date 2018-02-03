@@ -9,6 +9,7 @@
 	stats:
 		fighting: 8
 		shooting: 8
+		quickness: 8
 		strength: 8
 		resilience: 8
 
@@ -22,6 +23,7 @@
 	stats:
 		fighting: 14
 		shooting: 0
+		quickness: 12
 		strength: 9
 		resilience: 10
 	compound:
