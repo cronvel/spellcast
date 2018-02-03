@@ -94,120 +94,32 @@
 
 		[set $fight.deadly-push] $args.deadly-push
 
-		[call initiative]
-
-		#[call fight-loop]
-		[call scheduler-loop]
-
-
-
-	[fn initiative]
-		[foreach $fight.turns => $local.entity]
-			# Build the bare score
-			[set $local.initiative-score] $= $local.entity.actual.stats.fighting
-			
-			[if $local.entity.adhoc.fight.offensiveness > 0]
-				[mul $local.initiative-score] $const.offensiveness-bonus
-			[elseif $local.entity.adhoc.fight.offensiveness < 0]
-				[mul $local.initiative-score] $const.offensiveness-malus
-			
-			# Roll it!
-			[set $local.entity.adhoc.fight.initiative-score] $= score-roll $local.initiative-score $const.initiative-roll
-			#[message] $> Initiative: ${local.entity.adhoc.fight.initiative-score} (${local.entity.actual.stats.fighting})
-
-		[sort $fight.turns] $= $this.right.adhoc.fight.initiative-score - $this.left.adhoc.fight.initiative-score
-
-		#[debug info] $fight.turns
 		[message] $> ^yThe distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
-		[message] $> ${fight.turns[0].label//uc1} takes the initiative.
 
-
-
-	# DEPRECATED
-	[fn fight-loop]
-
-		[set $fight.turn-count] 0
-		[set $fight.turn-index] 0
-		[set $fight.round] 0
-
-		[while true]
-
-			# Check if we continue...
-			[if $fight.turn-count]
-				[set $fight.turn-index] $= ( $fight.turn-index + 1 ) % $fight.turns.length
-
-				[if $fight.turn-index = 0]
-					[call next-round]
-
-			[inc $fight.turn-count]
-
-			[filter $fight.foes => $fight.alive-foes] $= $this.status.hp > 0
-			[filter $fight.allies => $fight.alive-allies] $= $this.status.hp > 0
-
-			[if ! $fight.alive-allies.length]
-				[call lost]
-				[return]
-			[elseif ! $fight.alive-foes.length]
-				[call win]
-				[return]
-
-
-			# Prepare the new turn
-			[set $fight.entity-turn] $= $fight.turns[$fight.turn-index]
-
-			[if $fight.entity-turn.status.hp <= 0]
-				[continue]
-
-			[if $fight.entity-turn.adhoc.fight.deprecated-cooldown > 0]
-				[dec $fight.entity-turn.adhoc.fight.deprecated-cooldown]
-				[continue]
-
-			[call battle-lines]
-
-			[if $fight.entity-turn.npc]
-				[call npc-turn]
-			[else]
-				[gosub pc-turn]
+		[call scheduler-loop]
 
 
 
 	[fn scheduler-loop]
 		
+		[set $fight.time] 0
 		[set $fight.round] 0
-		[set $fight.round-time] 0
 		
 		[on $fight.scheduler elapsed]
-			[message] $> elapsed: ${args}
-			[add $fight-round-time] $args
-			
-			# We need to inject a fight-continue check
-			
-			[if $fight.round-time > 50]
-				[inc $fight.round]
-				[set $fight.round-time] 0
-				[call manage-distance]
-
-			[filter $fight.foes => $fight.alive-foes] $= $this.status.hp > 0
-			[filter $fight.allies => $fight.alive-allies] $= $this.status.hp > 0
-
-			[if ! $fight.alive-allies.length]
-				[call lost]
-				[return]
-			[elseif ! $fight.alive-foes.length]
-				[call win]
-				[return]
-			
+			[add $fight.time] $args
+			#[message] $> elapsed: ${args} -- time: ${fight.time}
+			[call manage-distance] $args
 			[call battle-lines]
 
 		
 		[on $fight.scheduler ready]
-			[message] $> ready: ${args.target.label}
+			#[message] $> ready: ${args.target.label}
 			
 			[set $fight.entity-turn] $= $args.target
 			
 			# /!\ should we remove it from the scheduler?
 			[if $fight.entity-turn.status.hp <= 0]
-				[continue]
+				[return]
 
 			[if $fight.entity-turn.npc]
 				[call npc-turn]
@@ -219,41 +131,51 @@
 				# Action should be splitted later
 				action: done
 
+		#[on $fight.scheduler started]
+		#	[message] $> started: ${args.target.label}
 		
-		[on $fight.scheduler started]
-			[message] $> started: ${args.target.label}
+		#[on $fight.scheduler prepared]
+		#	[message] $> prepared: ${args.target.label}
 		
-		[on $fight.scheduler prepared]
-			[message] $> prepared: ${args.target.label}
+		#[on $fight.scheduler released]
+		#	[message] $> released: ${args.target.label}
 		
-		[on $fight.scheduler released]
-			[message] $> released: ${args.target.label}
+		#[on $fight.scheduler recovered]
+		#	[message] $> recovered: ${args.target.label}
 		
-		[on $fight.scheduler recovered]
-			[message] $> recovered: ${args.target.label}
-		
-		[while true]
+		[loop]
+			[filter $fight.foes => $fight.alive-foes] $= $this.status.hp > 0
+			[filter $fight.allies => $fight.alive-allies] $= $this.status.hp > 0
+
+			[if ! $fight.alive-allies.length]
+				[call lost]
+				[return]
+			[elseif ! $fight.alive-foes.length]
+				[call win]
+				[return]
+			
 			[advance-scheduler $fight.scheduler 10]
 			#[pause 1]
-			[message] After pause...
+			#[message] After pause...
 
 
 
-	#[fn next-round]
 	[fn manage-distance]
-		#[inc $fight.round]
-
 		# Manage distance
 		[if $fight.distance > 0]
 			[map $fight.alive-allies => $local.allies-speed] $this.adhoc.fight.speed
 			[map $fight.alive-foes => $local.foes-speed] $this.adhoc.fight.speed
 
-			[set $fight.distance] $= max 0 ( trunc ( $fight.distance - ( avg $local.allies-speed ) - ( avg $local.foes-speed ) ) 2 )
+			[set $local.time-factor] $= $args / 10
+			[set $local.speed] $= ( avg $local.allies-speed ) + ( avg $local.foes-speed )
+			[set $local.distance] $= max 0 ( round ( $fight.distance - ( $local.speed * $local.time-factor ) ) )
 
-			[if $fight.distance = 0]
-				[message] $> ^yThe two opposing crews join together and clash.
-			[else]
-				[message] $> ^yThe remaining distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
+			[if $local.distance != $fight.distance]
+				[set $fight.distance] $local.distance
+				[if $fight.distance = 0]
+					[message] $> ^yThe two opposing crews join together and clash.
+				[else]
+					[message] $> ^yThe remaining distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
 
 
 

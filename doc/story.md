@@ -80,6 +80,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Else Tag](#ref.flow.else)
 		* [Loop Tags](#ref.flow.loop)
 			* [While Tag](#ref.flow.while)
+			* [Loop Tag](#ref.flow.loop)
 			* [Foreach Tag](#ref.flow.foreach)
 			* [Continue Tag](#ref.flow.continue)
 			* [Break Tag](#ref.flow.break)
@@ -1181,7 +1182,7 @@ If it has, the *else* tag runs its content.
 
 
 <a name="ref.flow.loop"></a>
-## Loop Tags: [while], [foreach], [continue], [break]
+## Loop Tags: [while], [loop], [foreach], [continue], [break]
 
 
 
@@ -1216,6 +1217,19 @@ Count: 3
 Count: 2
 Count: 1
 ```
+
+
+
+<a name="ref.flow.loop"></a>
+## [loop]
+
+* types: run
+* attribute style: none
+* content type: tags
+
+The loop tag create an infinite loop.
+In fact `[loop]` is equivalent too `[while true]`.
+The loop should contain a `break` or `return` tag to exit.
 
 
 
