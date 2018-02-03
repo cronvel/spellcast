@@ -25,11 +25,11 @@
 		
 		[add-to-scheduler $scheduler]
 			subject: $alice
-			readying-duration: 10
+			ready-time: 10
 		
 		[add-to-scheduler $scheduler]
 			subject: $bob
-			readying-duration: 8
+			ready-time: 8
 		
 		[on $scheduler elapsed]
 			[message] $> Received the ^/elapsed^ event, time elapsed: ${args}

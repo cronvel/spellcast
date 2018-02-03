@@ -9,6 +9,7 @@
 		shooting: 12
 		spellcasting: 16
 		#spellcasting: 26
+		quickness: 14
 		strength: 12
 		resilience: 11
 	goods:
@@ -42,6 +43,7 @@
 	stats:
 		fighting: 14
 		shooting: 6
+		quickness: 14
 		strength: 16
 		resilience: 16
 	equipped-items:

@@ -66,8 +66,8 @@
 				speed: 0
 				alertness: $= 100 / $local.foe.actual.stats.fighting
 			[add-to-scheduler $fight.scheduler]
-				target: $local.foe
-				readying-duration: $local.foe.adhoc.fight.alertness
+				subject: $local.foe
+				ready-time: $local.foe.adhoc.fight.alertness
 
 		[foreach $args.allies => $local.index : $local.ally]
 			[if ! ( $local.ally is-entity? )]
@@ -82,8 +82,8 @@
 				speed: 0
 				alertness: $= 100 / $local.ally.actual.stats.fighting
 			[add-to-scheduler $fight.scheduler]
-				target: $local.ally
-				readying-duration: $local.ally.adhoc.fight.alertness
+				subject: $local.ally
+				ready-time: $local.ally.adhoc.fight.alertness
 
 		#[debug info] $fight.allies
 		#[debug info] $fight.foes
@@ -111,10 +111,10 @@
 
 		
 		[on $fight.scheduler ready]
-			#[message] $> ready: ${args.target.label}
+			#[message] $> ready: ${args.subject.label}
 			
-			[set $fight.entity-turn] $= $args.target
-			[set $local.performer] $= $args.target
+			[set $fight.entity-turn] $= $args.subject
+			[set $local.performer] $= $args.subject
 			
 			# /!\ should we remove it from the scheduler?
 			[if $local.performer.status.hp <= 0]
@@ -126,16 +126,16 @@
 				[gosub pc-turn] $local.performer
 			
 		#[on $fight.scheduler started]
-		#	[message] $> started: ${args.target.label}
+		#	[message] $> started: ${args.subject.label}
 		
 		#[on $fight.scheduler prepared]
-		#	[message] $> prepared: ${args.target.label}
+		#	[message] $> prepared: ${args.subject.label}
 		
 		#[on $fight.scheduler released]
-		#	[message] $> released: ${args.target.label}
+		#	[message] $> released: ${args.subject.label}
 		
 		#[on $fight.scheduler recovered]
-		#	[message] $> recovered: ${args.target.label}
+		#	[message] $> recovered: ${args.subject.label}
 		
 		[loop]
 			[filter $fight.foes => $fight.alive-foes] $= $this.status.hp > 0
@@ -507,15 +507,20 @@
 			[else]
 				[message] $> ${performer.label//uc1} marches toward the opposing crew.
 
+			[message] $> ready time: ${performer.adhoc.fight.alertness}
+			[message] $> prepare time: ${performer.actual-usages.melee-fighting.compound.prepare-time}
+			[message] $> release time: ${performer.actual-usages.melee-fighting.compound.release-time}
+			[message] $> recover time: ${performer.actual-usages.melee-fighting.compound.recover-time}
+			
 			[schedule-action $fight.scheduler]
 				subject: $performer
 				action: melee-fighting
 				action-data:
 					target: $target
-				readying-duration: $performer.adhoc.fight.alertness
-				preparing-duration: $= $performer.actual-usages.melee-fighting.compound.prepare-time
-				releasing-duration: $= $performer.actual-usages.melee-fighting.compound.release-time
-				recovering-duration: $= $performer.actual-usages.melee-fighting.compound.recovery-time
+				ready-time: $performer.adhoc.fight.alertness
+				prepare-time: $= $performer.actual-usages.melee-fighting.compound.prepare-time
+				release-time: $= $performer.actual-usages.melee-fighting.compound.release-time
+				recover-time: $= $performer.actual-usages.melee-fighting.compound.recovery-time
 			
 			[return]
 	
