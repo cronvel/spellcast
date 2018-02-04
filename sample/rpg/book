@@ -18,9 +18,9 @@
 
 
 [status]
-	-	label: $> HP
+	-	label: $> Health
 		type: hbar
-		value: $this.entity.status.hp
+		value: $this.entity.status.health
 		color: #ea2424
 		image: /icons/heart.svg
 	-	label: $> Mana
@@ -35,9 +35,9 @@
 	[starting-scene init]
 		
 		#[indicators]
-		#	-	label: $> HP
+		#	-	label: $> Health
 		#		type: hbar
-		#		value: $this.entity.status.hp
+		#		value: $this.entity.status.health
 		#		color: #ea2424
 		#		image: /icons/heart.svg
 		#	-	label: $> Mana

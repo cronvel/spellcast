@@ -32,7 +32,7 @@
 		spellcasting: 1
 	
 	status:
-		hp: 100
+		health: 100
 		mana: 100
 		xp: 0
 		body-bonus-factor: 1

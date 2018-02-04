@@ -117,7 +117,7 @@
 			[set $local.subject] $= $args.subject
 			
 			# /!\ should we remove it from the scheduler?
-			[if $local.subject.status.hp <= 0]
+			[if $local.subject.status.health <= 0]
 				[return]
 
 			[if $local.subject.npc]
@@ -132,18 +132,16 @@
 			[message] $> prepared: ${args.subject.label} ${args.action}
 		
 		[on $fight.scheduler released]
-			[message] $> released: ${args.subject.label} ${args.action}
+			[message] $> released: ${args.subject.label} ${args.action} ${args.action-data.subject}
 			[set $local.fn] $= $args.action . "-release"
-			[call $local.fn]
-				subject: $args.subject
-				target: $args.action-data.target
+			[call $local.fn] $args.action-data
 		
 		[on $fight.scheduler recovered]
 			[message] $> recovered: ${args.subject.label} ${args.action}
 		
 		[loop]
-			[filter $fight.foes => $fight.alive-foes] $= $this.status.hp > 0
-			[filter $fight.allies => $fight.alive-allies] $= $this.status.hp > 0
+			[filter $fight.foes => $fight.alive-foes] $= $this.status.health > 0
+			[filter $fight.allies => $fight.alive-allies] $= $this.status.health > 0
 
 			[if ! $fight.alive-allies.length]
 				[call lost]
@@ -520,6 +518,7 @@
 				subject: $subject
 				action: melee-fighting
 				action-data:
+					subject: $subject
 					target: $target
 				ready-time: $subject.adhoc.fight.alertness
 				prepare-time: $= $subject.actual-usages.melee-fighting.compound.prepare-time
@@ -532,6 +531,7 @@
 			subject: $subject
 			action: melee-fighting
 			action-data:
+				subject: $subject
 				target: $target
 			ready-time: $subject.adhoc.fight.alertness
 			prepare-time: $= $subject.actual-usages.melee-fighting.compound.prepare-time
@@ -880,7 +880,7 @@
 
 		#[message] $> damages: ${damages}
 
-		[sub $target.status.hp] $damages
+		[sub $target.status.health] $damages
 
 		[call rpg:common/update-malus] $target
 
@@ -920,7 +920,7 @@
 
 		[message] $local.flavor
 
-		[if $target.status.hp <= 0]
+		[if $target.status.health <= 0]
 			[message] $> ^R^+${target.label//uc1} is dead.
 
 
@@ -934,7 +934,7 @@
 
 		#[message] $> ^Khealing -- checking: ${target.label}
 
-		#[if $target.status.hp >= 100]
+		#[if $target.status.health >= 100]
 		#	[return]
 
 		# Healing score
@@ -961,9 +961,9 @@
 		#[message] $> ^Khealing: ${healing}
 
 		# Cap the healing
-		[set $healing] $= min $healing ( 100 - $target.status.hp )
+		[set $healing] $= min $healing ( 100 - $target.status.health )
 
-		[add $target.status.hp] $healing
+		[add $target.status.health] $healing
 
 		[call rpg:common/update-malus] $target
 
@@ -1128,7 +1128,7 @@
 			[mul $local.defense-score] $const.offensiveness-bonus
 
 		[if success-roll $local.attack-score $local.defense-score $const.wrestling-attack-roll]
-			[set $target.status.hp] 0
+			[set $target.status.health] 0
 			[apply $fight.deadly-push.flavor => $local.flavor] $
 			[message] $local.flavor
 

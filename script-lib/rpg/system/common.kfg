@@ -5,8 +5,8 @@
 	
 	[fn update-malus]
 		
-		[if $args.status.hp < 60]
-			[set $args.status.body-bonus-factor] $= 0.99309 ^ ( 60 - $args.status.hp )
+		[if $args.status.health < 60]
+			[set $args.status.body-bonus-factor] $= 0.99309 ^ ( 60 - $args.status.health )
 		
 		[if $args.status.mana < 60]
 			[set $args.status.spirit-bonus-factor] $= 0.99309 ^ ( 60 - $args.status.mana )
