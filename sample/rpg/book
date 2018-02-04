@@ -51,11 +51,13 @@
 		#[debug info] $roles.hero.entity.actual
 		#[debug info] $roles.hero.entity
 		
+		[next regular-encounter]
+			[label] One regular foe.
 		[next goblin-camp]
 			[image] /icons/sword.svg
 			[label] Multiple foes.
 		[next first-encounter]
-			[label] One foe.
+			[label] One strong foe.
 		[next treasure]
 			[label] Treasure.
 		[next shop]
@@ -146,6 +148,19 @@
 		
 		[next first-encounter]
 
+	[scene regular-encounter]
+		[message]
+			$> There is a footman wanting to fight you.
+		
+		[gosub rpg:fighting/fight]
+			distance: 0
+			allies:
+				- $roles.hero.entity
+			foes:
+				- footman
+		
+		[win]
+		
 	[scene first-encounter]
 		[message]
 			$> You are walking alongside a dangerous cliff.

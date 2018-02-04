@@ -43,12 +43,28 @@
 	stats:
 		fighting: 14
 		shooting: 6
-		quickness: 14
+		quickness: 12
 		strength: 16
 		resilience: 16
 	equipped-items:
 		hand:
 			- giant-club
+
+[entity-model footman]
+	class: character
+	label: the footman
+	params:
+		xp-reward: 6
+		charge: 0
+	stats:
+		fighting: 12
+		shooting: 8
+		quickness: 12
+		strength: 12
+		resilience: 12
+	equipped-items:
+		hand:
+			- sword
 
 [item-model excalibur]
 	class: object

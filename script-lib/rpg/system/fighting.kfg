@@ -125,17 +125,17 @@
 			[else]
 				[gosub pc-turn] $local.performer
 			
-		#[on $fight.scheduler started]
-		#	[message] $> started: ${args.subject.label}
+		[on $fight.scheduler started]
+			[message] $> started: ${args.subject.label} ${args.action}
 		
-		#[on $fight.scheduler prepared]
-		#	[message] $> prepared: ${args.subject.label}
+		[on $fight.scheduler prepared]
+			[message] $> prepared: ${args.subject.label} ${args.action}
 		
-		#[on $fight.scheduler released]
-		#	[message] $> released: ${args.subject.label}
+		[on $fight.scheduler released]
+			[message] $> released: ${args.subject.label} ${args.action}
 		
-		#[on $fight.scheduler recovered]
-		#	[message] $> recovered: ${args.subject.label}
+		[on $fight.scheduler recovered]
+			[message] $> recovered: ${args.subject.label} ${args.action}
 		
 		[loop]
 			[filter $fight.foes => $fight.alive-foes] $= $this.status.hp > 0
@@ -150,7 +150,7 @@
 			
 			[advance-scheduler $fight.scheduler 10]
 			#[pause 1]
-			#[message] After pause...
+			#[message] After pause
 
 
 
@@ -520,9 +520,20 @@
 				ready-time: $performer.adhoc.fight.alertness
 				prepare-time: $= $performer.actual-usages.melee-fighting.compound.prepare-time
 				release-time: $= $performer.actual-usages.melee-fighting.compound.release-time
-				recover-time: $= $performer.actual-usages.melee-fighting.compound.recovery-time
+				recover-time: $= $performer.actual-usages.melee-fighting.compound.recover-time
 			
 			[return]
+		
+		[schedule-action $fight.scheduler]
+			subject: $performer
+			action: melee-fighting
+			action-data:
+				target: $target
+			ready-time: $performer.adhoc.fight.alertness
+			prepare-time: $= $performer.actual-usages.melee-fighting.compound.prepare-time
+			release-time: $= $performer.actual-usages.melee-fighting.compound.release-time
+			recover-time: $= $performer.actual-usages.melee-fighting.compound.recover-time
+		
 	
 	[fn melee-fighting-release]
 		[set $performer] $args.performer
