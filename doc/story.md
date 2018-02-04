@@ -1376,7 +1376,12 @@ The *call* tag is used to *call* (i.e. *execute*) a Spellcast Scripting function
 The content of the tag will be solved **at run time** and will be stored into the **$args** variable during the *fn* tag execution.
 The **$args** variable is restored after the *fn* tag execution.
 
-If the `[call $var]` or the `[call $var => $into]` syntax is used, it will call the function stored inside the *$var* variable.
+If the `[call $var]` or the `[call $var => $into]` syntax is used, it will call the function stored inside the *$var* variable:
+* if it is a string, that string will be used as the label of a Spellcast function
+* if the value stored is a Spellcast function, this function will be called
+* if it is a Native function, that function will be called (only synchronous function ATM)
+
+The purpose of the `[call $var]` syntax is to use dynamic function, when the correct function is only known during runtime.
 
 If the `[call label]` or the `[call label => $into]` syntax is used, it will call the global function with that *label*,
 see the [*fn* tag](#ref.flow.fn) for details.
@@ -1407,7 +1412,7 @@ If inside the *fn* tag and the `[call $var => $into]` or the `[call label => $in
 the content of the *return* tag is solved **at run time** and stored into the *$into* variable.
 
 The *return* tag can also exit from the current sub *scene* tag (i.e. *scene* tag executed by a [*gosub* tag](#ref.scenario.gosub))
-immediately.
+immediately, or exit from a [*on* tag](#ref.event.on).
 
 
 

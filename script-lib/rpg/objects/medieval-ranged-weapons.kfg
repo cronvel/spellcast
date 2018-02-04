@@ -12,8 +12,8 @@
 		melee-fighting:
 			primary:
 				params:
-					critical-hit-flavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatal-hit-flavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${subject.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${subject.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
 					attack: (*) 1.15
 					defense: (*) 1.15
@@ -23,8 +23,8 @@
 				params:
 					menu-label: $> throw a javelin
 					projectile-label: $> javelin
-					critical-hit-flavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatal-hit-flavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${subject.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${subject.label//uc1} impales ${target.label} for ${damages} hp.
 				compound:
 					#close-ranged: (*) 1
 					attack: (*) 1.4
@@ -46,8 +46,8 @@
 				params:
 					projectile-label: $> arrow
 					menu-label: $> shoot an arrow
-					critical-hit-flavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatal-hit-flavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${subject.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${subject.label//uc1} impales ${target.label} for ${damages} hp.
 				compound-variation: firearm
 				compound:
 					close-ranged: (*) 0.65
@@ -71,8 +71,8 @@
 					reload: true
 					projectile-label: $> bolt
 					menu-label: $> shoot a bolt
-					critical-hit-flavor: $$> ^r${performer.label//uc1} pierces ${target.label} for ${damages} hp.
-					fatal-hit-flavor: $$> ^r${performer.label//uc1} impales ${target.label} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${subject.label//uc1} pierces ${target.label} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${subject.label//uc1} impales ${target.label} for ${damages} hp.
 				compound-variation: firearm
 				compound:
 					close-ranged: (*) 1.5

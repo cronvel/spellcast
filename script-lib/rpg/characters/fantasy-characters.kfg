@@ -35,9 +35,9 @@
 		charge: 0.2
 		battle-cry: 0.05
 		battle-cry-flavor:
-			- $$> ^+${performer.label//uc1} shouts “Bleed him to death!”
-			- $$> ^+${performer.label//uc1} shouts “Catch him!”
-			- $$> ^+${performer.label//uc1} cries “I don't want do die!”
+			- $$> ^+${subject.label//uc1} shouts “Bleed him to death!”
+			- $$> ^+${subject.label//uc1} shouts “Catch him!”
+			- $$> ^+${subject.label//uc1} cries “I don't want do die!”
 	stats:
 		fighting: 7
 		shooting: 7

@@ -9,8 +9,8 @@
 		[set $local.cast-roll]
 			over-power: 8
 		
-		[if $args.performer.status.mana <= 0]
-			[message] $> ${args.performer.label//uc1} has no mana left.
+		[if $args.subject.status.mana <= 0]
+			[message] $> ${args.subject.label//uc1} has no mana left.
 			[return] false
 		
 		# First, mana consumption
@@ -29,19 +29,19 @@
 			$=   round: true
 			$= )
 		
-		[sub $args.performer.status.mana] $local.mana
+		[sub $args.subject.status.mana] $local.mana
 		
 		#[message] $> Mana loss: ${local.mana}
 		
-		[if $args.performer.status.mana < 0]
-			[set $args.performer.status.mana] 0
-			[message] $> ${args.performer.label//uc1} used all its mana and miscasts ^/${args.item.label}^:!
+		[if $args.subject.status.mana < 0]
+			[set $args.subject.status.mana] 0
+			[message] $> ${args.subject.label//uc1} used all its mana and miscasts ^/${args.item.label}^:!
 			
 			# Don't forget to update malus before leaving!
-			[call rpg:common/update-malus] $performer
+			[call rpg:common/update-malus] $subject
 			[return] false
 		
-		#[message] $> Remaining mana: ${args.performer.status.mana}
+		#[message] $> Remaining mana: ${args.subject.status.mana}
 		
 		
 		# Then spellcasting
@@ -53,16 +53,16 @@
 		
 		#[message] $> Casting ${local.cast-score} vs ${local.vs-score}
 		
-		#[debug info] $> ${args.performer.actual.stats.spellcasting}
+		#[debug info] $> ${args.subject.actual.stats.spellcasting}
 		
 		# Update malus now, after the score computation
-		[call rpg:common/update-malus] $performer
+		[call rpg:common/update-malus] $subject
 		
 		[if ! ( success-roll $local.cast-score $local.vs-score $local.cast-roll )]
-			[message] $> ${args.performer.label//uc1} miscasts ^/${args.item.label}^:!
+			[message] $> ${args.subject.label//uc1} miscasts ^/${args.item.label}^:!
 			[return] false
 		
-		[message] $> ${args.performer.label//uc1} casts ^/${args.item.label}^:!
+		[message] $> ${args.subject.label//uc1} casts ^/${args.item.label}^:!
 		[return] true
 
 	
