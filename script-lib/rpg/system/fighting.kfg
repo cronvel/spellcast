@@ -124,20 +124,25 @@
 				[call npc-turn] $local.subject
 			[else]
 				[gosub pc-turn] $local.subject
-			
-		[on $fight.scheduler started]
-			[message] $> started: ${args.subject.label} ${args.action}
+		
+		# Not useful, it kicks in immediately after	ready
+		#[on $fight.scheduler started]
+		#	[message] $> started: ${args.subject.label} ${args.action}
 		
 		[on $fight.scheduler prepared]
-			[message] $> prepared: ${args.subject.label} ${args.action}
-		
-		[on $fight.scheduler released]
-			[message] $> released: ${args.subject.label} ${args.action} ${args.action-data.subject}
-			[set $local.fn] $= $args.action . "-release"
+			#[message] $> prepared: ${args.subject.label} ${args.action}
+			[set $local.fn] $= $args.action . "-prepared"
 			[call $local.fn] $args.action-data
 		
-		[on $fight.scheduler recovered]
-			[message] $> recovered: ${args.subject.label} ${args.action}
+		[on $fight.scheduler released]
+			#[message] $> released: ${args.subject.label} ${args.action} ${args.action-data.subject}
+			[set $local.fn] $= $args.action . "-released"
+			[call $local.fn] $args.action-data
+		
+		#[on $fight.scheduler recovered]
+		#	[message] $> recovered: ${args.subject.label} ${args.action}
+		#	[set $local.fn] $= $args.action . "-recovered"
+		#	[call $local.fn] $args.action-data
 		
 		[loop]
 			[filter $fight.foes => $fight.alive-foes] $= $this.status.health > 0
@@ -401,7 +406,7 @@
 						subject: $fight.entity-turn
 
 		[next pc-turn]
-			[label] $> Equip object in hand
+			[label] $> Equip object in hand [BROKEN]
 			[button] hand-equip
 			[on-trigger]
 				[gosub rpg:inventory/equip-object => $local.changed]
@@ -494,7 +499,6 @@
 	[fn melee-fighting]
 		[set $subject] $args.subject
 		[set $target] $args.target
-		[set $item] $subject.primary.melee-fighting
 	
 		[set $subject.adhoc.fight.speed] $= $subject.adhoc.fight.offensiveness ??? 2 4 6
 
@@ -505,27 +509,14 @@
 			[if $subject.adhoc.fight.offensiveness > 0]
 				[message] $> ${subject.label//uc1} runs toward the opposing crew.
 			[elseif $subject.adhoc.fight.offensiveness < 0]
-				[message] $> ${subject.label//uc1} walk cautiously toward the opposing crew.
+				[message] $> ${subject.label//uc1} walks cautiously toward the opposing crew.
 			[else]
 				[message] $> ${subject.label//uc1} marches toward the opposing crew.
 
-			[message] $> ready time: ${subject.adhoc.fight.alertness}
-			[message] $> prepare time: ${subject.actual-usages.melee-fighting.compound.prepare-time}
-			[message] $> release time: ${subject.actual-usages.melee-fighting.compound.release-time}
-			[message] $> recover time: ${subject.actual-usages.melee-fighting.compound.recover-time}
-			
-			[schedule-action $fight.scheduler]
-				subject: $subject
-				action: melee-fighting
-				action-data:
-					subject: $subject
-					target: $target
-				ready-time: $subject.adhoc.fight.alertness
-				prepare-time: $= $subject.actual-usages.melee-fighting.compound.prepare-time
-				release-time: $= $subject.actual-usages.melee-fighting.compound.release-time
-				recover-time: $= $subject.actual-usages.melee-fighting.compound.recover-time
-			
-			[return]
+		#[message] $> ready time: ${subject.adhoc.fight.alertness}
+		#[message] $> prepare time: ${subject.actual-usages.melee-fighting.compound.prepare-time}
+		#[message] $> release time: ${subject.actual-usages.melee-fighting.compound.release-time}
+		#[message] $> recover time: ${subject.actual-usages.melee-fighting.compound.recover-time}
 		
 		[schedule-action $fight.scheduler]
 			subject: $subject
@@ -539,11 +530,26 @@
 			recover-time: $= $subject.actual-usages.melee-fighting.compound.recover-time
 		
 	
-	[fn melee-fighting-release]
+	
+	[fn melee-fighting-prepared]
 		[set $subject] $args.subject
 		[set $target] $args.target
 		[set $item] $subject.primary.melee-fighting
-
+	
+		# Still out of reach
+		[if $fight.distance > 0]
+			[return]
+	
+	
+	[fn melee-fighting-released]
+		[set $subject] $args.subject
+		[set $target] $args.target
+		[set $item] $subject.primary.melee-fighting
+		
+		# Still out of reach
+		[if $fight.distance > 0]
+			[return]
+		
 		[set $subject.adhoc.fight.press-target] $target
 		[set $subject.adhoc.fight.press-value] $= $subject.adhoc.fight.offensiveness ??? 3 4 6
 
@@ -607,7 +613,7 @@
 	[fn charge]
 		[set $subject] $args.subject
 		[set $target] $args.target
-
+	
 		[set $subject.adhoc.fight.speed] 10
 		[set $subject.adhoc.fight.offensiveness] 1
 
@@ -615,8 +621,33 @@
 			[set $subject.adhoc.fight.press-target] null
 			[set $subject.adhoc.fight.press-value] 0
 			[message] $> ${subject.label//uc1} charges toward the opposing crew.
-			[return]
+		
+		[schedule-action $fight.scheduler]
+			subject: $subject
+			action: charge
+			action-data:
+				subject: $subject
+				target: $target
+			ready-time: $subject.adhoc.fight.alertness
+			prepare-time: $= $subject.actual-usages.melee-fighting.compound.prepare-time
+			release-time: $= $subject.actual-usages.melee-fighting.compound.release-time
+			recover-time: $= $subject.actual-usages.melee-fighting.compound.recover-time
+		
+	
+	
+	[fn charge-prepared]
+		[set $subject] $args.subject
+		[set $target] $args.target
 
+	
+	
+	[fn charge-released]
+		[set $subject] $args.subject
+		[set $target] $args.target
+
+		# Still out of reach
+		[if $fight.distance > 0]
+			[return]
 
 		[set $local.attack-score] $= $subject.actual-usages.melee-fighting.compound.attack
 		[set $local.defense-score] $= $target.actual-usages.melee-fighting.compound.defense
@@ -665,7 +696,33 @@
 	[fn ranged-fighting]
 		[set $subject] $args.subject
 		[set $target] $args.target
-
+		
+		[set $subject.adhoc.fight.speed] 0
+		[set $subject.adhoc.fight.offensiveness] -1
+		
+		[schedule-action $fight.scheduler]
+			subject: $subject
+			action: ranged-fighting
+			action-data:
+				subject: $subject
+				target: $target
+			ready-time: $subject.adhoc.fight.alertness
+			prepare-time: $= $subject.actual-usages.ranged-fighting.compound.prepare-time
+			release-time: $= $subject.actual-usages.ranged-fighting.compound.release-time
+			recover-time: $= $subject.actual-usages.ranged-fighting.compound.recover-time
+	
+	
+	
+	[fn ranged-fighting-prepared]
+		[set $subject] $args.subject
+		[set $target] $args.target
+		[set $item] $subject.primary.ranged-fighting
+	
+	
+	
+	[fn ranged-fighting-released]
+		[set $subject] $args.subject
+		[set $target] $args.target
 		[set $item] $subject.primary.ranged-fighting
 
 		[if $item.usages.ranged-fighting.primary.params.projectile-label]
@@ -675,9 +732,6 @@
 
 		#[debug info] $projectile
 		#[debug info] $item.usages.ranged-fighting.primary.params.projectile-label
-
-		[set $subject.adhoc.fight.speed] 0
-		[set $subject.adhoc.fight.offensiveness] -1
 
 		[set $subject.adhoc.fight.press-target] $target
 		[set $subject.adhoc.fight.press-value] 4
@@ -790,9 +844,9 @@
 
 	[fn battle-ability]
 		[set $subject] $args.subject
+		[set $target] $subject
 		[set $local.usage] $subject.actual-usages.battle-ability
-		[set $local.target] $subject
-		[set $local.position] $subject.adhoc.fight.position
+		[set $item] $subject.primary.battle-ability
 
 		[if $local.usage.params.targeting]
 			[if $subject.npc]
@@ -803,10 +857,7 @@
 					[alt]
 					[args]
 						target-allies: $local.usage.params.target-allies
-			[set $local.target] $fight.target
-			[set $local.position] $fight.target.adhoc.fight.position
-
-		[set $item] $subject.primary.battle-ability
+			[set $target] $fight.target
 
 		# Check if the ability has its own speed and offensiveness value
 		[if $item.params.speed is-number?]
@@ -814,6 +865,37 @@
 		[if $item.params.offensiveness is-number?]
 			[set $subject.adhoc.fight.offensiveness] $= $item.params.offensiveness
 
+		[schedule-action $fight.scheduler]
+			subject: $subject
+			action: battle-ability
+			action-data:
+				subject: $subject
+				target: $target
+				position: $local.position
+			ready-time: $subject.adhoc.fight.alertness
+			prepare-time: $= $subject.actual-usages.battle-ability.compound.prepare-time
+			release-time: $= $subject.actual-usages.battle-ability.compound.release-time
+			recover-time: $= $subject.actual-usages.battle-ability.compound.recover-time
+
+	
+	
+	[fn battle-ability-prepared]
+		[set $subject] $args.subject
+		[set $target] $args.target
+		[set $local.usage] $subject.actual-usages.battle-ability
+		[set $item] $subject.primary.battle-ability
+	
+	
+	
+	[fn battle-ability-released]
+		[set $subject] $args.subject
+		[set $target] $args.target
+		[set $local.usage] $subject.actual-usages.battle-ability
+		[set $item] $subject.primary.battle-ability
+
+		# Position MUST be set on release time
+		[set $local.position] $target.adhoc.fight.position
+		
 		[call pressure] $subject
 
 		[if $local.usage.params.spell-level is-set?]
@@ -827,7 +909,7 @@
 
 		[call effects]
 			subject: $subject
-			target: $local.target
+			target: $target
 			position: $local.position
 			usage: $local.usage
 
