@@ -275,8 +275,10 @@
 	
 	
 	# Equip an object
+	# Support a scheduler argument
 	[scene equip-object]
 		[set $subject] $args.subject
+		[set $local.scheduler] $args.scheduler
 		[set $slot] $= ( $args.slot is-set? ) ? $args.slot "hand"
 		
 		[message] $> Equip / unequip what?
@@ -299,8 +301,21 @@
 				[label] $> Unequip ${local.item.label} (${local.item.class})
 				[on-trigger]
 					[set $local.item] $local.equipped-items[$args.index]
-					[unequip $subject]
-						item: $local.item
+					
+					[if $local.scheduler]
+						[schedule-action $local.scheduler]
+							subject: $subject
+							action: unequip
+							action-data:
+								subject: $subject
+								item: $local.item
+							prepare-time: 5
+							release-time: 5
+							recover-time: 5
+					[else]
+						[unequip $subject]
+							item: $local.item
+					
 					[return] true
 		
 		[foreach $local.unequipped-items => $local.index : $local.item]
@@ -310,14 +325,28 @@
 				[label] $> Equip ${local.item.label} (${local.item.class})
 				[on-trigger]
 					[set $local.item] $local.unequipped-items[$args.index]
-					[equip $subject]
-						item: $local.item
+					
+					[if $local.scheduler]
+						[schedule-action $local.scheduler]
+							subject: $subject
+							action: equip
+							action-data:
+								subject: $subject
+								item: $local.item
+							prepare-time: 5
+							release-time: 5
+							recover-time: 5
+					[else]
+						[equip $subject]
+							item: $local.item
+					
 					[return] true
 	
 	
 	
 	[scene equip-object-choose-slot]
 		[set $subject] $args.subject
+		[set $local.scheduler] $args.scheduler
 		
 		[message] $> Which slot?
 		
@@ -334,6 +363,7 @@
 					[gosub rpg:inventory/equip-object]
 						subject: $subject
 						slot: $args.slot
+						scheduler: $local.scheduler
 
 
 	

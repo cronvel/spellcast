@@ -915,6 +915,38 @@
 
 
 
+	[fn equip-prepared]
+		[set $subject] $args.subject
+		[set $item] $args.item
+		[message] $> equip-prepared
+	
+	
+	
+	[fn equip-released]
+		[set $subject] $args.subject
+		[set $item] $args.item
+		[message] $> equip-released
+		[equip $subject]
+			item: $item
+	
+	
+	
+	[fn unequip-prepared]
+		[set $subject] $args.subject
+		[set $item] $args.item
+		[message] $> unequip-prepared
+	
+	
+	
+	[fn unequip-released]
+		[set $subject] $args.subject
+		[set $item] $args.item
+		[message] $> unequip-released
+		[unequip $subject]
+			item: $item
+	
+	
+	
 	[fn deal-damages]
 		[if $args.target]
 			[set $target] $args.target
