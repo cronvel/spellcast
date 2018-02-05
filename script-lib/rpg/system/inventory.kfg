@@ -59,7 +59,7 @@
 			[button] close-alt
 		
 		[foreach $local.equipped-items => $local.index : $local.item]
-			[next inventory-object]
+			[next inventory-object-menu]
 				[args]
 					index: $local.index
 				[label] $> ${local.item.label} (${local.item.slot-type})
@@ -68,7 +68,7 @@
 					[set $equipped] true
 		
 		[foreach $local.unequipped-items => $local.index : $local.item]
-			[next inventory-object]
+			[next inventory-object-menu]
 				[args]
 					index: $local.index
 				[label] $> ${local.item.label}
@@ -79,7 +79,7 @@
 	
 	
 	# Called by inventory-menu
-	[scene inventory-object]
+	[scene inventory-object-menu]
 		
 		[next inventory-menu]
 			[label] $> (Done)
@@ -97,7 +97,7 @@
 		[if $equipped]
 			[message]
 				$> ^_${item.label//uc1}^ (equipped: ${item.slot-type})
-			[next inventory-object]
+			[next inventory-object-menu]
 				[label] $> Unequip ${item.label}
 				[on-trigger]
 					[set $equipped] false
@@ -118,7 +118,7 @@
 		[else]
 			[message]
 				$> ^_${item.label//uc1}^ (inventory)
-			[next inventory-object]
+			[next inventory-object-menu]
 				[label] $> Equip ${item.label}
 				[on-trigger]
 					[set $equipped] true
@@ -153,11 +153,11 @@
 			[return]
 		
 		[if ( $stack.length = 1 ) && $first]
-			# Immediately go to grab-object
+			# Immediately go to grab-object-menu
 			[set $first] false
 			[set $only-one] true
 			[set $item] $stack[0]
-			[goto grab-object]
+			[goto grab-object-menu]
 		
 		[set $first] false
 		
@@ -169,7 +169,7 @@
 		
 		
 		[foreach $stack => $local.index : $local.item]
-			[next grab-object]
+			[next grab-object-menu]
 				[args]
 					index: $local.index
 				[label] $> ${local.item.label}
@@ -179,7 +179,7 @@
 	
 	
 	# Called by grab-menu
-	[scene grab-object]
+	[scene grab-object-menu]
 		
 		[next grab-menu]
 			[label] $> (Done)
@@ -208,8 +208,29 @@
 		
 	
 	
+	[scene ability-menu]
+		[set $subject] $args.subject
+		
+		[message] $> Which usage?
+		
+		[next]
+			[label] $> (Abort)
+			[button] close-alt
+		
+		[foreach $subject.usage-types => $local.usage]
+			[next]
+				[args]
+					usage: $local.usage
+				[label] $> ${local.usage//uc1/dash2space}
+				[on-trigger]
+					[gosub rpg:inventory/ability-usage-menu]
+						subject: $subject
+						usage: $args.usage
+
+	
+	
 	# Equip an ability as primary, or make any equipped item (ability or not) a primary
-	[scene select-ability-primary]
+	[scene ability-usage-menu]
 		[set $subject] $args.subject
 		[set $usage] $= ( $args.usage is-set? ) ? $args.usage true
 		
@@ -253,30 +274,32 @@
 	
 	
 	
-	[scene select-ability-choose-primary]
+	[scene equip-object-menu]
 		[set $subject] $args.subject
+		[set $local.scheduler] $args.scheduler
 		
-		[message] $> Which usage?
+		[message] $> Which slot?
 		
 		[next]
 			[label] $> (Abort)
 			[button] close-alt
 		
-		[foreach $subject.usage-types => $local.usage]
+		[foreach $subject.slots => $local.slot : $local.count]
 			[next]
 				[args]
-					usage: $local.usage
-				[label] $> ${local.usage//uc1/dash2space}
+					slot: $local.slot
+				[label] $> ${local.slot//uc1/dash2space}
 				[on-trigger]
-					[gosub rpg:inventory/select-ability-primary]
+					[gosub rpg:inventory/equip-object-slot-menu]
 						subject: $subject
-						usage: $args.usage
+						slot: $args.slot
+						scheduler: $local.scheduler
 
-	
+
 	
 	# Equip an object
 	# Support a scheduler argument
-	[scene equip-object]
+	[scene equip-object-slot-menu]
 		[set $subject] $args.subject
 		[set $local.scheduler] $args.scheduler
 		[set $slot] $= ( $args.slot is-set? ) ? $args.slot "hand"
@@ -313,7 +336,8 @@
 							release-time: 5
 							recover-time: 5
 					[else]
-						[unequip $subject]
+						[call unequip-object]
+							subject: $subject
 							item: $local.item
 					
 					[return] true
@@ -337,35 +361,30 @@
 							release-time: 5
 							recover-time: 5
 					[else]
-						[equip $subject]
+						[call equip-object]
+							subject: $subject
 							item: $local.item
 					
 					[return] true
 	
 	
 	
-	[scene equip-object-choose-slot]
+	[fn equip-object]
 		[set $subject] $args.subject
-		[set $local.scheduler] $args.scheduler
+		[set $item] $args.item
 		
-		[message] $> Which slot?
+		[equip $subject]
+			item: $item
+	
+	
+	
+	[fn unequip-object]
+		[set $subject] $args.subject
+		[set $item] $args.item
 		
-		[next]
-			[label] $> (Abort)
-			[button] close-alt
-		
-		[foreach $subject.slots => $local.slot : $local.count]
-			[next]
-				[args]
-					slot: $local.slot
-				[label] $> ${local.slot//uc1/dash2space}
-				[on-trigger]
-					[gosub rpg:inventory/equip-object]
-						subject: $subject
-						slot: $args.slot
-						scheduler: $local.scheduler
-
-
+		[unequip $subject]
+			item: $item
+	
 	
 	
 	

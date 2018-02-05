@@ -397,23 +397,24 @@
 		[next-group-break]
 		
 		[next pc-turn]
-			[label] $> Select primary ability or object
+			[label] $> Select ability or primary object
 			[button] primary
 			[on-trigger]
-				[gosub rpg:inventory/select-ability-choose-primary]
+				[gosub rpg:inventory/ability-menu]
 					[alt]
 					[args]
 						subject: $fight.entity-turn
 
 		[next pc-turn]
-			[label] $> Equip object in hand [BROKEN]
+			[label] $> Equip object in hand
 			[button] hand-equip
 			[on-trigger]
-				[gosub rpg:inventory/equip-object => $local.changed]
+				[gosub rpg:inventory/equip-object-slot-menu => $local.changed]
 					[alt]
 					[args]
 						subject: $fight.entity-turn
 						slot: hand
+						scheduler: $fight.scheduler
 				[if $local.changed]
 					[set $fight.entity-turn.adhoc.fight.speed] 0
 					[set $fight.entity-turn.adhoc.fight.offensiveness] -1
@@ -915,35 +916,15 @@
 
 
 
-	[fn equip-prepared]
-		[set $subject] $args.subject
-		[set $item] $args.item
-		[message] $> equip-prepared
-	
-	
+	[fn equip-prepared] <TagContainer>
 	
 	[fn equip-released]
-		[set $subject] $args.subject
-		[set $item] $args.item
-		[message] $> equip-released
-		[equip $subject]
-			item: $item
+		[call rpg:inventory/equip-object] $args
 	
-	
-	
-	[fn unequip-prepared]
-		[set $subject] $args.subject
-		[set $item] $args.item
-		[message] $> unequip-prepared
-	
-	
+	[fn unequip-prepared] <TagContainer>
 	
 	[fn unequip-released]
-		[set $subject] $args.subject
-		[set $item] $args.item
-		[message] $> unequip-released
-		[unequip $subject]
-			item: $item
+		[call rpg:inventory/unequip-object] $args
 	
 	
 	

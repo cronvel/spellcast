@@ -11,9 +11,9 @@
 	label: Cloak of Darkness
 	description: A black velvet cloak.
 	params:
-		examineFlavor: The cloak seems to be light-absorbent!
-	slotType: cloak
-	slotCount: 1
+		examine-flavor: The cloak seems to be light-absorbent!
+	slot-type: cloak
+	slot-count: 1
 
 [on rpg:drop-item]
 	[global]
@@ -31,9 +31,9 @@
 	label: Sword of Slashing
 	description: A mighty sword.
 	params:
-		examineFlavor: Oh my gawd! That mighty sword get a +999 bonus at slashing goblins!
-	slotType: hand
-	slotCount: 1
+		examine-flavor: Oh my gawd! That mighty sword get a +999 bonus at slashing goblins!
+	slot-type: hand
+	slot-count: 1
 
 
 
@@ -42,7 +42,7 @@
 	label: coin
 	description: A coin.
 	params:
-		examineFlavor: A silver coin.
+		examine-flavor: A silver coin.
 
 
 
@@ -53,7 +53,7 @@
 	slots:
 		cloak: 1
 		hand: 2
-	equippedItems:
+	equipped-items:
 		cloak:
 			- cloak-of-darkness
 		hand:
