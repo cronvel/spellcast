@@ -373,6 +373,15 @@
 		[set $subject] $args.subject
 		[set $item] $args.item
 		
+		[if $item.params.equip-flavor]
+			[set $local.template] $= random-element $item.params.equip-flavor
+			[apply $local.template => $local.flavor] $
+			[message] $local.flavor
+		[elseif $item.slot-type = "hand"]
+			[message] $> ${subject.label//uc1} wields ${item.label//en:the}.
+		[else]
+			[message] $> ${subject.label//uc1} equips ${item.label//en:the}.
+		
 		[equip $subject]
 			item: $item
 	
@@ -381,6 +390,15 @@
 	[fn unequip-object]
 		[set $subject] $args.subject
 		[set $item] $args.item
+		
+		[if $item.params.unequip-flavor]
+			[set $local.template] $= random-element $item.params.unequip-flavor
+			[apply $local.template => $local.flavor] $
+			[message] $local.flavor
+		[elseif $item.slot-type = "hand"]
+			[message] $> ${subject.label//uc1} unwields ${item.label//en:the}.
+		[else]
+			[message] $> ${subject.label//uc1} unequips ${item.label//en:the}.
 		
 		[unequip $subject]
 			item: $item
