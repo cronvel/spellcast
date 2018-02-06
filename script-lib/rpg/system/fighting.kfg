@@ -8,12 +8,12 @@
 	[scene fight]
 
 		[add-to-panel]
-			-	label: $> Select primary ability or object
+			-	label: $> Primary/ability
 				image: /icons/primary.svg
 				id: primary
-			-	label: $> Equip object in hand
+			-	label: $> Wield/unwield
 				image: /icons/catch.svg
-				id: hand-equip
+				id: wield
 		
 		# It would be nice to have true constants support in KFG
 		[set $const]
@@ -397,7 +397,7 @@
 		[next-group-break]
 		
 		[next pc-turn]
-			[label] $> Select ability or primary object
+			[label] $> Primary/ability
 			[button] primary
 			[on-trigger]
 				[gosub rpg:inventory/ability-menu]
@@ -406,8 +406,8 @@
 						subject: $fight.entity-turn
 
 		[next pc-turn]
-			[label] $> Equip object in hand
-			[button] hand-equip
+			[label] $> Wield/unwield
+			[button] wield
 			[on-trigger]
 				[gosub rpg:inventory/equip-object-slot-menu => $local.changed]
 					[alt]

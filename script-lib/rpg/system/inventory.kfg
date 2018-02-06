@@ -304,7 +304,14 @@
 		[set $local.scheduler] $args.scheduler
 		[set $slot] $= ( $args.slot is-set? ) ? $args.slot "hand"
 		
-		[message] $> Equip / unequip what?
+		[if $slot = "hand"]
+			[set $equip-verb] $> wield
+			[set $unequip-verb] $> unwield
+		[else]
+			[set $equip-verb] $> equip
+			[set $unequip-verb] $> unequip
+		
+		[message] $> ${equip-verb//uc1} / ${unequip-verb} what?
 		
 		[set $local.equipped-items] $subject.equipped-items[$slot]
 		[filter $subject.items => $local.unequipped-items] $= ( $this.class = "object" ) && ( $this.slot-type = $slot )
@@ -321,7 +328,7 @@
 			[next]
 				[args]
 					index: $local.index
-				[label] $> Unequip ${local.item.label} (${local.item.class})
+				[label] $> ${unequip-verb//uc1} ${local.item.label} (${local.item.class})
 				[on-trigger]
 					[set $local.item] $local.equipped-items[$args.index]
 					
@@ -346,9 +353,13 @@
 			[next]
 				[args]
 					index: $local.index
-				[label] $> Equip ${local.item.label} (${local.item.class})
+				[label] $> ${equip-verb//uc1} ${local.item.label} (${local.item.class})
 				[on-trigger]
 					[set $local.item] $local.unequipped-items[$args.index]
+					
+					[if ! ( $subject can-equip-item $local.item )]
+						[message] $> ^KShould ${unequip-verb} an item first!
+						[cancel]
 					
 					[if $local.scheduler]
 						[schedule-action $local.scheduler]
