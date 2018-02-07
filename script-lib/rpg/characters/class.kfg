@@ -37,6 +37,7 @@
 		xp: 0
 		body-bonus-factor: 1
 		spirit-bonus-factor: 1
+		alive: true
 	
 	innate-items:
 		hand:

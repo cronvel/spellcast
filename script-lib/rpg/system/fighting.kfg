@@ -44,12 +44,11 @@
 			wrestling-attack-roll:
 				over-power: 3
 		
-		[set $fight] <Object>
-
-		[set $fight.foes] <Array>
-		[set $fight.allies] <Array>
-		[set $fight.turns] <Array>
-		[set $fight.distance] $= ( $args.distance is-set? ) ? ( floor ( abs $args.distance ) 2 ) 0
+		[set $fight]
+			foes: <Array>
+			allies: <Array>
+			turns: <Array>
+			distance: $= ( $args.distance is-set? ) ? ( floor ( abs $args.distance ) 2 ) 0
 		
 		[create-scheduler $fight.scheduler]
 
@@ -64,6 +63,7 @@
 				press-target: null
 				pressure: 0
 				speed: 0
+				goneThrough: 0
 				alertness: $= 100 / $local.foe.actual.stats.fighting
 			[add-to-scheduler $fight.scheduler]
 				subject: $local.foe
@@ -80,6 +80,7 @@
 				press-target: null
 				pressure: 0
 				speed: 0
+				goneThrough: 0
 				alertness: $= 100 / $local.ally.actual.stats.fighting
 			[add-to-scheduler $fight.scheduler]
 				subject: $local.ally
@@ -92,7 +93,12 @@
 
 		[set $fight.deadly-push] $args.deadly-push
 
-		[message] $> ^yThe distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
+		[if $fight.distance = 0]
+			[message] $> ^yThe opponents are already in melee!
+		[else]
+			[message] $> ^yThe distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
+		
+		[set $fight.last-displayed-distance] $fight.distance
 
 		[call scheduler-loop]
 
@@ -109,51 +115,85 @@
 			[call manage-distance] $args
 			[call battle-lines]
 
+		[on $fight.scheduler empty]
+			#[message] $> ^Rempty event!
+			[set $fight.ended] true
 		
 		[on $fight.scheduler ready]
 			#[message] $> ready: ${args.subject.label}
 			
-			[set $fight.entity-turn] $= $args.subject
-			[set $local.subject] $= $args.subject
-			
-			# /!\ should we remove it from the scheduler?
-			[if $local.subject.status.health <= 0]
+			[if $args.subject.status.health <= 0]
+				[call manage-death] $args.subject
 				[return]
-
-			[if $local.subject.npc]
-				[call npc-turn] $local.subject
+			[elseif $fight.ending]
+				[remove-from-scheduler $fight.scheduler] $args.subject
+				[return]
+			
+			# DEPRECATED
+			[set $fight.entity-turn] $= $args.subject
+			
+			[if $args.subject.npc]
+				[call npc-turn] $args.subject
 			[else]
-				[gosub pc-turn] $local.subject
+				[gosub pc-turn] $args.subject
 		
 		# Not useful, it kicks in immediately after	ready
 		#[on $fight.scheduler started]
 		#	[message] $> started: ${args.subject.label} ${args.action}
 		
 		[on $fight.scheduler prepared]
+			[if $args.subject.status.health <= 0]
+				[call manage-death] $args.subject
+				[return]
+			
 			#[message] $> prepared: ${args.subject.label} ${args.action}
 			[set $local.fn] $= $args.action . "-prepared"
 			[call $local.fn] $args.action-data
 		
+			[set $args.subject.adhoc.fight.goneThrough] 0
+			
 		[on $fight.scheduler released]
 			#[message] $> released: ${args.subject.label} ${args.action} ${args.action-data.subject}
+			#[if $args.subject.status.health <= 0]
+			[if $args.subject.adhoc.fight.goneThrough]
+				[message]
+					text: $> ^W^+At the same time: 
+					continue: true
 			[set $local.fn] $= $args.action . "-released"
 			[call $local.fn] $args.action-data
+			
+			# It is called AFTER anything else, the "releasing" state is unbreakable
+			#[message] $> after release: ${args.subject.status.health}
+			[if $args.subject.status.health <= 0]
+				[call manage-death] $args.subject
 		
-		#[on $fight.scheduler recovered]
-		#	[message] $> recovered: ${args.subject.label} ${args.action}
-		#	[set $local.fn] $= $args.action . "-recovered"
-		#	[call $local.fn] $args.action-data
+		[on $fight.scheduler recovered]
+			[if $args.subject.status.health <= 0]
+				[call manage-death] $args.subject
+			[elseif $fight.ending]
+				[remove-from-scheduler $fight.scheduler] $args.subject
+			#[message] $> recovered: ${args.subject.label} ${args.action}
+			#[set $local.fn] $= $args.action . "-recovered"
+			#[call $local.fn] $args.action-data
 		
 		[loop]
-			[filter $fight.foes => $fight.alive-foes] $= $this.status.health > 0
-			[filter $fight.allies => $fight.alive-allies] $= $this.status.health > 0
+			#[message] $> ^RLoop
+			[filter $fight.foes => $fight.alive-foes] $= $this.status.alive
+			[filter $fight.allies => $fight.alive-allies] $= $this.status.alive
 
-			[if ! $fight.alive-allies.length]
-				[call lost]
-				[return]
-			[elseif ! $fight.alive-foes.length]
-				[call win]
-				[return]
+			[if $fight.ended]
+				[if ! $fight.alive-allies.length]
+					[call lost]
+					[return]
+				[elseif ! $fight.alive-foes.length]
+					[call win]
+					[return]
+				[else]
+					# Hmmm, what should be done here?
+					[call win]
+					[return]
+			[elseif ( ! $fight.alive-allies.length ) || ( ! $fight.alive-foes.length )]
+				[set $fight.ending] true
 			
 			[advance-scheduler $fight.scheduler 10]
 			#[pause 1]
@@ -173,10 +213,13 @@
 
 			[if $local.distance != $fight.distance]
 				[set $fight.distance] $local.distance
-				[if $fight.distance = 0]
-					[message] $> ^yThe two opposing crews join together and clash.
-				[else]
-					[message] $> ^yThe remaining distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
+				[if ! ( $fight.last-displayed-distance %= $fight.distance 1.5)]
+					[if $fight.distance = 0]
+						[message] $> ^yThe two opposing crews join together and clash.
+					[else]
+						[message] $> ^yThe remaining distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
+					
+					[set $fight.last-displayed-distance] $fight.distance
 
 
 
@@ -594,6 +637,8 @@
 
 		#[message] $> Melee: ${local.attack-score} vs ${local.defense-score}
 		
+		[inc $target.adhoc.fight.goneThrough]
+		
 		[if success-roll $local.attack-score $local.defense-score $const.melee-attack-roll]
 			[call deal-damages]
 
@@ -681,6 +726,8 @@
 
 		[message] $> ${subject.label//uc1} charges ${target.label}!
 
+		[inc $target.adhoc.fight.goneThrough]
+		
 		[if success-roll $local.attack-score $local.defense-score $const.melee-attack-roll]
 			[call deal-damages]
 
@@ -749,6 +796,8 @@
 			[if ! $local.casted]
 				[return]
 
+		[inc $target.adhoc.fight.goneThrough]
+		
 		# We are in close range, we have to test first with the closeRange stat,
 		# against the anti-ranged stat
 		[if $fight.distance = 0]
@@ -908,6 +957,9 @@
 			[if ! $local.casted]
 				[return]
 
+		[if $target != $subject]
+			[inc $target.adhoc.fight.goneThrough]
+		
 		[call effects]
 			subject: $subject
 			target: $target
@@ -1015,11 +1067,20 @@
 
 		[message] $local.flavor
 
-		[if $target.status.health <= 0]
-			[message] $> ^R^+${target.label//uc1} is dead.
 
 
-
+	[fn manage-death]
+		[set $subject] $args
+		#[message] $> manage death! ${subject.label} ${subject.status.health} ${subject.status.alive}
+		[if ( $subject.status.health > 0 ) || ( ! $subject.status.alive )]
+			[return]
+		
+		[set $subject.status.alive] false
+		[message] $> ^R^+${subject.label//uc1} is dead.
+		[remove-from-scheduler $fight.scheduler] $subject
+	
+	
+	
 	[fn heal-damages]
 		[if $args.target]
 			[set $target] $args.target
@@ -1104,6 +1165,7 @@
 
 			[if $local.effect.type = "attack"]
 				[call attack-effect]
+					subject: $args.subject
 					entities: $local.entities
 					attack: $= $local.effect-compound.attack
 					damages: $= $local.effect-compound.damages
@@ -1114,6 +1176,7 @@
 					fatal-hit-flavor: $local.effect.fatal-hit-flavor
 			[elseif $local.effect.type = "healing"]
 				[call healing-effect]
+					subject: $args.subject
 					entities: $local.entities
 					healing: $= $local.effect-compound.healing
 					flavor: $local.effect.flavor
@@ -1175,6 +1238,9 @@
 			
 			#[message] $> Attack-effect: ${local.attack-score} vs ${local.defense-score}
 			
+			[if $target != $args.subject]
+				[inc $target.adhoc.fight.goneThrough]
+			
 			[if success-roll $local.attack-score $local.defense-score $const.melee-attack-roll]
 				[call deal-damages]
 					target: $target
@@ -1194,6 +1260,9 @@
 
 		[foreach $args.entities => $target]
 
+			[if $target != $args.subject]
+				[inc $target.adhoc.fight.goneThrough]
+			
 			[call heal-damages]
 				target: $target
 				flavor: $args.flavor
@@ -1223,7 +1292,8 @@
 			[mul $local.defense-score] $const.offensiveness-bonus
 
 		[if success-roll $local.attack-score $local.defense-score $const.wrestling-attack-roll]
-			[set $target.status.health] 0
+			[if $target.status.health > 0]
+				[set $target.status.health] 0
 			[apply $fight.deadly-push.flavor => $local.flavor] $
 			[message] $local.flavor
 

@@ -892,6 +892,7 @@ For simple message, the content can be either a simple string, or a template.
 
 If some particular options are needed, the content should be formated as an object, where:
 * text `string` or `Template` the message to display
+* continue `boolean` if true, this message should be continued by the next message (i.e.: no newline)
 * next `boolean` if true, the message wait for the user acknowledgement
 * important `boolean` if true and if the scene is rendering in the *alternate buffer*, the message should be rendered
   in the *main buffer* too.
