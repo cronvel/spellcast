@@ -48,7 +48,9 @@
 			foes: <Array>
 			allies: <Array>
 			turns: <Array>
-			distance: $= ( $args.distance is-set? ) ? ( floor ( abs $args.distance ) 2 ) 0
+			true-distance: $= $args.distance is-set? ( abs $args.distance ) 0
+		
+		[set $fight.distance] $= round $fight.true-distance 2
 		
 		[create-scheduler $fight.scheduler]
 
@@ -132,9 +134,9 @@
 			[set $fight.subject] $= $args.subject
 			
 			[if $args.subject.npc]
-				[call npc-turn] $args.subject
+				[call npc-turn]
 			[else]
-				[gosub pc-turn] $args.subject
+				[gosub pc-turn]
 		
 		# Not useful, it kicks in immediately after	ready
 		#[on $fight.scheduler started]
@@ -206,10 +208,12 @@
 			[map $fight.alive-allies => $local.allies-speed] $this.adhoc.fight.speed
 			[map $fight.alive-foes => $local.foes-speed] $this.adhoc.fight.speed
 
-			[set $local.time-factor] $= $args / 10
+			[set $local.time-factor] $= $args / 20
 			[set $local.speed] $= ( avg $local.allies-speed ) + ( avg $local.foes-speed )
-			[set $local.distance] $= max 0 ( round ( $fight.distance - ( $local.speed * $local.time-factor ) ) )
-
+			
+			[set $fight.true-distance] $= max 0 ( $fight.true-distance - ( $local.speed * $local.time-factor ) )
+			[set $local.distance] $= round $fight.true-distance 2
+			
 			[if $local.distance != $fight.distance]
 				[set $fight.distance] $local.distance
 				[if ! ( $fight.last-displayed-distance %= $fight.distance 1.5)]
@@ -543,7 +547,7 @@
 		[set $subject] $args.subject
 		[set $target] $args.target
 	
-		[set $subject.adhoc.fight.speed] $= $subject.adhoc.fight.offensiveness ??? 2 4 6
+		[set $subject.adhoc.fight.speed] $= $subject.actual.stats.quickness * ( $subject.adhoc.fight.offensiveness ??? 0.3 0.6 0.9 )
 
 		[if $fight.distance > 0]
 			[set $subject.adhoc.fight.press-target] null
@@ -659,7 +663,7 @@
 		[set $subject] $args.subject
 		[set $target] $args.target
 	
-		[set $subject.adhoc.fight.speed] 10
+		[set $subject.adhoc.fight.speed] $= $subject.actual.stats.quickness
 		[set $subject.adhoc.fight.offensiveness] 1
 
 		[if $fight.distance > 0]
@@ -826,7 +830,7 @@
 				[return]
 
 		[set $local.aiming-score] $= $subject.actual-usages.ranged-fighting.compound.aiming
-		[set $local.anti-aiming-score] $= $const.anti-aiming-base + ( $const.anti-aiming-factor * ( $fight.distance + ( abs $target.adhoc.fight.speed ) ) )
+		[set $local.anti-aiming-score] $= $const.anti-aiming-base + ( $const.anti-aiming-factor * ( $fight.distance + ( ( abs $target.adhoc.fight.speed ) / 2 ) ) )
 		
 		#[message] $> Aiming A: ${local.aiming-score} vs ${local.guard-score}
 		#[message] $> Pressure: ${subject.adhoc.fight.pressure}
