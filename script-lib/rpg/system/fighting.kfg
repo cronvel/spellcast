@@ -129,8 +129,7 @@
 				[remove-from-scheduler $fight.scheduler] $args.subject
 				[return]
 			
-			# DEPRECATED
-			[set $fight.entity-turn] $= $args.subject
+			[set $fight.subject] $= $args.subject
 			
 			[if $args.subject.npc]
 				[call npc-turn] $args.subject
@@ -328,7 +327,7 @@
 		[call npc-targeting]
 		#[call npc-targeting => $local.target]
 
-		[set $subject] $fight.entity-turn
+		[set $subject] $fight.subject
 
 		[if $subject.params.battle-cry && ( ( random ) <= $subject.params.battle-cry )]
 			[if $subject.params.battle-cry-flavor]
@@ -358,10 +357,10 @@
 
 		[set $local.possible-targets] <Array>
 
-		[if ( $fight.entity-turn.adhoc.fight.side = "allies" ) xor ( $args.target-allies )]
+		[if ( $fight.subject.adhoc.fight.side = "allies" ) xor ( $args.target-allies )]
 			[concat $local.possible-targets] $fight.alive-foes
 
-		[if ( $fight.entity-turn.adhoc.fight.side = "foes" ) xor ( $args.target-allies )]
+		[if ( $fight.subject.adhoc.fight.side = "foes" ) xor ( $args.target-allies )]
 			[concat $local.possible-targets] $fight.alive-allies
 
 		[set $local.index] $= random ( $local.possible-targets.length - 1 )
@@ -376,7 +375,7 @@
 		[next-style] table
 		
 		[if $fight.distance = 0]
-			[set $local.item] $fight.entity-turn.primary.melee-fighting
+			[set $local.item] $fight.subject.primary.melee-fighting
 
 			[if $local.item.usages.melee-fighting.primary.params.menu-label]
 				[set $local.label] $local.item.usages.melee-fighting.primary.params.menu-label
@@ -386,39 +385,39 @@
 			[next pc-melee-fighting]
 				[label] $> ${local.label//uc1}
 				[on-trigger]
-					[set $fight.entity-turn.adhoc.fight.offensiveness] 0
+					[set $fight.subject.adhoc.fight.offensiveness] 0
 
 			[next pc-melee-fighting]
 				[label] $> ${local.label//uc1} boldly
 				[on-trigger]
-					[set $fight.entity-turn.adhoc.fight.offensiveness] 1
+					[set $fight.subject.adhoc.fight.offensiveness] 1
 
 			[next pc-melee-fighting]
 				[label] $> ${local.label//uc1} cautiously
 				[on-trigger]
-					[set $fight.entity-turn.adhoc.fight.offensiveness] -1
+					[set $fight.subject.adhoc.fight.offensiveness] -1
 		[else]
 			[next pc-melee-fighting]
 				[label] $> March
 				[on-trigger]
-					[set $fight.entity-turn.adhoc.fight.offensiveness] 0
+					[set $fight.subject.adhoc.fight.offensiveness] 0
 
 			[next pc-melee-fighting]
 				[label] $> March boldly
 				[on-trigger]
-					[set $fight.entity-turn.adhoc.fight.offensiveness] 1
+					[set $fight.subject.adhoc.fight.offensiveness] 1
 
 			[next pc-melee-fighting]
 				[label] $> March cautiously
 				[on-trigger]
-					[set $fight.entity-turn.adhoc.fight.offensiveness] -1
+					[set $fight.subject.adhoc.fight.offensiveness] -1
 
 		[next-group-break]
 		
 		[next pc-charge] $> Charge!
 
-		[if $fight.entity-turn.primary.ranged-fighting]
-			[set $local.item] $fight.entity-turn.primary.ranged-fighting
+		[if $fight.subject.primary.ranged-fighting]
+			[set $local.item] $fight.subject.primary.ranged-fighting
 
 			[if $local.item.usages.ranged-fighting.primary.params.menu-label]
 				[set $local.label] $local.item.usages.ranged-fighting.primary.params.menu-label
@@ -427,8 +426,8 @@
 
 			[next pc-ranged-fighting] $> ${local.label//uc1}
 
-		[if $fight.entity-turn.primary.battle-ability]
-			[set $local.item] $fight.entity-turn.primary.battle-ability
+		[if $fight.subject.primary.battle-ability]
+			[set $local.item] $fight.subject.primary.battle-ability
 
 			[if $local.item.usages.battle-ability.primary.params.menu-label]
 				[set $local.label] $local.item.usages.battle-ability.primary.params.menu-label
@@ -446,7 +445,7 @@
 				[gosub rpg:inventory/ability-menu]
 					[alt]
 					[args]
-						subject: $fight.entity-turn
+						subject: $fight.subject
 
 		[next pc-turn]
 			[label] $> Wield/unwield
@@ -455,14 +454,14 @@
 				[gosub rpg:inventory/equip-object-slot-menu => $local.changed]
 					[alt]
 					[args]
-						subject: $fight.entity-turn
+						subject: $fight.subject
 						slot: hand
 						scheduler: $fight.scheduler
 				[if $local.changed]
-					[set $fight.entity-turn.adhoc.fight.speed] 0
-					[set $fight.entity-turn.adhoc.fight.offensiveness] -1
-					[set $fight.entity-turn.adhoc.fight.press-target] null
-					[set $fight.entity-turn.adhoc.fight.press-value] 0
+					[set $fight.subject.adhoc.fight.speed] 0
+					[set $fight.subject.adhoc.fight.offensiveness] -1
+					[set $fight.subject.adhoc.fight.press-target] null
+					[set $fight.subject.adhoc.fight.press-value] 0
 					[return]
 
 
@@ -472,10 +471,10 @@
 
 		[set $local.possible-targets] <Array>
 
-		[if ( $fight.entity-turn.adhoc.fight.side = "allies" ) xor ( $args.target-allies )]
+		[if ( $fight.subject.adhoc.fight.side = "allies" ) xor ( $args.target-allies )]
 			[concat $local.possible-targets] $fight.alive-foes
 
-		[if ( $fight.entity-turn.adhoc.fight.side = "foes" ) xor ( $args.target-allies )]
+		[if ( $fight.subject.adhoc.fight.side = "foes" ) xor ( $args.target-allies )]
 			[concat $local.possible-targets] $fight.alive-allies
 
 		[if $local.possible-targets.length <= 1]
@@ -506,7 +505,7 @@
 			[gosub pc-targeting]
 				[alt]
 		[call melee-fighting]
-			subject: $fight.entity-turn
+			subject: $fight.subject
 			target: $fight.target
 		[return]
 
@@ -517,7 +516,7 @@
 			[gosub pc-targeting]
 				[alt]
 		[call charge]
-			subject: $fight.entity-turn
+			subject: $fight.subject
 			target: $fight.target
 		[return]
 
@@ -527,7 +526,7 @@
 		[gosub pc-targeting]
 			[alt]
 		[call ranged-fighting]
-			subject: $fight.entity-turn
+			subject: $fight.subject
 			target: $fight.target
 		[return]
 
@@ -535,7 +534,7 @@
 
 	[scene pc-battle-ability]
 		[call battle-ability]
-			subject: $fight.entity-turn
+			subject: $fight.subject
 		[return]
 
 
