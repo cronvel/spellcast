@@ -29,7 +29,7 @@
 			[append $local.items] $> more
 		
 		[fake-next]
-			[label] $> Grab items (${local.items}[enum:|$#|, $#| and $#])
+			[label] $> Grab items (${local.items}[enum:|$|, $| and $])
 			[on-trigger]
 				[reset-here-actions]
 				[gosub rpg:inventory/grab-menu]

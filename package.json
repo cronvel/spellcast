@@ -15,14 +15,14 @@
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
     "async-kit": "^2.2.3",
-    "babel-tower": "^0.14.6",
+    "babel-tower": "^0.15.6",
     "chokidar": "^1.7.0",
     "dom-kit": "^0.3.7",
     "doormen": "^0.6.9",
     "fs-kit": "^0.2.5",
     "glob": "^7.1.2",
     "jsbindat": "^0.5.1",
-    "kung-fig": "^0.42.0",
+    "kung-fig": "^0.43.3",
     "logfella": "^0.3.57",
     "math-kit": "^0.11.14",
     "minimist": "^1.2.0",
@@ -30,9 +30,9 @@
     "nomi-ninja": "^0.1.1",
     "semver": "^5.4.1",
     "server-kit": "^0.5.0",
-    "string-kit": "^0.6.3",
+    "string-kit": "^0.6.8",
     "svg-kit": "^0.1.20",
-    "terminal-kit": "^1.14.0",
+    "terminal-kit": "^1.14.3",
     "tree-kit": "^0.5.26"
   },
   "devDependencies": {
