@@ -24,8 +24,8 @@
 	SOFTWARE.
 */
 
-/* jshint unused:false */
-/* global describe, it, before, after, beforeEach */
+"use strict" ;
+
 
 
 var fs = require( 'fs' ) ;

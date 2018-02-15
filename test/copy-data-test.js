@@ -24,6 +24,8 @@
 	SOFTWARE.
 */
 
+"use strict" ;
+
 
 
 var expect = require( 'expect.js' ) ;
@@ -178,6 +180,52 @@ describe( ".copyData() tests" , function() {
 		expect( cp.t2 ).to.be( cp.t ) ;
 		expect( cp.c2 ).to.be( cp.c ) ;
 		expect( cp.circ ).to.be( cp ) ;
+	} ) ;
+	
+	it( "simple shallow extend" , function() {
+		var a , b , t ;
+		function T() {}
+		
+		t = new T() ;
+		t.e = 5 ;
+		a = { a: 1 , b: 2 , c: { d: 4 , z: 'ZEE' } , t: t } ;
+		b = { a: 10 , c: { d: 42 , f: 7 } , g: 'G' , t2: t } ;
+		
+		copyData.extend( a , b ) ;
+		
+		expect( a ).to.eql( { a: 10 , b: 2 , c: { d: 42 , f: 7 } , g: 'G' , t: t , t2: t } ) ;
+		expect( a.t ).to.be( a.t2 ) ;
+	} ) ;
+	
+	it( "simple deep extend" , function() {
+		var a , b , t ;
+		function T() {}
+		
+		t = new T() ;
+		t.e = 5 ;
+		a = { a: 1 , b: 2 , c: { d: 4 , z: 'ZEE' } , t: t } ;
+		b = { a: 10 , c: { d: 42 , f: 7 } , g: 'G' , t2: t } ;
+		
+		copyData.deep.extend( a , b ) ;
+		
+		expect( a ).to.eql( { a: 10 , b: 2 , c: { d: 42 , f: 7 , z: 'ZEE' } , g: 'G' , t: t , t2: t } ) ;
+		expect( a.t ).to.be( a.t2 ) ;
+	} ) ;
+	
+	it.next( "deep extend with multiple references in the source (behavior to improve)" , function() {
+		var a , b , t ;
+		function T() {}
+		
+		t = new T() ;
+		t.e = 5 ;
+		a = { a: 1 , b: 2 } ;
+		b = { a: 10 , b: { d: 42 , f: 7 } } ;
+		b.b2 = b.b ;
+		
+		copyData.deep.extend( a , b ) ;
+		
+		expect( a ).to.eql( { a: 10 , b: { d: 42 , f: 7 } , b2: { d: 42 , f: 7 } } ) ;
+		expect( a.b ).to.be( a.b2 ) ;
 	} ) ;
 } ) ;
 
