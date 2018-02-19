@@ -15,7 +15,7 @@
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
     "async-kit": "^2.2.3",
-    "babel-tower": "^0.16.1",
+    "babel-tower": "^0.16.2",
     "chokidar": "^1.7.0",
     "dom-kit": "^0.3.7",
     "doormen": "^0.6.9",
