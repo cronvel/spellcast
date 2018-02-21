@@ -1,13 +1,13 @@
 # Specific #
 ############
 
-package-lock.json
 *.local.*
 *.local
 *.log
 *.html.gz
 *.css.gz
 *.js.gz
+*.jsdat
 *.tmp
 .spellcast
 build
@@ -33,6 +33,7 @@ logs
 results
 build
 .grunt
+package-lock.json
 
 node_modules
 
