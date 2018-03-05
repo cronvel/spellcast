@@ -122,6 +122,8 @@
 		
 		[define $cloakroom] true
 		
+		[debug] $player
+		
 		[on rpg:drop-item]
 			[if $args.model = "cloak-of-darkness"]
 				[important-message]
@@ -143,6 +145,8 @@
 		[define $taverne] true
 		
 		#[if $player has-equipped-item-matching "model" "cloak-of-darkness"]
+		[debug] $player
+		
 		[if $player has-item-matching "model" "cloak-of-darkness"]
 			[message]
 				> The taverne is very dark. You can't even see your feet!
