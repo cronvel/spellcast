@@ -35,25 +35,11 @@ var fsKit = require( 'fs-kit' ) ;
 var string = require( 'string-kit' ) ;
 var doormen = require( 'doormen' ) ;
 
-var Book = require( '../lib/Book.js' ) ;
-var Client = require( '../lib/Client.js' ) ;
 var UnitUI = require( '../lib/ui/unit.js' ) ;
 var chatBot = require( '../lib/chatBot.js' ) ;
 
 var Logfella = require( 'logfella' ) ;
 var log = Logfella.global.use( 'unit-tests' ) ;
-
-Logfella.userland.setGlobalConfig( {
-    minLevel: 'fatal' ,
-    transports: [
-        { "type": "console" , "timeFormatter": "time" , "color": true } ,
-    ]
-} ) ;
-
-
-
-// Create the 'build' directory into the current 'test' directory
-fsKit.ensurePathSync( __dirname + '/build' ) ;
 
 
 
@@ -64,77 +50,6 @@ fsKit.ensurePathSync( __dirname + '/build' ) ;
 function deb( something )
 {
 	console.log( string.inspect( { style: 'color' , depth: 10 } , something ) ) ;
-}
-
-
-
-function runBook( bookPath , action , uiCallback , doneCallback )
-{
-	var ui , uiId = 0 , triggered = false , book , options = {} ;
-	
-	if ( action.maxTicks ) { options.maxTicks = action.maxTicks ; }
-	if ( action.allowJsTag !== undefined ) { options.allowJsTag = action.allowJsTag ; }
-	
-	book = Book.load( bookPath , options ) ;
-	
-	var triggerCallback = function() {
-		if ( triggered ) { return ; }
-		triggered = true ;
-		book.destroy() ;
-		doneCallback.apply( undefined , arguments ) ;
-	} ;
-	
-	book.initBook( function( error ) {
-		
-		//console.log( 'init done' ) ;
-		if ( error ) { triggerCallback( error ) ; return ; }
-		
-		book.assignRoles( function( error ) {
-			
-			//console.log( 'assignRoles done' ) ;
-			if ( error ) { triggerCallback( error ) ; return ; }
-			
-			switch ( action.type )
-			{
-				case 'cast' :
-					book.cast( action.target , triggerCallback ) ;
-					break ;
-				case 'summon' :
-					book.summon( action.target , triggerCallback ) ;
-					break ;
-				case 'story' :
-					if ( action.path ) { followPath( book , ui , action.path , triggerCallback ) ; }
-					book.startStory( triggerCallback ) ;
-					break ;
-			}
-		} ) ;
-		
-		book.addClient( Client.create( { name: 'default' } ) ) ;
-		ui = UnitUI( book.clients[ 0 ] ) ;	// jshint ignore:line
-		ui.id = uiId ++ ;
-		
-		if ( uiCallback ) { uiCallback( ui ) ; }
-		
-		// This must be done, or some events will be missing
-		book.clients[ 0 ].authenticate( {} ) ;
-	} ) ;
-	
-	return book ;
-}
-
-
-
-function followPath( book , ui , path , callback )
-{
-	var pathIndex = 0 ;
-	
-	ui.bus.on( 'nextList' , function( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate ) {
-		if ( isUpdate ) { return ; }
-		//log.info( 'nextList: %I' , Array.from( arguments ) ) ;
-		
-		// Avoid concurrency issues:
-		setTimeout( () => ui.bus.emit( 'selectNext' , path[ pathIndex ++ ] ) , 0 ) ;
-	} ) ;
 }
 
 

@@ -35,7 +35,9 @@ var fsKit = require( 'fs-kit' ) ;
 var string = require( 'string-kit' ) ;
 var doormen = require( 'doormen' ) ;
 
-var Book = require( '../lib/Book.js' ) ;
+//var Book = require( '../lib/Book.js' ) ;
+var StoryBook = require( '../lib/StoryBook.js' ) ;
+var CasterBook = require( '../lib/CasterBook.js' ) ;
 var Client = require( '../lib/Client.js' ) ;
 var UnitUI = require( '../lib/ui/unit.js' ) ;
 
@@ -74,7 +76,10 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 	if ( action.maxTicks ) { options.maxTicks = action.maxTicks ; }
 	if ( action.allowJsTag !== undefined ) { options.allowJsTag = action.allowJsTag ; }
 	
-	book = Book.load( bookPath , options ) ;
+	var BookModule = action.type === 'story' ? StoryBook : CasterBook ;
+	
+	
+	book = BookModule.load( bookPath , options ) ;
 	
 	var triggerCallback = function() {
 		if ( triggered ) { return ; }
@@ -102,15 +107,16 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 					book.summon( action.target , triggerCallback ) ;
 					break ;
 				case 'story' :
-					if ( action.path ) { followPath( book , ui , action.path , triggerCallback ) ; }
 					book.startStory( triggerCallback ) ;
 					break ;
 			}
 		} ) ;
 		
 		book.addClient( Client.create( { name: 'default' } ) ) ;
-		ui = UnitUI( book.clients[ 0 ] ) ;	// jshint ignore:line
+		ui = UnitUI( book.clients[ 0 ] ) ;
 		ui.id = uiId ++ ;
+		
+		if ( action.path ) { followPath( book , ui , action.path , triggerCallback ) ; }
 		
 		if ( uiCallback ) { uiCallback( ui ) ; }
 		
