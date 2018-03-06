@@ -5,3 +5,14 @@
 * schedulers are not supported
 * split are not supported
 
+
+
+Book property todo:
+
+functions
+initEvents
+
+
+
+Ctx property todo: everything should be OK.
+
