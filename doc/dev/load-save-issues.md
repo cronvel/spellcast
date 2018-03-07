@@ -27,4 +27,5 @@ Book property todo:
 Ctx/StoryCtx property todo:
 
 * roles (so role event failed after being loaded)
-
+* events
+* localListener
