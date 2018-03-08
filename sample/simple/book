@@ -1,0 +1,27 @@
+
+[[doctype spellcast/book]]
+
+
+
+[chapter intro]
+	
+	[starting-scene intro]
+		
+		[message]
+			$> ^/Once ^Bupon a time...
+		
+		[next wise] > Get wiser
+		[next famous] > Get famous
+		[next hero] > Become a hero
+	
+	[scene wise]
+		[message] > You become wise!
+		[win]
+	
+	[scene famous]
+		[message] > You become famous!
+		[win]
+	
+	[scene hero]
+		[message] > You become a hero!
+		[win]
