@@ -3,6 +3,7 @@
 
 * many internal events:
 	* client/role events are not restored on the Ctx
+* all kung-fig's dynamic types are not restored properly
 * non-top-level scenes resume to their top-level scene
 * script events
 * event at init time (top-level)
