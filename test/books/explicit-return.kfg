@@ -5,6 +5,7 @@
 	[scene init]
 		[message] $> before
 		[gosub explicit]
+		[debug] after
 		[message] $> after
 	
 	[scene explicit]

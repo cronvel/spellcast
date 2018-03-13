@@ -45,10 +45,11 @@ var Logfella = require( 'logfella' ) ;
 var log = Logfella.global.use( 'unit-tests' ) ;
 
 Logfella.userland.setGlobalConfig( {
-    minLevel: 'fatal' ,
-    transports: [
-        { "type": "console" , "timeFormatter": "time" , "color": true } ,
-    ]
+	minLevel: 'fatal' ,
+	//minLevel: 'debug' ,
+	transports: [
+		{ "type": "console" , "timeFormatter": "time" , "color": true } ,
+	]
 } ) ;
 
 
