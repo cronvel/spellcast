@@ -113,7 +113,7 @@
 		
 		[on $fight.scheduler elapsed]
 			[add $fight.time] $args
-			#[message] $> elapsed: ${args} -- time: ${fight.time}
+			[message] $> elapsed: ${args} -- time: ${fight.time}
 			[call manage-distance] $args
 			[call battle-lines]
 
@@ -122,7 +122,7 @@
 			[set $fight.ended] true
 		
 		[on $fight.scheduler ready]
-			#[message] $> ready: ${args.subject.label}
+			[message] $> ready: ${args.subject.label}
 			
 			[if $args.subject.status.health <= 0]
 				[call manage-death] $args.subject
@@ -147,14 +147,14 @@
 				[call manage-death] $args.subject
 				[return]
 			
-			#[message] $> prepared: ${args.subject.label} ${args.action}
+			[message] $> prepared: ${args.subject.label} ${args.action}
 			[set $local.fn] $= $args.action . "-prepared"
 			[call $local.fn] $args.action-data
 		
 			[set $args.subject.adhoc.fight.goneThrough] 0
 			
 		[on $fight.scheduler released]
-			#[message] $> released: ${args.subject.label} ${args.action} ${args.action-data.subject}
+			[message] $> released: ${args.subject.label} ${args.action} ${args.action-data.subject}
 			#[if $args.subject.status.health <= 0]
 			[if $args.subject.adhoc.fight.goneThrough]
 				[message]
@@ -169,6 +169,7 @@
 				[call manage-death] $args.subject
 		
 		[on $fight.scheduler recovered]
+			[message] $> recovered: ${args.subject.label} ${args.action} ${args.action-data.subject}
 			[if $args.subject.status.health <= 0]
 				[call manage-death] $args.subject
 			[elseif $fight.ending]
@@ -178,25 +179,31 @@
 			#[call $local.fn] $args.action-data
 		
 		[loop]
-			#[message] $> ^RLoop
+			[message] $> ^RLoop
 			[filter $fight.foes => $fight.alive-foes] $= $this.status.alive
 			[filter $fight.allies => $fight.alive-allies] $= $this.status.alive
 
 			[if $fight.ended]
 				[if ! $fight.alive-allies.length]
+					[message] > fight: lost
 					[call lost]
 					[return]
 				[elseif ! $fight.alive-foes.length]
+					[message] > fight: win
 					[call win]
 					[return]
 				[else]
 					# Hmmm, what should be done here?
+					[message] > fight: maybe win
 					[call win]
 					[return]
 			[elseif ( ! $fight.alive-allies.length ) || ( ! $fight.alive-foes.length )]
+				[message] > fight: should end
 				[set $fight.ending] true
 			
+			[message] $> ^gbefore advance
 			[advance-scheduler $fight.scheduler 10]
+			[message] $> ^gafter advance
 			#[pause 1]
 			#[message] After pause
 
