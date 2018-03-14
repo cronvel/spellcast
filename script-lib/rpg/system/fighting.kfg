@@ -118,7 +118,7 @@
 			[call battle-lines]
 
 		[on $fight.scheduler empty]
-			#[message] $> ^Rempty event!
+			[message] $> ^Mempty event!
 			[set $fight.ended] true
 		
 		[on $fight.scheduler ready]
@@ -171,9 +171,14 @@
 		[on $fight.scheduler recovered]
 			[message] $> recovered: ${args.subject.label} ${args.action} ${args.action-data.subject}
 			[if $args.subject.status.health <= 0]
+				[message] > ^ybefore md
 				[call manage-death] $args.subject
+				[message] > ^yafter md
 			[elseif $fight.ending]
+				[message] > ^ybefore rm
 				[remove-from-scheduler $fight.scheduler] $args.subject
+				[message] > ^yafter rm
+			[message] > ^yafter reco
 			#[message] $> recovered: ${args.subject.label} ${args.action}
 			#[set $local.fn] $= $args.action . "-recovered"
 			#[call $local.fn] $args.action-data
