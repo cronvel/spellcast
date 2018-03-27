@@ -9,99 +9,101 @@
 	<link id="theme" rel="stylesheet" href="themes/default/main.css" />
 </head>
 <body>
-	<audio id="music"></audio>
-	<audio id="sound0"></audio>
-	<audio id="sound1"></audio>
-	<audio id="sound2"></audio>
-	<audio id="sound3"></audio>
+	<spellcast>
+		<audio id="music"></audio>
+		<audio id="sound0"></audio>
+		<audio id="sound1"></audio>
+		<audio id="sound2"></audio>
+		<audio id="sound3"></audio>
 
-	<div id="gfx">
-		<!-- Background, Sprites-->
-		<div class="scene-image"></div>
-	</div>
-	
-	<main>
-		<div id="main-buffer" class="buffer main">
-			
-			<div class="buffer-wrapper">
-			
-				<div class="history-wrapper">
-					<div class="messages history">
-						<!-- Contains the history of all past messages messages sended by server -->
-					</div>
-				</div>
-
-				<div class="messages active">
-					<!-- Contains all messages sended by server -->
-				</div>
-
-				<div class="choices">
-					<!-- Contains all choices -->
-				</div>
-
-				<div class="chat">
-					<!-- Chatbox -->
-					<form class="chat-form">
-						<input type="text" class="chat-input" />
-					</form>
-				</div>
-			</div>
+		<div id="gfx">
+			<!-- Background, Sprites-->
+			<div class="scene-image"></div>
 		</div>
 		
-		<div id="alt-buffer" class="buffer alt inactive">
-			<div id="button-close-alt" class="button disabled"></div>
-			
-			<div class="buffer-wrapper">
-			
-				<div class="history-wrapper">
-					<div class="messages history">
-						<!-- Contains the history of all past messages messages sended by server -->
+		<main>
+			<div id="main-buffer" class="buffer main">
+				
+				<div class="buffer-wrapper">
+				
+					<div class="history-wrapper">
+						<div class="messages history">
+							<!-- Contains the history of all past messages messages sended by server -->
+						</div>
+					</div>
+
+					<div class="messages active">
+						<!-- Contains all messages sended by server -->
+					</div>
+
+					<div class="choices">
+						<!-- Contains all choices -->
+					</div>
+
+					<div class="chat">
+						<!-- Chatbox -->
+						<form class="chat-form">
+							<input type="text" class="chat-input" />
+						</form>
 					</div>
 				</div>
+			</div>
+			
+			<div id="alt-buffer" class="buffer alt inactive">
+				<div id="button-close-alt" class="button disabled"></div>
+				
+				<div class="buffer-wrapper">
+				
+					<div class="history-wrapper">
+						<div class="messages history">
+							<!-- Contains the history of all past messages messages sended by server -->
+						</div>
+					</div>
 
-				<div class="messages active">
-					<!-- Contains all messages sended by server -->
-				</div>
+					<div class="messages active">
+						<!-- Contains all messages sended by server -->
+					</div>
 
-				<div class="choices">
-					<!-- Contains all choices -->
-				</div>
+					<div class="choices">
+						<!-- Contains all choices -->
+					</div>
 
-				<div class="hint">
-					<!-- Contains hints -->
-				</div>
+					<div class="hint">
+						<!-- Contains hints -->
+					</div>
 
-				<div class="chat">
-					<!-- Chatbox -->
-					<form class="chat-form">
-						<input type="text" class="chat-input" />
-					</form>
+					<div class="chat">
+						<!-- Chatbox -->
+						<form class="chat-form">
+							<input type="text" class="chat-input" />
+						</form>
+					</div>
 				</div>
 			</div>
+		</main>
+
+		<div id="dialog-wrapper" class="dialog-wrapper empty">
+			<!-- Contains alert and modal dialog -->
 		</div>
-	</main>
 
-	<div id="dialog-wrapper" class="dialog-wrapper empty">
-		<!-- Contains alert and modal dialog -->
-	</div>
+		<div id="hint" class="hint empty">
+			<!-- Contains hints -->
+		</div>
 
-	<div id="hint" class="hint empty">
-		<!-- Contains hints -->
-	</div>
+		<div id="status" class="status empty">
+			<!-- The game status bar -->
+		</div>
 
-	<div id="status" class="status empty">
-		<!-- The game status bar -->
-	</div>
+		<div id="panel" class="panel empty">
+			<!-- The game status bar -->
+		</div>
 
-	<div id="panel" class="panel empty">
-		<!-- The game status bar -->
-	</div>
+		<div id="lobby" class="lobby">
+			<!-- Everything not related to the game -->
+			<div class="client-status" data-status="idle"></div>
+		</div>
 
-	<div id="lobby" class="lobby">
-		<!-- Everything not related to the game -->
-		<div class="client-status" data-status="idle"></div>
-	</div>
-
-	<script src="app.js"></script>
+		<script src="app.js"></script>
+	</spellcast>
 </body>
 </html>

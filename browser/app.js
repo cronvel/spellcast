@@ -29,9 +29,9 @@
 
 
 
+var Ngev = require( 'nextgen-events/lib/browser.js' ) ;
 var domKit = require( 'dom-kit' ) ;
 var svgKit = require( 'svg-kit' ) ;
-var Ngev = require( 'nextgen-events' ) ;
 
 
 
@@ -50,6 +50,7 @@ Dom.create = function create() {
 	var self = Object.create( Dom.prototype ) ;
 
 	self.$body = document.querySelector( 'body' ) ;
+	self.$spellcast = document.querySelector( 'spellcast' ) ;
 	self.$theme = document.querySelector( '#theme' ) ;
 	self.$gfx = document.querySelector( '#gfx' ) ;
 	self.$sceneImage = document.querySelector( '.scene-image' ) ;
@@ -125,8 +126,9 @@ Dom.prototype.preload = function preload() {
 
 
 Dom.prototype.initEvents = function initEvents() {
-	this.$gfx.addEventListener( 'click' , this.toggleSceneImage.bind( this ) , false ) ;
-	this.$dialogWrapper.addEventListener( 'click' , this.clearDialog.bind( this ) , false ) ;
+	this.$main.addEventListener( 'click' , () => this.emit( 'continue' ) , false ) ;
+	this.$gfx.addEventListener( 'click' , () => this.toggleSceneImage() , false ) ;
+	this.$dialogWrapper.addEventListener( 'click' , () => this.clearDialog() , false ) ;
 
 	// Things that can get the .toggled class when clicked
 	this.$lobby.addEventListener( 'click' , () => { this.$lobby.classList.toggle( 'toggled' ) ; } ) ;
@@ -147,7 +149,7 @@ Dom.prototype.sceneImageOn = function sceneImageOn() {
 	if ( this.sceneImageOnTimer !== null ) { clearTimeout( this.sceneImageOnTimer ) ; this.sceneImageOnTimer = null ; }
 
 	this.$gfx.classList.add( 'toggled' ) ;
-	this.$body.classList.add( 'gfx-toggled' ) ;
+	this.$spellcast.classList.add( 'gfx-toggled' ) ;
 	this.sceneImageOnTimer = setTimeout( this.sceneImageOff.bind( this ) , 8000 ) ;
 } ;
 
@@ -157,7 +159,7 @@ Dom.prototype.sceneImageOff = function sceneImageOff() {
 	if ( this.sceneImageOnTimer !== null ) { clearTimeout( this.sceneImageOnTimer ) ; this.sceneImageOnTimer = null ; }
 
 	this.$gfx.classList.remove( 'toggled' ) ;
-	this.$body.classList.remove( 'gfx-toggled' ) ;
+	this.$spellcast.classList.remove( 'gfx-toggled' ) ;
 } ;
 
 
@@ -233,10 +235,10 @@ Dom.prototype.setMultiplayer = function setMultiplayer( value , callback ) {
 	callback = callback || noop ;
 
 	if ( value || value === undefined ) {
-		this.$body.classList.add( 'multiplayer' ) ;
+		this.$spellcast.classList.add( 'multiplayer' ) ;
 	}
 	else {
-		this.$body.classList.remove( 'multiplayer' ) ;
+		this.$spellcast.classList.remove( 'multiplayer' ) ;
 	}
 
 	callback() ;
@@ -346,13 +348,31 @@ Dom.prototype.addSelectedChoice = function addSelectedChoice( text ) {
 
 
 Dom.prototype.addMessage = function addMessage( text , options , callback ) {
+	var triggered = false ;
+	
 	callback = callback || noop ;
+	
+	var triggerCallback = () => {
+		if ( triggered ) { return ; }
+		triggered = true ;
+		
+		if ( options.next ) {
+			$text.scrollIntoView( false ) ;
+			this.messageNext( options.next , callback ) ;
+			return ;
+		}
+		
+		callback() ;
+	} ;
+
 
 	var $text = document.createElement( 'p' ) ;
 	$text.classList.add( 'text' ) ;
+	
+	if ( options.next ) { $text.classList.add( 'continue' ) ; }
 
-	//$text.textContent = text ;
 	// Because the text contains <span> tags
+	//$text.textContent = text ;
 	$text.innerHTML = text ;
 
 	if ( this.newSegmentNeeded ) { this.newSegment( this.newSegmentNeeded ) ; }
@@ -363,15 +383,32 @@ Dom.prototype.addMessage = function addMessage( text , options , callback ) {
 		// The message should be added to the main buffer too
 		this.$importantMessages.appendChild( $text.cloneNode( true ) ) ;
 	}
-
-	callback() ;
+	
+	// Slow-typing is not supported ATM
+	//if ( options.slowTyping ) { return ; }
+	
+	triggerCallback() ;
 } ;
 
 
 
-// TODO
-Dom.prototype.messageNext = function messageNext( callback ) {
-	callback() ;
+Dom.prototype.messageNext = function messageNext( value , callback ) {
+	var triggered = false ;
+
+	var triggerCallback = () => {
+		if ( triggered ) { return ; }
+		triggered = true ;
+		
+		this.$spellcast.classList.remove( 'continue' ) ;
+		callback() ;
+	} ;
+	
+	this.$spellcast.classList.add( 'continue' ) ;
+	this.once( 'continue' , triggerCallback ) ;
+	
+	if ( typeof value === 'number' && isFinite( value ) && value > 0 ) {
+		setTimeout( triggerCallback , value * 1000 ) ;
+	}
 } ;
 
 
@@ -1075,11 +1112,11 @@ Dom.prototype.setSceneImage = function setSceneImage( data ) {
 
 	switch ( data.position ) {
 		case 'left' :
-			this.$body.setAttribute( 'data-image-position' , 'left' ) ;
+			this.$spellcast.setAttribute( 'data-image-position' , 'left' ) ;
 			break ;
 		case 'right' :	// jshint ignore:line
 		default :
-			this.$body.setAttribute( 'data-image-position' , 'right' ) ;
+			this.$spellcast.setAttribute( 'data-image-position' , 'right' ) ;
 			break ;
 	}
 } ;
@@ -2099,7 +2136,7 @@ function soundFadeOut( element , callback ) {
 }
 
 
-},{"dom-kit":6,"nextgen-events":8,"svg-kit":20}],2:[function(require,module,exports){
+},{"dom-kit":6,"nextgen-events/lib/browser.js":10,"svg-kit":21}],2:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -2132,7 +2169,7 @@ function soundFadeOut( element , callback ) {
 
 
 
-var Ngev = require( 'nextgen-events' ) ;
+var Ngev = require( 'nextgen-events/lib/browser.js' ) ;
 var dom = require( 'dom-kit' ) ;
 var url = require( 'url' ) ;
 
@@ -2147,21 +2184,13 @@ SpellcastClient.prototype.constructor = SpellcastClient ;
 
 SpellcastClient.create = function create( options ) {
 	var self = Object.create( SpellcastClient.prototype , {
-		token: {
-			value: options.token || 'null' , writable: true , enumerable: true
-		} ,
-		port: {
-			value: options.port || 80 , writable: true , enumerable: true
-		} ,
+		token: { value: options.token || 'null' , writable: true , enumerable: true } ,
+		port: { value: options.port || 80 , writable: true , enumerable: true } ,
 		userName: {
 			value: options.name || 'unknown_' + Math.floor( Math.random() * 10000 ) , writable: true , enumerable: true
 		} ,
-		ws: {
-			value: null , writable: true , enumerable: true
-		} ,
-		proxy: {
-			value: null , writable: true , enumerable: true
-		}
+		ws: { value: null , writable: true , enumerable: true } ,
+		proxy: { value: null , writable: true , enumerable: true }
 	} ) ;
 
 	return self ;
@@ -2295,7 +2324,7 @@ dom.ready( () => {
 
 
 
-},{"./ui/classic.js":4,"dom-kit":6,"nextgen-events":8,"url":21}],3:[function(require,module,exports){
+},{"./ui/classic.js":4,"dom-kit":6,"nextgen-events/lib/browser.js":10,"url":22}],3:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -2362,21 +2391,21 @@ var markupConfig = {
 		"!": '<span class="inverse">' ,
 
 		"b": '<span class="blue">' ,
-		"B": '<span class="brightBlue">' ,
+		"B": '<span class="bright blue">' ,
 		"c": '<span class="cyan">' ,
-		"C": '<span class="brightCyan">' ,
+		"C": '<span class="bright cyan">' ,
 		"g": '<span class="green">' ,
-		"G": '<span class="brightGreen">' ,
+		"G": '<span class="bright green">' ,
 		"k": '<span class="black">' ,
-		"K": '<span class="brightBlack">' ,
+		"K": '<span class="grey">' ,
 		"m": '<span class="magenta">' ,
-		"M": '<span class="brightMagenta">' ,
+		"M": '<span class="bright magenta">' ,
 		"r": '<span class="red">' ,
-		"R": '<span class="brightRed">' ,
+		"R": '<span class="bright red">' ,
 		"w": '<span class="white">' ,
-		"W": '<span class="brightWhite">' ,
+		"W": '<span class="bright white">' ,
 		"y": '<span class="yellow">' ,
-		"Y": '<span class="brightYellow">'
+		"Y": '<span class="bright yellow">'
 	}
 } ;
 
@@ -2388,7 +2417,7 @@ toolkit.markup = function( ... args ) {
 } ;
 
 
-},{"string-kit/lib/escape.js":17,"string-kit/lib/format.js":18}],4:[function(require,module,exports){
+},{"string-kit/lib/escape.js":18,"string-kit/lib/format.js":19}],4:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -2435,39 +2464,17 @@ function UI( bus , client , self ) {
 		self = Object.create( UI.prototype , {
 			bus: { value: bus , enumerable: true } ,
 			client: { value: client , enumerable: true } ,
-			user: {
-				value: null , writable: true , enumerable: true
-			} ,
-			users: {
-				value: null , writable: true , enumerable: true
-			} ,
-			roles: {
-				value: null , writable: true , enumerable: true
-			} ,
-			roleId: {
-				value: null , writable: true , enumerable: true
-			} ,
-			config: {
-				value: null , writable: true , enumerable: true
-			} ,
-			inGame: {
-				value: false , writable: true , enumerable: true
-			} ,
-			nexts: {
-				value: null , writable: true , enumerable: true
-			} ,
-			afterNext: {
-				value: false , writable: true , enumerable: true
-			} ,
-			afterNextTriggered: {
-				value: false , writable: true , enumerable: true
-			} ,
-			afterLeave: {
-				value: false , writable: true , enumerable: true
-			} ,
-			hasNewContent: {
-				value: false , writable: true , enumerable: true
-			} ,
+			user: { value: null , writable: true , enumerable: true } ,
+			users: { value: null , writable: true , enumerable: true } ,
+			roles: { value: null , writable: true , enumerable: true } ,
+			roleId: { value: null , writable: true , enumerable: true } ,
+			config: { value: null , writable: true , enumerable: true } ,
+			inGame: { value: false , writable: true , enumerable: true } ,
+			nexts: { value: null , writable: true , enumerable: true } ,
+			afterNext: { value: false , writable: true , enumerable: true } ,
+			afterNextTriggered: { value: false , writable: true , enumerable: true } ,
+			afterLeave: { value: false , writable: true , enumerable: true } ,
+			hasNewContent: { value: false , writable: true , enumerable: true } ,
 			dom: { value: Dom.create() }
 		} ) ;
 	}
@@ -2627,7 +2634,7 @@ UI.userList = function userList( users ) {
 
 
 UI.roleList = function roleList( roles , unassignedUsers , assigned ) {
-	var self = this , choices = [] , undecidedNames ;
+	var choices = [] , undecidedNames ;
 
 	// If there are many roles, this is a multiplayer game
 	if ( ! this.roles && roles.length > 1 ) { this.dom.setMultiplayer( true ) ; }
@@ -2648,7 +2655,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned ) {
 
 	roles.forEach( ( role , i ) => {
 
-		var userName = role.clientId && self.users.get( role.clientId ).name ;
+		var userName = role.clientId && this.users.get( role.clientId ).name ;
 
 		choices.push( {
 			index: i ,
@@ -2659,21 +2666,21 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned ) {
 	} ) ;
 
 	if ( unassignedUsers.length ) {
-		undecidedNames = unassignedUsers.map( ( e ) => { return self.users.get( e ).name ; } ) ;
+		undecidedNames = unassignedUsers.map( ( e ) => { return this.users.get( e ).name ; } ) ;
 	}
 
-	var onSelect = function( index ) {
+	var onSelect = ( index ) => {
 
-		if ( roles[ index ].clientId === self.user.id ) {
+		if ( roles[ index ].clientId === this.user.id ) {
 			// Here we want to unassign
-			self.bus.emit( 'selectRole' , null ) ;
+			this.bus.emit( 'selectRole' , null ) ;
 		}
 		else if ( roles[ index ].clientId !== null ) {
 			// Already holded by someone else
 			return ;
 		}
 		else {
-			self.bus.emit( 'selectRole' , index ) ;
+			this.bus.emit( 'selectRole' , index ) ;
 		}
 	} ;
 
@@ -2681,7 +2688,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned ) {
 
 	if ( assigned ) {
 		roles.find( ( e , i ) => {
-			if ( e.clientId === self.user.id ) { self.roleId = e.id ; return true ; }
+			if ( e.clientId === this.user.id ) { this.roleId = e.id ; return true ; }
 			return false ;
 		} ) ;
 
@@ -2702,7 +2709,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned ) {
 // Script [message], execution can be suspended if the listener is async, waiting for completion.
 // E.g.: possible use: wait for a user input before continuing processing.
 UI.message = function message( text , options , callback ) {
-	var self = this , triggered = false ;
+	var triggered = false ;
 
 	this.hasNewContent = true ;
 
@@ -2710,20 +2717,7 @@ UI.message = function message( text , options , callback ) {
 
 	if ( ! options ) { options = {} ; }
 
-	var triggerCallback = function triggerCallback() {
-		if ( triggered ) { return ; }
-		triggered = true ;
-		if ( options.next ) { self.messageNext( callback ) ; return ; }
-		callback() ;
-	} ;
-
-	this.dom.addMessage( text , options , triggerCallback ) ;
-} ;
-
-
-
-UI.prototype.messageNext = function messageNext( callback ) {
-	this.dom.messageNext( callback ) ;
+	this.dom.addMessage( text , options , callback ) ;
 } ;
 
 
@@ -2796,7 +2790,7 @@ UI.nextTriggered = function nextTriggered( nextIndex ) {
 
 
 UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , options , isUpdate ) {
-	var self = this , choices = [] , undecidedNames , charCount = 0 ;
+	var choices = [] , undecidedNames , charCount = 0 ;
 
 	this.nexts = nexts ;
 	this.afterNext = true ;
@@ -2806,7 +2800,7 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , opt
 
 	nexts.forEach( ( next , i ) => {
 
-		var roles = next.roleIds.map( ( id ) => { return self.roles.get( id ).label ; } ) ;
+		var roles = next.roleIds.map( id => { return this.roles.get( id ).label ; } ) ;
 
 		if ( next.label ) { charCount += next.label.length ; }
 
@@ -2835,15 +2829,15 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , opt
 	}
 
 	if ( undecidedRoleIds.length && this.roles.length ) {
-		undecidedNames = undecidedRoleIds.map( ( e ) => { return self.roles.get( e ).label ; } ) ;
+		undecidedNames = undecidedRoleIds.map( ( e ) => { return this.roles.get( e ).label ; } ) ;
 	}
 
-	var onSelect = function( index ) {
-		if ( nexts[ index ].roleIds.indexOf( self.roleId ) !== -1 ) {
-			self.bus.emit( 'selectNext' , null ) ;
+	var onSelect = index => {
+		if ( nexts[ index ].roleIds.indexOf( this.roleId ) !== -1 ) {
+			this.bus.emit( 'selectNext' , null ) ;
 		}
 		else {
-			self.bus.emit( 'selectNext' , index ) ;
+			this.bus.emit( 'selectNext' , index ) ;
 		}
 	} ;
 
@@ -2870,8 +2864,7 @@ UI.extErrorOutput = function extErrorOutput( output ) {
 
 // Text input field
 UI.textInput = function textInput( label , grantedRoleIds ) {
-	var self = this ,
-		options = {
+	var options = {
 			label: label
 		} ;
 
@@ -2881,7 +2874,7 @@ UI.textInput = function textInput( label , grantedRoleIds ) {
 	}
 	else {
 		this.dom.textInput( options , ( text ) => {
-			self.bus.emit( 'textSubmit' , text ) ;
+			this.bus.emit( 'textSubmit' , text ) ;
 		} ) ;
 	}
 } ;
@@ -2894,12 +2887,10 @@ UI.rejoin = function rejoin() {} ;
 
 
 UI.wait = function wait( what ) {
-	var self = this ;
-
 	switch ( what ) {
 		case 'otherBranches' :
 			this.dom.setBigHint( "WAITING FOR OTHER BRANCHES TO FINISH..." , { wait: true , "pulse-animation": true } ) ;
-			this.bus.once( 'rejoin' , () => { self.dom.clearHint() ; } ) ;
+			this.bus.once( 'rejoin' , () => this.dom.clearHint() ) ;
 			break ;
 		default :
 			this.dom.setBigHint( "WAITING FOR " + what , { wait: true , "pulse-animation": true } ) ;
@@ -3753,7 +3744,7 @@ domKit.html = function html( $element , html ) { $element.innerHTML = html ; } ;
 
 
 }).call(this,require('_process'))
-},{"@cronvel/xmldom":5,"_process":11}],7:[function(require,module,exports){
+},{"@cronvel/xmldom":5,"_process":12}],7:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -3779,9 +3770,9 @@ function isSlowBuffer (obj) {
 },{}],8:[function(require,module,exports){
 (function (process,global){
 /*
-	Next Gen Events
+	Next-Gen Events
 
-	Copyright (c) 2015 - 2016 Cédric Ronvel
+	Copyright (c) 2015 - 2018 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -3813,6 +3804,16 @@ const nextTick = process.browser ? window.setImmediate : process.nextTick ;
 
 
 
+if ( ! global.__NEXTGEN_EVENTS__ ) {
+	global.__NEXTGEN_EVENTS__ = {
+		recursions: 0
+	} ;
+}
+
+var globalData = global.__NEXTGEN_EVENTS__ ;
+
+
+
 function NextGenEvents() {}
 module.exports = NextGenEvents ;
 NextGenEvents.prototype.__prototypeUID__ = 'nextgen-events/NextGenEvents' ;
@@ -3825,34 +3826,62 @@ NextGenEvents.prototype.__prototypeVersion__ = require( '../package.json' ).vers
 
 
 NextGenEvents.SYNC = -Infinity ;
+NextGenEvents.DESYNC = -1 ;
 
 // Not part of the prototype, because it should not pollute userland's prototype.
 // It has an eventEmitter as 'this' anyway (always called using call()).
 NextGenEvents.init = function init() {
 	Object.defineProperty( this , '__ngev' , {
 		configurable: true ,
-		value: {
-			nice: NextGenEvents.SYNC ,
-			interruptible: false ,
-			recursion: 0 ,
-			contexts: {} ,
-
-			// States by events
-			states: {} ,
-
-			// State groups by events
-			stateGroups: {} ,
-
-			// Listeners by events
-			listeners: {
-				// Special events
-				error: [] ,
-				interrupt: [] ,
-				newListener: [] ,
-				removeListener: []
-			}
-		}
+		value: new NextGenEvents.Internal()
 	} ) ;
+} ;
+
+
+
+NextGenEvents.Internal = function Internal( from ) {
+	this.nice = NextGenEvents.SYNC ;
+	this.interruptible = false ;
+	this.contexts = {} ;
+	this.desync = setImmediate ;
+	this.depth = 0 ;
+
+	// States by events
+	this.states = {} ;
+
+	// State groups by events
+	this.stateGroups = {} ;
+
+	// Listeners by events
+	this.listeners = {
+		// Special events
+		error: [] ,
+		interrupt: [] ,
+		newListener: [] ,
+		removeListener: []
+	} ;
+
+	if ( from ) {
+		this.nice = from.nice ;
+		this.interruptible = from.interruptible ;
+		Object.assign( this.states , from.states ) ,
+		Object.assign( this.stateGroups , from.stateGroups ) ,
+
+		Object.keys( from.listeners ).forEach( eventName => {
+			this.listeners[ eventName ] = from.listeners[ eventName ].slice() ;
+		} ) ;
+
+		// Copy all contexts
+		Object.keys( from.contexts ).forEach( contextName => {
+			var context = from.contexts[ contextName ] ;
+
+			this.addListenerContext( contextName , {
+				nice: context.nice ,
+				status: context.status ,
+				serial: context.serial
+			} ) ;
+		} ) ;
+	}
 } ;
 
 
@@ -3862,37 +3891,7 @@ NextGenEvents.initFrom = function initFrom( from ) {
 
 	Object.defineProperty( this , '__ngev' , {
 		configurable: true ,
-		value: {
-			nice: from.__ngev.nice ,
-			interruptible: from.__ngev.interruptible ,
-			recursion: 0 ,
-			contexts: {} ,
-
-			// States by events
-			states: Object.assign( {} , from.__ngev.states ) ,
-
-			// State groups by events
-			stateGroups: Object.assign( {} , from.__ngev.stateGroups ) ,
-
-			// Listeners by events
-			listeners: {}
-		}
-	} ) ;
-
-	// Copy all listeners
-	Object.keys( from.__ngev.listeners ).forEach( eventName => {
-		this.__ngev.listeners[ eventName ] = from.__ngev.listeners[ eventName ].slice() ;
-	} ) ;
-
-	// Copy all contexts
-	Object.keys( from.__ngev.contexts ).forEach( contextName => {
-		var context = from.__ngev.contexts[ contextName ] ;
-
-		this.addListenerContext( contextName , {
-			nice: context.nice ,
-			status: context.status ,
-			serial: context.serial
-		} ) ;
+		value: new NextGenEvents.Internal( from.__ngev )
 	} ) ;
 } ;
 
@@ -3939,7 +3938,6 @@ NextGenEvents.mergeListeners = function mergeListeners( foreigners ) {
 						! foreigners[ i ].__ngev.listeners[ eventName ] ||
 						foreigners[ i ].__ngev.listeners[ eventName ].indexOf( listener ) === -1
 					) {
-						//console.error( "Missing listener" , eventName , listener , foreigners[ i ] ) ;
 						blacklist.push( listener ) ;
 						break ;
 					}
@@ -3973,8 +3971,22 @@ NextGenEvents.prototype.addListener = function addListener( eventName , fn , opt
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	if ( ! this.__ngev.listeners[ eventName ] ) { this.__ngev.listeners[ eventName ] = [] ; }
 
-	if ( ! eventName || typeof eventName !== 'string' ) { throw new TypeError( ".addListener(): argument #0 should be a non-empty string" ) ; }
-	if ( typeof fn !== 'function' ) { options = fn ; fn = undefined ; }
+	if ( ! eventName || typeof eventName !== 'string' ) {
+		throw new TypeError( ".addListener(): argument #0 should be a non-empty string" ) ;
+	}
+
+	if ( typeof fn !== 'function' ) {
+		if ( options === true && fn && typeof fn === 'object' ) {
+			// We want to use the current object as the listener object (used by Spellcast's serializer)
+			options = listener = fn ;
+			fn = undefined ;
+		}
+		else {
+			options = fn ;
+			fn = undefined ;
+		}
+	}
+
 	if ( ! options || typeof options !== 'object' ) { options = {} ; }
 
 	listener.fn = fn || options.fn ;
@@ -4106,16 +4118,14 @@ NextGenEvents.prototype.removeAllListeners = function removeAllListeners( eventN
 
 
 
-NextGenEvents.listenerWrapper = function listenerWrapper( listener , event , context ) {
-	var returnValue , serial , listenerCallback ;
+NextGenEvents.listenerWrapper = function listenerWrapper( listener , event , contextScope , serial ) {
+	var returnValue , listenerCallback ;
 
 	if ( event.interrupt ) { return ; }
 
 	if ( listener.async ) {
-		//serial = context && context.serial ;
-		if ( context ) {
-			serial = context.serial ;
-			context.ready = ! serial ;
+		if ( contextScope ) {
+			contextScope.ready = ! serial ;
 		}
 
 		listenerCallback = ( arg ) => {
@@ -4135,7 +4145,7 @@ NextGenEvents.listenerWrapper = function listenerWrapper( listener , event , con
 			}
 
 			// Process the queue if serialized
-			if ( serial ) { NextGenEvents.processQueue.call( event.emitter , listener.context , true ) ; }
+			if ( serial ) { NextGenEvents.processScopeQueue( event.emitter , contextScope , true , true ) ; }
 		} ;
 
 		if ( listener.eventObject ) { listener.fn( event , listenerCallback ) ; }
@@ -4265,8 +4275,9 @@ NextGenEvents.emitEvent = function emitEvent( event ) {
 	// So we have to COPY the listener array right now!
 	if ( ! event.listeners ) { event.listeners = self.__ngev.listeners[ event.name ].slice() ; }
 
-	// Increment self.__ngev.recursion
-	self.__ngev.recursion ++ ;
+	// Increment globalData.recursions
+	globalData.recursions ++ ;
+	event.depth = self.__ngev.depth ++ ;
 	removedListeners = [] ;
 
 	// Emit the event to all listeners!
@@ -4275,8 +4286,9 @@ NextGenEvents.emitEvent = function emitEvent( event ) {
 		NextGenEvents.emitToOneListener( event , event.listeners[ i ] , removedListeners ) ;
 	}
 
-	// Decrement recursion
-	self.__ngev.recursion -- ;
+	// Decrement globalData.recursions
+	globalData.recursions -- ;
+	if ( ! event.callback ) { self.__ngev.depth -- ; }
 
 	// Emit 'removeListener' after calling listeners
 	if ( removedListeners.length && self.__ngev.listeners.removeListener.length ) {
@@ -4306,7 +4318,7 @@ NextGenEvents.emitEvent = function emitEvent( event ) {
 // if given: that's the caller business to do it
 NextGenEvents.emitToOneListener = function emitToOneListener( event , listener , removedListeners ) {
 	var self = event.emitter ,
-		context , currentNice , emitRemoveListener = false ;
+		context , contextScope , serial , currentNice , emitRemoveListener = false ;
 
 	context = listener.context && self.__ngev.contexts[ listener.context ] ;
 
@@ -4314,8 +4326,14 @@ NextGenEvents.emitToOneListener = function emitToOneListener( event , listener ,
 	if ( context && context.status === NextGenEvents.CONTEXT_DISABLED ) { return ; }
 
 	// The nice value for this listener...
-	if ( context ) { currentNice = Math.max( event.nice , listener.nice , context.nice ) ; }
-	else { currentNice = Math.max( event.nice , listener.nice ) ; }
+	if ( context ) {
+		currentNice = Math.max( event.nice , listener.nice , context.nice ) ;
+		serial = context.serial ;
+		contextScope = NextGenEvents.getContextScope( context , event.depth ) ;
+	}
+	else {
+		currentNice = Math.max( event.nice , listener.nice ) ;
+	}
 
 
 	if ( listener.once ) {
@@ -4329,27 +4347,27 @@ NextGenEvents.emitToOneListener = function emitToOneListener( event , listener ,
 		else { emitRemoveListener = true ; }
 	}
 
-	if ( context && ( context.status === NextGenEvents.CONTEXT_QUEUED || ! context.ready ) ) {
-		// Almost all works should be done by .emit(), and little few should be done by .processQueue()
-		context.queue.push( { event: event , listener: listener , nice: currentNice } ) ;
+	if ( context && ( context.status === NextGenEvents.CONTEXT_QUEUED || ! contextScope.ready ) ) {
+		// Almost all works should be done by .emit(), and little few should be done by .processScopeQueue()
+		contextScope.queue.push( { event: event , listener: listener , nice: currentNice } ) ;
 	}
 	else {
 		try {
 			if ( currentNice < 0 ) {
-				if ( self.__ngev.recursion >= -currentNice ) {
-					setImmediate( NextGenEvents.listenerWrapper.bind( self , listener , event , context ) ) ;
+				if ( globalData.recursions >= -currentNice ) {
+					self.__ngev.desync( NextGenEvents.listenerWrapper.bind( self , listener , event , contextScope , serial ) ) ;
 				}
 				else {
-					NextGenEvents.listenerWrapper.call( self , listener , event , context ) ;
+					NextGenEvents.listenerWrapper.call( self , listener , event , contextScope , serial ) ;
 				}
 			}
 			else {
-				setTimeout( NextGenEvents.listenerWrapper.bind( self , listener , event , context ) , currentNice ) ;
+				setTimeout( NextGenEvents.listenerWrapper.bind( self , listener , event , contextScope , serial ) , currentNice ) ;
 			}
 		}
 		catch ( error ) {
-			// Catch error, just to decrement self.__ngev.recursion, re-throw after that...
-			self.__ngev.recursion -- ;
+			// Catch error, just to decrement globalData.recursions, re-throw after that...
+			globalData.recursions -- ;
 			throw error ;
 		}
 	}
@@ -4368,11 +4386,13 @@ NextGenEvents.emitCallback = function emitCallback( event ) {
 
 	if ( event.sync && event.emitter.__ngev.nice !== NextGenEvents.SYNC ) {
 		// Force desync if global nice value is not SYNC
-		nextTick( () => {
+		event.emitter.__ngev.desync( () => {
+			event.emitter.__ngev.depth -- ;
 			callback( event.interrupt , event ) ;
 		} ) ;
 	}
 	else {
+		event.emitter.__ngev.depth -- ;
 		callback( event.interrupt , event ) ;
 	}
 } ;
@@ -4414,6 +4434,15 @@ NextGenEvents.prototype.setNice = function setNice( nice ) {
 	//if ( typeof nice !== 'number' ) { throw new TypeError( ".setNice(): argument #0 should be a number" ) ; }
 
 	this.__ngev.nice = Math.floor( + nice || 0 ) ;
+} ;
+
+
+
+NextGenEvents.prototype.desyncUseNextTick = function desyncUseNextTick( useNextTick ) {
+	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
+	//if ( typeof nice !== 'number' ) { throw new TypeError( ".setNice(): argument #0 should be a number" ) ; }
+
+	this.__ngev.desync = useNextTick ? nextTick : setImmediate ;
 } ;
 
 
@@ -4677,21 +4706,37 @@ NextGenEvents.prototype.addListenerContext = function addListenerContext( contex
 	if ( ! contextName || typeof contextName !== 'string' ) { throw new TypeError( ".addListenerContext(): argument #0 should be a non-empty string" ) ; }
 	if ( ! options || typeof options !== 'object' ) { options = {} ; }
 
-	if ( ! this.__ngev.contexts[ contextName ] ) {
-		// A context IS an event emitter too!
-		this.__ngev.contexts[ contextName ] = Object.create( NextGenEvents.prototype ) ;
-		this.__ngev.contexts[ contextName ].nice = NextGenEvents.SYNC ;
-		this.__ngev.contexts[ contextName ].ready = true ;
-		this.__ngev.contexts[ contextName ].status = NextGenEvents.CONTEXT_ENABLED ;
-		this.__ngev.contexts[ contextName ].serial = false ;
-		this.__ngev.contexts[ contextName ].queue = [] ;
+	var context = this.__ngev.contexts[ contextName ] ;
+
+	if ( ! context ) {
+		context = this.__ngev.contexts[ contextName ] = {
+			nice: NextGenEvents.SYNC ,
+			ready: true ,
+			status: NextGenEvents.CONTEXT_ENABLED ,
+			scopes: {}
+		} ;
 	}
 
-	if ( options.nice !== undefined ) { this.__ngev.contexts[ contextName ].nice = Math.floor( options.nice ) ; }
-	if ( options.status !== undefined ) { this.__ngev.contexts[ contextName ].status = options.status ; }
-	if ( options.serial !== undefined ) { this.__ngev.contexts[ contextName ].serial = !! options.serial ; }
+	if ( options.nice !== undefined ) { context.nice = Math.floor( options.nice ) ; }
+	if ( options.status !== undefined ) { context.status = options.status ; }
+	if ( options.serial !== undefined ) { context.serial = !! options.serial ; }
 
 	return this ;
+} ;
+
+
+
+NextGenEvents.getContextScope = function getContextScope( context , scopeName ) {
+	var scope = context.scopes[ scopeName ] ;
+
+	if ( ! scope ) {
+		scope = context.scopes[ scopeName ] = {
+			ready: true ,
+			queue: []
+		} ;
+	}
+
+	return scope ;
 } ;
 
 
@@ -4713,9 +4758,13 @@ NextGenEvents.prototype.enableListenerContext = function enableListenerContext( 
 	if ( ! contextName || typeof contextName !== 'string' ) { throw new TypeError( ".enableListenerContext(): argument #0 should be a non-empty string" ) ; }
 	if ( ! this.__ngev.contexts[ contextName ] ) { this.addListenerContext( contextName ) ; }
 
-	this.__ngev.contexts[ contextName ].status = NextGenEvents.CONTEXT_ENABLED ;
+	var context = this.__ngev.contexts[ contextName ] ;
 
-	if ( this.__ngev.contexts[ contextName ].queue.length > 0 ) { NextGenEvents.processQueue.call( this , contextName ) ; }
+	context.status = NextGenEvents.CONTEXT_ENABLED ;
+
+	Object.values( context.scopes ).forEach( contextScope => {
+		if ( contextScope.queue.length > 0 ) { NextGenEvents.processScopeQueue( this , contextScope , context.serial ) ; }
+	} ) ;
 
 	return this ;
 } ;
@@ -4795,52 +4844,42 @@ NextGenEvents.prototype.destroyListenerContext = function destroyListenerContext
 
 
 
-// To be used with .call(), it should not pollute the prototype
-NextGenEvents.processQueue = function processQueue( contextName , isCompletionCallback ) {
-	var context , job ;
+NextGenEvents.processScopeQueue = function processScopeQueue( self , contextScope , serial , isCompletionCallback ) {
+	var job ;
 
-	// The context doesn't exist anymore, so just abort now
-	if ( ! this.__ngev.contexts[ contextName ] ) { return ; }
-
-	context = this.__ngev.contexts[ contextName ] ;
-
-	if ( isCompletionCallback ) { context.ready = true ; }
-
-	// Should work on serialization here
-
-	//console.log( ">>> " , context ) ;
+	if ( isCompletionCallback ) { contextScope.ready = true ; }
 
 	// Increment recursion
-	this.__ngev.recursion ++ ;
+	globalData.recursions ++ ;
 
-	while ( context.ready && context.queue.length ) {
-		job = context.queue.shift() ;
+	while ( contextScope.ready && contextScope.queue.length ) {
+		job = contextScope.queue.shift() ;
 
 		// This event has been interrupted, drop it now!
 		if ( job.event.interrupt ) { continue ; }
 
 		try {
 			if ( job.nice < 0 ) {
-				if ( this.__ngev.recursion >= -job.nice ) {
-					setImmediate( NextGenEvents.listenerWrapper.bind( this , job.listener , job.event , context ) ) ;
+				if ( globalData.recursions >= -job.nice ) {
+					self.__ngev.desync( NextGenEvents.listenerWrapper.bind( self , job.listener , job.event , contextScope , serial ) ) ;
 				}
 				else {
-					NextGenEvents.listenerWrapper.call( this , job.listener , job.event , context ) ;
+					NextGenEvents.listenerWrapper.call( self , job.listener , job.event , contextScope , serial ) ;
 				}
 			}
 			else {
-				setTimeout( NextGenEvents.listenerWrapper.bind( this , job.listener , job.event , context ) , job.nice ) ;
+				setTimeout( NextGenEvents.listenerWrapper.bind( self , job.listener , job.event , contextScope , serial ) , job.nice ) ;
 			}
 		}
 		catch ( error ) {
-			// Catch error, just to decrement this.__ngev.recursion, re-throw after that...
-			this.__ngev.recursion -- ;
+			// Catch error, just to decrement globalData.recursions, re-throw after that...
+			globalData.recursions -- ;
 			throw error ;
 		}
 	}
 
 	// Decrement recursion
-	this.__ngev.recursion -- ;
+	globalData.recursions -- ;
 } ;
 
 
@@ -4857,7 +4896,6 @@ if ( global.AsyncTryCatch ) {
 	global.AsyncTryCatch.NextGenEvents.push( NextGenEvents ) ;
 
 	if ( global.AsyncTryCatch.substituted ) {
-		//console.log( 'live subsitute' ) ;
 		global.AsyncTryCatch.substitute() ;
 	}
 }
@@ -4869,11 +4907,11 @@ NextGenEvents.Proxy = require( './Proxy.js' ) ;
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../package.json":10,"./Proxy.js":9,"_process":11}],9:[function(require,module,exports){
+},{"../package.json":11,"./Proxy.js":9,"_process":12}],9:[function(require,module,exports){
 /*
-	Next Gen Events
+	Next-Gen Events
 
-	Copyright (c) 2015 - 2016 Cédric Ronvel
+	Copyright (c) 2015 - 2018 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -5421,34 +5459,72 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message ) {
 
 
 },{"./NextGenEvents.js":8}],10:[function(require,module,exports){
+/*
+	Next-Gen Events
+
+	Copyright (c) 2015 - 2018 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+/* global window */
+
+
+
+if ( typeof window.setImmediate !== 'function' ) {
+	window.setImmediate = function setImmediate( fn ) {
+		setTimeout( fn , 0 ) ;
+	} ;
+}
+
+module.exports = require( './NextGenEvents.js' ) ;
+module.exports.isBrowser = true ;
+
+},{"./NextGenEvents.js":8}],11:[function(require,module,exports){
 module.exports={
-  "_args": [
-    [
-      "nextgen-events@0.11.2",
-      "/home/cedric/inside/github/spellcast"
-    ]
-  ],
-  "_from": "nextgen-events@0.11.2",
-  "_id": "nextgen-events@0.11.2",
+  "_from": "nextgen-events@0.13.0",
+  "_id": "nextgen-events@0.13.0",
   "_inBundle": false,
-  "_integrity": "sha512-z2JlXJyYs+ZRDUiy61N/gnHTSFCLDkb0eafWtv4a4gMve1TEIbScy/9p58bmKQgHdGKEwQG3K2YCbwaPBa73Og==",
+  "_integrity": "sha512-+MuSfdF10xlUG2F7elNM3YENy+QnEBtetCPrQnYwCKFCIFw/UGbDXDjW9Vn/cvHBUTH4Y7DRgz6HZlLEM7zHYg==",
   "_location": "/nextgen-events",
   "_phantomChildren": {},
   "_requested": {
     "type": "version",
     "registry": true,
-    "raw": "nextgen-events@0.11.2",
+    "raw": "nextgen-events@0.13.0",
     "name": "nextgen-events",
     "escapedName": "nextgen-events",
-    "rawSpec": "0.11.2",
+    "rawSpec": "0.13.0",
     "saveSpec": null,
-    "fetchSpec": "0.11.2"
+    "fetchSpec": "0.13.0"
   },
   "_requiredBy": [
+    "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.11.2.tgz",
-  "_spec": "0.11.2",
+  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.13.0.tgz",
+  "_shasum": "320771b90eea892ec09398d9de69233e58677b2a",
+  "_spec": "nextgen-events@0.13.0",
   "_where": "/home/cedric/inside/github/spellcast",
   "author": {
     "name": "Cédric Ronvel"
@@ -5456,6 +5532,7 @@ module.exports={
   "bugs": {
     "url": "https://github.com/cronvel/nextgen-events/issues"
   },
+  "bundleDependencies": false,
   "config": {
     "tea-time": {
       "coverDir": [
@@ -5467,11 +5544,12 @@ module.exports={
     "title": "Next-Gen Events",
     "years": [
       2015,
-      2016
+      2018
     ],
     "owner": "Cédric Ronvel"
   },
   "dependencies": {},
+  "deprecated": false,
   "description": "The next generation of events handling for javascript! New: abstract away the network!",
   "devDependencies": {
     "browserify": "^14.4.0",
@@ -5510,10 +5588,10 @@ module.exports={
   "scripts": {
     "test": "mocha -R dot"
   },
-  "version": "0.11.2"
+  "version": "0.13.0"
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -5699,7 +5777,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -6236,7 +6314,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -6322,7 +6400,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -6409,13 +6487,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":13,"./encode":14}],16:[function(require,module,exports){
+},{"./decode":14,"./encode":15}],17:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -6494,7 +6572,7 @@ module.exports = {
 
 
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*
 	String Kit
 	
@@ -6598,7 +6676,7 @@ exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
 
 
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 (function (Buffer){
 /*
 	String Kit
@@ -7143,7 +7221,7 @@ exports.format.hasFormatting = function hasFormatting( str )
 
 
 }).call(this,require("buffer").Buffer)
-},{"./ansi.js":16,"./inspect.js":19,"buffer":5}],19:[function(require,module,exports){
+},{"./ansi.js":17,"./inspect.js":20,"buffer":5}],20:[function(require,module,exports){
 (function (Buffer,process){
 /*
 	String Kit
@@ -7740,7 +7818,7 @@ inspectStyle.html = Object.assign( {} , inspectStyle.none , {
 
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")},require('_process'))
-},{"../../is-buffer/index.js":7,"./ansi.js":16,"./escape.js":17,"_process":11}],20:[function(require,module,exports){
+},{"../../is-buffer/index.js":7,"./ansi.js":17,"./escape.js":18,"_process":12}],21:[function(require,module,exports){
 (function (process){
 /*
 	SVG Kit
@@ -8258,7 +8336,7 @@ svgKit.standalone = function standalone( content , viewBox )
 
 
 }).call(this,require('_process'))
-},{"_process":11,"dom-kit":6,"fs":5,"string-kit/lib/escape.js":17}],21:[function(require,module,exports){
+},{"_process":12,"dom-kit":6,"fs":5,"string-kit/lib/escape.js":18}],22:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8992,7 +9070,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":22,"punycode":12,"querystring":15}],22:[function(require,module,exports){
+},{"./util":23,"punycode":13,"querystring":16}],23:[function(require,module,exports){
 'use strict';
 
 module.exports = {

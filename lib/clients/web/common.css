@@ -1,5 +1,5 @@
 
-html , body {
+html , body , spellcast {
 	margin: 0;
 	padding: 0;
 }
@@ -13,21 +13,21 @@ body {
 
 /* Terminal-kit's gnome color scheme */
 .black { color: #000000; }
-.brightBlack { color: #555753; }
+.grey , .bright.black { color: #555555; }
 .red { color: #cc0000; }
-.brightRed { color: #ef2929; }
+.bright.red { color: #ef2929; }
 .green { color: #4e9a06; }
-.brightGreen { color: #8ae234; }
+.bright.green { color: #8ae234; }
 .yellow { color: #c4a000; }
-.brightYellow { color: #fce94f; }
+.bright.yellow { color: #fce94f; }
 .blue { color: #3465a4; }
-.brightBlue { color: #729fcf; }
+.bright.blue { color: #729fcf; }
 .magenta { color: #75507b; }
-.brightMagenta { color: #ad7fa8; }
+.bright.magenta { color: #ad7fa8; }
 .cyan { color: #06989a; }
-.brightCyan { color: #34e2e2; }
+.bright.cyan { color: #34e2e2; }
 .white { color: #d3d7cf; }
-.brightWhite { color: #eeeeec; }
+.bright.white { color: #eeeeec; }
 
 .dim { opacity: 0.5; }
 .bold { font-weight: bold; }
