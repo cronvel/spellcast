@@ -61,6 +61,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Message Tag](#ref.io.message)
 		* [Important-message Tag](#ref.io.important-message)
 		* [Fortune Tag](#ref.io.fortune)
+		* [Message-model Tag](#ref.io.message-model)
 		* [Indicators Tag](#ref.io.indicators)
 		* [Input Tag](#ref.io.input)
 		* [Sound Tag](#ref.io.sound)
@@ -880,10 +881,10 @@ TODO.
 
 
 <a name="ref.io.message"></a>
-## [message]
+## [message] / [m *model*]
 
 * types: run
-* attribute style: none
+* attribute style: label
 * content type: string, template, object or array of: string, template or object.
 
 The *message* tag is used to display a message in the client user interface.
@@ -893,13 +894,22 @@ For simple message, the content can be either a simple string, or a template.
 If some particular options are needed, the content should be formated as an object, where:
 * text `string` or `Template` the message to display
 * continue `boolean` if true, this message should be continued by the next message (i.e.: no newline)
-* next `boolean` if true, the message wait for the user acknowledgement
+* next `boolean` or `number` if true or positive number, the message wait for the user acknowledgement, if it's a number,
+  it's used as a timeout in seconds
 * important `boolean` if true and if the scene is rendering in the *alternate buffer*, the message should be rendered
-  in the *main buffer* too.
+  in the *main buffer* too
 * slowTyping `boolean` if true, the message is diplayed letter by letter (not all the clients supports it)
 * image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
   of what is described (not all the clients supports it)
 * sound `url` if set, a sound that should be played along with the message (not all the clients supports it)
+* before `string` if set, this is inserted before the text (useful for models)
+* after `string` if set, this is appended after the text (useful for models)
+* style `string` or `array` of `string`, a list of style to apply to the text (useful for models), supported styles:
+    red, green, blue, yellow, brown, cyan, magenta, white, black, grey,
+    bright-red, bright-green, bright-blue, bright-yellow, bright-brown, bright-cyan, bright-magenta, bright-white,
+    underline, italic, bold, dim, inverse
+
+If the [m *model*] syntax is used, everything in the *model* is used as default, see [the *message-model* tag](ref.io.message-model).
 
 The *hello world* example:
 
@@ -969,6 +979,89 @@ Example:
 ```
 
 ... will display `Hello Joe!` or `Hi Joe!` or `Howdy!` in the client UI.
+
+
+
+<a name="ref.io.message-model"></a>
+## [message-model *model*]
+
+* types: init
+* attribute style: label
+* content type: object
+
+The content of this tag contains the same options than the [*message* tag](ref.io.message),
+see [the *message* tag documentation](ref.io.message) for the list.
+
+This tag stores a template / default values for further usage with the `[m model]` variant of the [*message* tag](ref.io.message).
+and it is used to avoid repeating the same [message tag](ref.io.message)'s options over and over.
+
+This tag should be placed at top-level, like other definitions.
+
+Example:
+
+```
+[message-model bob]
+	before: "Bob says: "
+	style:
+		- blue
+		- italic
+
+[chapter intro]
+	[scene intro]
+		[m bob] Hello world!
+```
+
+... will display `Bob says: Hello world!` using blue-italic letters in the client UI.
+
+Also compare this:
+
+```
+[message-model bob]
+	before: "Bob says: "
+	style:
+		- blue
+		- italic
+
+[message-model alice]
+	before: "Alice says: "
+	style:
+		- magenta
+		- italic
+
+[chapter intro]
+	[scene intro]
+		[m alice] Hi there!
+		[m bob] Hey! Alice!
+		[m alice] How are you doing?
+		[m bob] Fine, thanks!
+```
+
+... to this:
+
+```
+[chapter intro]
+	[scene intro]
+		[message]
+		    style:
+		        - magenta
+		        - italic
+		    text: > Alice says: Hi there!
+		[message]
+		    style:
+		        - blue
+		        - italic
+		    text: > Bob says: Hey! Alice!
+		[message]
+		    style:
+		        - magenta
+		        - italic
+		    text: > Alice says: How are you doing?
+		[message]
+		    style:
+		        - blue
+		        - italic
+		    text: > Bob says: Fine, thanks!
+```
 
 
 
@@ -1262,7 +1355,7 @@ Example with an array:
 	- three
 
 [foreach $array => $element]
-    [message] $> Value: ${element}
+	[message] $> Value: ${element}
 ```
 
 ... this will output:
@@ -1282,7 +1375,7 @@ Example with an array, using the second foreach syntax:
 	- three
 
 [foreach $array => $index : $element]
-    [message] $> ${index}: ${element}
+	[message] $> ${index}: ${element}
 ```
 
 ... this will output:
@@ -1302,7 +1395,7 @@ Example with an object, using the second foreach syntax:
 	job: designer
 
 [foreach $object => $key : $value]
-    [message] $> ${key}: ${value}
+	[message] $> ${key}: ${value}
 ```
 
 ... this will output:
@@ -2742,9 +2835,9 @@ Example:
 ```
 [INFO.] 09:41:19 <script> -- Script loaded!
 [DEBUG] 09:41:19 <script> -- Object object {
-        a: one number
-        b: two number
-    }
+		a: one number
+		b: two number
+	}
 ```
 
 
@@ -2781,10 +2874,10 @@ Example:
 
 ```
 [DEBUG] 09:57:38 <script> -- This is $var.a: 'one', $var.b: 'two', and $var: 
-    Object object {
-        a: "one" string(3)
-        b: "two" string(3)
-    }
+	Object object {
+		a: "one" string(3)
+		b: "two" string(3)
+	}
 ```
 
 
