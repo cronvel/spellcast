@@ -909,7 +909,7 @@ If some particular options are needed, the content should be formated as an obje
     bright-red, bright-green, bright-blue, bright-yellow, bright-brown, bright-cyan, bright-magenta, bright-white,
     underline, italic, bold, dim, inverse
 
-If the [m *model*] syntax is used, everything in the *model* is used as default, see [the *message-model* tag](ref.io.message-model).
+If the [m *model*] syntax is used, everything in the *model* is used as default, see [the *message-model* tag](#ref.io.message-model).
 
 The *hello world* example:
 
@@ -989,11 +989,11 @@ Example:
 * attribute style: label
 * content type: object
 
-The content of this tag contains the same options than the [*message* tag](ref.io.message),
-see [the *message* tag documentation](ref.io.message) for the list.
+The content of this tag contains the same options than the [*message* tag](#ref.io.message),
+see [the *message* tag documentation](#ref.io.message) for the list.
 
-This tag stores a template / default values for further usage with the `[m model]` variant of the [*message* tag](ref.io.message).
-and it is used to avoid repeating the same [message tag](ref.io.message)'s options over and over.
+This tag stores a template / default values for further usage with the `[m model]` variant of the [*message* tag](#ref.io.message).
+and it is used to avoid repeating the same [message tag](#ref.io.message)'s options over and over.
 
 This tag should be placed at top-level, like other definitions.
 
