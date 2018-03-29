@@ -39,11 +39,17 @@
 			- $$> ^+${subject.label//uc1} shouts “Catch him!”
 			- $$> ^+${subject.label//uc1} cries “I don't want do die!”
 	stats:
-		fighting: 7
-		shooting: 7
 		quickness: 8
 		strength: 6
 		resilience: 6
+		dexterity: 7
+		social: 6
+		intelligence: 6
+		arcane: 4
+		awareness: 8
+		
+		fighting: 7
+		shooting: 7
 	equipped-items:
 		hand:
 			- spear
@@ -54,13 +60,20 @@
 	class: character
 	label: the elf
 	params:
-		xp-reward: 8
+		xp-reward: 7
 	stats:
-		fighting: 12
-		shooting: 16
 		quickness: 10
-		strength: 10
-		resilience: 10
+		strength: 6
+		resilience: 6
+		dexterity: 14
+		social: 8
+		intelligence: 8
+		arcane: 10
+		awareness: 12
+		
+		fighting: 8
+		shooting: 14
+		spellcasting: 6
 	usages:
 		ranged-fighting:
 			attack: (*) 1.3

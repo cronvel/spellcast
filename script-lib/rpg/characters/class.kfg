@@ -25,8 +25,13 @@
 		quickness: 1
 		strength: 1
 		resilience: 1
+		dexterity: 1
+		social: 1
+		intelligence: 1
+		arcane: 1
+		awareness: 1
 		
-		# Domain stats
+		# Skills stats
 		fighting: 1
 		shooting: 1
 		spellcasting: 1

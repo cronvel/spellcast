@@ -7,11 +7,18 @@
 	params:
 		xp-reward: 5
 	stats:
-		fighting: 8
-		shooting: 8
 		quickness: 8
 		strength: 8
 		resilience: 8
+		dexterity: 8
+		social: 8
+		intelligence: 8
+		arcane: 8
+		awareness: 8
+		
+		fighting: 8
+		shooting: 8
+		spellcasting: 2
 
 
 
@@ -21,11 +28,17 @@
 	params:
 		xp-reward: 5
 	stats:
-		fighting: 14
-		shooting: 0
-		quickness: 12
+		quickness: 14
 		strength: 9
 		resilience: 10
+		dexterity: 7
+		social: 8
+		intelligence: 2
+		arcane: 3
+		awareness: 22
+		
+		fighting: 14
+		shooting: 0
 	compound:
 		attack: (+) 1
 		defense: (+) -1

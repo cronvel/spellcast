@@ -349,26 +349,26 @@ Dom.prototype.addSelectedChoice = function addSelectedChoice( text ) {
 
 Dom.prototype.addMessage = function addMessage( text , options , callback ) {
 	var triggered = false ;
-	
+
 	callback = callback || noop ;
-	
+
 	var triggerCallback = () => {
 		if ( triggered ) { return ; }
 		triggered = true ;
-		
+
 		if ( options.next ) {
 			$text.scrollIntoView( false ) ;
 			this.messageNext( options.next , callback ) ;
 			return ;
 		}
-		
+
 		callback() ;
 	} ;
 
 
 	var $text = document.createElement( 'p' ) ;
 	$text.classList.add( 'text' ) ;
-	
+
 	if ( options.next ) { $text.classList.add( 'continue' ) ; }
 
 	// Because the text contains <span> tags
@@ -383,10 +383,10 @@ Dom.prototype.addMessage = function addMessage( text , options , callback ) {
 		// The message should be added to the main buffer too
 		this.$importantMessages.appendChild( $text.cloneNode( true ) ) ;
 	}
-	
+
 	// Slow-typing is not supported ATM
 	//if ( options.slowTyping ) { return ; }
-	
+
 	triggerCallback() ;
 } ;
 
@@ -398,14 +398,14 @@ Dom.prototype.messageNext = function messageNext( value , callback ) {
 	var triggerCallback = () => {
 		if ( triggered ) { return ; }
 		triggered = true ;
-		
+
 		this.$spellcast.classList.remove( 'continue' ) ;
 		callback() ;
 	} ;
-	
+
 	this.$spellcast.classList.add( 'continue' ) ;
 	this.once( 'continue' , triggerCallback ) ;
-	
+
 	if ( typeof value === 'number' && isFinite( value ) && value > 0 ) {
 		setTimeout( triggerCallback , value * 1000 ) ;
 	}
@@ -2865,8 +2865,8 @@ UI.extErrorOutput = function extErrorOutput( output ) {
 // Text input field
 UI.textInput = function textInput( label , grantedRoleIds ) {
 	var options = {
-			label: label
-		} ;
+		label: label
+	} ;
 
 	if ( grantedRoleIds.indexOf( this.roleId ) === -1 ) {
 		options.placeholder = 'YOU CAN\'T RESPOND - WAIT...' ;
