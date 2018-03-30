@@ -30,6 +30,7 @@
 
 var expect = require( 'expect.js' ) ;
 var doormen = require( 'doormen' ) ;
+var string = require( 'string-kit' ) ;
 var copyData = require( '../lib/copyData.js' ) ;
 
 
