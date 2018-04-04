@@ -613,8 +613,8 @@
 			[if ! $local.casted]
 				[return]
 
-		[set $local.attack-score] $= $subject.actual-usages.melee-fighting.compound.attack
-		[set $local.defense-score] $= $target.actual-usages.melee-fighting.compound.defense
+		[set $local.attack-score] $subject.actual-usages.melee-fighting.compound.attack
+		[set $local.defense-score] $target.actual-usages.melee-fighting.compound.defense
 
 		#[message] $> Pressure -- ${subject.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attack-score} vs ${local.defense-score}

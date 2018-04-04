@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.43.11",
+  "version": "0.43.12",
   "description": "Make: your own adventure!",
   "main": "lib/Book.js",
   "engines": {
@@ -15,14 +15,14 @@
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
     "async-kit": "^2.2.3",
-    "babel-tower": "^0.16.3",
+    "babel-tower": "^0.16.4",
     "chokidar": "^1.7.0",
     "dom-kit": "^0.3.7",
     "doormen": "^0.6.10",
     "fs-kit": "^0.2.5",
     "glob": "^7.1.2",
     "jsbindat": "^0.9.6",
-    "kung-fig": "^0.43.11",
+    "kung-fig": "^0.43.13",
     "logfella": "^0.3.57",
     "math-kit": "^0.11.14",
     "minimist": "^1.2.0",
@@ -30,9 +30,9 @@
     "nomi-ninja": "^0.1.1",
     "semver": "^5.5.0",
     "server-kit": "^0.5.0",
-    "string-kit": "^0.6.9",
+    "string-kit": "^0.6.11",
     "svg-kit": "^0.1.20",
-    "terminal-kit": "^1.15.0",
+    "terminal-kit": "^1.15.1",
     "tree-kit": "^0.5.26"
   },
   "devDependencies": {
