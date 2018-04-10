@@ -206,11 +206,8 @@ Copy-paste this script into a file named `test.kfg`, then run `spellcast story t
 			$> At the age of 15, you leave your village.
 			$> What do you do?
 
-		[next master]
-			[label] $> You seek for a master at forgery.
-			
-		[next rogue]
-			[label] $> You are a rogue living in the wood.
+		[next master] $> You seek for a master at forgery.
+		[next rogue] $> You are a rogue living in the wood.
 
 	[scene master]
 		[message]
