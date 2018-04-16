@@ -1175,6 +1175,31 @@ Dom.prototype.clearCard = function clearCard( id ) {
 
 
 
+Dom.prototype.toClassObject = function toClassObject( data ) {
+	var object = {} ;
+	
+	if ( ! data ) { return object ; }
+	
+	if ( typeof data === 'string' ) {
+		object[ data ] = true ;
+		return object ;
+	}
+	
+	if ( typeof data === 'object' ) {
+		if ( Array.isArray( data ) ) {
+			data.forEach( e => object[ e ] = true ) ;
+			return object ;
+		}
+		else {
+			return data ;
+		}
+	}
+	
+	return object ;
+} ;
+
+
+
 Dom.prototype.showSprite = function showSprite( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
@@ -1184,6 +1209,7 @@ Dom.prototype.showSprite = function showSprite( id , data ) {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'sprite' ,
+		class: data.class ,
 		style: {} ,
 		animation: null
 	} ) ;
@@ -1202,6 +1228,7 @@ Dom.prototype.showUi = function showUi( id , data ) {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'ui' ,
+		class: data.class ,
 		style: {} ,
 		area: {} ,
 		animation: null
@@ -1223,6 +1250,7 @@ Dom.prototype.showMarker = function showMarker( id , data ) {
 		type: 'marker' ,
 		ui: null ,
 		location: null ,
+		class: data.class ,
 		style: {} ,
 		animation: null
 	} ) ;
@@ -1236,7 +1264,7 @@ var cardAutoIncrement = 0 ;
 
 Dom.prototype.showCard = function showCard( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
-
+	
 	if ( this.cards[ id ] ) { this.clearCardObject( this.cards[ id ] ) ; }
 
 	var marker = this.cards[ id ] = this.createUiObject( {
@@ -1247,6 +1275,7 @@ Dom.prototype.showCard = function showCard( id , data ) {
 		$locationSlot: null ,
 		pose: null ,
 		order: cardAutoIncrement ++ ,	// used as flex's order
+		class: data.class ,
 		style: {} ,
 		imageStyle: {} ,
 		animation: null ,
@@ -1522,6 +1551,19 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data ) {
 		if ( ui.$mask ) {
 			console.warn( 'update mask!' ) ;
 			domKit.css( ui.$mask , data.style ) ;
+		}
+	}
+
+	if ( data.class ) {
+		data.class = this.toClassObject( data.class ) ;
+		console.log( "Data.class" , data.class ) ;
+		Object.assign( ui.class , data.class ) ;
+		domKit.class( ui.$image , data.class ) ;
+
+		// Update the mask, if any
+		if ( ui.$mask ) {
+			console.warn( 'update mask!' ) ;
+			domKit.class( ui.$mask , data.class ) ;
 		}
 	}
 
@@ -6496,21 +6538,21 @@ exports.encode = exports.stringify = require('./encode');
 },{"./decode":14,"./encode":15}],17:[function(require,module,exports){
 /*
 	String Kit
-	
-	Copyright (c) 2014 - 2017 Cédric Ronvel
-	
+
+	Copyright (c) 2014 - 2018 Cédric Ronvel
+
 	The MIT License (MIT)
-	
+
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-	
+
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
-	
+
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -6532,7 +6574,7 @@ module.exports = {
 	italic: '\x1b[3m' ,
 	underline: '\x1b[4m' ,
 	inverse: '\x1b[7m' ,
-	
+
 	defaultColor: '\x1b[39m' ,
 	black: '\x1b[30m' ,
 	red: '\x1b[31m' ,
@@ -6550,7 +6592,7 @@ module.exports = {
 	brightMagenta: '\x1b[95m' ,
 	brightCyan: '\x1b[96m' ,
 	brightWhite: '\x1b[97m' ,
-	
+
 	defaultBgColor: '\x1b[49m' ,
 	bgBlack: '\x1b[40m' ,
 	bgRed: '\x1b[41m' ,
@@ -6567,7 +6609,7 @@ module.exports = {
 	bgBrightBlue: '\x1b[104m' ,
 	bgBrightMagenta: '\x1b[105m' ,
 	bgBrightCyan: '\x1b[106m' ,
-	bgBrightWhite: '\x1b[107m' ,
+	bgBrightWhite: '\x1b[107m'
 } ;
 
 
@@ -6575,21 +6617,21 @@ module.exports = {
 },{}],18:[function(require,module,exports){
 /*
 	String Kit
-	
-	Copyright (c) 2014 - 2017 Cédric Ronvel
-	
+
+	Copyright (c) 2014 - 2018 Cédric Ronvel
+
 	The MIT License (MIT)
-	
+
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-	
+
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
-	
+
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -6612,7 +6654,7 @@ module.exports = {
 // From Mozilla Developper Network
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
 exports.regExp = exports.regExpPattern = function escapeRegExpPattern( str ) {
-	return str.replace( /([.*+?^${}()|\[\]\/\\])/g , '\\$1' ) ;
+	return str.replace( /([.*+?^${}()|[\]/\\])/g , '\\$1' ) ;
 } ;
 
 exports.regExpReplacement = function escapeRegExpReplacement( str ) {
@@ -6638,16 +6680,18 @@ exports.jsDoubleQuote = function escapeJsDoubleQuote( str ) {
 
 
 exports.shellArg = function escapeShellArg( str ) {
-	return '\'' + str.replace( /\'/g , "'\\''" ) + '\'' ;
+	return '\'' + str.replace( /'/g , "'\\''" ) + '\'' ;
 } ;
 
 
 
-var escapeControlMap = { '\r': '\\r', '\n': '\\n', '\t': '\\t', '\x7f': '\\x7f' } ;
+var escapeControlMap = {
+	'\r': '\\r' , '\n': '\\n' , '\t': '\\t' , '\x7f': '\\x7f'
+} ;
 
 // Escape \r \n \t so they become readable again, escape all ASCII control character as well, using \x syntaxe
 exports.control = function escapeControl( str ) {
-	return str.replace( /[\x00-\x1f\x7f]/g , function( match ) {
+	return str.replace( /[\x00-\x1f\x7f]/g , ( match ) => {
 		if ( escapeControlMap[ match ] !== undefined ) { return escapeControlMap[ match ] ; }
 		var hex = match.charCodeAt( 0 ).toString( 16 ) ;
 		if ( hex.length % 2 ) { hex = '0' + hex ; }
@@ -6657,21 +6701,23 @@ exports.control = function escapeControl( str ) {
 
 
 
-var escapeHtmlMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' } ;
+var escapeHtmlMap = {
+	'&': '&amp;' , '<': '&lt;' , '>': '&gt;' , '"': '&quot;' , "'": '&#039;'
+} ;
 
 // Only escape & < > so this is suited for content outside tags
 exports.html = function escapeHtml( str ) {
-	return str.replace( /[&<>]/g , function( match ) { return escapeHtmlMap[ match ] ; } ) ;
+	return str.replace( /[&<>]/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
 } ;
 
 // Escape & < > " so this is suited for content inside a double-quoted attribute
 exports.htmlAttr = function escapeHtmlAttr( str ) {
-	return str.replace( /[&<>"]/g , function( match ) { return escapeHtmlMap[ match ] ; } ) ;
+	return str.replace( /[&<>"]/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
 } ;
 
 // Escape all html special characters & < > " '
 exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
-	return str.replace( /[&<>"']/g , function( match ) { return escapeHtmlMap[ match ] ; } ) ;
+	return str.replace( /[&<>"']/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
 } ;
 
 
@@ -6680,21 +6726,21 @@ exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
 (function (Buffer){
 /*
 	String Kit
-	
-	Copyright (c) 2014 - 2017 Cédric Ronvel
-	
+
+	Copyright (c) 2014 - 2018 Cédric Ronvel
+
 	The MIT License (MIT)
-	
+
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-	
+
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
-	
+
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -6741,7 +6787,7 @@ var ansi = require( './ansi.js' ) ;
 	%D		drop
 	%F		filter function existing in the 'this' context, e.g. %[filter:%a%a]F
 	%a		argument for a function
-	
+
 	Candidate format:
 	%A		for automatic type?
 	%c		for char? (can receive a string or an integer translated into an UTF8 chars)
@@ -6750,115 +6796,100 @@ var ansi = require( './ansi.js' ) ;
 	%e		for scientific notation?
 */
 
-exports.formatMethod = function format( str )
-{
-	if ( typeof str !== 'string' )
-	{
+exports.formatMethod = function format( ... args ) {
+	var str = args[ 0 ] ;
+
+	if ( typeof str !== 'string' ) {
 		if ( ! str ) { str = '' ; }
 		else if ( typeof str.toString === 'function' ) { str = str.toString() ; }
 		else { str = '' ; }
 	}
-	
-	var self = this , arg , value ,
-		autoIndex = 1 , args = arguments , length = arguments.length ,
+
+	var arg , value ,
+		autoIndex = 1 , length = args.length ,
 		hasMarkup = false , shift = null , markupStack = [] ;
-	
-	if ( this.markupReset && this.startingMarkupReset )
-	{
+
+	if ( this.markupReset && this.startingMarkupReset ) {
 		str = ( typeof this.markupReset === 'function' ? this.markupReset( markupStack ) : this.markupReset ) + str ;
 	}
-	
+
 	//console.log( 'format args:' , arguments ) ;
-	
+
 	// /!\ each changes here should be reported on string.format.count() and string.format.hasFormatting() too /!\
 	//str = str.replace( /\^(.?)|%(?:([+-]?)([0-9]*)(?:\/([^\/]*)\/)?([a-zA-Z%])|\[([a-zA-Z0-9_]+)(?::([^\]]*))?\])/g ,
 	str = str.replace( /\^(.?)|(%%)|%([+-]?)([0-9]*)(?:\[([^\]]*)\])?([a-zA-Z])/g ,
-		function( match , markup , doublePercent , relative , index , modeArg , mode ) {		// jshint ignore:line
-			
+		( match , markup , doublePercent , relative , index , modeArg , mode ) => {		// jshint ignore:line
+
 			var replacement , i , n , depth , tmp , fn , fnArgString , argMatches , argList = [] ;
-			
+
 			//console.log( 'replaceArgs:' , arguments ) ;
-			if ( doublePercent ) { return '%'; }
-			
-			if ( markup )
-			{
+			if ( doublePercent ) { return '%' ; }
+
+			if ( markup ) {
 				if ( markup === '^' ) { return '^' ; }
-				
-				if ( self.shiftMarkup && self.shiftMarkup[ markup ] )
-				{
-					shift = self.shiftMarkup[ markup ] ;
+
+				if ( this.shiftMarkup && this.shiftMarkup[ markup ] ) {
+					shift = this.shiftMarkup[ markup ] ;
 					return '' ;
 				}
-				
-				if ( shift )
-				{
-					if ( ! self.shiftedMarkup || ! self.shiftedMarkup[ shift ] || ! self.shiftedMarkup[ shift ][ markup ] )
-					{
+
+				if ( shift ) {
+					if ( ! this.shiftedMarkup || ! this.shiftedMarkup[ shift ] || ! this.shiftedMarkup[ shift ][ markup ] ) {
 						return '' ;
 					}
-					
+
 					hasMarkup = true ;
-					
-					if ( typeof self.shiftedMarkup[ shift ][ markup ] === 'function' )
-					{
-						replacement = self.shiftedMarkup[ shift ][ markup ]( markupStack ) ;
+
+					if ( typeof this.shiftedMarkup[ shift ][ markup ] === 'function' ) {
+						replacement = this.shiftedMarkup[ shift ][ markup ]( markupStack ) ;
 						// method should manage markup stack themselves
 					}
-					else
-					{
-						replacement = self.shiftedMarkup[ shift ][ markup ] ;
+					else {
+						replacement = this.shiftedMarkup[ shift ][ markup ] ;
 						markupStack.push( replacement ) ;
 					}
-					
+
 					shift = null ;
 				}
-				else
-				{
-					if ( ! self.markup || ! self.markup[ markup ] )
-					{
+				else {
+					if ( ! this.markup || ! this.markup[ markup ] ) {
 						return '' ;
 					}
-					
+
 					hasMarkup = true ;
-					
-					if ( typeof self.markup[ markup ] === 'function' )
-					{
-						replacement = self.markup[ markup ]( markupStack ) ;
+
+					if ( typeof this.markup[ markup ] === 'function' ) {
+						replacement = this.markup[ markup ]( markupStack ) ;
 						// method should manage markup stack themselves
 					}
-					else
-					{
-						replacement = self.markup[ markup ] ;
+					else {
+						replacement = this.markup[ markup ] ;
 						markupStack.push( replacement ) ;
 					}
 				}
-				
+
 				return replacement ;
 			}
-			
-			
-			if ( index )
-			{
-				index = parseInt( index ) ;
-				
-				if ( relative )
-				{
+
+
+			if ( index ) {
+				index = parseInt( index , 10 ) ;
+
+				if ( relative ) {
 					if ( relative === '+' ) { index = autoIndex + index ; }
 					else if ( relative === '-' ) { index = autoIndex - index ; }
 				}
 			}
-			else
-			{
+			else {
 				index = autoIndex ;
 			}
-			
+
 			autoIndex ++ ;
-			
+
 			if ( index >= length || index < 1 ) { arg = undefined ; }
 			else { arg = args[ index ] ; }
-			
-			switch ( mode )
-			{
+
+			switch ( mode ) {
 				case 's' :	// string
 					if ( arg === null || arg === undefined ) { return '' ; }
 					if ( typeof arg === 'string' ) { return arg ; }
@@ -6868,11 +6899,9 @@ exports.formatMethod = function format( str )
 				case 'f' :	// float
 					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg !== 'number' ) { return '0' ; }
-					if ( modeArg !== undefined )
-					{
+					if ( modeArg !== undefined ) {
 						// Use jQuery number format?
-						switch ( modeArg[ 0 ] )
-						{
+						switch ( modeArg[ 0 ] ) {
 							case 'p' :
 								n = parseInt( modeArg.slice( 1 ) , 10 ) ;
 								if ( n >= 1 ) { arg = arg.toPrecision( n ) ; }
@@ -6886,33 +6915,33 @@ exports.formatMethod = function format( str )
 					return '' + arg ;
 				case 'd' :
 				case 'i' :	// integer decimal
-					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg === 'number' ) { return '' + Math.floor( arg ) ; }
 					return '0' ;
 				case 'u' :	// unsigned decimal
-					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ) ; }
 					return '0' ;
 				case 'U' :	// unsigned positive decimal
-					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 1 ) ; }
 					return '1' ;
 				case 'x' :	// unsigned hexadecimal, force pair of symbole
-					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg !== 'number' ) { return '0' ; }
 					value = '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ;
 					if ( value.length % 2 ) { value = '0' + value ; }
 					return value ;
 				case 'h' :	// unsigned hexadecimal
-					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ; }
 					return '0' ;
 				case 'o' :	// unsigned octal
-					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 8 ) ; }
 					return '0' ;
 				case 'b' :	// unsigned binary
-					if ( typeof arg === 'string' ) { arg = parseInt( arg ) ; }
+					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 2 ) ; }
 					return '0' ;
 				case 'z' :	// base64
@@ -6926,82 +6955,74 @@ exports.formatMethod = function format( str )
 				case 'I' :
 					depth = 3 ;
 					if ( modeArg !== undefined ) { depth = parseInt( modeArg , 10 ) ; }
-					return inspect( { depth: depth , style: ( self && self.color ? 'color' : 'none' ) } , arg ) ;
+					return inspect( { depth: depth , style: ( this && this.color ? 'color' : 'none' ) } , arg ) ;
 				case 'Y' :
 					depth = 3 ;
 					if ( modeArg !== undefined ) { depth = parseInt( modeArg , 10 ) ; }
 					return inspect( {
-							depth: depth ,
-							style: ( self && self.color ? 'color' : 'none' ) ,
-							noFunc: true ,
-							enumOnly: true ,
-							noDescriptor: true
-						} ,
-						arg ) ;
+						depth: depth ,
+						style: ( this && this.color ? 'color' : 'none' ) ,
+						noFunc: true ,
+						enumOnly: true ,
+						noDescriptor: true
+					} ,
+					arg ) ;
 				case 'E' :
-					return inspectError( { style: ( self && self.color ? 'color' : 'none' ) } , arg ) ;
+					return inspectError( { style: ( this && this.color ? 'color' : 'none' ) } , arg ) ;
 				case 'J' :
 					return JSON.stringify( arg ) ;
 				case 'D' :
 					return '' ;
 				case 'F' :	// Function
-					
+
 					autoIndex -- ;	// %F does not eat any arg
-					
+
 					if ( modeArg === undefined ) { return '' ; }
 					tmp = modeArg.split( ':' ) ;
 					fn = tmp[ 0 ] ;
 					fnArgString = tmp[ 1 ] ;
 					if ( ! fn ) { return '' ; }
-					
-					if ( fnArgString && ( argMatches = fnArgString.match( /%([+-]?)([0-9]*)[a-zA-Z]/g ) ) )
-					{
+
+					if ( fnArgString && ( argMatches = fnArgString.match( /%([+-]?)([0-9]*)[a-zA-Z]/g ) ) ) {
 						//console.log( argMatches ) ;
 						//console.log( fnArgString ) ;
-						for ( i = 0 ; i < argMatches.length ; i ++ )
-						{
+						for ( i = 0 ; i < argMatches.length ; i ++ ) {
 							relative = argMatches[ i ][ 1 ] ;
 							index = argMatches[ i ][ 2 ] ;
-							
-							if ( index )
-							{
+
+							if ( index ) {
 								index = parseInt( index , 10 ) ;
-								
-								if ( relative )
-								{
+
+								if ( relative ) {
 									if ( relative === '+' ) { index = autoIndex + index ; }		// jshint ignore:line
 									else if ( relative === '-' ) { index = autoIndex - index ; }	// jshint ignore:line
 								}
 							}
-							else
-							{
+							else {
 								index = autoIndex ;
 							}
-							
+
 							autoIndex ++ ;
-							
+
 							if ( index >= length || index < 1 ) { argList[ i ] = undefined ; }
 							else { argList[ i ] = args[ index ] ; }
 						}
 					}
-					
-					if ( ! self || ! self.fn || typeof self.fn[ fn ] !== 'function' ) { return '' ; }
-					return self.fn[ fn ].apply( self , argList ) ;
-				
+
+					if ( ! this || ! this.fn || typeof this.fn[ fn ] !== 'function' ) { return '' ; }
+					return this.fn[ fn ].apply( this , argList ) ;
+
 				default :
 					return '' ;
 			}
-	} ) ;
-	
-	if ( hasMarkup && this.markupReset && this.endingMarkupReset )
-	{
+		} ) ;
+
+	if ( hasMarkup && this.markupReset && this.endingMarkupReset ) {
 		str += typeof this.markupReset === 'function' ? this.markupReset( markupStack ) : this.markupReset ;
 	}
-	
-	if ( this.extraArguments )
-	{
-		for ( ; autoIndex < length ; autoIndex ++ )
-		{
+
+	if ( this.extraArguments ) {
+		for ( ; autoIndex < length ; autoIndex ++ ) {
 			arg = args[ autoIndex ] ;
 			if ( arg === null || arg === undefined ) { continue ; }
 			else if ( typeof arg === 'string' ) { str += arg ; }
@@ -7009,7 +7030,7 @@ exports.formatMethod = function format( str )
 			else if ( typeof arg.toString === 'function' ) { str += arg.toString() ; }
 		}
 	}
-	
+
 	return str ;
 } ;
 
@@ -7026,13 +7047,13 @@ var defaultFormatter = {
 	markup: {
 		":": ansi.reset ,
 		" ": ansi.reset + " " ,
-		
+
 		"-": ansi.dim ,
 		"+": ansi.bold ,
 		"_": ansi.underline ,
 		"/": ansi.italic ,
 		"!": ansi.inverse ,
-		
+
 		"b": ansi.blue ,
 		"B": ansi.brightBlue ,
 		"c": ansi.cyan ,
@@ -7054,7 +7075,7 @@ var defaultFormatter = {
 		background: {
 			":": ansi.reset ,
 			" ": ansi.reset + " " ,
-			
+
 			"b": ansi.bgBlue ,
 			"B": ansi.bgBrightBlue ,
 			"c": ansi.bgCyan ,
@@ -7080,86 +7101,73 @@ exports.format.default = defaultFormatter ;
 
 
 
-exports.markupMethod = function markup( str )
-{
-	if ( typeof str !== 'string' )
-	{
+exports.markupMethod = function markup_( str ) {
+	if ( typeof str !== 'string' ) {
 		if ( ! str ) { str = '' ; }
 		else if ( typeof str.toString === 'function' ) { str = str.toString() ; }
 		else { str = '' ; }
 	}
-	
-	var self = this , hasMarkup = false , shift = null , markupStack = [] ;
-	
-	if ( this.markupReset && this.startingMarkupReset )
-	{
+
+	var hasMarkup = false , shift = null , markupStack = [] ;
+
+	if ( this.markupReset && this.startingMarkupReset ) {
 		str = ( typeof this.markupReset === 'function' ? this.markupReset( markupStack ) : this.markupReset ) + str ;
 	}
-	
+
 	//console.log( 'format args:' , arguments ) ;
-	
-	str = str.replace( /\^(.?)/g , function( match , markup ) {
+
+	str = str.replace( /\^(.?)/g , ( match , markup ) => {
 		var replacement ;
-		
+
 		if ( markup === '^' ) { return '^' ; }
-		
-		if ( self.shiftMarkup && self.shiftMarkup[ markup ] )
-		{
-			shift = self.shiftMarkup[ markup ] ;
+
+		if ( this.shiftMarkup && this.shiftMarkup[ markup ] ) {
+			shift = this.shiftMarkup[ markup ] ;
 			return '' ;
 		}
-		
-		if ( shift )
-		{
-			if ( ! self.shiftedMarkup || ! self.shiftedMarkup[ shift ] || ! self.shiftedMarkup[ shift ][ markup ] )
-			{
+
+		if ( shift ) {
+			if ( ! this.shiftedMarkup || ! this.shiftedMarkup[ shift ] || ! this.shiftedMarkup[ shift ][ markup ] ) {
 				return '' ;
 			}
-			
+
 			hasMarkup = true ;
-			
-			if ( typeof self.shiftedMarkup[ shift ][ markup ] === 'function' )
-			{
-				replacement = self.shiftedMarkup[ shift ][ markup ]( markupStack ) ;
+
+			if ( typeof this.shiftedMarkup[ shift ][ markup ] === 'function' ) {
+				replacement = this.shiftedMarkup[ shift ][ markup ]( markupStack ) ;
 				// method should manage markup stack themselves
 			}
-			else
-			{
-				replacement = self.shiftedMarkup[ shift ][ markup ] ;
+			else {
+				replacement = this.shiftedMarkup[ shift ][ markup ] ;
 				markupStack.push( replacement ) ;
 			}
-			
+
 			shift = null ;
 		}
-		else
-		{
-			if ( ! self.markup || ! self.markup[ markup ] )
-			{
+		else {
+			if ( ! this.markup || ! this.markup[ markup ] ) {
 				return '' ;
 			}
-			
+
 			hasMarkup = true ;
-			
-			if ( typeof self.markup[ markup ] === 'function' )
-			{
-				replacement = self.markup[ markup ]( markupStack ) ;
+
+			if ( typeof this.markup[ markup ] === 'function' ) {
+				replacement = this.markup[ markup ]( markupStack ) ;
 				// method should manage markup stack themselves
 			}
-			else
-			{
-				replacement = self.markup[ markup ] ;
+			else {
+				replacement = this.markup[ markup ] ;
 				markupStack.push( replacement ) ;
 			}
 		}
-		
+
 		return replacement ;
 	} ) ;
-	
-	if ( hasMarkup && this.markupReset && this.endingMarkupReset )
-	{
+
+	if ( hasMarkup && this.markupReset && this.endingMarkupReset ) {
 		str += typeof this.markupReset === 'function' ? this.markupReset( markupStack ) : this.markupReset ;
 	}
-	
+
 	return str ;
 } ;
 
@@ -7170,52 +7178,46 @@ exports.markup = exports.markupMethod.bind( defaultFormatter ) ;
 
 
 // Count the number of parameters needed for this string
-exports.format.count = function formatCount( str )
-{
+exports.format.count = function formatCount( str ) {
 	var match , index , relative , autoIndex = 1 , maxIndex = 0 ;
-	
+
 	if ( typeof str !== 'string' ) { return 0 ; }
-	
+
 	// This regex differs slightly from the main regex: we do not count '%%' and %F is excluded
 	var regexp = /%([+-]?)([0-9]*)(?:\[([^\]]*)\])?([a-zA-EG-Z])/g ;
-	
-	
-	while ( ( match = regexp.exec( str ) ) !== null )
-	{
+
+
+	while ( ( match = regexp.exec( str ) ) !== null ) {
 		//console.log( match ) ;
 		relative = match[ 1 ] ;
 		index = match[ 2 ] ;
-		
-		if ( index )
-		{
+
+		if ( index ) {
 			index = parseInt( index , 10 ) ;
-			
-			if ( relative )
-			{
+
+			if ( relative ) {
 				if ( relative === '+' ) { index = autoIndex + index ; }
 				else if ( relative === '-' ) { index = autoIndex - index ; }
 			}
 		}
-		else
-		{
+		else {
 			index = autoIndex ;
 		}
-		
+
 		autoIndex ++ ;
-		
+
 		if ( maxIndex < index ) { maxIndex = index ; }
 	}
-	
+
 	return maxIndex ;
 } ;
 
 
 
 // Tell if this string contains formatter chars
-exports.format.hasFormatting = function hasFormatting( str )
-{
+exports.format.hasFormatting = function hasFormatting( str ) {
 	if ( str.search( /\^(.?)|(%%)|%([+-]?)([0-9]*)(?:\[([^\]]*)\])?([a-zA-Z])/ ) !== -1 ) { return true ; }
-	else { return false ; }
+	return false ;
 } ;
 
 
@@ -7225,21 +7227,21 @@ exports.format.hasFormatting = function hasFormatting( str )
 (function (Buffer,process){
 /*
 	String Kit
-	
-	Copyright (c) 2014 - 2017 Cédric Ronvel
-	
+
+	Copyright (c) 2014 - 2018 Cédric Ronvel
+
 	The MIT License (MIT)
-	
+
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-	
+
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
-	
+
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -7269,7 +7271,7 @@ var ansi = require( './ansi.js' ) ;
 
 /*
 	Inspect a variable, return a string ready to be displayed with console.log(), or even as an HTML output.
-	
+
 	Options:
 		* style:
 			* 'none': (default) normal output suitable for console.log() or writing in a file
@@ -7292,25 +7294,23 @@ var ansi = require( './ansi.js' ) ;
 		* useInspect? use .inspect() method when available on an object
 */
 
-function inspect( options , variable )
-{
+function inspect( options , variable ) {
 	if ( arguments.length < 2 ) { variable = options ; options = {} ; }
 	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
-	
+
 	var runtime = { depth: 0 , ancestors: [] } ;
-	
+
 	if ( ! options.style ) { options.style = inspectStyle.none ; }
 	else if ( typeof options.style === 'string' ) { options.style = inspectStyle[ options.style ] ; }
 	else { options.style = Object.assign( {} , inspectStyle.none , options.style ) ; }
-	
+
 	if ( options.depth === undefined ) { options.depth = 3 ; }
 	if ( options.maxLength === undefined ) { options.maxLength = 200 ; }
-	
+
 	// /!\ nofunc is deprecated
 	if ( options.nofunc ) { options.noFunc = true ; }
-	
-	if ( options.minimal )
-	{
+
+	if ( options.minimal ) {
 		options.noFunc = true ;
 		options.noDescriptor = true ;
 		options.noType = true ;
@@ -7318,236 +7318,193 @@ function inspect( options , variable )
 		options.funcDetails = false ;
 		options.proto = false ;
 	}
-	
+
 	return inspect_( runtime , options , variable ) ;
 }
 
 
 
-function inspect_( runtime , options , variable )
-{
+function inspect_( runtime , options , variable ) {
 	var i , funcName , length , proto , propertyList , constructor , keyIsProperty ,
 		type , pre , indent , isArray , isFunc , specialObject ,
 		str = '' , key = '' , descriptorStr = '' , descriptor , nextAncestors ;
-	
-	
+
+
 	// Prepare things (indentation, key, descriptor, ... )
-	
+
 	type = typeof variable ;
 	indent = options.style.tab.repeat( runtime.depth ) ;
-	
+
 	if ( type === 'function' && options.noFunc ) { return '' ; }
-	
-	if ( runtime.key !== undefined )
-	{
-		if ( runtime.descriptor )
-		{
+
+	if ( runtime.key !== undefined ) {
+		if ( runtime.descriptor ) {
 			descriptorStr = [] ;
-			
+
 			if ( ! runtime.descriptor.configurable ) { descriptorStr.push( '-conf' ) ; }
 			if ( ! runtime.descriptor.enumerable ) { descriptorStr.push( '-enum' ) ; }
-			
+
 			// Already displayed by runtime.forceType
 			//if ( runtime.descriptor.get || runtime.descriptor.set ) { descriptorStr.push( 'getter/setter' ) ; } else
 			if ( ! runtime.descriptor.writable ) { descriptorStr.push( '-w' ) ; }
-			
+
 			//if ( descriptorStr.length ) { descriptorStr = '(' + descriptorStr.join( ' ' ) + ')' ; }
 			if ( descriptorStr.length ) { descriptorStr = descriptorStr.join( ' ' ) ; }
 			else { descriptorStr = '' ; }
 		}
-		
-		if ( runtime.keyIsProperty )
-		{
-			if ( keyNeedingQuotes( runtime.key ) )
-			{
+
+		if ( runtime.keyIsProperty ) {
+			if ( keyNeedingQuotes( runtime.key ) ) {
 				key = '"' + options.style.key( runtime.key ) + '": ' ;
 			}
-			else
-			{
+			else {
 				key = options.style.key( runtime.key ) + ': ' ;
 			}
 		}
-		else
-		{
+		else {
 			key = '[' + options.style.index( runtime.key ) + '] ' ;
 		}
-		
+
 		if ( descriptorStr ) { descriptorStr = ' ' + options.style.type( descriptorStr ) ; }
 	}
-	
+
 	pre = runtime.noPre ? '' : indent + key ;
-	
-	
+
+
 	// Describe the current variable
-	
-	if ( variable === undefined )
-	{
+
+	if ( variable === undefined ) {
 		str += pre + options.style.constant( 'undefined' ) + descriptorStr + options.style.nl ;
 	}
-	else if ( variable === null )
-	{
+	else if ( variable === null ) {
 		str += pre + options.style.constant( 'null' ) + descriptorStr + options.style.nl ;
 	}
-	else if ( variable === false )
-	{
+	else if ( variable === false ) {
 		str += pre + options.style.constant( 'false' ) + descriptorStr + options.style.nl ;
 	}
-	else if ( variable === true )
-	{
+	else if ( variable === true ) {
 		str += pre + options.style.constant( 'true' ) + descriptorStr + options.style.nl ;
 	}
-	else if ( type === 'number' )
-	{
+	else if ( type === 'number' ) {
 		str += pre + options.style.number( variable.toString() ) +
 			( options.noType ? '' : ' ' + options.style.type( 'number' ) ) +
 			descriptorStr + options.style.nl ;
 	}
-	else if ( type === 'string' )
-	{
-		if ( variable.length > options.maxLength )
-		{
+	else if ( type === 'string' ) {
+		if ( variable.length > options.maxLength ) {
 			str += pre + '"' + options.style.string( escape.control( variable.slice( 0 , options.maxLength - 1 ) ) ) + '…" ' +
 				( options.noType ? '' : options.style.type( 'string' ) + options.style.length( '(' + variable.length + ' - TRUNCATED)' ) ) +
 				descriptorStr + options.style.nl ;
 		}
-		else
-		{
+		else {
 			str += pre + '"' + options.style.string( escape.control( variable ) ) + '" ' +
 				( options.noType ? '' : options.style.type( 'string' ) + options.style.length( '(' + variable.length + ')' ) ) +
 				descriptorStr + options.style.nl ;
 		}
 	}
-	else if ( Buffer.isBuffer( variable ) )
-	{
+	else if ( Buffer.isBuffer( variable ) ) {
 		str += pre + options.style.inspect( variable.inspect() ) + ' ' +
 			( options.noType ? '' : options.style.type( 'Buffer' ) + options.style.length( '(' + variable.length + ')' ) ) +
 			descriptorStr + options.style.nl ;
 	}
-	else if ( type === 'object' || type === 'function' )
-	{
+	else if ( type === 'object' || type === 'function' ) {
 		funcName = length = '' ;
 		isFunc = false ;
-		if ( type === 'function' )
-		{
+		if ( type === 'function' ) {
 			isFunc = true ;
 			funcName = ' ' + options.style.funcName( ( variable.name ? variable.name : '(anonymous)' ) ) ;
 			length = options.style.length( '(' + variable.length + ')' ) ;
 		}
-		
+
 		isArray = false ;
-		if ( Array.isArray( variable ) )
-		{
+		if ( Array.isArray( variable ) ) {
 			isArray = true ;
 			length = options.style.length( '(' + variable.length + ')' ) ;
 		}
-		
+
 		if ( ! variable.constructor ) { constructor = '(no constructor)' ; }
 		else if ( ! variable.constructor.name ) { constructor = '(anonymous)' ; }
 		else { constructor = variable.constructor.name ; }
-		
+
 		constructor = options.style.constructorName( constructor ) ;
 		proto = Object.getPrototypeOf( variable ) ;
-		
+
 		str += pre ;
-		
-		if ( ! options.noType )
-		{
+
+		if ( ! options.noType ) {
 			if ( runtime.forceType ) { str += options.style.type( runtime.forceType ) ; }
 			else { str += constructor + funcName + length + ' ' + options.style.type( type ) + descriptorStr ; }
-			
+
 			if ( ! isFunc || options.funcDetails ) { str += ' ' ; }	// if no funcDetails imply no space here
 		}
-		
+
 		propertyList = Object.getOwnPropertyNames( variable ) ;
-		
+
 		if ( options.sort ) { propertyList.sort() ; }
-		
+
 		// Special Objects
 		specialObject = specialObjectSubstitution( variable ) ;
-		
-		if ( options.protoBlackList && options.protoBlackList.has( proto ) )
-		{
+
+		if ( options.protoBlackList && options.protoBlackList.has( proto ) ) {
 			str += options.style.limit( '[skip]' ) + options.style.nl ;
 		}
-		else if ( specialObject !== undefined )
-		{
+		else if ( specialObject !== undefined ) {
 			str += '=> ' + inspect_( {
-					depth: runtime.depth ,
-					ancestors: runtime.ancestors ,
-					noPre: true
-				} ,
-				options ,
-				specialObject
+				depth: runtime.depth ,
+				ancestors: runtime.ancestors ,
+				noPre: true
+			} ,
+			options ,
+			specialObject
 			) ;
 		}
-		else if ( isFunc && ! options.funcDetails )
-		{
+		else if ( isFunc && ! options.funcDetails ) {
 			str += options.style.nl ;
 		}
-		else if ( ! propertyList.length && ! options.proto )
-		{
+		else if ( ! propertyList.length && ! options.proto ) {
 			str += '{}' + options.style.nl ;
 		}
-		else if ( runtime.depth >= options.depth )
-		{
+		else if ( runtime.depth >= options.depth ) {
 			str += options.style.limit( '[depth limit]' ) + options.style.nl ;
 		}
-		else if ( runtime.ancestors.indexOf( variable ) !== -1 )
-		{
+		else if ( runtime.ancestors.indexOf( variable ) !== -1 ) {
 			str += options.style.limit( '[circular]' ) + options.style.nl ;
 		}
-		else
-		{
+		else {
 			str += ( isArray && options.noType ? '[' : '{' ) + options.style.nl ;
-			
+
 			// Do not use .concat() here, it doesn't works as expected with arrays...
 			nextAncestors = runtime.ancestors.slice() ;
 			nextAncestors.push( variable ) ;
-			
-			for ( i = 0 ; i < propertyList.length ; i ++ )
-			{
+
+			for ( i = 0 ; i < propertyList.length ; i ++ ) {
 				if ( ! isArray && options.propertyBlackList && options.propertyBlackList.has( propertyList[ i ] ) ) {
 					//str += options.style.limit( '[skip]' ) + options.style.nl ;
 					continue ;
 				}
-				
+
 				try {
 					descriptor = Object.getOwnPropertyDescriptor( variable , propertyList[ i ] ) ;
-					
+
 					if ( ! descriptor.enumerable && options.enumOnly ) { continue ; }
-					
+
 					keyIsProperty = ! isArray || ! descriptor.enumerable || isNaN( propertyList[ i ] ) ;
-					
-					if ( ! options.noDescriptor && ( descriptor.get || descriptor.set ) )
-					{
+
+					if ( ! options.noDescriptor && ( descriptor.get || descriptor.set ) ) {
 						str += inspect_( {
-								depth: runtime.depth + 1 ,
-								ancestors: nextAncestors ,
-								key: propertyList[ i ] ,
-								keyIsProperty: keyIsProperty ,
-								descriptor: descriptor ,
-								forceType: 'getter/setter'
-							} ,
-							options ,
-							{ get: descriptor.get , set: descriptor.set }
+							depth: runtime.depth + 1 ,
+							ancestors: nextAncestors ,
+							key: propertyList[ i ] ,
+							keyIsProperty: keyIsProperty ,
+							descriptor: descriptor ,
+							forceType: 'getter/setter'
+						} ,
+						options ,
+						{ get: descriptor.get , set: descriptor.set }
 						) ;
 					}
-					else
-					{
+					else {
 						str += inspect_( {
-								depth: runtime.depth + 1 ,
-								ancestors: nextAncestors ,
-								key: propertyList[ i ] ,
-								keyIsProperty: keyIsProperty ,
-								descriptor: options.noDescriptor ? undefined : descriptor
-							} ,
-							options ,
-							variable[ propertyList[ i ] ]
-						) ;
-					}
-				}
-				catch ( error ) {
-					str += inspect_( {
 							depth: runtime.depth + 1 ,
 							ancestors: nextAncestors ,
 							key: propertyList[ i ] ,
@@ -7555,36 +7512,47 @@ function inspect_( runtime , options , variable )
 							descriptor: options.noDescriptor ? undefined : descriptor
 						} ,
 						options ,
-						error
+						variable[ propertyList[ i ] ]
+						) ;
+					}
+				}
+				catch ( error ) {
+					str += inspect_( {
+						depth: runtime.depth + 1 ,
+						ancestors: nextAncestors ,
+						key: propertyList[ i ] ,
+						keyIsProperty: keyIsProperty ,
+						descriptor: options.noDescriptor ? undefined : descriptor
+					} ,
+					options ,
+					error
 					) ;
 				}
 			}
-			
-			if ( options.proto )
-			{
+
+			if ( options.proto ) {
 				str += inspect_( {
-						depth: runtime.depth + 1 ,
-						ancestors: nextAncestors ,
-						key: '__proto__' ,
-						keyIsProperty: true
-					} ,
-					options ,
-					proto
+					depth: runtime.depth + 1 ,
+					ancestors: nextAncestors ,
+					key: '__proto__' ,
+					keyIsProperty: true
+				} ,
+				options ,
+				proto
 				) ;
 			}
-			
+
 			str += indent + ( isArray && options.noType ? ']' : '}' ) + options.style.nl ;
 		}
 	}
-	
-	
+
+
 	// Finalizing
-	
-	if ( runtime.depth === 0 )
-	{
+
+	if ( runtime.depth === 0 ) {
 		if ( options.style === 'html' ) { str = escape.html( str ) ; }
 	}
-	
+
 	return str ;
 }
 
@@ -7592,8 +7560,7 @@ exports.inspect = inspect ;
 
 
 
-function keyNeedingQuotes( key )
-{
+function keyNeedingQuotes( key ) {
 	if ( ! key.length ) { return true ; }
 	return false ;
 }
@@ -7601,39 +7568,32 @@ function keyNeedingQuotes( key )
 
 
 // Some special object are better written down when substituted by something else
-function specialObjectSubstitution( variable )
-{
-	switch ( variable.constructor.name )
-	{
+function specialObjectSubstitution( variable ) {
+	switch ( variable.constructor.name ) {
 		case 'String' :
-			if ( variable instanceof String )
-			{
+			if ( variable instanceof String ) {
 				return variable.toString() ;
 			}
 			break ;
 		case 'Date' :
-			if ( variable instanceof Date )
-			{
+			if ( variable instanceof Date ) {
 				return variable.toString() + ' [' + variable.getTime() + ']' ;
 			}
 			break ;
 		case 'Set' :
-			if ( typeof Set === 'function' && variable instanceof Set )
-			{
+			if ( typeof Set === 'function' && variable instanceof Set ) {
 				// This is an ES6 'Set' Object
 				return Array.from( variable ) ;
 			}
 			break ;
 		case 'Map' :
-			if ( typeof Map === 'function' && variable instanceof Map )
-			{
+			if ( typeof Map === 'function' && variable instanceof Map ) {
 				// This is an ES6 'Map' Object
 				return Array.from( variable ) ;
 			}
 			break ;
 		case 'ObjectID' :
-			if ( variable._bsontype )
-			{
+			if ( variable._bsontype ) {
 				// This is a MongoDB ObjectID, rather boring to display in its original form
 				// due to esoteric characters that confuse both the user and the terminal displaying it.
 				// Substitute it to its string representation
@@ -7641,38 +7601,36 @@ function specialObjectSubstitution( variable )
 			}
 			break ;
 	}
-	
+
 	return ;
 }
 
 
 
-function inspectError( options , error )
-{
+function inspectError( options , error ) {
 	var str = '' , stack , type , code ;
-	
+
 	if ( arguments.length < 2 ) { error = options ; options = {} ; }
 	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
-	
-	if ( ! ( error instanceof Error ) )
-	{
+
+	if ( ! ( error instanceof Error ) ) {
 		return 'Not an error -- regular variable inspection: ' + inspect( options , error ) ;
 	}
-	
+
 	if ( ! options.style ) { options.style = inspectStyle.none ; }
 	else if ( typeof options.style === 'string' ) { options.style = inspectStyle[ options.style ] ; }
-	
+
 	if ( error.stack ) { stack = inspectStack( options , error.stack ) ; }
-	
+
 	type = error.type || error.constructor.name ;
 	code = error.code || error.name || error.errno || error.number ;
-	
+
 	str += options.style.errorType( type ) +
 		( code ? ' [' + options.style.errorType( code ) + ']' : '' ) + ': ' ;
 	str += options.style.errorMessage( error.message ) + '\n' ;
-	
+
 	if ( stack ) { str += options.style.errorStack( stack ) + '\n' ; }
-	
+
 	return str ;
 }
 
@@ -7680,40 +7638,37 @@ exports.inspectError = inspectError ;
 
 
 
-function inspectStack( options , stack )
-{
+function inspectStack( options , stack ) {
 	if ( arguments.length < 2 ) { stack = options ; options = {} ; }
 	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
-	
+
 	if ( ! options.style ) { options.style = inspectStyle.none ; }
 	else if ( typeof options.style === 'string' ) { options.style = inspectStyle[ options.style ] ; }
-	
+
 	if ( ! stack ) { return ; }
-	
-	if ( ( options.browser || process.browser ) && stack.indexOf( '@' ) !== -1 )
-	{
+
+	if ( ( options.browser || process.browser ) && stack.indexOf( '@' ) !== -1 ) {
 		// Assume a Firefox-compatible stack-trace here...
 		stack = stack
-			.replace( /[<\/]*(?=@)/g , '' )	// Firefox output some WTF </</</</< stuff in its stack trace -- removing that
-			.replace(
-				/^\s*([^@]*)\s*@\s*([^\n]*)(?::([0-9]+):([0-9]+))?$/mg ,
-				function( matches , method , file , line , column ) {	// jshint ignore:line
-					return options.style.errorStack( '    at ' ) +
+		.replace( /[</]*(?=@)/g , '' )	// Firefox output some WTF </</</</< stuff in its stack trace -- removing that
+		.replace(
+			/^\s*([^@]*)\s*@\s*([^\n]*)(?::([0-9]+):([0-9]+))?$/mg ,
+			( matches , method , file , line , column ) => {	// jshint ignore:line
+				return options.style.errorStack( '    at ' ) +
 						( method ? options.style.errorStackMethod( method ) + ' ' : '' ) +
 						options.style.errorStack( '(' ) +
 						( file ? options.style.errorStackFile( file ) : options.style.errorStack( 'unknown' ) ) +
 						( line ? options.style.errorStack( ':' ) + options.style.errorStackLine( line ) : '' ) +
 						( column ? options.style.errorStack( ':' ) + options.style.errorStackColumn( column ) : '' ) +
 						options.style.errorStack( ')' ) ;
-				}
-			) ;
+			}
+		) ;
 	}
-	else
-	{
+	else {
 		stack = stack.replace( /^[^\n]*\n/ , '' ) ;
 		stack = stack.replace(
-			/^\s*(at)\s+(?:([^\s:\(\)\[\]\n]+(?:\([^\)]+\))?)\s)?(?:\[as ([^\s:\(\)\[\]\n]+)\]\s)?(?:\(?([^:\(\)\[\]\n]+):([0-9]+):([0-9]+)\)?)?$/mg ,
-			function( matches , at , method , as , file , line , column ) {	// jshint ignore:line
+			/^\s*(at)\s+(?:([^\s:()[\]\n]+(?:\([^)]+\))?)\s)?(?:\[as ([^\s:()[\]\n]+)\]\s)?(?:\(?([^:()[\]\n]+):([0-9]+):([0-9]+)\)?)?$/mg ,
+			( matches , at , method , as , file , line , column ) => {	// jshint ignore:line
 				return options.style.errorStack( '    at ' ) +
 					( method ? options.style.errorStackMethod( method ) + ' ' : '' ) +
 					( as ? options.style.errorStack( '[as ' ) + options.style.errorStackMethodAs( as ) + options.style.errorStack( '] ' ) : '' ) +
@@ -7725,7 +7680,7 @@ function inspectStack( options , stack )
 			}
 		) ;
 	}
-	
+
 	return stack ;
 }
 
