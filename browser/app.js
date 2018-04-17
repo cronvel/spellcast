@@ -369,7 +369,7 @@ Dom.prototype.addMessage = function addMessage( text , options , callback ) {
 
 	var $text = document.createElement( 'p' ) ;
 	$text.classList.add( 'text' ) ;
-	
+
 	if ( options.next ) { $text.classList.add( 'continue' ) ; }
 
 	if ( options.class ) {
@@ -379,7 +379,7 @@ Dom.prototype.addMessage = function addMessage( text , options , callback ) {
 	if ( options.style ) {
 		domKit.css( $text , options.style ) ;
 	}
-	
+
 	// Because the text contains <span> tags
 	//$text.textContent = text ;
 	$text.innerHTML = text ;
@@ -732,7 +732,7 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback ) 
 		if ( choice.style ) {
 			domKit.css( $button , choice.style ) ;
 		}
-		
+
 		if ( choice.image ) {
 			$button.classList.add( 'has-image' ) ;
 			var $image = document.createElement( 'img' ) ;
@@ -1256,7 +1256,7 @@ var cardAutoIncrement = 0 ;
 
 Dom.prototype.showCard = function showCard( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
-	
+
 	if ( this.cards[ id ] ) { this.clearCardObject( this.cards[ id ] ) ; }
 
 	var marker = this.cards[ id ] = this.createUiObject( {
@@ -2592,9 +2592,11 @@ UI.prototype.initBus = function initBus() {
 
 	this.bus.on( 'pause' , UI.pause.bind( this ) ) ;
 	this.bus.on( 'unpause' , UI.unpause.bind( this ) ) ;
-	
+
 	this.bus.on( 'wait' , UI.wait.bind( this ) ) ;
 	this.bus.on( 'end' , UI.end.bind( this ) , { async: true } ) ;
+
+	this.bus.on( 'custom' , UI.custom.bind( this ) ) ;
 
 	this.bus.on( 'exit' , UI.exit.bind( this ) ) ;
 
@@ -3147,6 +3149,13 @@ UI.end = function end( result , data , callback ) {
 			this.dom.setDialog( 'Draw.' , options , callback ) ;
 			break ;
 	}
+} ;
+
+
+
+// Custom event, not used in vanilla client
+UI.custom = function custom( event , data ) {
+	console.log( "Received a custom event" , event , data ) ;
 } ;
 
 

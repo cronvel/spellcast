@@ -304,6 +304,12 @@ Events emitted here are usually **userland** event, except few standard events:
   totally deleted, where:
 	* id `string` the card ID to delete
 
+* custom (event, data): this is a custom event. This event is typically sent by the engine when the `[client-emit]`
+  tag is encountered in a spellcast script.
+  Since this is a custom event, there is no global meaning for it.
+	* event `string` the custom event name
+	* data `anything` the custom event data, can be anything
+
 
 
 ### output

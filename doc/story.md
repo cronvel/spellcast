@@ -126,6 +126,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Id Tag](#ref.event.on.id)
 		* [Off Tag](#ref.event.off)
 		* [Cancel Tag](#ref.event.cancel)
+		* [Client-emit Tag](#ref.event.client-emit)
 	* [Multiplayer Tags](#ref.multiplayer)
 		* [Role Tag](#ref.multiplayer.role)
 		* [Split Tag](#ref.multiplayer.split)
@@ -143,6 +144,9 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Unequip Tag](#ref.rpg.unequip)
 		* [Grab Tag](#ref.rpg.grab)
 		* [Drop Tag](#ref.rpg.drop)
+		* [Create-metric Tag](#ref.rpg.create-metric)
+		* [Raise-metric Tag](#ref.rpg.raise-metric)
+		* [Lower-metric Tag](#ref.rpg.lower-metric)
 	* [UI tags](#ref.ui)
 		* [Status Tag](#ref.ui.status)
 		* [Panel Tag](#ref.ui.panel)
@@ -877,21 +881,21 @@ story-telling.
 <a name="ref.scenario.here"></a>
 ## [here]
 
-TODO.
+TODO: documentation
 
 
 
 <a name="ref.scenario.here-actions"></a>
 ## [here-actions]
 
-TODO.
+TODO: documentation
 
 
 
 <a name="ref.scenario.reset-here-actions"></a>
 ## [reset-here-actions]
 
-TODO.
+TODO: documentation
 
 
 
@@ -1090,7 +1094,7 @@ Also compare this:
 <a name="ref.io.indicators"></a>
 ## [indicators]
 
-TODO.
+TODO: documentation
 
 
 
@@ -2225,6 +2229,24 @@ Doing so abort the *next* tag execution: the scene remains the same, just as if 
 
 
 
+<a name="ref.event.client-emit"></a>
+## [client-emit *event-label*]
+
+* types: run
+* attribute style: label
+* content type: anything
+
+The *client-emit* tag emits the *event-label* event on the client-side of the application.
+It does nothing for vanilla clients, but custom clients can use them for anything they want, when non-standard features
+are required.
+
+The event is emitted with the whole solved content as its data.
+
+To be more precise, a *custom* event is emitted and sent through the wire, with the *event-label* as the first argument
+and the solved content as the second argument.
+
+
+
 <a name="ref.multiplayer"></a>
 # Multiplayer Tags
 
@@ -2618,6 +2640,39 @@ The content is an object describing what to drop, properties are:
 
 
 
+<a name="ref.rpg.create-metric"></a>
+## [create-metric *$var*]
+
+* types: run
+* attribute style: var
+* content type: object
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.raise-metric"></a>
+## [raise-metric *$var*]
+
+* types: run
+* attribute style: var
+* content type: string or object
+
+TODO: documentation
+
+
+
+<a name="ref.rpg.lower-metric"></a>
+## [lower-metric *$var*]
+
+* types: run
+* attribute style: var
+* content type: string or object
+
+TODO: documentation
+
+
+
 <a name="ref.ui"></a>
 # UI Tags
 
@@ -2626,21 +2681,21 @@ The content is an object describing what to drop, properties are:
 <a name="ref.ui.status"></a>
 ## [status]
 
-TODO.
+TODO: documentation
 
 
 
 <a name="ref.ui.panel"></a>
 ## [panel]
 
-TODO.
+TODO: documentation
 
 
 
 <a name="ref.ui.add-to-panel"></a>
 ## [add-to-panel]
 
-TODO.
+TODO: documentation
 
 
 
@@ -2649,7 +2704,7 @@ TODO.
 
 Spellcast supports chatbot/interpreter features.
 
-TODO.
+TODO: documentation
 
 
 
@@ -2660,7 +2715,7 @@ TODO.
 * attribute style: label
 * content type: tags
 
-TODO.
+TODO: documentation
 
 
 
@@ -2671,7 +2726,7 @@ TODO.
 * attribute style: none
 * content type: tags
 
-TODO.
+TODO: documentation
 
 
 
@@ -2682,7 +2737,7 @@ TODO.
 * attribute style: none
 * content type: string
 
-TODO.
+TODO: documentation
 
 
 
@@ -2693,7 +2748,7 @@ TODO.
 * attribute style: none
 * content type: tags
 
-TODO.
+TODO: documentation
 
 
 
@@ -2704,7 +2759,7 @@ TODO.
 * attribute style: request syntax
 * content type: string
 
-TODO.
+TODO: documentation
 
 
 
@@ -2806,7 +2861,7 @@ Hello Oz!
 
 This creates a text/name generator.
 
-TODO.
+TODO: documentation
 
 
 
@@ -2819,7 +2874,7 @@ TODO.
 
 This generate a random text/name using the generator provided in the tag content, and put it inside a variable.
 
-TODO.
+TODO: documentation
 
 
 
