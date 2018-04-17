@@ -161,6 +161,13 @@ Events emitted here are usually **userland** event, except few standard events:
 	* otherBranches: roles were split into multiple branches, and the client must wait for other branches to finish,
 	  roles are done waiting once the 'join' event is received.
 
+* pause (duration): it instructs the client that the script execution will pause for some time.
+  Usually the client has nothing to worry about, but it can be usefull for some unusual use-cases.
+  Arguments:
+	* duration: the time in seconds
+* unpause: it instructs the client that the script execution is resuming after a pause.
+  Usually the client has nothing to worry about, but it can be usefull for some unusual use-cases.
+
 * clientConfig (config): configure various things, like assets URL, etc.
   This event is sent only once at the begining of the execution.
   Argument `data` is an object, where:

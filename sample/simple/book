@@ -19,7 +19,7 @@
 		
 		[next wise]
 			[label] > Become wiser
-			[class] bobclass
+			[class] some-class
 			[style]
 				font-size: 20px
 		[next famous] > Become famous
