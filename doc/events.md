@@ -139,7 +139,7 @@ Events emitted here are usually **userland** event, except few standard events:
   `grantedRoleIds` is an array of role's ID, roles that can select a response (TODO).
   `options` is an object containing various optional values for the next list, where:
 	* timeout `number` the time in ms before the vote finish.
-	* style `string` next-list display style, if supported by the client. One of:
+	* nextStyle `string` next-list display style, if supported by the client. One of:
 	  * *auto*: (default) let the client decide how to style it
 	  * *list*: one choice per line
 	  * *smallList*: same than list, with smaller buttons

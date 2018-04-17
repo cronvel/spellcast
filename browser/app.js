@@ -796,15 +796,15 @@ Dom.prototype.setChoices = function setChoices( choices , undecidedNames , onSel
 
 	this.clearChoices( () => {
 
-		switch ( options.style ) {
+		switch ( options.nextStyle ) {
 			case 'inline' :
 			case 'smallInline' :
 			case 'list' :
 			case 'smallList' :
-				this.$choices.setAttribute( 'data-choice-style' , options.style ) ;
+				this.$choices.setAttribute( 'data-choice-style' , options.nextStyle ) ;
 				break ;
 			case 'table' :
-				this.$choices.setAttribute( 'data-choice-style' , options.style ) ;
+				this.$choices.setAttribute( 'data-choice-style' , options.nextStyle ) ;
 				this.$choices.classList.add( 'columns-' + this.getChoiceColumnsCount( choices ) ) ;
 				break ;
 			default :
@@ -2842,15 +2842,15 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , opt
 		} ) ;
 	} ) ;
 
-	if ( ! options.style || options.style === 'auto' ) {
+	if ( ! options.nextStyle || options.nextStyle === 'auto' ) {
 		if ( this.roles.length <= 1 && choices.length <= 3 && charCount < 20 ) {
-			options.style = 'inline' ;
+			options.nextStyle = 'inline' ;
 		}
 		else if ( choices.length > 8 ) {
-			options.style = 'smallList' ;
+			options.nextStyle = 'smallList' ;
 		}
 		else {
-			options.style = 'list' ;
+			options.nextStyle = 'list' ;
 		}
 	}
 
@@ -2867,7 +2867,7 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , opt
 		}
 	} ;
 
-	this.dom.setChoices( choices , undecidedNames , onSelect , { timeout: options.timeout , style: options.style } ) ;
+	this.dom.setChoices( choices , undecidedNames , onSelect , { timeout: options.timeout , nextStyle: options.nextStyle } ) ;
 } ;
 
 
