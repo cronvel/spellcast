@@ -244,8 +244,7 @@ So here we have:
 * The first scene contains 2 `[next]` tags: those tags tell which scene will follow the current one.
 * When there are more than one `[next]` tag in a scene, the player can choose between multiple choice.
 * The `[next]` tag has a scene identifier, e.g. `[next master]` means that if the player choose that option, the
-  next scene will be the one named `master`.
-* The `[label]` tag is simply the text displayed to the user for this choice.
+  next scene will be the one named `master`. The tag is followed by the text displayed to the user for this choice.
 * The `[message]` tag contains text to be displayed to user.
 * The `[win]` and `[lost]` tags causes the game to exit, either with a game win or a game lost.
 
@@ -896,12 +895,14 @@ If some particular options are needed, the content should be formated as an obje
 * important `boolean` if true and if the scene is rendering in the *alternate buffer*, the message should be rendered
   in the *main buffer* too
 * slowTyping `boolean` if true, the message is diplayed letter by letter (not all the clients supports it)
+* style `object` (optional) this is a CSS object to style the message element (not all the clients supports it)
+* class `object` or `string` or `array` (optional) CSS class to enable/disable the message element (not all the clients supports it)
 * image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
   of what is described (not all the clients supports it)
 * sound `url` if set, a sound that should be played along with the message (not all the clients supports it)
 * before `string` if set, this is inserted before the text (useful for models)
 * after `string` if set, this is appended after the text (useful for models)
-* style `string` or `array` of `string`, a list of style to apply to the text (useful for models), supported styles:
+* text-style `string` or `array` of `string`, a list of style to apply to the text (useful for models), supported styles:
     red, green, blue, yellow, brown, cyan, magenta, white, black, grey,
     bright-red, bright-green, bright-blue, bright-yellow, bright-brown, bright-cyan, bright-magenta, bright-white,
     underline, italic, bold, dim, inverse

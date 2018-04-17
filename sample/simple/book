@@ -2,12 +2,16 @@
 [[doctype spellcast/book]]
 
 
+[message-model story]
+	class: story
+	style:
+		font-size: 20px
 
 [chapter intro]
 	
 	[starting-scene intro]
 		
-		[message] $> ^/Once ^Bupon a time...
+		[m story] $> ^/Once ^Bupon a time...
 		[pause] 2
 		[message] $> ...
 		[pause] 2
