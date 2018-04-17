@@ -34,6 +34,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Starting Scene Tag](#ref.scenario.starting-scene)
 		* [Next Tag](#ref.scenario.next)
 			* [Label Tag](#ref.scenario.next.label)
+			* [Style Tag](#ref.scenario.next.style)
+			* [Class Tag](#ref.scenario.next.class)
 			* [Image Tag](#ref.scenario.next.image)
 			* [Vote-style Tag](#ref.scenario.next.vote-style)
 			* [Auto Tag](#ref.scenario.next.auto)
@@ -536,6 +538,28 @@ However, a *scene* has the following parameters tags:
 * content type: string
 
 The label of the choice, i.e. the text used as the description.
+
+
+
+<a name="ref.scenario.scene.style"></a>
+### [style]
+
+* types: parameter
+* attribute style: none
+* content type: object
+
+If supported by the client, this is used to style the *next item* with a CSS object.
+
+
+
+<a name="ref.scenario.scene.class"></a>
+### [class]
+
+* types: parameter
+* attribute style: none
+* content type: string or array or object
+
+If supported by the client, this is used to add one or many CSS classes to the *next item*.
 
 
 

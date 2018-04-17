@@ -129,6 +129,8 @@ Events emitted here are usually **userland** event, except few standard events:
   alternatives, `nexts` is an array of objects containing those alternatives (aka *next items*), where:
 	* label `string` contains the text describing the choice
 	* groupBreak `boolean` true if the item start a new group
+	* style `object` (optional) this is a CSS object to style the next element
+	* class `object` or `string` or `array` (optional) CSS class to enable/disable on the next element
 	* image `url` if set, the choice as an image that would usually be displayed as an icon
 	* button `string` if set to a panel button's ID, it binds this *next item* the that button
 	* roleIds `array` of role's IDs, if not null, it's the client ID of the user holding this role

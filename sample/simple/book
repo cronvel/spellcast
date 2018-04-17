@@ -17,7 +17,11 @@
 		[pause] 2
 		[message] $> What do you seek?
 		
-		[next wise] > Become wiser
+		[next wise]
+			[label] > Become wiser
+			[class] bobclass
+			[style]
+				font-size: 20px
 		[next famous] > Become famous
 		[next hero] > Become a hero
 	

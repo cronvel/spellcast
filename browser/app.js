@@ -725,6 +725,14 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback ) 
 		$button.classList.remove( 'disabled' ) ;
 		//$button.setAttribute( 'data-is-ordered' , !! choice.orderedList ) ;
 
+		if ( choice.class ) {
+			domKit.class( $button , commonUtils.toClassObject( choice.class ) , 's-' ) ;
+		}
+
+		if ( choice.style ) {
+			domKit.css( $button , choice.style ) ;
+		}
+		
 		if ( choice.image ) {
 			$button.classList.add( 'has-image' ) ;
 			var $image = document.createElement( 'img' ) ;
@@ -2833,6 +2841,8 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , opt
 		choices.push( {
 			index: i ,
 			label: next.label || 'Next' ,
+			style: next.style ,
+			class: next.class ,
 			image: next.image ,
 			button: next.button ,
 			groupBreak: !! next.groupBreak ,
