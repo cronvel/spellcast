@@ -1,10 +1,10 @@
 
 [[doctype spellcast/spellbook]]
 
-[spell template-element]
-	[set $a] $%> horse
+[spell template-atom]
+	[set $a] <Atom> horse
 	[message] $> I like ${a}!
 	
-	[set $a] $%> horse
+	[set $a] <Atom> horse
 	[message] $> I like ${a}!
 
