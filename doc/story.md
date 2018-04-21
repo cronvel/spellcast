@@ -1013,7 +1013,7 @@ Example:
 <a name="ref.io.message-model"></a>
 ## [message-model *model*]
 
-* types: init
+* types: run
 * attribute style: label
 * content type: object
 
@@ -1023,7 +1023,7 @@ see [the *message* tag documentation](#ref.io.message) for the list.
 This tag stores a template / default values for further usage with the `[m model]` variant of the [*message* tag](#ref.io.message).
 and it is used to avoid repeating the same [message tag](#ref.io.message)'s options over and over.
 
-This tag should be placed at top-level, like other definitions.
+This tag could be placed at top-level, like other definitions, or in any place, to replace the actual definition.
 
 Example:
 
