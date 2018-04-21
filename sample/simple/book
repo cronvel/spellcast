@@ -2,6 +2,20 @@
 [[doctype spellcast/book]]
 
 
+[create-main-entity]
+	ui-data:
+		default:
+			text-style: blue
+		happy:
+			text-style: bright-magenta
+		sad:
+			text-style: grey
+		happy/snow:
+			text-style: bright-cyan
+
+[message-model me]
+	entity: $player
+
 [message-model story]
 	class: story
 	style:
@@ -12,10 +26,10 @@
 	[starting-scene intro]
 		
 		[m story] $> ^/Once ^Bupon a time...
-		[pause] 2
 		[message] $> ...
-		[pause] 2
 		[message] $> What do you seek?
+		[set $player.variant] happy/non/sensical/path
+		[m me] $> Hey! How are you doing?
 		
 		[client-emit an-event]
 			k1: one
