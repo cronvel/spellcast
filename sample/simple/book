@@ -28,7 +28,8 @@
 		[m story] $> ^/Once ^Bupon a time...
 		[message] $> ...
 		[message] $> What do you seek?
-		[set $player.variant] happy/non/sensical/path
+		
+		[entity-variant $player] > happy/non/sensical/path
 		[m me] $> Hey! How are you doing?
 		
 		[client-emit an-event]

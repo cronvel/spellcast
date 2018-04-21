@@ -138,6 +138,7 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Create-entity Tag](#ref.rpg.create-entity)
 		* [Create-main-entity Tag](#ref.rpg.create-main-entity)
 		* [Update-entity Tag](#ref.rpg.update-entity)
+		* [Entity-variant Tag](#ref.rpg.entity-variant)
 		* [Entity-compound-stats Tag](#ref.rpg.entity-compound-stats)
 		* [Usage-compound-stats Tag](#ref.rpg.usage-compound-stats)
 		* [Item-model Tag](#ref.rpg.item-model)
@@ -1090,6 +1091,8 @@ Also compare this:
 		        - italic
 		    text: > Bob says: Fine, thanks!
 ```
+
+TODO: documentation on the *entity* property, linking to an entity's ui-data variant.
 
 
 
@@ -2439,6 +2442,17 @@ The *update-entity* tag is used to update the entity stored the variable: it com
 It should be used whenever the script has modified a stat, a skill or a status that is involved in compound stats.
 
 Some tags do it automatically, e.g. the [*equip*](#ref.rpg.equip) and [*unequip*](#ref.rpg.unequip) tags.
+
+
+
+<a name="ref.rpg.entity-variant"></a>
+## [entity-variant *$var*]
+
+* types: run
+* attribute style: var
+* content type: string
+
+TODO: documentation
 
 
 
