@@ -3,7 +3,7 @@
 
 [item-model firebolt]
 	class: ability
-	label: firebolt
+	name: firebolt
 	slot-type: ability
 	usages:
 		ranged-fighting:
@@ -13,9 +13,9 @@
 					spell-level: 10
 					mana-level: 6
 					menu-label: $> cast firebolt
-					hit-flavor: $$> ^rThe firebolt hits ${target.label} for ${damages} hp.^:
-					critical-hit-flavor: $$> ^rThe firebolt burns ${target.label} for ${damages} hp.^:
-					fatal-hit-flavor: $$> ^rThe firebolt burns ${target.label} to death for ${damages} hp.^:
+					hit-flavor: $$> ^rThe firebolt hits ${target.name} for ${damages} hp.^:
+					critical-hit-flavor: $$> ^rThe firebolt burns ${target.name} for ${damages} hp.^:
+					fatal-hit-flavor: $$> ^rThe firebolt burns ${target.name} to death for ${damages} hp.^:
 				compound-variation: spell
 				compound:
 					close-ranged: (*) 1.4
@@ -27,7 +27,7 @@
 
 [item-model electric-arc]
 	class: ability
-	label: electric-arc
+	name: electric-arc
 	slot-type: ability
 	usages:
 		ranged-fighting:
@@ -37,9 +37,9 @@
 					spell-level: 9
 					mana-level: 5
 					menu-label: $> cast electric arc
-					hit-flavor: $$> ^rThe electric arc hits ${target.label} for ${damages} hp.^:
-					critical-hit-flavor: $$> ^rThe electric arc electrocutes ${target.label} for ${damages} hp.^:
-					fatal-hit-flavor: $$> ^rThe electric arc blasts ${target.label} for ${damages} hp.^:
+					hit-flavor: $$> ^rThe electric arc hits ${target.name} for ${damages} hp.^:
+					critical-hit-flavor: $$> ^rThe electric arc electrocutes ${target.name} for ${damages} hp.^:
+					fatal-hit-flavor: $$> ^rThe electric arc blasts ${target.name} for ${damages} hp.^:
 				compound-variation: spell
 				compound:
 					close-ranged: (*) 1.5
@@ -51,7 +51,7 @@
 
 [item-model nova]
 	class: ability
-	label: nova
+	name: nova
 	slot-type: ability
 	usages:
 		battle-ability:
@@ -66,10 +66,10 @@
 					effects:
 						-	type: attack
 							defense-type: ranged-fighting
-							miss-flavor: $$> ^y${target.label//uc1} evades the raw energy explosion.
-							hit-flavor: $$> ^rThe raw energy explosion hits ${target.label} for ${damages} hp.^:
-							critical-hit-flavor: $$> ^rThe raw energy explosion blows ${target.label} for ${damages} hp.^:
-							fatal-hit-flavor: $$> ^rThe raw energy explosion blasts ${target.label} for ${damages} hp.^:
+							miss-flavor: $$> ^y${target.name//uc1} evades the raw energy explosion.
+							hit-flavor: $$> ^rThe raw energy explosion hits ${target.name} for ${damages} hp.^:
+							critical-hit-flavor: $$> ^rThe raw energy explosion blows ${target.name} for ${damages} hp.^:
+							fatal-hit-flavor: $$> ^rThe raw energy explosion blasts ${target.name} for ${damages} hp.^:
 							filter:
 								type: radius
 								exclude-self: yes
@@ -83,7 +83,7 @@
 
 [item-model fireball]
 	class: ability
-	label: fireball
+	name: fireball
 	slot-type: ability
 	usages:
 		ranged-fighting:
@@ -94,13 +94,13 @@
 					mana-level: 14
 					menu-label: $> cast fireball
 					hit-flavor:
-						$$> ^rThe fireball hits ${target.label} for ${damages} hp.^:
+						$$> ^rThe fireball hits ${target.name} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
 					critical-hit-flavor:
-						$$> ^rThe fireball engulfs ${target.label} for ${damages} hp.^:
+						$$> ^rThe fireball engulfs ${target.name} for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
 					fatal-hit-flavor:
-						$$> ^rThe fireball burns ${target.label} to death for ${damages} hp.^:
+						$$> ^rThe fireball burns ${target.name} to death for ${damages} hp.^:
 						$$> The ^rfireball^ explodes!
 					effects:
 						-	type: attack
@@ -110,10 +110,10 @@
 								attack: (*) 0.8
 								# Damage modifier applied over the regular damage value
 								damages: (*) 0.6
-							miss-flavor: $$> ^y${target.label//uc1} evades the ^rfireball^y explosion.
-							hit-flavor: $$> ^yThe ^rfireball^y explosion hits ${target.label} for ${damages} hp.
-							critical-hit-flavor: $$> ^yThe ^rfireball^y explosion blows ${target.label} for ${damages} hp.
-							fatal-hit-flavor: $$> ^yThe ^rfireball^y explosion blasts ${target.label} for ${damages} hp.
+							miss-flavor: $$> ^y${target.name//uc1} evades the ^rfireball^y explosion.
+							hit-flavor: $$> ^yThe ^rfireball^y explosion hits ${target.name} for ${damages} hp.
+							critical-hit-flavor: $$> ^yThe ^rfireball^y explosion blows ${target.name} for ${damages} hp.
+							fatal-hit-flavor: $$> ^yThe ^rfireball^y explosion blasts ${target.name} for ${damages} hp.
 							filter:
 								type: radius
 								exclude-self: yes
@@ -130,7 +130,7 @@
 
 [item-model ice-blade]
 	class: ability
-	label: ice blade
+	name: ice blade
 	slot-type: ability
 	usages:
 		melee-fighting:
@@ -140,9 +140,9 @@
 					spell-level: 10
 					mana-level: 6
 					menu-label: $> cast ice blade
-					hit-flavor: $$> ^rThe ice blade hits ${target.label} for ${damages} hp.^:
-					critical-hit-flavor: $$> ^rThe ice blade freezes and slashes ${target.label} for ${damages} hp.^:
-					fatal-hit-flavor: $$> ^rThe ice blade freezes and cuts ${target.label} in half for ${damages} hp.^:
+					hit-flavor: $$> ^rThe ice blade hits ${target.name} for ${damages} hp.^:
+					critical-hit-flavor: $$> ^rThe ice blade freezes and slashes ${target.name} for ${damages} hp.^:
+					fatal-hit-flavor: $$> ^rThe ice blade freezes and cuts ${target.name} in half for ${damages} hp.^:
 				compound-variation: fighting-spell
 				compound:
 					attack: (*) 1.5
@@ -152,7 +152,7 @@
 
 [item-model heal-wound]
 	class: ability
-	label: heal-wound
+	name: heal-wound
 	slot-type: ability
 	usages:
 		battle-ability:
@@ -168,7 +168,7 @@
 					target-allies: yes
 					effects:
 						-	type: healing
-							flavor: $$> ^g${subject.label//uc1} heals ${target.label} for ${healing} hp.^:
+							flavor: $$> ^g${subject.name//uc1} heals ${target.name} for ${healing} hp.^:
 				compound-variation: spell
 				compound:
 					healing: (*) 2

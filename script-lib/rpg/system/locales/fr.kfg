@@ -6,5 +6,5 @@ sentences:
 	- > ^yThe distance between opponents is ${fight.distance} ${fight.distance}[n?step|steps].
 	- > ^yLa distance entre les opposants est ${fight.distance} pas.
 	
-	- > ${fight.turns[0].label//uc1} takes the initiative.
-	- > ${fight.turns[0].label//uc1} prend l'initiative.
+	- > ${fight.turns[0].name//uc1} takes the initiative.
+	- > ${fight.turns[0].name//uc1} prend l'initiative.

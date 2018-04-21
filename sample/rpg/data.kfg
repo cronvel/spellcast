@@ -3,7 +3,7 @@
 
 [entity-model player]
 	class: character
-	label: the hero
+	name: the hero
 	stats:
 		fighting: 16
 		shooting: 12
@@ -37,7 +37,7 @@
 
 [entity-model guardian]
 	class: character
-	label: the guardian
+	name: the guardian
 	params:
 		xp-reward: 10
 		charge: 0.5
@@ -53,7 +53,7 @@
 
 [entity-model footman]
 	class: character
-	label: the footman
+	name: the footman
 	params:
 		xp-reward: 6
 		charge: 0
@@ -69,7 +69,7 @@
 
 [item-model excalibur]
 	class: object
-	label: Excalibur
+	name: Excalibur
 	slot-type: hand
 	slot-count: 1
 	own-stats:
@@ -80,8 +80,8 @@
 			primary:
 				params:
 					menu-label: $> use the Sacred Sword Excalibur
-					critical-hit-flavor: $$> ^r${subject.label//uc1} slashes ${target.label} for ${damages} hp.
-					fatal-hit-flavor: $$> ^r${subject.label//uc1} cut ${target.label} in half for ${damages} hp.
+					critical-hit-flavor: $$> ^r${subject.name//uc1} slashes ${target.name} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${subject.name//uc1} cut ${target.name} in half for ${damages} hp.
 				compound:
 					attack: (*) 1.75
 					defense: (*) 1.75

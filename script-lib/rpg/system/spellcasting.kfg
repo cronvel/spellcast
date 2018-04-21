@@ -10,7 +10,7 @@
 			over-power: 8
 		
 		[if $args.subject.status.mana <= 0]
-			[message] $> ${args.subject.label//uc1} has no mana left.
+			[message] $> ${args.subject.name//uc1} has no mana left.
 			[return] false
 		
 		# First, mana consumption
@@ -35,7 +35,7 @@
 		
 		[if $args.subject.status.mana < 0]
 			[set $args.subject.status.mana] 0
-			[message] $> ${args.subject.label//uc1} used all its mana and miscasts ^/${args.item.label}^:!
+			[message] $> ${args.subject.name//uc1} used all its mana and miscasts ^/${args.item.name}^:!
 			
 			# Don't forget to update malus before leaving!
 			[call rpg:common/update-malus] $subject
@@ -59,10 +59,10 @@
 		[call rpg:common/update-malus] $subject
 		
 		[if ! ( success-roll $local.cast-score $local.vs-score $local.cast-roll )]
-			[message] $> ${args.subject.label//uc1} miscasts ^/${args.item.label}^:!
+			[message] $> ${args.subject.name//uc1} miscasts ^/${args.item.name}^:!
 			[return] false
 		
-		[message] $> ${args.subject.label//uc1} casts ^/${args.item.label}^:!
+		[message] $> ${args.subject.name//uc1} casts ^/${args.item.name}^:!
 		[return] true
 
 	

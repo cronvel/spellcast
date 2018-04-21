@@ -9,7 +9,7 @@
 
 [item-model coin]
 	class: object
-	label: coin
+	name: coin
 	description: A coin.
 	params:
 		examine-flavor: A silver coin.
@@ -18,7 +18,7 @@
 
 [create-main-entity]
 	class: character
-	label: the hero
+	name: the hero
 	slots:
 		hand: 2
 

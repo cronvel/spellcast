@@ -116,7 +116,7 @@ Events emitted here are usually **userland** event, except few standard events:
   Argument `unassignedUsers` is an array of client ID names that hasn't chosen a role yet.
   Argument `roles` is an array of object containing those roles, where:
 	* id `string` contains the unique ID of this role
-	* label `string` contains the text describing the role
+	* name `string` contains the text describing the role
 	* clientId `null` or `string` if not null, it's the client ID of the user holding this role
 
 * enterScene (isGosub, toAltBuffer): the book enter a new scene

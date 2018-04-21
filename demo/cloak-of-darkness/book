@@ -8,7 +8,7 @@
 
 [item-model cloak-of-darkness]
 	class: object
-	label: Cloak of Darkness
+	name: Cloak of Darkness
 	description: A black velvet cloak.
 	params:
 		examine-flavor: The cloak seems to be light-absorbent!
@@ -28,7 +28,7 @@
 
 [item-model sword-of-slashing]
 	class: object
-	label: Sword of Slashing
+	name: Sword of Slashing
 	description: A mighty sword.
 	params:
 		examine-flavor: Oh my gawd! That mighty sword get a +999 bonus at slashing goblins!
@@ -39,7 +39,7 @@
 
 [item-model coin]
 	class: object
-	label: coin
+	name: coin
 	description: A coin.
 	params:
 		examine-flavor: A silver coin.
@@ -49,7 +49,7 @@
 # Create the main character
 [create-main-entity]
 	class: character
-	label: the hero
+	name: the hero
 	slots:
 		cloak: 1
 		hand: 2

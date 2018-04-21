@@ -5,7 +5,7 @@
 
 [entity-model goblin]
 	class: character
-	label:
+	name:
 		- the pesky goblin
 		- the dirty goblin
 		- the mad goblin
@@ -35,9 +35,9 @@
 		charge: 0.2
 		battle-cry: 0.05
 		battle-cry-flavor:
-			- $$> ^+${subject.label//uc1} shouts “Bleed him to death!”
-			- $$> ^+${subject.label//uc1} shouts “Catch him!”
-			- $$> ^+${subject.label//uc1} cries “I don't want do die!”
+			- $$> ^+${subject.name//uc1} shouts “Bleed him to death!”
+			- $$> ^+${subject.name//uc1} shouts “Catch him!”
+			- $$> ^+${subject.name//uc1} cries “I don't want do die!”
 	stats:
 		quickness: 8
 		strength: 6
@@ -58,7 +58,7 @@
 
 [entity-model elf]
 	class: character
-	label: the elf
+	name: the elf
 	params:
 		xp-reward: 7
 	stats:

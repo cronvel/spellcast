@@ -3,7 +3,7 @@
 
 [item-model ring-of-fighting-spirit]
 	class: object
-	label: ring of fighting spirit
+	name: ring of fighting spirit
 	slot-type: ring
 	slot-count: 1
 	own-stats:

@@ -3,14 +3,14 @@
 #[[assets ./]]
 
 [role alice]
-	[label] Alice
+	[name] Alice
 
 [role bob]
-	[label] Bob
+	[name] Bob
 
 [action drink]
 	[message]
-		$> ${this.role.label} drink a cup of vine.
+		$> ${this.role.name} drink a cup of vine.
 
 [on command]
 	[global]
@@ -18,7 +18,7 @@
 		[message] > [chat stopped!]
 		[off]
 	[else]
-		[message] $> ^/${args.role.label//uc1} says:^ “${args.command}^:”
+		[message] $> ^/${args.role.name//uc1} says:^ “${args.command}^:”
 
 
 [chapter intro]

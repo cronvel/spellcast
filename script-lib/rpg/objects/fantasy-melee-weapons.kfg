@@ -3,21 +3,21 @@
 
 [item-model fire-sword]
 	class: object
-	label: fire sword
+	name: fire sword
 	slot-type: hand
 	slot-count: 1
 	own-stats:
 		price: 3100
 	params:
-		equip-flavor: $$> As ${subject.label} wields ${item.label//en:the}, ^rit starts burning with dancing flames.
-		unequip-flavor: $$> As ${subject.label} unwields ${item.label//en:the}, ^bthe flames disappears.
+		equip-flavor: $$> As ${subject.name} wields ${item.name//en:the}, ^rit starts burning with dancing flames.
+		unequip-flavor: $$> As ${subject.name} unwields ${item.name//en:the}, ^bthe flames disappears.
 	usages:
 		melee-fighting:
 			# When the weapon is used
 			primary:
 				params:
-					critical-hit-flavor: $$> ^r${subject.label//uc1} burns and slashes ${target.label} for ${damages} hp.
-					fatal-hit-flavor: $$> ^r${subject.label//uc1} incinerates and cuts ${target.label} in half for ${damages} hp.
+					critical-hit-flavor: $$> ^r${subject.name//uc1} burns and slashes ${target.name} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${subject.name//uc1} incinerates and cuts ${target.name} in half for ${damages} hp.
 				compound:
 					attack: (*) 1.5
 					defense: (*) 1.5

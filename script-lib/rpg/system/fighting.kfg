@@ -122,7 +122,7 @@
 			[set $fight.ended] true
 		
 		[on $fight.scheduler ready]
-			#[message] $> ready: ${args.subject.label}
+			#[message] $> ready: ${args.subject.name}
 			
 			[if $args.subject.status.health <= 0]
 				[call manage-death] $args.subject
@@ -140,21 +140,21 @@
 		
 		# Not useful, it kicks in immediately after	ready
 		#[on $fight.scheduler started]
-		#	[message] $> started: ${args.subject.label} ${args.action}
+		#	[message] $> started: ${args.subject.name} ${args.action}
 		
 		[on $fight.scheduler prepared]
 			[if $args.subject.status.health <= 0]
 				[call manage-death] $args.subject
 				[return]
 			
-			#[message] $> prepared: ${args.subject.label} ${args.action}
+			#[message] $> prepared: ${args.subject.name} ${args.action}
 			[set $local.fn] $= $args.action . "-prepared"
 			[call $local.fn] $args.action-data
 		
 			[set $args.subject.adhoc.fight.goneThrough] 0
 			
 		[on $fight.scheduler released]
-			#[message] $> released: ${args.subject.label} ${args.action} ${args.action-data.subject}
+			#[message] $> released: ${args.subject.name} ${args.action} ${args.action-data.subject}
 			#[if $args.subject.status.health <= 0]
 			[if $args.subject.adhoc.fight.goneThrough]
 				[message]
@@ -169,12 +169,12 @@
 				[call manage-death] $args.subject
 		
 		[on $fight.scheduler recovered]
-			#[message] $> recovered: ${args.subject.label} ${args.action} ${args.action-data.subject}
+			#[message] $> recovered: ${args.subject.name} ${args.action} ${args.action-data.subject}
 			[if $args.subject.status.health <= 0]
 				[call manage-death] $args.subject
 			[elseif $fight.ending]
 				[remove-from-scheduler $fight.scheduler] $args.subject
-			#[message] $> recovered: ${args.subject.label} ${args.action}
+			#[message] $> recovered: ${args.subject.name} ${args.action}
 			#[set $local.fn] $= $args.action . "-recovered"
 			#[call $local.fn] $args.action-data
 		
@@ -228,7 +228,7 @@
 
 
 	[fn win]
-		[message] $> ${fight.allies[0].label//uc1} win the fight.
+		[message] $> ${fight.allies[0].name//uc1} win the fight.
 		[set $local.xp-reward] 0
 
 		[foreach $fight.foes => $local.entity]
@@ -249,7 +249,7 @@
 
 
 	[fn lost]
-		[message] $> ${fight.allies[0].label//uc1} died on the battlefield.
+		[message] $> ${fight.allies[0].name//uc1} died on the battlefield.
 		[lost]
 
 
@@ -340,7 +340,7 @@
 				[apply $local.battle-cry => $local.flavor] $
 				[message] $local.flavor
 			[else]
-				[message] $> ${subject.label//uc1} shouts!
+				[message] $> ${subject.name//uc1} shouts!
 
 
 		[if $subject.params.charge && ( ( random ) <= $subject.params.charge )]
@@ -499,7 +499,7 @@
 			[next]
 				[args]
 					index: $local.index
-				[label] $> ${local.position} ${local.entity.label//uc1}
+				[label] $> ${local.position} ${local.entity.name//uc1}
 				[on-trigger]
 					[set $fight.target] $local.possible-targets[$args.index]
 
@@ -555,11 +555,11 @@
 			[set $subject.adhoc.fight.press-value] 0
 
 			[if $subject.adhoc.fight.offensiveness > 0]
-				[message] $> ${subject.label//uc1} runs toward the opposing crew.
+				[message] $> ${subject.name//uc1} runs toward the opposing crew.
 			[elseif $subject.adhoc.fight.offensiveness < 0]
-				[message] $> ${subject.label//uc1} walks cautiously toward the opposing crew.
+				[message] $> ${subject.name//uc1} walks cautiously toward the opposing crew.
 			[else]
-				[message] $> ${subject.label//uc1} marches toward the opposing crew.
+				[message] $> ${subject.name//uc1} marches toward the opposing crew.
 
 		#[message] $> ready time: ${subject.adhoc.fight.alertness}
 		#[message] $> prepare time: ${subject.actual-usages.melee-fighting.compound.prepare-time}
@@ -654,9 +654,9 @@
 
 		[else]
 			[fortune]
-				- $> ${subject.label//uc1} misses ${target.label}.
-				- $> ${target.label//uc1} blocks ${subject.label}.
-				- $> ${target.label//uc1} avoids ${subject.label}.
+				- $> ${subject.name//uc1} misses ${target.name}.
+				- $> ${target.name//uc1} blocks ${subject.name}.
+				- $> ${target.name//uc1} avoids ${subject.name}.
 
 
 
@@ -670,7 +670,7 @@
 		[if $fight.distance > 0]
 			[set $subject.adhoc.fight.press-target] null
 			[set $subject.adhoc.fight.press-value] 0
-			[message] $> ${subject.label//uc1} charges toward the opposing crew.
+			[message] $> ${subject.name//uc1} charges toward the opposing crew.
 		
 		[schedule-action $fight.scheduler]
 			subject: $subject
@@ -728,7 +728,7 @@
 
 		#[message] $> Charge: ${local.attack-score} vs ${local.defense-score}
 
-		[message] $> ${subject.label//uc1} charges ${target.label}!
+		[message] $> ${subject.name//uc1} charges ${target.name}!
 
 		[inc $target.adhoc.fight.goneThrough]
 		
@@ -739,9 +739,9 @@
 				[call deadly-push]
 		[else]
 			[fortune]
-				- $> ${subject.label//uc1} misses ${target.label}.
-				- $> ${target.label//uc1} blocks ${subject.label}.
-				- $> ${target.label//uc1} avoids ${subject.label}.
+				- $> ${subject.name//uc1} misses ${target.name}.
+				- $> ${target.name//uc1} blocks ${subject.name}.
+				- $> ${target.name//uc1} avoids ${subject.name}.
 
 
 
@@ -777,13 +777,13 @@
 		[set $target] $args.target
 		[set $item] $subject.primary.ranged-fighting
 
-		[if $item.usages.ranged-fighting.primary.params.projectile-label]
-			[set $projectile.label] $item.usages.ranged-fighting.primary.params.projectile-label
+		[if $item.usages.ranged-fighting.primary.params.projectile-name]
+			[set $projectile.name] $item.usages.ranged-fighting.primary.params.projectile-name
 		[else]
 			[set $projectile] $item
 
 		#[debug info] $projectile
-		#[debug info] $item.usages.ranged-fighting.primary.params.projectile-label
+		#[debug info] $item.usages.ranged-fighting.primary.params.projectile-name
 
 		[set $subject.adhoc.fight.press-target] $target
 		[set $subject.adhoc.fight.press-value] 4
@@ -827,7 +827,7 @@
 			#[message] $> Close range: ${local.attack-score} vs ${local.defense-score}
 
 			[if ! ( success-roll $local.attack-score $local.defense-score $const.melee-attack-roll )]
-				[message] $> ${target.label//uc1} prevents ${subject.label} from attacking from afar.
+				[message] $> ${target.name//uc1} prevents ${subject.name} from attacking from afar.
 				[return]
 
 		[set $local.aiming-score] $= $subject.actual-usages.ranged-fighting.compound.aiming
@@ -845,7 +845,7 @@
 		#[message] $> Aiming: ${local.aiming-score} vs ${local.anti-aiming-score} / ${local.guard-score} => ${local.aiming[0]} / ${local.aiming[1]}
 		
 		[if ! $local.aiming[0]]
-			[message] $> ${subject.label//uc1} misses ${target.label}.
+			[message] $> ${subject.name//uc1} misses ${target.name}.
 			[return]
 
 		[if ! $local.aiming[1]]
@@ -853,7 +853,7 @@
 				[apply $target.actual-usages.ranged-fighting.params.guard-flavor => $local.flavor] $
 				[message] $local.flavor
 			[else]
-				[message] $> ${subject.label//uc1} misses ${target.label}.
+				[message] $> ${subject.name//uc1} misses ${target.name}.
 			[return]
 
 		[set $local.attack-score] $= $subject.actual-usages.ranged-fighting.compound.attack
@@ -891,8 +891,8 @@
 
 		[else]
 			[fortune]
-				- $> ${target.label//uc1} blocks ${subject.label}'s ${projectile.label}.
-				- $> ${target.label//uc1} avoids ${subject.label}'s ${projectile.label}.
+				- $> ${target.name//uc1} blocks ${subject.name}'s ${projectile.name}.
+				- $> ${target.name//uc1} avoids ${subject.name}'s ${projectile.name}.
 
 
 
@@ -1049,7 +1049,7 @@
 			[elseif $args.usage.params.hit-flavor is-set?]
 				[apply $args.usage.params.hit-flavor => $local.flavor] $
 			[else]
-				[set $local.flavor] $> ^r${subject.label//uc1} deadly hits ${target.label} for ${damages} hp.
+				[set $local.flavor] $> ^r${subject.name//uc1} deadly hits ${target.name} for ${damages} hp.
 		[elseif $damages >= 25]
 			[if $args.critical-hit-flavor is-set?]
 				[apply $args.critical-hit-flavor => $local.flavor] $
@@ -1060,14 +1060,14 @@
 			[elseif $args.usage.params.hit-flavor is-set?]
 				[apply $args.usage.params.hit-flavor => $local.flavor] $
 			[else]
-				[set $local.flavor] $> ^r${subject.label//uc1} critically hits ${target.label} for ${damages} hp.
+				[set $local.flavor] $> ^r${subject.name//uc1} critically hits ${target.name} for ${damages} hp.
 		[else]
 			[if $args.hit-flavor is-set?]
 				[apply $args.hit-flavor => $local.flavor] $
 			[elseif $args.usage.params.hit-flavor is-set?]
 				[apply $args.usage.params.hit-flavor => $local.flavor] $
 			[else]
-				[set $local.flavor] $> ^r${subject.label//uc1} hits ${target.label} for ${damages} hp.
+				[set $local.flavor] $> ^r${subject.name//uc1} hits ${target.name} for ${damages} hp.
 
 		[message] $local.flavor
 
@@ -1075,12 +1075,12 @@
 
 	[fn manage-death]
 		[set $subject] $args
-		#[message] $> manage death! ${subject.label} ${subject.status.health} ${subject.status.alive}
+		#[message] $> manage death! ${subject.name} ${subject.status.health} ${subject.status.alive}
 		[if ( $subject.status.health > 0 ) || ( ! $subject.status.alive )]
 			[return]
 		
 		[set $subject.status.alive] false
-		[message] $> ^R^+${subject.label//uc1} is dead.
+		[message] $> ^R^+${subject.name//uc1} is dead.
 		[remove-from-scheduler $fight.scheduler] $subject
 	
 	
@@ -1092,7 +1092,7 @@
 		[if ! $args.usage]
 			[set $args.usage] $subject.actual-usages.battle-ability
 
-		#[message] $> ^Khealing -- checking: ${target.label}
+		#[message] $> ^Khealing -- checking: ${target.name}
 
 		#[if $target.status.health >= 100]
 		#	[return]
@@ -1132,7 +1132,7 @@
 		[elseif $args.usage.params.flavor is-set?]
 			[apply $args.usage.params.flavor => $local.flavor] $
 		[else]
-			[set $local.flavor] $> ^r${subject.label//uc1} heals ${target.label} for ${healing} hp.
+			[set $local.flavor] $> ^r${subject.name//uc1} heals ${target.name} for ${healing} hp.
 
 		[message] $local.flavor
 
@@ -1283,13 +1283,13 @@
 		[mul $local.attack-score] $= $const.low-pressure ^ $subject.adhoc.fight.pressure
 		[mul $local.defense-score] $= $const.low-pressure ^ $target.adhoc.fight.pressure
 
-		#[message] $> Attacker ${subject.label} offensiveness: ${subject.adhoc.fight.offensiveness}
+		#[message] $> Attacker ${subject.name} offensiveness: ${subject.adhoc.fight.offensiveness}
 		[if $subject.adhoc.fight.offensiveness > 0]
 			[mul $local.attack-score] $const.offensiveness-bonus
 		[elseif $subject.adhoc.fight.offensiveness < 0]
 			[mul $local.attack-score] $const.offensiveness-malus
 
-		#[message] $> Defender ${target.label} offensiveness: ${target.adhoc.fight.offensiveness}
+		#[message] $> Defender ${target.name} offensiveness: ${target.adhoc.fight.offensiveness}
 		[if $target.adhoc.fight.offensiveness > 0]
 			[mul $local.defense-score] $const.offensiveness-malus
 		[elseif $target.adhoc.fight.offensiveness < 0]

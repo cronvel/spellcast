@@ -3,7 +3,7 @@
 
 [entity-model human]
 	class: character
-	label: the human
+	name: the human
 	params:
 		xp-reward: 5
 	stats:
@@ -24,7 +24,7 @@
 
 [entity-model dog]
 	class: character
-	label: the dog
+	name: the dog
 	params:
 		xp-reward: 5
 	stats:

@@ -129,6 +129,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Client-emit Tag](#ref.event.client-emit)
 	* [Multiplayer Tags](#ref.multiplayer)
 		* [Role Tag](#ref.multiplayer.role)
+			* [Name Tag](#ref.multiplayer.role.name)
+			* [Entity Tag](#ref.multiplayer.role.entity)
 		* [Split Tag](#ref.multiplayer.split)
 	* [RPG Tags](#ref.rpg)
 		* [Entity-class Tag](#ref.rpg.entity-class)
@@ -2271,14 +2273,14 @@ It has some parameter tags.
 
 
 
-<a name="ref.multiplayer.role.label"></a>
-### [label]
+<a name="ref.multiplayer.role.name"></a>
+### [name]
 
 * types: parameter
 * attribute style: none
 * content type: string
 
-The *label* tag contains the name of the role, as displayed to users.
+The *name* tag contains the name of the role, as displayed to users.
 
 
 

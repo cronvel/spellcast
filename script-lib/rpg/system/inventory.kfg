@@ -22,7 +22,7 @@
 		[if $here.items is-empty?]
 			[return]
 		
-		[map $here.items => $local.items] $= $this.label
+		[map $here.items => $local.items] $= $this.name
 		
 		[if $local.items.length > 4]
 			[set $local.items.length] 4
@@ -62,7 +62,7 @@
 			[next inventory-object-menu]
 				[args]
 					index: $local.index
-				[label] $> ${local.item.label} (${local.item.slot-type})
+				[label] $> ${local.item.name} (${local.item.slot-type})
 				[on-trigger]
 					[set $item] $local.equipped-items[$args.index]
 					[set $equipped] true
@@ -71,7 +71,7 @@
 			[next inventory-object-menu]
 				[args]
 					index: $local.index
-				[label] $> ${local.item.label}
+				[label] $> ${local.item.name}
 				[on-trigger]
 					[set $item] $local.unequipped-items[$args.index]
 					[set $equipped] false
@@ -96,16 +96,16 @@
 		
 		[if $equipped]
 			[message]
-				$> ^_${item.label//uc1}^ (equipped: ${item.slot-type})
+				$> ^_${item.name//uc1}^ (equipped: ${item.slot-type})
 			[next inventory-object-menu]
-				[label] $> Unequip ${item.label}
+				[label] $> Unequip ${item.name}
 				[on-trigger]
 					[set $equipped] false
 					[unequip $subject]
 						item: $item
 			[if $stack]
 				[next inventory-menu]
-					[label] $> Unequip and drop ${item.label}
+					[label] $> Unequip and drop ${item.name}
 					[on-trigger]
 						[emit rpg:drop-item => $local.cancel] $item
 						[if ! $local.cancel]
@@ -117,16 +117,16 @@
 								stack: $stack
 		[else]
 			[message]
-				$> ^_${item.label//uc1}^ (inventory)
+				$> ^_${item.name//uc1}^ (inventory)
 			[next inventory-object-menu]
-				[label] $> Equip ${item.label}
+				[label] $> Equip ${item.name}
 				[on-trigger]
 					[set $equipped] true
 					[equip $subject]
 						item: $item
 			[if $stack]
 				[next inventory-menu]
-					[label] $> Drop ${item.label}
+					[label] $> Drop ${item.name}
 					[on-trigger]
 						[emit rpg:drop-item => $local.cancel] $item
 						[if ! $local.cancel]
@@ -172,7 +172,7 @@
 			[next grab-object-menu]
 				[args]
 					index: $local.index
-				[label] $> ${local.item.label}
+				[label] $> ${local.item.name}
 				[on-trigger]
 					[set $item] $stack[$args.index]
 		
@@ -187,7 +187,7 @@
 		
 		
 		[message]
-			$> ^_${item.label//uc1}^:
+			$> ^_${item.name//uc1}^:
 			$>
 			$> ${item.description//uc1/dash2space}
 		
@@ -200,7 +200,7 @@
 					[message] $> There is nothing special.
 		
 		[next grab-menu]
-			[label] $> Grab ${item.label}
+			[label] $> Grab ${item.name}
 			[on-trigger]
 				[grab $subject]
 					item: $item
@@ -238,7 +238,7 @@
 		
 		[if $subject.primary[$usage]]
 			[set $local.currentPrimary] $subject.primary[$usage]
-			[set $local.abort-label] $> Keep using: ${local.currentPrimary.label} (${local.currentPrimary.class})
+			[set $local.abort-label] $> Keep using: ${local.currentPrimary.name} (${local.currentPrimary.class})
 		[else]
 			[set $local.abort-label] $> (Abort)
 		
@@ -262,7 +262,7 @@
 			[next]
 				[args]
 					index: $local.index
-				[label] $> ${local.item.label//uc1} (${local.item.class})
+				[label] $> ${local.item.name//uc1} (${local.item.class})
 				[on-trigger]
 					[set $local.item] $local.items[$args.index]
 					[if $local.item.class = "ability"]
@@ -328,7 +328,7 @@
 			[next]
 				[args]
 					index: $local.index
-				[label] $> ${unequip-verb//uc1} ${local.item.label} (${local.item.class})
+				[label] $> ${unequip-verb//uc1} ${local.item.name} (${local.item.class})
 				[on-trigger]
 					[set $local.item] $local.equipped-items[$args.index]
 					
@@ -353,7 +353,7 @@
 			[next]
 				[args]
 					index: $local.index
-				[label] $> ${equip-verb//uc1} ${local.item.label} (${local.item.class})
+				[label] $> ${equip-verb//uc1} ${local.item.name} (${local.item.class})
 				[on-trigger]
 					[set $local.item] $local.unequipped-items[$args.index]
 					
@@ -389,9 +389,9 @@
 			[apply $local.template => $local.flavor] $
 			[message] $local.flavor
 		[elseif $item.slot-type = "hand"]
-			[message] $> ${subject.label//uc1} wields ${item.label//en:the}.
+			[message] $> ${subject.name//uc1} wields ${item.name//en:the}.
 		[else]
-			[message] $> ${subject.label//uc1} equips ${item.label//en:the}.
+			[message] $> ${subject.name//uc1} equips ${item.name//en:the}.
 		
 		[equip $subject]
 			item: $item
@@ -407,9 +407,9 @@
 			[apply $local.template => $local.flavor] $
 			[message] $local.flavor
 		[elseif $item.slot-type = "hand"]
-			[message] $> ${subject.label//uc1} unwields ${item.label//en:the}.
+			[message] $> ${subject.name//uc1} unwields ${item.name//en:the}.
 		[else]
-			[message] $> ${subject.label//uc1} unequips ${item.label//en:the}.
+			[message] $> ${subject.name//uc1} unequips ${item.name//en:the}.
 		
 		[unequip $subject]
 			item: $item
@@ -471,7 +471,7 @@
 					stack: $args.stack
 					item: $local.item
 					price: $local.price
-				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
+				[label] $> ${local.verb//uc1} ${local.item.name//uc1} ${local.price-string}
 				[on-trigger]
 					[if $args.subject.goods.cash >= $args.price]
 						[sub $args.subject.goods.cash] $args.price
@@ -504,7 +504,7 @@
 					stack: $args.stack
 					item: $local.item
 					price: $local.price
-				[label] $> ${local.verb//uc1} ${local.item.label//uc1} ${local.price-string}
+				[label] $> ${local.verb//uc1} ${local.item.name//uc1} ${local.price-string}
 				[on-trigger]
 					[add $args.subject.goods.cash] $args.price
 					[drop $args.subject]
