@@ -31,6 +31,10 @@
 		
 		[entity-variant $player] > happy/non/sensical/path
 		[m me] $> Hey! How are you doing?
+		[set $var]
+			text-style: yellow
+		[m $var] $> Hey! How are you doing?
+		[m $player] $> Hey! How are you doing?
 		
 		[client-emit an-event]
 			k1: one

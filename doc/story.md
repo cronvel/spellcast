@@ -908,10 +908,10 @@ TODO: documentation
 
 
 <a name="ref.io.message"></a>
-## [message] / [m *model*]
+## [message] / [m *model*] / [m *$var*]
 
 * types: run
-* attribute style: label
+* attribute style: none, label or var
 * content type: string, template, object or array of: string, template or object.
 
 The *message* tag is used to display a message in the client user interface.
@@ -938,7 +938,12 @@ If some particular options are needed, the content should be formated as an obje
     bright-red, bright-green, bright-blue, bright-yellow, bright-brown, bright-cyan, bright-magenta, bright-white,
     underline, italic, bold, dim, inverse
 
-If the [m *model*] syntax is used, everything in the *model* is used as default, see [the *message-model* tag](#ref.io.message-model).
+If the [m *model*] syntax is used, it used a predefined *message-model*: everything in the *model* is used as default.
+See [the *message-model* tag](#ref.io.message-model).
+
+If the [m *$var*] syntax is used:
+* if the variable is an Entity, it will use the entity's message options as default (stored in entity.ui-data *.variant*)
+* else if the variable is an object, everything in it is used as default
 
 The *hello world* example:
 
