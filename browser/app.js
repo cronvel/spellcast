@@ -2266,7 +2266,11 @@ SpellcastClient.prototype.run = function run( callback ) {
 		if ( uiList[ ui ] ) { uiList[ ui ]( self.proxy.remoteServices.bus , self ) ; }
 	} ) ;
 
-	this.ws = new WebSocket( 'ws://127.0.0.1:' + this.port + '/' + this.token ) ;
+	//this.ws = new WebSocket( 'ws://127.0.0.1:' + this.port + '/' + this.token ) ;
+	this.ws = new WebSocket( 'ws://' + window.location.hostname +
+		( window.location.port ? ':' + window.location.port : '' ) +
+		window.location.pathname +
+		( this.token || '' ) ) ;
 
 	this.emit( 'connecting' ) ;
 
@@ -3921,12 +3925,13 @@ NextGenEvents.Internal = function Internal( from ) {
 		// Copy all contexts
 		Object.keys( from.contexts ).forEach( contextName => {
 			var context = from.contexts[ contextName ] ;
-
-			this.addListenerContext( contextName , {
+			this.contexts[ contextName ] = {
 				nice: context.nice ,
+				ready: true ,
 				status: context.status ,
-				serial: context.serial
-			} ) ;
+				serial: context.serial ,
+				scopes: {}
+			} ;
 		} ) ;
 	}
 } ;
@@ -4760,6 +4765,7 @@ NextGenEvents.prototype.addListenerContext = function addListenerContext( contex
 			nice: NextGenEvents.SYNC ,
 			ready: true ,
 			status: NextGenEvents.CONTEXT_ENABLED ,
+			serial: false ,
 			scopes: {}
 		} ;
 	}
@@ -5549,29 +5555,28 @@ module.exports.isBrowser = true ;
 
 },{"./NextGenEvents.js":9}],12:[function(require,module,exports){
 module.exports={
-  "_from": "nextgen-events@0.13.0",
-  "_id": "nextgen-events@0.13.0",
+  "_from": "nextgen-events@^0.13.1",
+  "_id": "nextgen-events@0.13.1",
   "_inBundle": false,
-  "_integrity": "sha512-+MuSfdF10xlUG2F7elNM3YENy+QnEBtetCPrQnYwCKFCIFw/UGbDXDjW9Vn/cvHBUTH4Y7DRgz6HZlLEM7zHYg==",
+  "_integrity": "sha512-Ky58LnTY9fWB4ov3CmVvVFmZGXCE00NLK1LJjZAFPuGLWgbQFTIlMZHmEEGrHldbrDc2ibHEB6Uu8Tm0DmKblw==",
   "_location": "/nextgen-events",
   "_phantomChildren": {},
   "_requested": {
-    "type": "version",
+    "type": "range",
     "registry": true,
-    "raw": "nextgen-events@0.13.0",
+    "raw": "nextgen-events@^0.13.1",
     "name": "nextgen-events",
     "escapedName": "nextgen-events",
-    "rawSpec": "0.13.0",
+    "rawSpec": "^0.13.1",
     "saveSpec": null,
-    "fetchSpec": "0.13.0"
+    "fetchSpec": "^0.13.1"
   },
   "_requiredBy": [
-    "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.13.0.tgz",
-  "_shasum": "320771b90eea892ec09398d9de69233e58677b2a",
-  "_spec": "nextgen-events@0.13.0",
+  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.13.1.tgz",
+  "_shasum": "da39621517de01ae06e34670863893accb6d9ac1",
+  "_spec": "nextgen-events@^0.13.1",
   "_where": "/home/cedric/inside/github/spellcast",
   "author": {
     "name": "Cédric Ronvel"
@@ -5635,7 +5640,7 @@ module.exports={
   "scripts": {
     "test": "mocha -R dot"
   },
-  "version": "0.13.0"
+  "version": "0.13.1"
 }
 
 },{}],13:[function(require,module,exports){

@@ -21,6 +21,7 @@
     "doormen": "^0.6.10",
     "fs-kit": "^0.3.0",
     "glob": "^7.1.2",
+    "hash-kit": "^0.3.1",
     "jsbindat": "^0.9.6",
     "kung-fig": "^0.45.3",
     "logfella": "^0.3.57",
