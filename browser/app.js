@@ -2218,10 +2218,14 @@ SpellcastClient.prototype.constructor = SpellcastClient ;
 
 SpellcastClient.create = function create( options ) {
 	var self = Object.create( SpellcastClient.prototype , {
-		token: { value: options.token || 'null' , writable: true , enumerable: true } ,
+		domain: { value: options.domain || 'localhost' , writable: true , enumerable: true } ,
 		port: { value: options.port || 80 , writable: true , enumerable: true } ,
+		path: { value: options.path || '/' , writable: true , enumerable: true } ,
+		token: { value: options.token || '' , writable: true , enumerable: true } ,
 		userName: {
-			value: options.name || 'unknown_' + Math.floor( Math.random() * 10000 ) , writable: true , enumerable: true
+			value: options.name || 'unknown_' + Math.floor( Math.random() * 10000 ) ,
+			writable: true ,
+			enumerable: true
 		} ,
 		ws: { value: null , writable: true , enumerable: true } ,
 		proxy: { value: null , writable: true , enumerable: true }
@@ -2239,7 +2243,13 @@ var uiList = {
 
 
 SpellcastClient.autoCreate = function autoCreate() {
-	var options = url.parse( window.location.href , true ).query ;
+	var options = {
+		port: window.location.port ,
+		domain: window.location.hostname ,
+		path: window.location.pathname
+	} ;
+
+	Object.assign( options , url.parse( window.location.href , true ).query ) ;
 
 	window.spellcastClient = SpellcastClient.create( options ) ;
 	//window.spellcastClient.init() ;
@@ -2266,11 +2276,13 @@ SpellcastClient.prototype.run = function run( callback ) {
 		if ( uiList[ ui ] ) { uiList[ ui ]( self.proxy.remoteServices.bus , self ) ; }
 	} ) ;
 
-	//this.ws = new WebSocket( 'ws://127.0.0.1:' + this.port + '/' + this.token ) ;
-	this.ws = new WebSocket( 'ws://' + window.location.hostname +
-		( window.location.port ? ':' + window.location.port : '' ) +
-		window.location.pathname +
-		( this.token || '' ) ) ;
+	var wsUrl = 'ws://' + this.domain +
+		( this.port ? ':' + this.port : '' ) +
+		this.path +
+		( this.token || '' ) ;
+
+	console.log( 'Websocket URL:' , wsUrl ) ;
+	this.ws = new WebSocket( wsUrl ) ;
 
 	this.emit( 'connecting' ) ;
 
