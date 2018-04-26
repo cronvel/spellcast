@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css?family=Indie+Flower');
+@import url("https://fonts.googleapis.com/css?family=Indie+Flower");
 
-@import url('css/alerts.css');
-@import url('css/chat.css');
-@import url('css/choices.css');
-@import url('css/messages.css');
+@import url("css/alerts.css");
+@import url("css/chat.css");
+@import url("css/choices.css");
+@import url("css/messages.css");
 
 
 spellcast {
@@ -25,7 +25,7 @@ spellcast {
 	right: 0;
 	bottom: 0;
 
-	background-image: url('/backgrounds/default.jpg');
+	background-image: url("../../backgrounds/default.jpg");
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;

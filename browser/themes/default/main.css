@@ -5,17 +5,17 @@
 
 
 
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700,700i&subset=latin-ext');
-@import url('https://fonts.googleapis.com/css?family=Oleo+Script:700&subset=latin-ext');
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700,700i&subset=latin-ext");
+@import url("https://fonts.googleapis.com/css?family=Oleo+Script:700&subset=latin-ext");
 
 spellcast {
-	font-family: 'Open Sans', sans-serif;
+	font-family: "Open Sans", sans-serif;
 	font-size: 16px;
 	color: #333;
 }
 
 .fun {
-	font-family: 'Oleo Script', cursive;
+	font-family: "Oleo Script", cursive;
 	font-weight: 700;
 }
 
@@ -38,7 +38,7 @@ spellcast {
 	right: 0;
 	bottom: 0;
 
-	background-image: url("/backgrounds/default.jpg");
+	background-image: url("../../backgrounds/default.jpg");
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
@@ -128,7 +128,7 @@ spellcast[data-image-position="left"] #main-buffer {
 	width: 1.5em;
 	top: 0.75em;
 	left: 0.75em;
-	background-image: url("/icons/close.svg");
+	background-image: url("../../icons/close.svg");
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: contain;
@@ -437,7 +437,7 @@ input[type=text].text-input {
 }
 
 .choice:after {
-	content: '';
+	content: "";
 	position: absolute;
 	z-index: -1;
 	-webkit-transition: all 0.3s;
@@ -582,13 +582,13 @@ indicator widget.vbar inner-bar {
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: contain;
-	background-image: url("/icons/plugging.svg");
+	background-image: url("../../icons/plugging.svg");
 }
 
-#lobby .client-status[data-status="connected"] { background-image: url("/icons/plugged.svg"); }
-#lobby .client-status[data-status="connecting"] { background-image: url("/icons/plugging.svg"); }
-#lobby .client-status[data-status="closed"] { background-image: url("/icons/unplugged.svg"); }
-#lobby .client-status[data-status="unreachable"] { background-image: url("/icons/unreachable.svg"); }
+#lobby .client-status[data-status="connected"] { background-image: url("../../icons/plugged.svg"); }
+#lobby .client-status[data-status="connecting"] { background-image: url("../../icons/plugging.svg"); }
+#lobby .client-status[data-status="closed"] { background-image: url("../../icons/unplugged.svg"); }
+#lobby .client-status[data-status="unreachable"] { background-image: url("../../icons/unreachable.svg"); }
 
 
 
@@ -831,7 +831,7 @@ indicator widget.vbar inner-bar {
 	border-style: solid;
 	
 	/* This part is specific to the border image used */
-	border-image-source: url("/boxes/geometric-gold.svg");
+	border-image-source: url("../../boxes/geometric-gold.svg");
 	/* 168 SVG units inward for both horizontal and vertical*/
 	border-image-slice: 168;
 	/* Repeat an integer number of time, rescale when needed */

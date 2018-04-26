@@ -40,71 +40,65 @@ function noop() {}
 
 
 
-function Dom() { return Dom.create() ; }
+function Dom() {
+	this.$body = document.querySelector( 'body' ) ;
+	this.$spellcast = document.querySelector( 'spellcast' ) ;
+	this.$theme = document.querySelector( '#theme' ) ;
+	this.$gfx = document.querySelector( '#gfx' ) ;
+	this.$sceneImage = document.querySelector( '.scene-image' ) ;
+	this.$main = document.querySelector( 'main' ) ;
+	this.$mainBuffer = document.querySelector( '#main-buffer' ) ;
+	this.$altBuffer = document.querySelector( '#alt-buffer' ) ;
+	this.$closeAltButton = document.querySelector( '#button-close-alt' ) ;
+	this.$dialogWrapper = document.querySelector( '#dialog-wrapper' ) ;
+	this.$hint = document.querySelector( '#hint' ) ;
+	this.$lobby = document.querySelector( '#lobby' ) ;
+	this.$clientStatus = this.$lobby.querySelector( '.client-status' ) ;
+	this.$status = document.querySelector( '#status' ) ;
+	this.$panel = document.querySelector( '#panel' ) ;
+	this.$music = document.querySelector( '#music' ) ;
+	this.$sound0 = document.querySelector( '#sound0' ) ;
+	this.$sound1 = document.querySelector( '#sound1' ) ;
+	this.$sound2 = document.querySelector( '#sound2' ) ;
+	this.$sound3 = document.querySelector( '#sound3' ) ;
+
+	this.choices = [] ;
+
+	this.newSegmentNeeded = null ;
+	this.onSelect = null ;
+	this.onLeave = null ;
+	this.onEnter = null ;
+	this.toMainBuffer() ;
+
+	this.nextSoundChannel = 0 ;
+
+	this.sprites = {} ;
+	this.uis = {} ;
+	this.markers = {} ;
+	this.cards = {} ;
+	this.cardLocations = {} ;
+	this.animations = {} ;
+
+	this.hintTimer = null ;
+	this.sceneImageOnTimer = null ;
+	this.onChatSubmit = null ;
+
+	// The number of UI loading in progress
+	this.uiLoadingCount = 0 ;
+
+	this.initEvents() ;
+}
+
 module.exports = Dom ;
+
 Dom.prototype = Object.create( Ngev.prototype ) ;
 Dom.prototype.constructor = Dom ;
 
 
 
-Dom.create = function create() {
-	var self = Object.create( Dom.prototype ) ;
-
-	self.$body = document.querySelector( 'body' ) ;
-	self.$spellcast = document.querySelector( 'spellcast' ) ;
-	self.$theme = document.querySelector( '#theme' ) ;
-	self.$gfx = document.querySelector( '#gfx' ) ;
-	self.$sceneImage = document.querySelector( '.scene-image' ) ;
-	self.$main = document.querySelector( 'main' ) ;
-	self.$mainBuffer = document.querySelector( '#main-buffer' ) ;
-	self.$altBuffer = document.querySelector( '#alt-buffer' ) ;
-	self.$closeAltButton = document.querySelector( '#button-close-alt' ) ;
-	self.$dialogWrapper = document.querySelector( '#dialog-wrapper' ) ;
-	self.$hint = document.querySelector( '#hint' ) ;
-	self.$lobby = document.querySelector( '#lobby' ) ;
-	self.$clientStatus = self.$lobby.querySelector( '.client-status' ) ;
-	self.$status = document.querySelector( '#status' ) ;
-	self.$panel = document.querySelector( '#panel' ) ;
-	self.$music = document.querySelector( '#music' ) ;
-	self.$sound0 = document.querySelector( '#sound0' ) ;
-	self.$sound1 = document.querySelector( '#sound1' ) ;
-	self.$sound2 = document.querySelector( '#sound2' ) ;
-	self.$sound3 = document.querySelector( '#sound3' ) ;
-
-	self.choices = [] ;
-
-	self.newSegmentNeeded = null ;
-	self.onSelect = null ;
-	self.onLeave = null ;
-	self.onEnter = null ;
-	self.toMainBuffer() ;
-
-	self.nextSoundChannel = 0 ;
-
-	self.sprites = {} ;
-	self.uis = {} ;
-	self.markers = {} ;
-	self.cards = {} ;
-	self.cardLocations = {} ;
-	self.animations = {} ;
-
-	self.hintTimer = null ;
-	self.sceneImageOnTimer = null ;
-	self.onChatSubmit = null ;
-
-	// The number of UI loading in progress
-	self.uiLoadingCount = 0 ;
-
-	self.initEvents() ;
-
-	return self ;
-} ;
-
-
-
 Dom.prototype.cleanUrl = function cleanUrl( url ) {
-	if ( url[ 0 ] === '/' ) { return url ; }
-	return '/script/' + url ;
+	if ( url[ 0 ] === '/' ) { return window.location.pathname + url.slice( 1 ) ; }
+	return window.location.pathname + 'script/' + url ;
 } ;
 
 
@@ -117,10 +111,10 @@ Dom.prototype.setTheme = function setTheme( theme ) {
 
 Dom.prototype.preload = function preload() {
 	domKit.preload( [
-		'/icons/plugged.svg' ,
-		'/icons/plugging.svg' ,
-		'/icons/unplugged.svg' ,
-		'/icons/unreachable-plug.svg'
+		'icons/plugged.svg' ,
+		'icons/plugging.svg' ,
+		'icons/unplugged.svg' ,
+		'icons/unreachable-plug.svg'
 	] ) ;
 } ;
 
@@ -2209,30 +2203,20 @@ var url = require( 'url' ) ;
 
 
 
-function SpellcastClient( options ) { return SpellcastClient.create( options ) ; }
+function SpellcastClient( options ) {
+	this.domain = options.domain || 'localhost' ;
+	this.port = options.port || 80 ;
+	this.path = options.path || '/' ;
+	this.token = options.token || '' ;
+	this.userName = options.name || 'unknown_' + Math.floor( Math.random() * 10000 ) ;
+	this.ws = null ;
+	this.proxy = null ;
+}
+
 module.exports = SpellcastClient ;
+
 SpellcastClient.prototype = Object.create( Ngev.prototype ) ;
 SpellcastClient.prototype.constructor = SpellcastClient ;
-
-
-
-SpellcastClient.create = function create( options ) {
-	var self = Object.create( SpellcastClient.prototype , {
-		domain: { value: options.domain || 'localhost' , writable: true , enumerable: true } ,
-		port: { value: options.port || 80 , writable: true , enumerable: true } ,
-		path: { value: options.path || '/' , writable: true , enumerable: true } ,
-		token: { value: options.token || '' , writable: true , enumerable: true } ,
-		userName: {
-			value: options.name || 'unknown_' + Math.floor( Math.random() * 10000 ) ,
-			writable: true ,
-			enumerable: true
-		} ,
-		ws: { value: null , writable: true , enumerable: true } ,
-		proxy: { value: null , writable: true , enumerable: true }
-	} ) ;
-
-	return self ;
-} ;
 
 
 
@@ -2251,7 +2235,7 @@ SpellcastClient.autoCreate = function autoCreate() {
 
 	Object.assign( options , url.parse( window.location.href , true ).query ) ;
 
-	window.spellcastClient = SpellcastClient.create( options ) ;
+	window.spellcastClient = new SpellcastClient( options ) ;
 	//window.spellcastClient.init() ;
 
 	if ( ! options.ui ) { options.ui = [ 'classic' ] ; }
@@ -2265,7 +2249,7 @@ SpellcastClient.autoCreate = function autoCreate() {
 
 
 SpellcastClient.prototype.run = function run( callback ) {
-	var self = this , isOpen = false ;
+	var isOpen = false ;
 
 	this.proxy = new Ngev.Proxy() ;
 
@@ -2273,7 +2257,7 @@ SpellcastClient.prototype.run = function run( callback ) {
 	this.proxy.addRemoteService( 'bus' ) ;
 
 	this.ui.forEach( ( ui ) => {
-		if ( uiList[ ui ] ) { uiList[ ui ]( self.proxy.remoteServices.bus , self ) ; }
+		if ( uiList[ ui ] ) { new uiList[ ui ]( this.proxy.remoteServices.bus , this ) ; }
 	} ) ;
 
 	var wsUrl = 'ws://' + this.domain +
@@ -2286,51 +2270,51 @@ SpellcastClient.prototype.run = function run( callback ) {
 
 	this.emit( 'connecting' ) ;
 
-	this.ws.onerror = function onError() {
+	this.ws.onerror = () => {
 
 		if ( ! isOpen ) {
 			// The connection has never opened, we can't connect to the server.
 			console.log( "Can't open Websocket (error)..." ) ;
-			self.emit( 'error' , 'unreachable' ) ;
+			this.emit( 'error' , 'unreachable' ) ;
 			return ;
 		}
 	} ;
 
-	this.ws.onopen = function onOpen() {
+	this.ws.onopen = () => {
 
 		isOpen = true ;
 
 		// Send 'ready' to server?
 		// No, let the UI send it.
-		//self.proxy.remoteServices.bus.emit( 'ready' ) ;
+		//this.proxy.remoteServices.bus.emit( 'ready' ) ;
 
 		console.log( "Websocket opened!" ) ;
-		self.emit( 'open' ) ;
+		this.emit( 'open' ) ;
 
 		// Should be done after emitting 'open'
-		self.proxy.remoteServices.bus.emit( 'authenticate' , {
-			name: self.userName
+		this.proxy.remoteServices.bus.emit( 'authenticate' , {
+			name: this.userName
 		} ) ;
 
 		if ( typeof callback === 'function' ) { callback() ; }
 	} ;
 
-	this.ws.onclose = function onClose() {
+	this.ws.onclose = () => {
 
 		if ( ! isOpen ) {
 			// The connection has never opened, we can't connect to the server.
 			console.log( "Can't open Websocket (close)..." ) ;
-			self.emit( 'error' , 'unreachable' ) ;
+			this.emit( 'error' , 'unreachable' ) ;
 			return ;
 		}
 
 		isOpen = false ;
-		self.proxy.destroy() ;
+		this.proxy.destroy() ;
 		console.log( "Websocket closed!" ) ;
-		self.emit( 'close' ) ;
+		this.emit( 'close' ) ;
 	} ;
 
-	this.ws.onmessage = function onMessage( wsMessage ) {
+	this.ws.onmessage = wsMessage => {
 
 		var message ;
 
@@ -2343,11 +2327,11 @@ SpellcastClient.prototype.run = function run( callback ) {
 
 		console.log( "Message received: " , message ) ;
 
-		self.proxy.receive( message ) ;
+		this.proxy.receive( message ) ;
 	} ;
 
-	self.proxy.send = function send( message ) {
-		self.ws.send( JSON.stringify( message ) ) ;
+	this.proxy.send = message => {
+		this.ws.send( JSON.stringify( message ) ) ;
 	} ;
 } ;
 
@@ -2360,7 +2344,7 @@ dom.ready( () => {
 
 	// Debug
 	// Style sheet reloader (F9 key)
-	document.body.onkeypress = function( event ) {
+	document.body.onkeypress = event => {
 		if ( event.keyCode !== 120 ) { return ; }
 
 		var href , sheets = document.querySelectorAll( 'link[rel=stylesheet]' ) ;
@@ -2500,6 +2484,7 @@ toolkit.markup = function( ... args ) {
 
 
 
+var Ngev = require( 'nextgen-events/lib/browser.js' ) ;
 var Dom = require( '../Dom.js' ) ;
 // var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
 // var treeOps = require( 'kung-fig/lib/treeOps.js' ) ;
@@ -2507,44 +2492,42 @@ var toolkit = require( '../toolkit.js' ) ;
 
 
 
-function UI( bus , client , self ) {
+function UI( bus , client ) {
 	console.log( Array.from( arguments ) ) ;	// eslint-disable-line
 
-	if ( ! self ) {
-		self = Object.create( UI.prototype , {
-			bus: { value: bus , enumerable: true } ,
-			client: { value: client , enumerable: true } ,
-			user: { value: null , writable: true , enumerable: true } ,
-			users: { value: null , writable: true , enumerable: true } ,
-			roles: { value: null , writable: true , enumerable: true } ,
-			roleId: { value: null , writable: true , enumerable: true } ,
-			config: { value: null , writable: true , enumerable: true } ,
-			inGame: { value: false , writable: true , enumerable: true } ,
-			nexts: { value: null , writable: true , enumerable: true } ,
-			afterNext: { value: false , writable: true , enumerable: true } ,
-			afterNextTriggered: { value: false , writable: true , enumerable: true } ,
-			afterLeave: { value: false , writable: true , enumerable: true } ,
-			hasNewContent: { value: false , writable: true , enumerable: true } ,
-			dom: { value: Dom.create() }
-		} ) ;
-	}
+	this.bus = bus ;
+	this.client = client ;
+	this.user = null ;
+	this.users = null ;
+	this.roles = null ;
+	this.roleId = null ;
+	this.config = null ;
+	this.inGame = false ;
+	this.nexts = null ;
+	this.afterNext = false ;
+	this.afterNextTriggered = false ;
+	this.afterLeave = false ;
+	this.hasNewContent = false ;
+	this.dom = new Dom() ;
+	this.ended = false ;
 
-	self.client.once( 'connecting' , UI.clientConnecting.bind( self ) ) ;
-	self.client.once( 'open' , UI.clientOpen.bind( self ) ) ;
-	self.client.once( 'close' , UI.clientClose.bind( self ) ) ;
-	self.client.on( 'error' , UI.clientError.bind( self ) ) ;
+	this.client.once( 'connecting' , UI.clientConnecting.bind( this ) ) ;
+	this.client.once( 'open' , UI.clientOpen.bind( this ) ) ;
+	this.client.once( 'close' , UI.clientClose.bind( this ) ) ;
+	this.client.on( 'error' , UI.clientError.bind( this ) ) ;
 
-	self.dom.enableChat( ( message ) => {
-		console.log( 'inGame?' , self.inGame ) ;
-		self.bus.emit( self.inGame ? 'command' : 'chat' , message ) ;
+	this.dom.enableChat( ( message ) => {
+		console.log( 'inGame?' , this.inGame ) ;
+		this.bus.emit( this.inGame ? 'command' : 'chat' , message ) ;
 	} ) ;
 
-	self.dom.preload() ;
-
-	return self ;
+	this.dom.preload() ;
 }
 
 module.exports = UI ;
+
+UI.prototype = Object.create( Ngev.prototype ) ;
+UI.prototype.constructor = UI ;
 
 
 
@@ -2614,9 +2597,11 @@ UI.prototype.initBus = function initBus() {
 
 	this.bus.on( 'custom' , UI.custom.bind( this ) ) ;
 
-	this.bus.on( 'exit' , UI.exit.bind( this ) ) ;
+	this.bus.on( 'exit' , UI.exit.bind( this ) , { async: true } ) ;
 
 	this.bus.emit( 'ready' ) ;
+
+	this.defineStates( 'end' ) ;
 } ;
 
 
@@ -3151,18 +3136,26 @@ UI.end = function end( result , data , callback ) {
 		modal: true , big: true , fun: true , contentDelay: this.hasNewContent , slow: true
 	} ;
 
+	var finished = () => {
+		if ( this.ended ) { return ; }
+		this.ended = true ;
+		console.log( 'finished!' ) ;
+		this.emit( 'end' ) ;
+		callback() ;
+	} ;
+
 	switch ( result ) {
 		case 'end' :
-			this.dom.setDialog( 'The End.' , options , callback ) ;
+			this.dom.setDialog( 'The End.' , options , finished ) ;
 			break ;
 		case 'win' :
-			this.dom.setDialog( 'You Win!' , options , callback ) ;
+			this.dom.setDialog( 'You Win!' , options , finished ) ;
 			break ;
 		case 'lost' :
-			this.dom.setDialog( 'You Lose...' , options , callback ) ;
+			this.dom.setDialog( 'You Lose...' , options , finished ) ;
 			break ;
 		case 'draw' :
-			this.dom.setDialog( 'Draw.' , options , callback ) ;
+			this.dom.setDialog( 'Draw.' , options , finished ) ;
 			break ;
 	}
 } ;
@@ -3177,12 +3170,15 @@ UI.custom = function custom( event , data ) {
 
 
 // Exit event
-UI.exit = function exit() {
+UI.exit = function exit( error , timeout , callback ) {
+	console.log( 'exit cb' , callback ) ;
+	this.once( 'end' , callback ) ;
 	//term( "\n" ) ;
 	//term.styleReset() ;
 } ;
 
-},{"../Dom.js":1,"../toolkit.js":3}],5:[function(require,module,exports){
+
+},{"../Dom.js":1,"../toolkit.js":3,"nextgen-events/lib/browser.js":11}],5:[function(require,module,exports){
 /*
 	Spellcast
 

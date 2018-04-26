@@ -44,7 +44,15 @@ var UnitUI = require( '../lib/ui/unit.js' ) ;
 var Logfella = require( 'logfella' ) ;
 var log = Logfella.global.use( 'unit-tests' ) ;
 
-Logfella.userland.setGlobalConfig( {
+Logfella.global.setGlobalConfig( {
+	minLevel: 'info' ,
+	//minLevel: 'debug' ,
+	transports: [
+		{ "type": "console" , "timeFormatter": "time" , "color": true } ,
+	]
+} ) ;
+
+Logfella.defineOrConfig( 'userland' , {
 	minLevel: 'fatal' ,
 	//minLevel: 'debug' ,
 	transports: [
