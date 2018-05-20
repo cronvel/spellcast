@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.45.3",
+  "version": "0.45.4",
   "description": "Make: your own adventure!",
   "main": "lib/Book.js",
   "engines": {
@@ -14,11 +14,11 @@
   },
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
-    "async-kit": "^2.2.3",
+    "async-kit": "^2.2.4",
     "babel-tower": "^0.17.1",
-    "chokidar": "^2.0.3",
+    "chokidar": "cronvel/chokidar#656b283fd07a8c5916d57733d08d50f927152b08",
     "dom-kit": "^0.3.8",
-    "doormen": "^0.7.19",
+    "doormen": "^0.7.20",
     "fs-kit": "^0.3.0",
     "glob": "^7.1.2",
     "hash-kit": "^0.3.1",
@@ -27,18 +27,18 @@
     "logfella": "^0.3.58",
     "math-kit": "^0.11.14",
     "minimist": "^1.2.0",
-    "nextgen-events": "^0.14.4",
+    "nextgen-events": "^0.14.6",
     "nomi-ninja": "^0.1.1",
     "semver": "^5.5.0",
     "server-kit": "^0.7.7",
-    "string-kit": "^0.6.17",
+    "string-kit": "^0.7.3",
     "svg-kit": "^0.1.20",
-    "terminal-kit": "^1.15.3",
+    "terminal-kit": "^1.17.2",
     "tree-kit": "^0.5.27"
   },
   "devDependencies": {
     "browserify": "^16.2.2",
-    "electron": "^2.0.0",
+    "electron": "^2.0.1",
     "expect.js": "^0.3.1",
     "uglify-js-es6": "^2.8.9"
   },

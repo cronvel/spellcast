@@ -1168,11 +1168,11 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( extOutputs , [
+				expect( extOutputs ).to.equal( [
 					[ 'before fail\n' ]
 				] ) ;
 				
-				doormen.equals( casts , [
+				expect( casts ).to.be.like( [
 					[ 'scroll-of-failing' , 'error' , { code: 'nonZeroExit' } ]
 				] ) ;
 				
@@ -1394,11 +1394,11 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( extOutputs , [] ) ;
+				expect( extOutputs ).to.equal( [] ) ;
 				
-				doormen.shouldThrow( () => fs.accessSync( __dirname + '/build/failed.txt' ) ) ;
+				expect( fs.accessSync ).with.args( __dirname + '/build/failed.txt' ).to.throw() ;
 				
-				doormen.equals( summons , [
+				expect( summons ).to.be.like( [
 					[ 'failed.txt' , 'error' , { code: 'nonZeroExit' } ]
 				] ) ;
 				
@@ -1740,14 +1740,14 @@ describe( "Basic caster tags and features" , function() {
 						} ) ;
 					} ,
 					function() {
-						doormen.equals( extOutputs , [] ) ;
+						expect( extOutputs ).to.equal( [] ) ;
 						
-						doormen.equals( summons , [
+						expect( summons ).to.be.like( [
 							[ '../build/concat.txt' , 'error' , { code: 'nonZeroExit' } ] ,
 							[ '../build/cascade.txt' , 'error' , { code: 'dependencyFailed' } ]
 						] ) ;
 						
-						doormen.shouldThrow( () => fs.accessSync( __dirname + '/build/cascade.txt' ) ) ;
+						expect( fs.accessSync ).with.args( __dirname + '/build/cascade.txt' ).to.throw() ;
 						
 						seriesCallback() ;
 					}
