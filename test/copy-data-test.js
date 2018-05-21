@@ -28,8 +28,6 @@
 
 
 
-var expect = require( 'expect.js' ) ;
-var doormen = require( 'doormen' ) ;
 var string = require( 'string-kit' ) ;
 var copyData = require( '../lib/copyData.js' ) ;
 
@@ -67,28 +65,28 @@ describe( ".copyData() tests" , function() {
 		
 		a = {} ; cp = copyData( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		
 		a = { a: 1 , b: 2 } ; cp = copyData( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		
 		a = { a: 1 , b: 2 , c: { d: 4 } } ; cp = copyData( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		expect( cp.c ).to.be( a.c ) ;
 		
 		a = [] ; cp = copyData( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		
 		a = [ 1 , 2 ] ; cp = copyData( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		
 		a = [ 1 , 2 , [ 3 , 4 ] ] ; cp = copyData( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		expect( cp[ 2 ] ).to.be( a[ 2 ] ) ;
 		
 		a = new T() ; cp = copyData( a ) ;
@@ -98,7 +96,7 @@ describe( ".copyData() tests" , function() {
 		t.e = 5 ;
 		a = { a: 1 , b: 2 , t: t } ; cp = copyData( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		expect( cp.t ).to.be( a.t ) ;
 	} ) ;
 	
@@ -117,31 +115,31 @@ describe( ".copyData() tests" , function() {
 		
 		a = {} ; cp = copyData.deep( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		
 		a = { a: 1 , b: 2 } ; cp = copyData.deep( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		
 		a = { a: 1 , b: 2 , c: { d: 4 } } ; cp = copyData.deep( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		expect( cp.c ).not.to.be( a.c ) ;
-		expect( cp.c ).to.eql( a.c ) ;
+		expect( cp.c ).to.equal( a.c ) ;
 		
 		a = [] ; cp = copyData.deep( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		
 		a = [ 1 , 2 ] ; cp = copyData.deep( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		
 		a = [ 1 , 2 , [ 3 , 4 ] ] ; cp = copyData.deep( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		expect( cp[ 2 ] ).not.to.be( a[ 2 ] ) ;
-		expect( cp[ 2 ] ).to.eql( a[ 2 ] ) ;
+		expect( cp[ 2 ] ).to.equal( a[ 2 ] ) ;
 		
 		a = new T() ; cp = copyData.deep( a ) ;
 		expect( cp ).to.be( a ) ;
@@ -150,7 +148,7 @@ describe( ".copyData() tests" , function() {
 		t.e = 5 ;
 		a = { a: 1 , b: 2 , t: t } ; cp = copyData.deep( a ) ;
 		expect( cp ).not.to.be( a ) ;
-		expect( cp ).to.eql( a ) ;
+		expect( cp ).to.equal( a ) ;
 		expect( cp.t ).to.be( a.t ) ;
 	} ) ;
 	
@@ -172,11 +170,11 @@ describe( ".copyData() tests" , function() {
 		cp = copyData.deep( a ) ;
 		
 		expect( cp ).not.to.be( a ) ;
-		doormen.isEqual( cp , a ) ;
+		expect( cp ).to.equal( a ) ;
 		expect( cp.t ).to.be( t ) ;
 		expect( cp.t2 ).to.be( t ) ;
 		expect( cp.c2 ).not.to.be( a.c2 ) ;
-		expect( cp.c2 ).to.eql( a.c2 ) ;
+		expect( cp.c2 ).to.equal( a.c2 ) ;
 		
 		expect( cp.t2 ).to.be( cp.t ) ;
 		expect( cp.c2 ).to.be( cp.c ) ;
@@ -194,7 +192,7 @@ describe( ".copyData() tests" , function() {
 		
 		copyData.extend( a , b ) ;
 		
-		expect( a ).to.eql( { a: 10 , b: 2 , c: { d: 42 , f: 7 } , g: 'G' , t: t , t2: t } ) ;
+		expect( a ).to.equal( { a: 10 , b: 2 , c: { d: 42 , f: 7 } , g: 'G' , t: t , t2: t } ) ;
 		expect( a.t ).to.be( a.t2 ) ;
 	} ) ;
 	
@@ -209,7 +207,7 @@ describe( ".copyData() tests" , function() {
 		
 		copyData.deep.extend( a , b ) ;
 		
-		expect( a ).to.eql( { a: 10 , b: 2 , c: { d: 42 , f: 7 , z: 'ZEE' } , g: 'G' , t: t , t2: t } ) ;
+		expect( a ).to.equal( { a: 10 , b: 2 , c: { d: 42 , f: 7 , z: 'ZEE' } , g: 'G' , t: t , t2: t } ) ;
 		expect( a.t ).to.be( a.t2 ) ;
 	} ) ;
 	
@@ -225,7 +223,7 @@ describe( ".copyData() tests" , function() {
 		
 		copyData.deep.extend( a , b ) ;
 		
-		expect( a ).to.eql( { a: 10 , b: { d: 42 , f: 7 } , b2: { d: 42 , f: 7 } } ) ;
+		expect( a ).to.equal( { a: 10 , b: { d: 42 , f: 7 } , b2: { d: 42 , f: 7 } } ) ;
 		expect( a.b ).to.be( a.b2 ) ;
 	} ) ;
 } ) ;

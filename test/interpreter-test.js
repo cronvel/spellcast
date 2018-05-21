@@ -33,7 +33,6 @@ var fs = require( 'fs' ) ;
 var async = require( 'async-kit' ) ;
 var fsKit = require( 'fs-kit' ) ;
 var string = require( 'string-kit' ) ;
-var doormen = require( 'doormen' ) ;
 
 var UnitUI = require( '../lib/ui/unit.js' ) ;
 var chatBot = require( '../lib/chatBot.js' ) ;
@@ -72,7 +71,7 @@ function testTokenize( source )
 	tokens = [] ;
 	simplifiedTokens = [] ;
 	chatBot.tokenize( source , options , tokens , simplifiedTokens ) ;
-	doormen.equals( tokens , expected ) ;
+	expect( tokens ).to.equal( expected ) ;
 }
 
 
@@ -118,10 +117,10 @@ describe( "Interpreter" , function() {
 		} ) ;
 		
 		it( "Simplify tokens" , function() {
-			doormen.equals( chatBot.simplifyTokens( ['One','two','three'] ) , ['one','two','three'] ) ;
-			doormen.equals( chatBot.simplifyTokens( ['Éâï','ôùæÆ','ÆØç'] ) , ['eai','ouaeae','aeoc'] ) ;
+			expect( chatBot.simplifyTokens( ['One','two','three'] ) ).to.equal( ['one','two','three'] ) ;
+			expect( chatBot.simplifyTokens( ['Éâï','ôùæÆ','ÆØç'] ) ).to.equal( ['eai','ouaeae','aeoc'] ) ;
 			
-			doormen.equals( chatBot.simplifyTokens( ['!','!!','!!!','.','...','!...','?!'] ) , ['!','!','!','.','.','!','?'] ) ;
+			expect( chatBot.simplifyTokens( ['!','!!','!!!','.','...','!...','?!'] ) ).to.equal( ['!','!','!','.','.','!','?'] ) ;
 		} ) ;
 	} ) ;
 } ) ;

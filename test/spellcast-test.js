@@ -33,7 +33,6 @@ var fs = require( 'fs' ) ;
 var async = require( 'async-kit' ) ;
 var fsKit = require( 'fs-kit' ) ;
 var string = require( 'string-kit' ) ;
-var doormen = require( 'doormen' ) ;
 
 //var Book = require( '../lib/Book.js' ) ;
 var StoryBook = require( '../lib/StoryBook.js' ) ;
@@ -170,7 +169,7 @@ describe( "I/O tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Some text.' , null ] ,
 					[ 'Some other text.' , null ] ,
 					[ 'Welcome to The Shadow Terminal.' , {
@@ -194,12 +193,12 @@ describe( "I/O tags" , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
 				} ) ;
 				ui.bus.on( 'textInput' , function( label ) {
-					doormen.equals( label , 'Enter your name: ' ) ;
+					expect( label ).to.equal(  'Enter your name: ' ) ;
 					book.roles[ 0 ].emit( 'textSubmit' , 'Jack Wallace' ) ;
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Hello Jack Wallace!' ]
 				] ) ;
 				
@@ -232,7 +231,7 @@ describe( "Control flow tags" , function() {
 						} ) ;
 					} ,
 					function() {
-						doormen.equals( messages , [
+						expect( messages ).to.equal(  [
 							[ 'Condition #1 else' ] ,
 							[ 'Condition #2 else' ] ,
 						] ) ;
@@ -248,7 +247,7 @@ describe( "Control flow tags" , function() {
 				book.data.value = 2 ;
 				
 				book.cast( 'if-elseif-else' , function() {
-					doormen.equals( messages , [
+					expect( messages ).to.equal(  [
 						[ 'Condition #1 else' ] ,
 						[ 'Condition #2 elseif' ] ,
 					] ) ;
@@ -263,7 +262,7 @@ describe( "Control flow tags" , function() {
 				book.data.value = 3 ;
 				
 				book.cast( 'if-elseif-else' , function() {
-					doormen.equals( messages , [
+					expect( messages ).to.equal(  [
 						[ 'Condition #1 else' ] ,
 						[ 'Condition #2 elsif' ] ,
 					] ) ;
@@ -278,7 +277,7 @@ describe( "Control flow tags" , function() {
 				book.data.value = 5 ;
 				
 				book.cast( 'if-elseif-else' , function() {
-					doormen.equals( messages , [
+					expect( messages ).to.equal(  [
 						[ 'Condition #0 if' ] ,
 						[ 'Condition #1 if' ] ,
 						[ 'Condition #2 if' ] ,
@@ -304,7 +303,7 @@ describe( "Control flow tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'The value is: one' ] ,
 					[ 'The value is: two' ] ,
 					[ 'The value is: three' ] ,
@@ -337,7 +336,7 @@ describe( "Control flow tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Count: 5' ] ,
 					[ 'Count: 4' ] ,
 					[ 'Count: 3' ] ,
@@ -363,7 +362,7 @@ describe( "Control flow tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'The value is: zero' ] ,
 					[ 'The value is: one' ] ,
 					[ 'The value is: two' ] ,
@@ -388,7 +387,7 @@ describe( "Control flow tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Count: 5' ] ,
 					[ 'Count: 4' ] ,
 				] ) ;
@@ -411,7 +410,7 @@ describe( "Control flow tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'The value is: zero' ] ,
 					[ 'The value is: one' ] ,
 					[ 'The value is: two' ] ,
@@ -437,7 +436,7 @@ describe( "Control flow tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Count: 5' ] ,
 					[ 'End.' ] ,
 					[ 'Count: 4' ] ,
@@ -465,7 +464,7 @@ describe( "Control flow tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Global myfn' ] ,
 					[ 'value arg1 arg2' ] ,
 					[ 'Global myfn' ] ,
@@ -503,13 +502,13 @@ describe( "Control flow tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'before' ] ,
 					[ 'subscene' ] ,
 					[ 'after' ]
 				] ) ;
 				
-				doormen.equals( leaveSceneCount , 1 ) ;
+				expect( leaveSceneCount ).to.equal(  1 ) ;
 				
 				done() ;
 			}
@@ -530,13 +529,13 @@ describe( "Control flow tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'before' ] ,
 					[ 'subscene' ] ,
 					[ 'after' ]
 				] ) ;
 				
-				doormen.equals( leaveSceneCount , 1 ) ;
+				expect( leaveSceneCount ).to.equal(  1 ) ;
 				
 				done() ;
 			}
@@ -560,7 +559,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Value of $a: something' ] ,
 					[ 'Value of $b: bob something' ] ,
 					[ 'Value of $c: bob' ] ,
@@ -585,7 +584,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Strength: 18' ],
 					[ 'Strength: 20' ],
 					[ 'Intelligence: 7' ],
@@ -608,7 +607,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'value: 5' ] ,
 					[ 'value: 5' ] ,
 					[ 'value: 8' ]
@@ -630,7 +629,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'value: 5' ] ,
 					[ 'value: (undefined)' ]
 				] ) ;
@@ -651,7 +650,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'one two' ] ,
 					[ 'two one' ]
 				] ) ;
@@ -672,7 +671,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Value: 3' ] ,
 					[ 'Value: 5' ] ,
 					[ 'Value: 4' ] ,
@@ -695,7 +694,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Value: 3' ] ,
 					[ 'Value: 1' ] ,
 					[ 'Value: 2' ] ,
@@ -718,7 +717,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Value: 3' ] ,
 					[ 'Value: 6' ] ,
 					[ 'Value: -6' ] ,
@@ -741,7 +740,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Value: 42' ] ,
 					[ 'Value: 14' ] ,
 					[ 'Value: -14' ] ,
@@ -764,7 +763,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Value: 3' ] ,
 					[ 'Value: 4' ] ,
 					[ 'Value: 5' ] ,
@@ -787,7 +786,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'This is a template! Here some characters.' ] ,
 					[ 'This is a template! Here some texts.' ] ,
 					[ 'This is a template! Here some words.' ] ,
@@ -809,7 +808,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'tree.a: 1 tree.b: 2 out.a: 4 out.b: 2' ] ,
 					[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 2' ] ,
 					[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 10' ] ,
@@ -834,7 +833,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Value of clone.c.d: 4' ],
 					[ 'Value of clone.c.d: Dee!' ],
 					[ 'Value of original.c.d: 4' ],
@@ -860,7 +859,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Array: one two three four' ]
 				] ) ;
 				
@@ -880,7 +879,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Array: zero one two three' ]
 				] ) ;
 				
@@ -900,7 +899,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Array: one two three four five six' ] ,
 					[ 'Array: one two three' ] ,
 					[ 'Target: one two three four five six' ]
@@ -922,7 +921,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Array: three four five six' ] ,
 					[ 'Array: three four' ] ,
 					[ 'Array: zero one two three four five six' ] ,
@@ -945,7 +944,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Array: zero one two' ] ,
 					[ 'Array: zero one two five six' ] ,
 					[ 'Array: zero one two 3 4 five six' ] ,
@@ -969,7 +968,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Array: zero one two three four zero one' ] ,
 					[ 'Array: zero one two three one two three' ] ,
 					[ 'Array: zero one two three four five six' ] ,
@@ -992,7 +991,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Array: three three three three three three three' ] ,
 					[ 'Array: zero three three three four five six' ] ,
 					[ 'Array: zero one two three four five six' ] ,
@@ -1015,7 +1014,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Filtered length: 3' ],
 					[ 'Filtered: orange apple ananas' ]
 				] ) ;
@@ -1036,7 +1035,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Map: orange apple cabbage ananas' ]
 				] ) ;
 				
@@ -1056,7 +1055,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Reduce: 15' ],
 					[ 'Reduce: 15' ],
 					[ 'Reduce: 19' ],
@@ -1080,7 +1079,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Array: six five four three two one zero' ] ,
 					[ 'Array: zero one two three four five six' ] ,
 					[ 'Target: six five four three two one zero' ] ,
@@ -1102,7 +1101,7 @@ describe( "Operations tags" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Original: 13 15 8' ],
 					[ 'Result: 8 13 15' ],
 					[ 'Original: 13 15 8' ],
@@ -1141,7 +1140,7 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( extOutputs , [
+				expect( extOutputs ).to.equal(  [
 					[ 'bob\n' ]
 				] ) ;
 				
@@ -1199,11 +1198,11 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( extOutputs , [
+				expect( extOutputs ).to.equal(  [
 					[ 'one\nthree\ntwo\n' ]
 				] ) ;
 				
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Command second line output: three' ]
 				] ) ;
 				
@@ -1232,16 +1231,13 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( extOutputs , [] ) ;
+				expect( extOutputs ).to.equal(  [] ) ;
 				
-				doormen.equals( summons , [
+				expect( summons ).to.equal(  [
 					[ '../build/summoning.txt' , 'ok' ]
 				] ) ;
 				
-				doormen.equals(
-					fs.readFileSync( __dirname + '/build/summoning.txt' , 'utf8' ) ,
-					"This is a dummy static dependency file.\n"
-				) ;
+				expect( fs.readFileSync( __dirname + '/build/summoning.txt' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
 				
 				done() ;
 			}
@@ -1266,16 +1262,13 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( extOutputs , [] ) ;
+				expect( extOutputs ).to.equal(  [] ) ;
 				
-				doormen.equals( summons , [
+				expect( summons ).to.equal(  [
 					[ '../build/file.ext' , 'ok' ]
 				] ) ;
 				
-				doormen.equals(
-					fs.readFileSync( __dirname + '/build/file.ext' , 'utf8' ) ,
-					"This is a dummy static dependency file.\n"
-				) ;
+				expect( fs.readFileSync( __dirname + '/build/file.ext' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
 				
 				done() ;
 			}
@@ -1303,16 +1296,13 @@ describe( "Basic caster tags and features" , function() {
 						} ) ;
 					} ,
 					function() {
-						doormen.equals( extOutputs , [] ) ;
+						expect( extOutputs ).to.equal(  [] ) ;
 						
-						doormen.equals( summons , [
+						expect( summons ).to.equal(  [
 							[ '../build/file.ext' , 'ok' ]
 						] ) ;
 						
-						doormen.equals(
-							fs.readFileSync( __dirname + '/build/file.ext' , 'utf8' ) ,
-							"This is a dummy static dependency file.\n"
-						) ;
+						expect( fs.readFileSync( __dirname + '/build/file.ext' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
 						
 						seriesCallback() ;
 					}
@@ -1325,16 +1315,13 @@ describe( "Basic caster tags and features" , function() {
 				summons = [] ;
 				
 				book.summon( '../build/FiLe2.ExT' , function() {
-					doormen.equals( extOutputs , [] ) ;
+					expect( extOutputs ).to.equal(  [] ) ;
 					
-					doormen.equals( summons , [
+					expect( summons ).to.equal(  [
 						[ '../build/FiLe2.ExT' , 'ok' ]
 					] ) ;
 					
-					doormen.equals(
-						fs.readFileSync( __dirname + '/build/FiLe2.ExT' , 'utf8' ) ,
-						"This is a dummy static dependency file.\n"
-					) ;
+					expect( fs.readFileSync( __dirname + '/build/FiLe2.ExT' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
 					
 					seriesCallback() ;
 				} ) ;
@@ -1361,15 +1348,15 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( extOutputs , [
+				expect( extOutputs ).to.equal(  [
 					[ 'this produces nothing\n' ]
 				] ) ;
 				
-				doormen.equals( summons , [
+				expect( summons ).to.equal(  [
 					[ 'fake.txt' , 'noop' ]
 				] ) ;
 				
-				doormen.shouldThrow( () => fs.accessSync( __dirname + '/build/fake.txt' ) ) ;
+				expect( fs.accessSync ).with.args( __dirname + '/build/fake.txt' ).to.throw() ;
 				
 				done() ;
 			}
@@ -1431,34 +1418,23 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( extOutputs , [] ) ;
+				expect( extOutputs ).to.equal(  [] ) ;
 				
 				/*
-				doormen.equals( casts , [
+				expect( casts ).to.equal(  [
 					[ 'gzip' , 'ok' ]
 				] ) ;
 				*/
 				
-				doormen.equals( summons , [
+				expect( summons ).to.equal(  [
 					[ '../build/file1.rev' , 'ok' ] ,
 					[ '../build/file2.rev' , 'ok' ] ,
 					[ '../build/file3.rev' , 'ok' ]
 				] ) ;
 				
-				doormen.equals(
-					fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ,
-					"...txet modnar emoS\n"
-				) ;
-				
-				doormen.equals(
-					fs.readFileSync( __dirname + '/build/file2.rev' , 'utf8' ) ,
-					"...txet modnar emoS\n"
-				) ;
-				
-				doormen.equals(
-					fs.readFileSync( __dirname + '/build/file3.rev' , 'utf8' ) ,
-					"...txet modnar emoS\n"
-				) ;
+				expect( fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
+				expect( fs.readFileSync( __dirname + '/build/file2.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
+				expect( fs.readFileSync( __dirname + '/build/file3.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
 				
 				done() ;
 			}
@@ -1483,16 +1459,13 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( extOutputs , [] ) ;
+				expect( extOutputs ).to.equal(  [] ) ;
 				
-				doormen.equals( summons , [
+				expect( summons ).to.equal(  [
 					[ '../build/file1.rev' , 'ok' ]
 				] ) ;
 				
-				doormen.equals(
-					fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ,
-					"...txet modnar emoS\n"
-				) ;
+				expect( fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
 				
 				done() ;
 			}
@@ -1525,16 +1498,14 @@ describe( "Basic caster tags and features" , function() {
 						} ) ;
 					} ,
 					function() {
-						doormen.equals( extOutputs , [] ) ;
+						expect( extOutputs ).to.equal(  [] ) ;
 						
-						doormen.equals( summons , [
+						expect( summons ).to.equal(  [
 							[ '../build/concat.txt' , 'ok' ]
 						] ) ;
 						
-						doormen.equals(
-							fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) ,
-							"Some random text...\nSome random text...\nSome random text...\n"
-						) ;
+						expect( fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) )
+							.to.be( "Some random text...\nSome random text...\nSome random text...\n" ) ;
 						
 						seriesCallback() ;
 					}
@@ -1547,16 +1518,14 @@ describe( "Basic caster tags and features" , function() {
 				summons = [] ;
 				
 				book.summon( '../build/concat.txt' , function() {
-					doormen.equals( extOutputs , [] ) ;
+					expect( extOutputs ).to.equal(  [] ) ;
 					
-					doormen.equals( summons , [
+					expect( summons ).to.equal(  [
 						[ '../build/concat.txt' , 'upToDate' ]
 					] ) ;
 					
-					doormen.equals(
-						fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) ,
-						"Some random text...\nSome random text...\nSome random text...\n"
-					) ;
+					expect( fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) )
+						.to.be( "Some random text...\nSome random text...\nSome random text...\n" ) ;
 					
 					seriesCallback() ;
 				} ) ;
@@ -1572,16 +1541,14 @@ describe( "Basic caster tags and features" , function() {
 				summons = [] ;
 				
 				book.summon( '../build/concat.txt' , function() {
-					doormen.equals( extOutputs , [] ) ;
+					expect( extOutputs ).to.equal(  [] ) ;
 					
-					doormen.equals( summons , [
+					expect( summons ).to.equal(  [
 						[ '../build/concat.txt' , 'ok' ]
 					] ) ;
 					
-					doormen.equals(
-						fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) ,
-						"Some random text...\nSome random text...\nSome random text...\n"
-					) ;
+					expect( fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) )
+						.to.be( "Some random text...\nSome random text...\nSome random text...\n" ) ;
 					
 					seriesCallback() ;
 				} ) ;
@@ -1617,17 +1584,15 @@ describe( "Basic caster tags and features" , function() {
 						} ) ;
 					} ,
 					function() {
-						doormen.equals( extOutputs , [] ) ;
+						expect( extOutputs ).to.equal(  [] ) ;
 						
-						doormen.equals( summons , [
+						expect( summons ).to.equal(  [
 							[ '../build/concat.txt' , 'ok' ] ,
 							[ '../build/cascade.txt' , 'ok' ]
 						] ) ;
 						
-						doormen.equals(
-							fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) ,
-							"Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething"
-						) ;
+						expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
+							.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
 						
 						seriesCallback() ;
 					}
@@ -1640,17 +1605,15 @@ describe( "Basic caster tags and features" , function() {
 				summons = [] ;
 				
 				book.summon( '../build/cascade.txt' , function() {
-					doormen.equals( extOutputs , [] ) ;
+					expect( extOutputs ).to.equal(  [] ) ;
 					
-					doormen.equals( summons , [
+					expect( summons ).to.equal(  [
 						[ '../build/concat.txt' , 'upToDate' ] ,
 						[ '../build/cascade.txt' , 'upToDate' ]
 					] ) ;
 					
-					doormen.equals(
-						fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) ,
-						"Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething"
-					) ;
+					expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
+						.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
 					
 					seriesCallback() ;
 				} ) ;
@@ -1666,17 +1629,15 @@ describe( "Basic caster tags and features" , function() {
 				summons = [] ;
 				
 				book.summon( '../build/cascade.txt' , function() {
-					doormen.equals( extOutputs , [] ) ;
+					expect( extOutputs ).to.equal(  [] ) ;
 					
-					doormen.equals( summons , [
+					expect( summons ).to.equal(  [
 						[ '../build/concat.txt' , 'upToDate' ] ,
 						[ '../build/cascade.txt' , 'ok' ]
 					] ) ;
 					
-					doormen.equals(
-						fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) ,
-						"Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething"
-					) ;
+					expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
+						.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
 					
 					seriesCallback() ;
 				} ) ;
@@ -1692,17 +1653,15 @@ describe( "Basic caster tags and features" , function() {
 				summons = [] ;
 				
 				book.summon( '../build/cascade.txt' , function() {
-					doormen.equals( extOutputs , [] ) ;
+					expect( extOutputs ).to.equal(  [] ) ;
 					
-					doormen.equals( summons , [
+					expect( summons ).to.equal(  [
 						[ '../build/concat.txt' , 'ok' ] ,
 						[ '../build/cascade.txt' , 'ok' ]
 					] ) ;
 					
-					doormen.equals(
-						fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) ,
-						"Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething"
-					) ;
+					expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
+						.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
 					
 					seriesCallback() ;
 				} ) ;
@@ -1789,14 +1748,14 @@ describe( "Basic story tags and features" , function() {
 						} ) ;
 					} ,
 					function() {
-						doormen.equals( messages , [
+						expect( messages ).to.equal(  [
 							[ 'Once upon a time...' ],
 							[ 'There was a child...' ],
 							[ 'Who was constantly...' ],
 							[ 'Crying...' ]
 						] ) ;
 						
-						doormen.equals( ends , [
+						expect( ends ).to.equal(  [
 							[ 'lost' ]
 						] ) ;
 						
@@ -1820,14 +1779,14 @@ describe( "Basic story tags and features" , function() {
 						} ) ;
 					} ,
 					function() {
-						doormen.equals( messages , [
+						expect( messages ).to.equal(  [
 							[ 'Once upon a time...' ],
 							[ 'There was a woman...' ],
 							[ 'Who was constantly...' ],
 							[ 'Fencing...' ]
 						] ) ;
 						
-						doormen.equals( ends , [
+						expect( ends ).to.equal(  [
 							[ 'win' ]
 						] ) ;
 						
@@ -1851,7 +1810,7 @@ describe( "Basic story tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'First!' ],
 					[ 'Last!' ]
 				] ) ;
@@ -1873,7 +1832,7 @@ describe( "Basic story tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Once upon a time...' ],
 					[ 'Cool story bro!' ]
 				] ) ;
@@ -1907,7 +1866,7 @@ describe( "Basic story tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'bob: 15 -- local.bob: 1' ] ,
 					[ 'bob: 15 -- local.bob: 1' ] ,
 					[ 'bob: 15 -- local.bob: 1' ] ,
@@ -1929,7 +1888,7 @@ describe( "Basic story tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'bob: 15 -- global.bob: 6' ] ,
 					[ 'bob: 16 -- global.bob: 7' ] ,
 					[ 'bob: 17 -- global.bob: 8' ] ,
@@ -1952,7 +1911,7 @@ describe( "Basic story tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'static.bob: 6 -- local.bob: 6' ] ,
 					[ 'static.bob: 7 -- local.bob: 6' ] ,
 					[ 'static.bob: 8 -- local.bob: 6' ]
@@ -1973,7 +1932,7 @@ describe( "Basic story tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'static.bob: 6 -- local.bob: 6' ] ,
 					[ 'static.bob: 7 -- local.bob: 6' ] ,
 					[ 'static.bob: 8 -- local.bob: 6' ] ,
@@ -1996,7 +1955,7 @@ describe( "Basic story tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'sub args before: 1 2' ] ,
 					[ 'subsub args.a: 5 7' ] ,
 					[ 'sub args after: 1 2' ]
@@ -2042,7 +2001,7 @@ describe( "API" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Blasted Troll!' ] ,
 					[ 'Roasted Troll!' ] ,
 					[ 'Blasted Gnoll!' ] ,
@@ -2072,7 +2031,7 @@ describe( "Wands/extensions" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
 					[ "Zang'dar killed the gnoll..." ] ,
 					[ "ssssshhhhh... SSSSSHHHHH..." ] ,
@@ -2103,13 +2062,13 @@ describe( "Misc tags" , function() {
 				time = Date.now() ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Before pause' ] ,
 					[ 'After pause' ]
 				] ) ;
 				
 				//log.error( "Time: %s" , Date.now() - time ) ;
-				doormen.equals( Date.now() - time > 500 , true ) ;
+ 				expect( Date.now() - time ).to.be.at.least( 500 ) ;
 				
 				done() ;
 			}
@@ -2134,7 +2093,7 @@ describe( "Embedded Javascript code" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ "Hello Zang'dar!" ] ,
 					[ "Hello Oz!" ] ,
 				] ) ;
@@ -2155,7 +2114,7 @@ describe( "Embedded Javascript code" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ "Hello Zang'dar!" ]
 				] ) ;
 				
@@ -2191,7 +2150,7 @@ describe( "Prevent from infinite loop in user-script, using the 'maxTicks' optio
 			} ,
 			function( error ) {
 				// It should produce a RangeError
-				doormen.equals( error instanceof RangeError , true ) ;
+				expect( error ).to.be.a( RangeError ) ;
 				done() ;
 			}
 		) ;
@@ -2221,7 +2180,7 @@ describe( "Historical bugs" , function() {
 						} ) ;
 					} ,
 					function() {
-						doormen.equals( messages , [
+						expect( messages ).to.equal(  [
 							[ 'Some text.' , null ] ,
 							[ 'Some other text.' , null ] ,
 							[ 'Welcome to The Shadow Terminal.' , {
@@ -2244,7 +2203,7 @@ describe( "Historical bugs" , function() {
 						} ) ;
 					} ,
 					function() {
-						doormen.equals( messages , [
+						expect( messages ).to.equal(  [
 							[ 'Some text.' , null ] ,
 							[ 'Some other text.' , null ] ,
 							[ 'Welcome to The Shadow Terminal.' , {
@@ -2272,7 +2231,7 @@ describe( "Historical bugs" , function() {
 				} ) ;
 			} ,
 			function() {
-				doormen.equals( messages , [
+				expect( messages ).to.equal(  [
 					[ 'Array: one two three four five six' ],
 					[ 'Ref: one two three four five six' ]
 				] ) ;

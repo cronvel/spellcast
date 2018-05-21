@@ -28,8 +28,6 @@
 
 
 
-var expect = require( 'expect.js' ) ;
-var doormen = require( 'doormen' ) ;
 var string = require( 'string-kit' ) ;
 var Metric = require( '../lib/rpg/Metric.js' ) ;
 
@@ -62,7 +60,7 @@ describe( "Metric tests" , function() {
 		metric.addEvent( { d: 'up' , toward: 1 } ) ;
 		metric.addEvent( { d: 'down' , toward: -1 } ) ;
 		//deb( metric ) ;
-		expect( metric.value ).to.be( 0.5 ) ;
+		expect( metric.value ).to.be.close.to( 0.5 ) ;
 		
 		metric = new Metric( { minWeight: 0 } ) ;
 		metric.addEvent( { d: 'up' , toward: 1 } ) ;
@@ -71,7 +69,7 @@ describe( "Metric tests" , function() {
 		metric.addEvent( { d: 'up' , toward: 1 } ) ;
 		metric.addEvent( { d: 'down' , toward: -1 } ) ;
 		//deb( metric ) ;
-		expect( metric.value ).to.be.within( 0.44 , 0.44 + Number.EPSILON ) ;
+		expect( metric.value ).to.be.close.to( 0.44 ) ;
 		
 		metric = new Metric( { minWeight: 0 } ) ;
 		metric.addEvent( { d: 'up' , toward: 1 } ) ;
@@ -80,7 +78,7 @@ describe( "Metric tests" , function() {
 		metric.addEvent( { d: 'up' , toward: 1 } ) ;
 		metric.addEvent( { d: 'down' , toward: -1 } ) ;
 		//deb( metric ) ;
-		expect( metric.value ).to.be.within( 0.44 , 0.44 + Number.EPSILON ) ;
+		expect( metric.value ).to.be.close.to( 0.44 ) ;
 		
 		metric = new Metric( { minWeight: 0 } ) ;
 		metric.addEvent( { d: 'up' , toward: 1 } ) ;
@@ -89,7 +87,7 @@ describe( "Metric tests" , function() {
 		metric.addEvent( { d: 'up' , toward: 1 } ) ;
 		metric.addEvent( { d: 'down' , toward: -1 } ) ;
 		//deb( metric ) ;
-		expect( metric.value ).to.be( 0.36 ) ;
+		expect( metric.value ).to.be.close.to( 0.36 ) ;
 	} ) ;
 } ) ;
 
