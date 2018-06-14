@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SpellcastClient = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SpellcastClient = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -2358,7 +2358,7 @@ dom.ready( () => {
 
 
 
-},{"./ui/classic.js":4,"dom-kit":7,"nextgen-events/lib/browser.js":11,"url":23}],3:[function(require,module,exports){
+},{"./ui/classic.js":4,"dom-kit":7,"nextgen-events/lib/browser.js":11,"url":24}],3:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -3172,9 +3172,12 @@ UI.custom = function custom( event , data ) {
 // Exit event
 UI.exit = function exit( error , timeout , callback ) {
 	console.log( 'exit cb' , callback ) ;
-	this.once( 'end' , callback ) ;
-	//term( "\n" ) ;
-	//term.styleReset() ;
+	this.once( 'end' , () => {
+		// Add at least few ms, because DOM may be OK, but parallel image download are still in progress.
+		// E.g.: after .setDialog()'s callback, boxes/geometric-gold.svg is not loaded.
+		// Keep in mind that once the exit callback is sent, the remote server will disconnect us as soon as possible.
+		setTimeout( 200 , callback ) ;
+	} ) ;
 } ;
 
 
@@ -3887,6 +3890,10 @@ NextGenEvents.prototype.__prototypeVersion__ = require( '../package.json' ).vers
 NextGenEvents.SYNC = -Infinity ;
 NextGenEvents.DESYNC = -1 ;
 
+NextGenEvents.defaultMaxListeners = Infinity ;
+
+
+
 // Not part of the prototype, because it should not pollute userland's prototype.
 // It has an eventEmitter as 'this' anyway (always called using call()).
 NextGenEvents.init = function init() {
@@ -3919,6 +3926,8 @@ NextGenEvents.Internal = function Internal( from ) {
 		newListener: [] ,
 		removeListener: []
 	} ;
+
+	this.maxListeners = NextGenEvents.defaultMaxListeners ;
 
 	if ( from ) {
 		this.nice = from.nice ;
@@ -3961,6 +3970,8 @@ NextGenEvents.initFrom = function initFrom( from ) {
 	Merge listeners of duplicated event bus:
 		* listeners that are present locally but not in all foreigner are removed (one of the foreigner has removed it)
 		* listeners that are not present locally but present in at least one foreigner are copied
+
+	Not sure if it will ever go public, it was a very specific use-case (Spellcast).
 */
 NextGenEvents.mergeListeners = function mergeListeners( foreigners ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
@@ -4094,6 +4105,14 @@ NextGenEvents.prototype.addListener = function addListener( eventName , fn , opt
 
 	this.__ngev.listeners[ eventName ].push( listener ) ;
 
+	if ( this.__ngev.listeners[ eventName ].length === this.__ngev.maxListeners + 1 ) {
+		process.emitWarning(
+			"Possible NextGenEvents memory leak detected. " + this.__ngev.listeners[ eventName ].length + ' ' +
+			eventName + " listeners added. Use emitter.setMaxListeners() to increase limit" ,
+			{ type: "MaxListenersExceededWarning" }
+		) ;
+	}
+
 	if ( this.__ngev.states[ eventName ] ) { NextGenEvents.emitToOneListener( this.__ngev.states[ eventName ] , listener ) ; }
 
 	return this ;
@@ -4103,7 +4122,7 @@ NextGenEvents.prototype.on = NextGenEvents.prototype.addListener ;
 
 
 
-// Shortcut
+// Short-hand
 // .once( eventName , [fn] , [options] )
 NextGenEvents.prototype.once = function once( eventName , fn , options ) {
 	if ( fn && typeof fn === 'object' ) { fn.once = true ; }
@@ -4111,6 +4130,26 @@ NextGenEvents.prototype.once = function once( eventName , fn , options ) {
 	else { options = { once: true } ; }
 
 	return this.addListener( eventName , fn , options ) ;
+} ;
+
+
+
+// .waitFor( eventName )
+// A Promise-returning .once() variant, only the first arg is returned
+NextGenEvents.prototype.waitFor = function waitFor( eventName ) {
+	return new Promise( resolve => {
+		this.addListener( eventName , ( firstArg ) => resolve( firstArg ) , { once: true } ) ;
+	} ) ;
+} ;
+
+
+
+// .waitForAll( eventName )
+// A Promise-returning .once() variant, all args are returned as an array
+NextGenEvents.prototype.waitForAll = function waitForAll( eventName ) {
+	return new Promise( resolve => {
+		this.addListener( eventName , ( ... args ) => resolve( args ) , { once: true } ) ;
+	} ) ;
 } ;
 
 
@@ -4170,7 +4209,13 @@ NextGenEvents.prototype.removeAllListeners = function removeAllListeners( eventN
 	else {
 		// Remove all listeners for any events
 		// 'removeListener' listeners cannot be triggered: they are already deleted
-		this.__ngev.listeners = {} ;
+		this.__ngev.listeners = {
+			// Special events
+			error: [] ,
+			interrupt: [] ,
+			newListener: [] ,
+			removeListener: []
+		} ;
 	}
 
 	return this ;
@@ -4286,6 +4331,14 @@ NextGenEvents.prototype.emit = function emit( ... args ) {
 	}
 
 	return NextGenEvents.emitEvent( event ) ;
+} ;
+
+
+
+NextGenEvents.prototype.waitForEmit = function waitForEmit( ... args ) {
+	return new Promise( resolve => {
+		this.emit( ... args , ( interrupt ) => resolve( interrupt ) ) ;
+	} ) ;
 } ;
 
 
@@ -4507,11 +4560,11 @@ NextGenEvents.prototype.desyncUseNextTick = function desyncUseNextTick( useNextT
 
 
 
-NextGenEvents.prototype.setInterruptible = function setInterruptible( value ) {
+NextGenEvents.prototype.setInterruptible = function setInterruptible( isInterruptible ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	//if ( typeof nice !== 'number' ) { throw new TypeError( ".setNice(): argument #0 should be a number" ) ; }
 
-	this.__ngev.interruptible = !! value ;
+	this.__ngev.interruptible = !! isInterruptible ;
 } ;
 
 
@@ -4541,8 +4594,20 @@ NextGenEvents.reset = function reset( emitter ) {
 
 
 
-// There is no such thing in NextGenEvents, however, we need to be compatible with node.js events at best
-NextGenEvents.prototype.setMaxListeners = function() {} ;
+NextGenEvents.prototype.getMaxListeners = function() {
+	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
+	return this.__ngev.maxListeners ;
+} ;
+
+
+
+NextGenEvents.prototype.setMaxListeners = function( n ) {
+	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
+	this.__ngev.maxListeners = typeof n === 'number' && ! Number.isNaN( n ) ? Math.floor( n ) : NextGenEvents.defaultMaxListeners ;
+	return this ;
+} ;
+
+
 
 // Sometime useful as a no-op callback...
 NextGenEvents.noop = function() {} ;
@@ -4999,8 +5064,12 @@ NextGenEvents.Proxy = require( './Proxy.js' ) ;
 
 
 
-// Create the object && export it
-function Proxy() { return Proxy.create() ; }
+function Proxy() {
+	this.localServices = {} ;
+	this.remoteServices = {} ;
+	this.nextAckId = 1 ;
+}
+
 module.exports = Proxy ;
 
 var NextGenEvents = require( './NextGenEvents.js' ) ;
@@ -5010,15 +5079,8 @@ function noop() {}
 
 
 
-Proxy.create = function create() {
-	var self = Object.create( Proxy.prototype , {
-		localServices: { value: {} , enumerable: true } ,
-		remoteServices: { value: {} , enumerable: true } ,
-		nextAckId: { value: 1 , writable: true , enumerable: true }
-	} ) ;
-
-	return self ;
-} ;
+// Backward compatibility
+Proxy.create = ( ... args ) => new Proxy( ... args ) ;
 
 
 
@@ -5520,6 +5582,7 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message ) {
 
 
 },{"./NextGenEvents.js":9}],11:[function(require,module,exports){
+(function (process){
 /*
 	Next-Gen Events
 
@@ -5548,8 +5611,6 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message ) {
 
 "use strict" ;
 
-/* global window */
-
 
 
 if ( typeof window.setImmediate !== 'function' ) {
@@ -5558,33 +5619,41 @@ if ( typeof window.setImmediate !== 'function' ) {
 	} ;
 }
 
+if ( ! process.emitWarning ) {
+	// Looks like browserify don't have this
+	process.emitWarning = function() {} ;
+}
+
 module.exports = require( './NextGenEvents.js' ) ;
 module.exports.isBrowser = true ;
 
-},{"./NextGenEvents.js":9}],12:[function(require,module,exports){
+}).call(this,require('_process'))
+},{"./NextGenEvents.js":9,"_process":13}],12:[function(require,module,exports){
 module.exports={
-  "_from": "nextgen-events@^0.13.1",
-  "_id": "nextgen-events@0.13.1",
+  "_from": "nextgen-events@1.0.1",
+  "_id": "nextgen-events@1.0.1",
   "_inBundle": false,
-  "_integrity": "sha512-Ky58LnTY9fWB4ov3CmVvVFmZGXCE00NLK1LJjZAFPuGLWgbQFTIlMZHmEEGrHldbrDc2ibHEB6Uu8Tm0DmKblw==",
+  "_integrity": "sha512-ATR5qGlRJiptrv9awMyxgI+SDZlsB+GrkicjX1zAeit0cqJkMslbbL/2dcjk0K0a1kUWc1AM3SEKGQn4PlHUaA==",
   "_location": "/nextgen-events",
   "_phantomChildren": {},
   "_requested": {
-    "type": "range",
+    "type": "version",
     "registry": true,
-    "raw": "nextgen-events@^0.13.1",
+    "raw": "nextgen-events@1.0.1",
     "name": "nextgen-events",
     "escapedName": "nextgen-events",
-    "rawSpec": "^0.13.1",
+    "rawSpec": "1.0.1",
     "saveSpec": null,
-    "fetchSpec": "^0.13.1"
+    "fetchSpec": "1.0.1"
   },
   "_requiredBy": [
-    "/"
+    "#USER",
+    "/",
+    "/terminal-kit"
   ],
-  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-0.13.1.tgz",
-  "_shasum": "da39621517de01ae06e34670863893accb6d9ac1",
-  "_spec": "nextgen-events@^0.13.1",
+  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-1.0.1.tgz",
+  "_shasum": "cfea77630b360ca2eb257c82fb348679c10ebf66",
+  "_spec": "nextgen-events@1.0.1",
   "_where": "/home/cedric/inside/github/spellcast",
   "author": {
     "name": "Cédric Ronvel"
@@ -5612,12 +5681,9 @@ module.exports={
   "deprecated": false,
   "description": "The next generation of events handling for javascript! New: abstract away the network!",
   "devDependencies": {
-    "browserify": "^14.4.0",
-    "expect.js": "^0.3.1",
-    "jshint": "^2.9.2",
-    "mocha": "^2.5.3",
+    "browserify": "^16.2.2",
     "uglify-js-es6": "^2.8.9",
-    "ws": "^3.2.0"
+    "ws": "^5.1.1"
   },
   "directories": {
     "test": "test"
@@ -5646,9 +5712,9 @@ module.exports={
     "url": "git+https://github.com/cronvel/nextgen-events.git"
   },
   "scripts": {
-    "test": "mocha -R dot"
+    "test": "tea-time -R dot"
   },
-  "version": "0.13.1"
+  "version": "1.0.1"
 }
 
 },{}],13:[function(require,module,exports){
@@ -6836,7 +6902,7 @@ exports.formatMethod = function format( ... args ) {
 	// /!\ each changes here should be reported on string.format.count() and string.format.hasFormatting() too /!\
 	//str = str.replace( /\^(.?)|%(?:([+-]?)([0-9]*)(?:\/([^\/]*)\/)?([a-zA-Z%])|\[([a-zA-Z0-9_]+)(?::([^\]]*))?\])/g ,
 	str = str.replace( /\^(.?)|(%%)|%([+-]?)([0-9]*)(?:\[([^\]]*)\])?([a-zA-Z])/g ,
-		( match , markup , doublePercent , relative , index , modeArg , mode ) => {		// jshint ignore:line
+		( match , markup , doublePercent , relative , index , modeArg , mode ) => {
 
 			var replacement , i , n , depth , tmp , fn , fnArgString , argMatches , argList = [] ;
 
@@ -6909,11 +6975,11 @@ exports.formatMethod = function format( ... args ) {
 
 			switch ( mode ) {
 				case 's' :	// string
-					if ( arg === null || arg === undefined ) { return '' ; }
+					if ( arg === null || arg === undefined ) { return '(' + arg + ')' ; }
 					if ( typeof arg === 'string' ) { return arg ; }
 					if ( typeof arg === 'number' ) { return '' + arg ; }
 					if ( typeof arg.toString === 'function' ) { return arg.toString() ; }
-					return '' ;
+					return '(' + arg + ')' ;
 				case 'f' :	// float
 					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg !== 'number' ) { return '0' ; }
@@ -6936,6 +7002,10 @@ exports.formatMethod = function format( ... args ) {
 					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg === 'number' ) { return '' + Math.floor( arg ) ; }
 					return '0' ;
+				case 'k' :	// metric prefixes (like k,M,G, etc)
+					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+					if ( typeof arg !== 'number' ) { return '0' ; }
+					return metricPrefix( arg ) ;
 				case 'u' :	// unsigned decimal
 					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ) ; }
@@ -7033,7 +7103,8 @@ exports.formatMethod = function format( ... args ) {
 				default :
 					return '' ;
 			}
-		} ) ;
+		}
+	) ;
 
 	if ( hasMarkup && this.markupReset && this.endingMarkupReset ) {
 		str += typeof this.markupReset === 'function' ? this.markupReset( markupStack ) : this.markupReset ;
@@ -7240,6 +7311,45 @@ exports.format.hasFormatting = function hasFormatting( str ) {
 
 
 
+// Metric prefix
+var mulPrefix = [ '' , 'k' , 'M' , 'G' , 'T' , 'P' , 'E' , 'Z' , 'Y' ] ;
+var subMulPrefix = [ '' , 'm' , 'µ' , 'n' , 'p' , 'f' , 'a' , 'z' , 'y' ] ;
+var roundStep = [ 100 , 10 , 1 ] ;
+
+
+
+function metricPrefix( n ) {
+	var log , logDiv3 , logMod , base , prefix ;
+
+	if ( ! n || n === 1 ) { return '' + n ; }
+	if ( n < 0 ) { return '-' + metricPrefix( -n ) ; }
+
+	if ( n > 1 ) {
+		log = Math.floor( Math.log10( n ) ) ;
+		logDiv3 = Math.floor( log / 3 ) ;
+		logMod = log % 3 ;
+		base = round( n / ( 1000 ** logDiv3 ) , roundStep[ logMod ] ) ;
+		prefix = mulPrefix[ logDiv3 ] ;
+	}
+	else {
+		log = Math.floor( Math.log10( n ) ) ;
+		logDiv3 = Math.floor( log / 3 ) ;
+		logMod = log % 3 ;
+		if ( logMod < 0 ) { logMod += 3 ; }
+		base = round( n / ( 1000 ** logDiv3 ) , roundStep[ logMod ] ) ;
+		prefix = subMulPrefix[ -logDiv3 ] ;
+	}
+
+	return '' + base + prefix ;
+}
+
+
+
+function round( v , step ) {
+	return Math.round( ( v + Number.EPSILON ) * step ) / step ;
+}
+
+
 }).call(this,require("buffer").Buffer)
 },{"./ansi.js":18,"./inspect.js":21,"buffer":6}],21:[function(require,module,exports){
 (function (Buffer,process){
@@ -7281,7 +7391,6 @@ exports.format.hasFormatting = function hasFormatting( str ) {
 
 
 
-// Load modules
 var escape = require( './escape.js' ) ;
 var ansi = require( './ansi.js' ) ;
 
@@ -7293,13 +7402,16 @@ var ansi = require( './ansi.js' ) ;
 	Options:
 		* style:
 			* 'none': (default) normal output suitable for console.log() or writing in a file
+			* 'inline': like 'none', but without newlines
 			* 'color': colorful output suitable for terminal
 			* 'html': html output
 			* any object: full controle, inheriting from 'none'
 		* depth: depth limit, default: 3
-		* maxLength: length limit for strings, default: 200
+		* maxLength: length limit for strings, default: 250
+		* outputMaxLength: length limit for the inspect output string, default: 5000
 		* noFunc: do not display functions
 		* noDescriptor: do not display descriptor information
+		* noArrayProperty: do not display array properties
 		* noType: do not display type and constructor
 		* enumOnly: only display enumerable properties
 		* funcDetails: display function's details
@@ -7323,7 +7435,8 @@ function inspect( options , variable ) {
 	else { options.style = Object.assign( {} , inspectStyle.none , options.style ) ; }
 
 	if ( options.depth === undefined ) { options.depth = 3 ; }
-	if ( options.maxLength === undefined ) { options.maxLength = 200 ; }
+	if ( options.maxLength === undefined ) { options.maxLength = 250 ; }
+	if ( options.outputMaxLength === undefined ) { options.outputMaxLength = 5000 ; }
 
 	// /!\ nofunc is deprecated
 	if ( options.nofunc ) { options.noFunc = true ; }
@@ -7337,7 +7450,13 @@ function inspect( options , variable ) {
 		options.proto = false ;
 	}
 
-	return inspect_( runtime , options , variable ) ;
+	var str = inspect_( runtime , options , variable ) ;
+
+	if ( str.length > options.outputMaxLength ) {
+		str = str.slice( 0 , options.outputMaxLength - 1 ) + '…' ;
+	}
+
+	return str ;
 }
 
 
@@ -7380,7 +7499,7 @@ function inspect_( runtime , options , variable ) {
 			}
 		}
 		else {
-			key = '[' + options.style.index( runtime.key ) + '] ' ;
+			key = options.style.index( runtime.key ) ;
 		}
 
 		if ( descriptorStr ) { descriptorStr = ' ' + options.style.type( descriptorStr ) ; }
@@ -7392,42 +7511,43 @@ function inspect_( runtime , options , variable ) {
 	// Describe the current variable
 
 	if ( variable === undefined ) {
-		str += pre + options.style.constant( 'undefined' ) + descriptorStr + options.style.nl ;
+		str += pre + options.style.constant( 'undefined' ) + descriptorStr + options.style.newline ;
 	}
 	else if ( variable === null ) {
-		str += pre + options.style.constant( 'null' ) + descriptorStr + options.style.nl ;
+		str += pre + options.style.constant( 'null' ) + descriptorStr + options.style.newline ;
 	}
 	else if ( variable === false ) {
-		str += pre + options.style.constant( 'false' ) + descriptorStr + options.style.nl ;
+		str += pre + options.style.constant( 'false' ) + descriptorStr + options.style.newline ;
 	}
 	else if ( variable === true ) {
-		str += pre + options.style.constant( 'true' ) + descriptorStr + options.style.nl ;
+		str += pre + options.style.constant( 'true' ) + descriptorStr + options.style.newline ;
 	}
 	else if ( type === 'number' ) {
 		str += pre + options.style.number( variable.toString() ) +
 			( options.noType ? '' : ' ' + options.style.type( 'number' ) ) +
-			descriptorStr + options.style.nl ;
+			descriptorStr + options.style.newline ;
 	}
 	else if ( type === 'string' ) {
 		if ( variable.length > options.maxLength ) {
-			str += pre + '"' + options.style.string( escape.control( variable.slice( 0 , options.maxLength - 1 ) ) ) + '…" ' +
-				( options.noType ? '' : options.style.type( 'string' ) + options.style.length( '(' + variable.length + ' - TRUNCATED)' ) ) +
-				descriptorStr + options.style.nl ;
+			str += pre + '"' + options.style.string( escape.control( variable.slice( 0 , options.maxLength - 1 ) ) ) + '…"' +
+				( options.noType ? '' : ' ' + options.style.type( 'string' ) + options.style.length( '(' + variable.length + ' - TRUNCATED)' ) ) +
+				descriptorStr + options.style.newline ;
 		}
 		else {
-			str += pre + '"' + options.style.string( escape.control( variable ) ) + '" ' +
-				( options.noType ? '' : options.style.type( 'string' ) + options.style.length( '(' + variable.length + ')' ) ) +
-				descriptorStr + options.style.nl ;
+			str += pre + '"' + options.style.string( escape.control( variable ) ) + '"' +
+				( options.noType ? '' : ' ' + options.style.type( 'string' ) + options.style.length( '(' + variable.length + ')' ) ) +
+				descriptorStr + options.style.newline ;
 		}
 	}
 	else if ( Buffer.isBuffer( variable ) ) {
-		str += pre + options.style.inspect( variable.inspect() ) + ' ' +
-			( options.noType ? '' : options.style.type( 'Buffer' ) + options.style.length( '(' + variable.length + ')' ) ) +
-			descriptorStr + options.style.nl ;
+		str += pre + options.style.inspect( variable.inspect() ) +
+			( options.noType ? '' : ' ' + options.style.type( 'Buffer' ) + options.style.length( '(' + variable.length + ')' ) ) +
+			descriptorStr + options.style.newline ;
 	}
 	else if ( type === 'object' || type === 'function' ) {
 		funcName = length = '' ;
 		isFunc = false ;
+
 		if ( type === 'function' ) {
 			isFunc = true ;
 			funcName = ' ' + options.style.funcName( ( variable.name ? variable.name : '(anonymous)' ) ) ;
@@ -7435,6 +7555,7 @@ function inspect_( runtime , options , variable ) {
 		}
 
 		isArray = false ;
+
 		if ( Array.isArray( variable ) ) {
 			isArray = true ;
 			length = options.style.length( '(' + variable.length + ')' ) ;
@@ -7458,13 +7579,17 @@ function inspect_( runtime , options , variable ) {
 
 		propertyList = Object.getOwnPropertyNames( variable ) ;
 
+		if ( options.noArrayProperty && Array.isArray( variable ) ) {
+			propertyList = propertyList.slice( 0 , variable.length ) ;
+		}
+
 		if ( options.sort ) { propertyList.sort() ; }
 
 		// Special Objects
 		specialObject = specialObjectSubstitution( variable ) ;
 
 		if ( options.protoBlackList && options.protoBlackList.has( proto ) ) {
-			str += options.style.limit( '[skip]' ) + options.style.nl ;
+			str += options.style.limit( '[skip]' ) + options.style.newline ;
 		}
 		else if ( specialObject !== undefined ) {
 			str += '=> ' + inspect_( {
@@ -7477,27 +7602,27 @@ function inspect_( runtime , options , variable ) {
 			) ;
 		}
 		else if ( isFunc && ! options.funcDetails ) {
-			str += options.style.nl ;
+			str += options.style.newline ;
 		}
 		else if ( ! propertyList.length && ! options.proto ) {
-			str += '{}' + options.style.nl ;
+			str += '{}' + options.style.newline ;
 		}
 		else if ( runtime.depth >= options.depth ) {
-			str += options.style.limit( '[depth limit]' ) + options.style.nl ;
+			str += options.style.limit( '[depth limit]' ) + options.style.newline ;
 		}
 		else if ( runtime.ancestors.indexOf( variable ) !== -1 ) {
-			str += options.style.limit( '[circular]' ) + options.style.nl ;
+			str += options.style.limit( '[circular]' ) + options.style.newline ;
 		}
 		else {
-			str += ( isArray && options.noType ? '[' : '{' ) + options.style.nl ;
+			str += ( isArray && options.noType ? '[' : '{' ) + options.style.newline ;
 
 			// Do not use .concat() here, it doesn't works as expected with arrays...
 			nextAncestors = runtime.ancestors.slice() ;
 			nextAncestors.push( variable ) ;
 
-			for ( i = 0 ; i < propertyList.length ; i ++ ) {
+			for ( i = 0 ; i < propertyList.length && str.length < options.outputMaxLength ; i ++ ) {
 				if ( ! isArray && options.propertyBlackList && options.propertyBlackList.has( propertyList[ i ] ) ) {
-					//str += options.style.limit( '[skip]' ) + options.style.nl ;
+					//str += options.style.limit( '[skip]' ) + options.style.newline ;
 					continue ;
 				}
 
@@ -7546,6 +7671,8 @@ function inspect_( runtime , options , variable ) {
 					error
 					) ;
 				}
+
+				if ( i < propertyList.length - 1 ) { str += options.style.comma ; }
 			}
 
 			if ( options.proto ) {
@@ -7560,14 +7687,17 @@ function inspect_( runtime , options , variable ) {
 				) ;
 			}
 
-			str += indent + ( isArray && options.noType ? ']' : '}' ) + options.style.nl ;
+			str += indent + ( isArray && options.noType ? ']' : '}' ) ;
+			str += options.style.newline ;
 		}
 	}
 
 
 	// Finalizing
 
+
 	if ( runtime.depth === 0 ) {
+		if ( options.style.trim ) { str = str.trim() ; }
 		if ( options.style === 'html' ) { str = escape.html( str ) ; }
 	}
 
@@ -7587,9 +7717,20 @@ function keyNeedingQuotes( key ) {
 
 // Some special object are better written down when substituted by something else
 function specialObjectSubstitution( variable ) {
+	if ( typeof variable.constructor !== 'function' ) {
+		// Some objects have no constructor, e.g.: Object.create(null)
+		//console.error( variable ) ;
+		return ;
+	}
+
 	switch ( variable.constructor.name ) {
 		case 'String' :
 			if ( variable instanceof String ) {
+				return variable.toString() ;
+			}
+			break ;
+		case 'RegExp' :
+			if ( variable instanceof RegExp ) {
 				return variable.toString() ;
 			}
 			break ;
@@ -7671,7 +7812,7 @@ function inspectStack( options , stack ) {
 		.replace( /[</]*(?=@)/g , '' )	// Firefox output some WTF </</</</< stuff in its stack trace -- removing that
 		.replace(
 			/^\s*([^@]*)\s*@\s*([^\n]*)(?::([0-9]+):([0-9]+))?$/mg ,
-			( matches , method , file , line , column ) => {	// jshint ignore:line
+			( matches , method , file , line , column ) => {
 				return options.style.errorStack( '    at ' ) +
 						( method ? options.style.errorStackMethod( method ) + ' ' : '' ) +
 						options.style.errorStack( '(' ) +
@@ -7685,8 +7826,8 @@ function inspectStack( options , stack ) {
 	else {
 		stack = stack.replace( /^[^\n]*\n/ , '' ) ;
 		stack = stack.replace(
-			/^\s*(at)\s+(?:([^\s:()[\]\n]+(?:\([^)]+\))?)\s)?(?:\[as ([^\s:()[\]\n]+)\]\s)?(?:\(?([^:()[\]\n]+):([0-9]+):([0-9]+)\)?)?$/mg ,
-			( matches , at , method , as , file , line , column ) => {	// jshint ignore:line
+			/^\s*(at)\s+(?:((?:new +)?[^\s:()[\]\n]+(?:\([^)]+\))?)\s)?(?:\[as ([^\s:()[\]\n]+)\]\s)?(?:\(?([^:()[\]\n]+):([0-9]+):([0-9]+)\)?)?$/mg ,
+			( matches , at , method , as , file , line , column ) => {
 				return options.style.errorStack( '    at ' ) +
 					( method ? options.style.errorStackMethod( method ) + ' ' : '' ) +
 					( as ? options.style.errorStack( '[as ' ) + options.style.errorStackMethodAs( as ) + options.style.errorStack( '] ' ) : '' ) +
@@ -7710,21 +7851,23 @@ exports.inspectStack = inspectStack ;
 
 var inspectStyle = {} ;
 
-var inspectStyleNoop = function( str ) { return str ; } ;
+var inspectStyleNoop = str => str ;
 
 
 
 inspectStyle.none = {
+	trim: false ,
 	tab: '    ' ,
-	nl: '\n' ,
+	newline: '\n' ,
+	comma: '' ,
 	limit: inspectStyleNoop ,
-	type: function( str ) { return '<' + str + '>' ; } ,
+	type: str => '<' + str + '>' ,
 	constant: inspectStyleNoop ,
 	funcName: inspectStyleNoop ,
-	constructorName: function( str ) { return '<' + str + '>' ; } ,
+	constructorName: str => '<' + str + '>' ,
 	length: inspectStyleNoop ,
 	key: inspectStyleNoop ,
-	index: inspectStyleNoop ,
+	index: str => '[' + str + '] ' ,
 	number: inspectStyleNoop ,
 	inspect: inspectStyleNoop ,
 	string: inspectStyleNoop ,
@@ -7740,52 +7883,64 @@ inspectStyle.none = {
 
 
 
+inspectStyle.inline = Object.assign( {} , inspectStyle.none , {
+	trim: true ,
+	tab: '' ,
+	newline: ' ' ,
+	comma: ', ' ,
+	length: () => '' ,
+	index: () => ''
+	//type: () => '' ,
+} ) ;
+
+
+
 inspectStyle.color = Object.assign( {} , inspectStyle.none , {
-	limit: function( str ) { return ansi.bold + ansi.brightRed + str + ansi.reset ; } ,
-	type: function( str ) { return ansi.italic + ansi.brightBlack + str + ansi.reset ; } ,
-	constant: function( str ) { return ansi.cyan + str + ansi.reset ; } ,
-	funcName: function( str ) { return ansi.italic + ansi.magenta + str + ansi.reset ; } ,
-	constructorName: function( str ) { return ansi.magenta + str + ansi.reset ; } ,
-	length: function( str ) { return ansi.italic + ansi.brightBlack + str + ansi.reset ; } ,
-	key: function( str ) { return ansi.green + str + ansi.reset ; } ,
-	index: function( str ) { return ansi.blue + str + ansi.reset ; } ,
-	number: function( str ) { return ansi.cyan + str + ansi.reset ; } ,
-	inspect: function( str ) { return ansi.cyan + str + ansi.reset ; } ,
-	string: function( str ) { return ansi.blue + str + ansi.reset ; } ,
-	errorType: function( str ) { return ansi.red + ansi.bold + str + ansi.reset ; } ,
-	errorMessage: function( str ) { return ansi.red + ansi.italic + str + ansi.reset ; } ,
-	errorStack: function( str ) { return ansi.brightBlack + str + ansi.reset ; } ,
-	errorStackMethod: function( str ) { return ansi.brightYellow + str + ansi.reset ; } ,
-	errorStackMethodAs: function( str ) { return ansi.yellow + str + ansi.reset ; } ,
-	errorStackFile: function( str ) { return ansi.brightCyan + str + ansi.reset ; } ,
-	errorStackLine: function( str ) { return ansi.blue + str + ansi.reset ; } ,
-	errorStackColumn: function( str ) { return ansi.magenta + str + ansi.reset ; }
+	limit: str => ansi.bold + ansi.brightRed + str + ansi.reset ,
+	type: str => ansi.italic + ansi.brightBlack + str + ansi.reset ,
+	constant: str => ansi.cyan + str + ansi.reset ,
+	funcName: str => ansi.italic + ansi.magenta + str + ansi.reset ,
+	constructorName: str => ansi.magenta + str + ansi.reset ,
+	length: str => ansi.italic + ansi.brightBlack + str + ansi.reset ,
+	key: str => ansi.green + str + ansi.reset ,
+	index: str => ansi.blue + '[' + str + ']' + ansi.reset + ' ' ,
+	number: str => ansi.cyan + str + ansi.reset ,
+	inspect: str => ansi.cyan + str + ansi.reset ,
+	string: str => ansi.blue + str + ansi.reset ,
+	errorType: str => ansi.red + ansi.bold + str + ansi.reset ,
+	errorMessage: str => ansi.red + ansi.italic + str + ansi.reset ,
+	errorStack: str => ansi.brightBlack + str + ansi.reset ,
+	errorStackMethod: str => ansi.brightYellow + str + ansi.reset ,
+	errorStackMethodAs: str => ansi.yellow + str + ansi.reset ,
+	errorStackFile: str => ansi.brightCyan + str + ansi.reset ,
+	errorStackLine: str => ansi.blue + str + ansi.reset ,
+	errorStackColumn: str => ansi.magenta + str + ansi.reset
 } ) ;
 
 
 
 inspectStyle.html = Object.assign( {} , inspectStyle.none , {
 	tab: '&nbsp;&nbsp;&nbsp;&nbsp;' ,
-	nl: '<br />' ,
-	limit: function( str ) { return '<span style="color:red">' + str + '</span>' ; } ,
-	type: function( str ) { return '<i style="color:gray">' + str + '</i>' ; } ,
-	constant: function( str ) { return '<span style="color:cyan">' + str + '</span>' ; } ,
-	funcName: function( str ) { return '<i style="color:magenta">' + str + '</i>' ; } ,
-	constructorName: function( str ) { return '<span style="color:magenta">' + str + '</span>' ; } ,
-	length: function( str ) { return '<i style="color:gray">' + str + '</i>' ; } ,
-	key: function( str ) { return '<span style="color:green">' + str + '</span>' ; } ,
-	index: function( str ) { return '<span style="color:blue">' + str + '</span>' ; } ,
-	number: function( str ) { return '<span style="color:cyan">' + str + '</span>' ; } ,
-	inspect: function( str ) { return '<span style="color:cyan">' + str + '</span>' ; } ,
-	string: function( str ) { return '<span style="color:blue">' + str + '</span>' ; } ,
-	errorType: function( str ) { return '<span style="color:red">' + str + '</span>' ; } ,
-	errorMessage: function( str ) { return '<span style="color:red">' + str + '</span>' ; } ,
-	errorStack: function( str ) { return '<span style="color:gray">' + str + '</span>' ; } ,
-	errorStackMethod: function( str ) { return '<span style="color:yellow">' + str + '</span>' ; } ,
-	errorStackMethodAs: function( str ) { return '<span style="color:yellow">' + str + '</span>' ; } ,
-	errorStackFile: function( str ) { return '<span style="color:cyan">' + str + '</span>' ; } ,
-	errorStackLine: function( str ) { return '<span style="color:blue">' + str + '</span>' ; } ,
-	errorStackColumn: function( str ) { return '<span style="color:gray">' + str + '</span>' ; }
+	newline: '<br />' ,
+	limit: str => '<span style="color:red">' + str + '</span>' ,
+	type: str => '<i style="color:gray">' + str + '</i>' ,
+	constant: str => '<span style="color:cyan">' + str + '</span>' ,
+	funcName: str => '<i style="color:magenta">' + str + '</i>' ,
+	constructorName: str => '<span style="color:magenta">' + str + '</span>' ,
+	length: str => '<i style="color:gray">' + str + '</i>' ,
+	key: str => '<span style="color:green">' + str + '</span>' ,
+	index: str => '<span style="color:blue">[' + str + ']</span> ' ,
+	number: str => '<span style="color:cyan">' + str + '</span>' ,
+	inspect: str => '<span style="color:cyan">' + str + '</span>' ,
+	string: str => '<span style="color:blue">' + str + '</span>' ,
+	errorType: str => '<span style="color:red">' + str + '</span>' ,
+	errorMessage: str => '<span style="color:red">' + str + '</span>' ,
+	errorStack: str => '<span style="color:gray">' + str + '</span>' ,
+	errorStackMethod: str => '<span style="color:yellow">' + str + '</span>' ,
+	errorStackMethodAs: str => '<span style="color:yellow">' + str + '</span>' ,
+	errorStackFile: str => '<span style="color:cyan">' + str + '</span>' ,
+	errorStackLine: str => '<span style="color:blue">' + str + '</span>' ,
+	errorStackColumn: str => '<span style="color:gray">' + str + '</span>'
 } ) ;
 
 
@@ -8309,7 +8464,9 @@ svgKit.standalone = function standalone( content , viewBox )
 
 
 }).call(this,require('_process'))
-},{"_process":13,"dom-kit":7,"fs":6,"string-kit/lib/escape.js":19}],23:[function(require,module,exports){
+},{"_process":13,"dom-kit":7,"fs":6,"string-kit/lib/escape.js":23}],23:[function(require,module,exports){
+arguments[4][19][0].apply(exports,arguments)
+},{"dup":19}],24:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9043,7 +9200,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":24,"punycode":14,"querystring":17}],24:[function(require,module,exports){
+},{"./util":25,"punycode":14,"querystring":17}],25:[function(require,module,exports){
 'use strict';
 
 module.exports = {
