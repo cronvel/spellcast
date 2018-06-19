@@ -77,7 +77,7 @@ function deb( something )
 
 
 
-function runBook( bookPath , action , uiCallback , doneCallback )
+async function runBook( bookPath , action , uiCallback , doneCallback )
 {
 	var ui , uiId = 0 , triggered = false , book , options = {} ;
 	
@@ -87,7 +87,7 @@ function runBook( bookPath , action , uiCallback , doneCallback )
 	var BookModule = action.type === 'story' ? StoryBook : CasterBook ;
 	
 	
-	book = BookModule.load( bookPath , options ) ;
+	book = await BookModule.loadAsync( bookPath , options ) ;
 	
 	var triggerCallback = function() {
 		if ( triggered ) { return ; }
@@ -185,26 +185,30 @@ describe( "I/O tags" , function() {
 	
 	it( "[input] tag" , function( done ) {
 		
-		var book , messages = [] ;
-		
-		book = runBook( __dirname + '/books/input.kfg' , { type: 'cast' , target: 'input' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-				ui.bus.on( 'textInput' , function( label ) {
-					expect( label ).to.equal(  'Enter your name: ' ) ;
-					book.roles[ 0 ].emit( 'textSubmit' , 'Jack Wallace' ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal(  [
-					[ 'Hello Jack Wallace!' ]
-				] ) ;
-				
-				done() ;
-			}
-		) ;
+		// TMP
+		// Unit test should be rewritten with async/await everywhere
+		( async function() {
+			var book , messages = [] ;
+			
+			book = await runBook( __dirname + '/books/input.kfg' , { type: 'cast' , target: 'input' } ,
+				function( ui ) {
+					ui.bus.on( 'message' , function() {
+						messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
+					} ) ;
+					ui.bus.on( 'textInput' , function( label ) {
+						expect( label ).to.equal(  'Enter your name: ' ) ;
+						book.roles[ 0 ].emit( 'textSubmit' , 'Jack Wallace' ) ;
+					} ) ;
+				} ,
+				function() {
+					expect( messages ).to.equal(  [
+						[ 'Hello Jack Wallace!' ]
+					] ) ;
+					
+					done() ;
+				}
+			) ;
+		} )() ;
 	} ) ;
 	
 	it( "[fortune] tag" ) ;
@@ -220,11 +224,11 @@ describe( "Control flow tags" , function() {
 		var book , messages ;
 				
 		async.series( [
-			function( seriesCallback ) {
+			async function( seriesCallback ) {
 				
 				messages = [] ;
 				
-				book = runBook( __dirname + '/books/if-elseif-else.kfg' , { type: 'cast' , target: 'if-elseif-else' } ,
+				book = await runBook( __dirname + '/books/if-elseif-else.kfg' , { type: 'cast' , target: 'if-elseif-else' } ,
 					function( ui ) {
 						ui.bus.on( 'message' , function() {
 							messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1280,9 +1284,9 @@ describe( "Basic caster tags and features" , function() {
 		var book , extOutputs = [] , summons = [] ;
 		
 		async.series( [
-			function( seriesCallback ) {
+			async function( seriesCallback ) {
 			
-				book = runBook( __dirname + '/books/regex-summoning.kfg' , { type: 'summon' , target: '../build/file.ext' } ,
+				book = await runBook( __dirname + '/books/regex-summoning.kfg' , { type: 'summon' , target: '../build/file.ext' } ,
 					function( ui ) {
 						//console.log( 'UI ready' ) ;
 						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -1482,9 +1486,9 @@ describe( "Basic caster tags and features" , function() {
 		fsKit.touchSync( __dirname + '/src/file3.txt' ) ;
 		
 		async.series( [
-			function( seriesCallback ) {
+			async function( seriesCallback ) {
 			
-				book = runBook( __dirname + '/books/summoning-static-dependencies.kfg' , { type: 'summon' , target: '../build/concat.txt' } ,
+				book = await runBook( __dirname + '/books/summoning-static-dependencies.kfg' , { type: 'summon' , target: '../build/concat.txt' } ,
 					function( ui ) {
 						//console.log( 'UI ready' ) ;
 						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -1568,9 +1572,9 @@ describe( "Basic caster tags and features" , function() {
 		fsKit.touchSync( __dirname + '/src/something' ) ;
 		
 		async.series( [
-			function( seriesCallback ) {
+			async function( seriesCallback ) {
 				
-				book = runBook( __dirname + '/books/summoning-cascading-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
+				book = await runBook( __dirname + '/books/summoning-cascading-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
 					function( ui ) {
 						//console.log( 'UI ready' ) ;
 						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -1683,9 +1687,9 @@ describe( "Basic caster tags and features" , function() {
 		*/
 		
 		async.series( [
-			function( seriesCallback ) {
+			async function( seriesCallback ) {
 				
-				book = runBook( __dirname + '/books/summoning-failing-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
+				book = await runBook( __dirname + '/books/summoning-failing-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
 					function( ui ) {
 						//console.log( 'UI ready' ) ;
 						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
