@@ -87,7 +87,7 @@ async function runBook( bookPath , action , uiCallback , doneCallback )
 	var BookModule = action.type === 'story' ? StoryBook : CasterBook ;
 	
 	
-	book = await BookModule.loadAsync( bookPath , options ) ;
+	book = await BookModule.load( bookPath , options ) ;
 	
 	var triggerCallback = function() {
 		if ( triggered ) { return ; }
