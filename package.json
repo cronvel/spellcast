@@ -27,7 +27,7 @@
     "logfella": "^1.0.4",
     "math-kit": "^0.11.14",
     "minimist": "^1.2.0",
-    "nextgen-events": "^1.0.1",
+    "nextgen-events": "^1.1.0",
     "nomi-ninja": "^0.1.1",
     "semver": "^5.5.0",
     "server-kit": "^0.8.1",
