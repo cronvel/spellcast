@@ -4683,8 +4683,22 @@ NextGenEvents.groupOnce = function groupOnce( emitters , eventName , fn , option
 
 
 
+// A Promise-returning .groupOnce() variant, it returns an array with only the first arg for each emitter's event
+NextGenEvents.groupWaitFor = function groupWaitFor( emitters , eventName ) {
+	return Promise.all( emitters.map( emitter => emitter.waitFor( eventName ) ) ) ;
+} ;
+
+
+
+// A Promise-returning .groupOnce() variant, it returns an array of array for each emitter's event
+NextGenEvents.groupWaitForAll = function groupWaitForAll( emitters , eventName ) {
+	return Promise.all( emitters.map( emitter => emitter.waitForAll( eventName ) ) ) ;
+} ;
+
+
+
 // Globally once, only one event could be emitted, by the first emitter to emit
-NextGenEvents.groupGlobalOnce = function groupGlobalOnce( emitters , eventName , fn , options ) {
+NextGenEvents.groupOnceFirst = function groupOnceFirst( emitters , eventName , fn , options ) {
 	var fnWrapper , triggered = false ;
 
 	// Manage arguments
@@ -4711,8 +4725,26 @@ NextGenEvents.groupGlobalOnce = function groupGlobalOnce( emitters , eventName ,
 
 
 
+// A Promise-returning .groupOnceFirst() variant, only the first arg is returned
+NextGenEvents.groupWaitForFirst = function groupWaitForFirst( emitters , eventName ) {
+	return new Promise( resolve => {
+		NextGenEvents.groupOnceFirst( emitters , eventName , ( firstArg ) => resolve( firstArg ) ) ;
+	} ) ;
+} ;
+
+
+
+// A Promise-returning .groupOnceFirst() variant, all args are returned as an array
+NextGenEvents.groupWaitForFirstAll = function groupWaitForFirstAll( emitters , eventName ) {
+	return new Promise( resolve => {
+		NextGenEvents.groupOnceFirst( emitters , eventName , ( ... args ) => resolve( args ) ) ;
+	} ) ;
+} ;
+
+
+
 // Globally once, only one event could be emitted, by the last emitter to emit
-NextGenEvents.groupGlobalOnceAll = function groupGlobalOnceAll( emitters , eventName , fn , options ) {
+NextGenEvents.groupOnceLast = function groupOnceLast( emitters , eventName , fn , options ) {
 	var fnWrapper , triggered = false , count = emitters.length ;
 
 	// Manage arguments
@@ -4739,6 +4771,24 @@ NextGenEvents.groupGlobalOnceAll = function groupGlobalOnceAll( emitters , event
 
 	emitters.forEach( ( emitter ) => {
 		emitter.once( eventName , fnWrapper.bind( undefined , emitter ) , options ) ;
+	} ) ;
+} ;
+
+
+
+// A Promise-returning .groupGlobalWaitFor() variant, only the first arg is returned
+NextGenEvents.groupWaitForLast = function groupWaitForLast( emitters , eventName ) {
+	return new Promise( resolve => {
+		NextGenEvents.groupOnceLast( emitters , eventName , ( firstArg ) => resolve( firstArg ) ) ;
+	} ) ;
+} ;
+
+
+
+// A Promise-returning .groupGlobalWaitFor() variant, all args are returned as an array
+NextGenEvents.groupWaitForLastAll = function groupWaitForLastAll( emitters , eventName ) {
+	return new Promise( resolve => {
+		NextGenEvents.groupOnceLast( emitters , eventName , ( ... args ) => resolve( args ) ) ;
 	} ) ;
 } ;
 
@@ -4805,11 +4855,26 @@ NextGenEvents.groupEmit = function groupEmit( emitters , ... args ) {
 
 
 
+NextGenEvents.groupWaitForEmit = function groupWaitForEmit( emitters , ... args ) {
+	return new Promise( resolve => {
+		NextGenEvents.groupEmit( emitters , ... args , ( interrupt ) => resolve( interrupt ) ) ;
+	} ) ;
+} ;
+
+
+
 NextGenEvents.groupDefineStates = function groupDefineStates( emitters , ... args ) {
 	emitters.forEach( ( emitter ) => {
 		emitter.defineStates( ... args ) ;
 	} ) ;
 } ;
+
+
+
+// Bad names, but since they make their way through the API documentation,
+// it should be kept for backward compatibility, but they are DEPRECATED.
+NextGenEvents.groupGlobalOnce = NextGenEvents.groupOnceFirst ;
+NextGenEvents.groupGlobalOnceAll = NextGenEvents.groupOnceLast ;
 
 
 
@@ -5630,30 +5695,30 @@ module.exports.isBrowser = true ;
 }).call(this,require('_process'))
 },{"./NextGenEvents.js":9,"_process":13}],12:[function(require,module,exports){
 module.exports={
-  "_from": "nextgen-events@1.0.1",
-  "_id": "nextgen-events@1.0.1",
+  "_from": "nextgen-events@1.1",
+  "_id": "nextgen-events@1.1.0",
   "_inBundle": false,
-  "_integrity": "sha512-ATR5qGlRJiptrv9awMyxgI+SDZlsB+GrkicjX1zAeit0cqJkMslbbL/2dcjk0K0a1kUWc1AM3SEKGQn4PlHUaA==",
+  "_integrity": "sha512-Emz5rh584fygInd3gtwP+xGyJhEnyxQa0/Xbmw8sbpXVGV/luqDnVPq1cQopYR7qg6KUlPfwWVhxrhZri1wDAw==",
   "_location": "/nextgen-events",
   "_phantomChildren": {},
   "_requested": {
-    "type": "version",
+    "type": "range",
     "registry": true,
-    "raw": "nextgen-events@1.0.1",
+    "raw": "nextgen-events@1.1",
     "name": "nextgen-events",
     "escapedName": "nextgen-events",
-    "rawSpec": "1.0.1",
+    "rawSpec": "1.1",
     "saveSpec": null,
-    "fetchSpec": "1.0.1"
+    "fetchSpec": "1.1"
   },
   "_requiredBy": [
     "#USER",
     "/",
     "/terminal-kit"
   ],
-  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-1.0.1.tgz",
-  "_shasum": "cfea77630b360ca2eb257c82fb348679c10ebf66",
-  "_spec": "nextgen-events@1.0.1",
+  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-1.1.0.tgz",
+  "_shasum": "a37dd6244eb222745c57a8fcc596fd78ef429a46",
+  "_spec": "nextgen-events@1.1",
   "_where": "/home/cedric/inside/github/spellcast",
   "author": {
     "name": "Cédric Ronvel"
@@ -5714,7 +5779,7 @@ module.exports={
   "scripts": {
     "test": "tea-time -R dot"
   },
-  "version": "1.0.1"
+  "version": "1.1.0"
 }
 
 },{}],13:[function(require,module,exports){

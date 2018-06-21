@@ -89,48 +89,58 @@ async function runBook( bookPath , action , uiCallback , doneCallback )
 	
 	book = await BookModule.load( bookPath , options ) ;
 	
-	var triggerCallback = function() {
+	var triggerCallback = ( ... args ) => {
+		log.error( 'triggerCallback' ) ;
 		if ( triggered ) { return ; }
 		triggered = true ;
+		log.error( 'triggered' ) ;
 		book.destroy() ;
-		doneCallback.apply( undefined , arguments ) ;
+		doneCallback( ... args ) ;
 	} ;
 	
-	book.initBook( function( error ) {
+	try {
+		await book.initBook() ;
+	}
+	catch ( error ) {
+		log.error( 'initBook(): %E' , error ) ;
+		triggerCallback( error ) ;
+		return ;
+	}
+	
+	log.error( 'yoooosh!' ) ;
+	book.assignRoles().then( async () => {
+		log.error( 'yoooosh then!' ) ;
+		switch ( action.type )
+		{
+			case 'cast' :
+				await book.cast( action.target ) ;
+				break ;
+			case 'summon' :
+				await book.summon( action.target ) ;
+				break ;
+			case 'story' :
+				await book.startStory() ;
+				break ;
+		}
 		
-		//console.log( 'init done' ) ;
-		if ( error ) { triggerCallback( error ) ; return ; }
-		
-		book.assignRoles( function( error ) {
-			
-			//console.log( 'assignRoles done' ) ;
-			if ( error ) { triggerCallback( error ) ; return ; }
-			
-			switch ( action.type )
-			{
-				case 'cast' :
-					book.cast( action.target , triggerCallback ) ;
-					break ;
-				case 'summon' :
-					book.summon( action.target , triggerCallback ) ;
-					break ;
-				case 'story' :
-					book.startStory( triggerCallback ) ;
-					break ;
-			}
-		} ) ;
-		
-		book.addClient( Client.create( { name: 'default' } ) ) ;
-		ui = UnitUI( book.clients[ 0 ] ) ;
-		ui.id = uiId ++ ;
-		
-		if ( action.path ) { followPath( book , ui , action.path , triggerCallback ) ; }
-		
-		if ( uiCallback ) { uiCallback( ui ) ; }
-		
-		// This must be done, or some events will be missing
-		book.clients[ 0 ].authenticate( {} ) ;
+		log.error( 'yoooosh then after!' ) ;
+		triggerCallback() ;
+	} ).catch( error => {
+		log.error( 'run: %E' , error ) ;
+		triggerCallback( error ) ;
 	} ) ;
+	log.error( 'yoooosh 2!' ) ;
+	
+	book.addClient( Client.create( { name: 'default' } ) ) ;
+	ui = UnitUI( book.clients[ 0 ] ) ;
+	ui.id = uiId ++ ;
+	
+	if ( action.path ) { followPath( book , ui , action.path , triggerCallback ) ; }
+	
+	if ( uiCallback ) { uiCallback( ui ) ; }
+	
+	// This must be done, or some events will be missing
+	book.clients[ 0 ].authenticate( {} ) ;
 	
 	return book ;
 }
