@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
-    "async-kit": "^2.2.4",
     "babel-tower": "^0.17.1",
     "chokidar": "cronvel/chokidar#656b283fd07a8c5916d57733d08d50f927152b08",
     "dom-kit": "^0.3.8",
@@ -38,6 +37,7 @@
     "tree-kit": "^0.5.27"
   },
   "devDependencies": {
+    "async-kit": "^2.2.4",
     "browserify": "^16.2.2",
     "electron": "^2.0.1",
     "expect.js": "^0.3.1",
