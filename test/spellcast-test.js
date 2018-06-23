@@ -1171,9 +1171,9 @@ describe( "Basic caster tags and features" , function() {
 				expect( extOutputs ).to.equal( [
 					[ 'before fail\n' ]
 				] ) ;
-				
+
 				expect( casts ).to.be.like( [
-					[ 'scroll-of-failing' , 'error' , { code: 'nonZeroExit' } ]
+					[ 'scroll-of-failing' , 'error' , { type: 'nonZeroExit' } ]
 				] ) ;
 				
 				done() ;
@@ -1386,7 +1386,7 @@ describe( "Basic caster tags and features" , function() {
 				expect( fs.accessSync ).with.args( __dirname + '/build/failed.txt' ).to.throw() ;
 				
 				expect( summons ).to.be.like( [
-					[ 'failed.txt' , 'error' , { code: 'nonZeroExit' } ]
+					[ 'failed.txt' , 'error' , { type: 'nonZeroExit' } ]
 				] ) ;
 				
 				done() ;
@@ -1418,6 +1418,7 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
+				try{
 				expect( extOutputs ).to.equal( [] ) ;
 				
 				/*
@@ -1426,6 +1427,7 @@ describe( "Basic caster tags and features" , function() {
 				] ) ;
 				*/
 				
+				console.log( summons ) ;
 				expect( summons ).to.equal( [
 					[ '../build/file1.rev' , 'ok' ] ,
 					[ '../build/file2.rev' , 'ok' ] ,
@@ -1435,7 +1437,8 @@ describe( "Basic caster tags and features" , function() {
 				expect( fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
 				expect( fs.readFileSync( __dirname + '/build/file2.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
 				expect( fs.readFileSync( __dirname + '/build/file3.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
-				
+				}
+				catch(error){ done(error); }
 				done() ;
 			}
 		) ;
@@ -1697,8 +1700,8 @@ describe( "Basic caster tags and features" , function() {
 						expect( extOutputs ).to.equal( [] ) ;
 						
 						expect( summons ).to.be.like( [
-							[ '../build/concat.txt' , 'error' , { code: 'nonZeroExit' } ] ,
-							[ '../build/cascade.txt' , 'error' , { code: 'dependencyFailed' } ]
+							[ '../build/concat.txt' , 'error' , { type: 'nonZeroExit' } ] ,
+							[ '../build/cascade.txt' , 'error' , { type: 'dependencyFailed' } ]
 						] ) ;
 						
 						expect( fs.accessSync ).with.args( __dirname + '/build/cascade.txt' ).to.throw() ;
