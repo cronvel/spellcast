@@ -155,7 +155,7 @@
 
 [spell kawarimi]
 	[scroll]
-		- $> echo ${alert//sharg} ${blah//sharg}${blah//sharg} ${list//sharg}
+		- $> echo ${alert//sharg} ${blah//sharg}${blah//sharg}
 
 [spell depend]
 	[cast]
@@ -209,6 +209,4 @@
 	[chant]
 		# fake command
 		- $> md2html -o ${this.summoning} ${this.source}
-
-
 
