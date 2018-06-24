@@ -1874,7 +1874,7 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 
 	// Before appending, save all rects of existing sibling slots
 	siblingCards = Object.values( this.cards )
-	.filter( e => e !== card && ( e.location === locationName || e.location === oldLocationName ) ) ;
+		.filter( e => e !== card && ( e.location === locationName || e.location === oldLocationName ) ) ;
 
 	siblingSlotRectsBefore = siblingCards.map( e => e.$locationSlot.getBoundingClientRect() ) ;
 
@@ -5695,7 +5695,7 @@ module.exports.isBrowser = true ;
 }).call(this,require('_process'))
 },{"./NextGenEvents.js":9,"_process":13}],12:[function(require,module,exports){
 module.exports={
-  "_from": "nextgen-events@1.1",
+  "_from": "nextgen-events@^1.1.0",
   "_id": "nextgen-events@1.1.0",
   "_inBundle": false,
   "_integrity": "sha512-Emz5rh584fygInd3gtwP+xGyJhEnyxQa0/Xbmw8sbpXVGV/luqDnVPq1cQopYR7qg6KUlPfwWVhxrhZri1wDAw==",
@@ -5704,21 +5704,20 @@ module.exports={
   "_requested": {
     "type": "range",
     "registry": true,
-    "raw": "nextgen-events@1.1",
+    "raw": "nextgen-events@^1.1.0",
     "name": "nextgen-events",
     "escapedName": "nextgen-events",
-    "rawSpec": "1.1",
+    "rawSpec": "^1.1.0",
     "saveSpec": null,
-    "fetchSpec": "1.1"
+    "fetchSpec": "^1.1.0"
   },
   "_requiredBy": [
-    "#USER",
     "/",
     "/terminal-kit"
   ],
   "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-1.1.0.tgz",
   "_shasum": "a37dd6244eb222745c57a8fcc596fd78ef429a46",
-  "_spec": "nextgen-events@1.1",
+  "_spec": "nextgen-events@^1.1.0",
   "_where": "/home/cedric/inside/github/spellcast",
   "author": {
     "name": "Cédric Ronvel"

@@ -1418,7 +1418,6 @@ describe( "Basic caster tags and features" , function() {
 				} ) ;
 			} ,
 			function() {
-				try{
 				expect( extOutputs ).to.equal( [] ) ;
 				
 				/*
@@ -1427,7 +1426,6 @@ describe( "Basic caster tags and features" , function() {
 				] ) ;
 				*/
 				
-				console.log( summons ) ;
 				expect( summons ).to.equal( [
 					[ '../build/file1.rev' , 'ok' ] ,
 					[ '../build/file2.rev' , 'ok' ] ,
@@ -1437,8 +1435,7 @@ describe( "Basic caster tags and features" , function() {
 				expect( fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
 				expect( fs.readFileSync( __dirname + '/build/file2.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
 				expect( fs.readFileSync( __dirname + '/build/file3.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
-				}
-				catch(error){ done(error); }
+
 				done() ;
 			}
 		) ;
