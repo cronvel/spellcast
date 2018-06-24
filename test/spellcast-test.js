@@ -77,34 +77,41 @@ function deb( something )
 
 
 
-async function runBook( bookPath , action , uiCallback , doneCallback )
+async function runBook( bookPath , action , uiCallback )
 {
-	var ui , uiId = 0 , triggered = false , book , options = {} ;
+	var ui , uiId = 0 , cleaned = false , book , options = {} ;
 	
 	if ( action.maxTicks ) { options.maxTicks = action.maxTicks ; }
 	if ( action.allowJsTag !== undefined ) { options.allowJsTag = action.allowJsTag ; }
 	
 	var BookModule = action.type === 'story' ? StoryBook : CasterBook ;
 	
-	
 	book = await BookModule.load( bookPath , options ) ;
 	
-	var triggerCallback = ( ... args ) => {
-		if ( triggered ) { return ; }
-		triggered = true ;
+	var cleanUp = () => {
+		if ( cleaned ) { return ; }
+		cleaned = true ;
 		book.destroy() ;
-		doneCallback( ... args ) ;
 	} ;
 	
 	try {
 		await book.initBook() ;
-	}
-	catch ( error ) {
-		triggerCallback( error ) ;
-		return ;
-	}
-	
-	book.assignRoles().then( async () => {
+		
+		var assignRolesPromise = book.assignRoles() ;
+		
+		book.addClient( Client.create( { name: 'default' } ) ) ;
+		ui = UnitUI( book.clients[ 0 ] ) ;
+		ui.id = uiId ++ ;
+		
+		if ( action.path ) { followPath( book , ui , action.path , cleanUp ) ; }
+		
+		if ( uiCallback ) { uiCallback( ui , book ) ; }
+		
+		// This must be done, or some events will be missing
+		book.clients[ 0 ].authenticate( {} ) ;
+		
+		await assignRolesPromise ;
+		
 		switch ( action.type )
 		{
 			case 'cast' :
@@ -118,22 +125,13 @@ async function runBook( bookPath , action , uiCallback , doneCallback )
 				break ;
 		}
 		
-		triggerCallback() ;
-	} ).catch( error => {
-		//log.error( 'run: %E' , error ) ;
-		triggerCallback( error ) ;
-	} ) ;
+	}
+	catch ( error ) {
+		cleanUp() ;
+		throw error ;
+	}
 	
-	book.addClient( Client.create( { name: 'default' } ) ) ;
-	ui = UnitUI( book.clients[ 0 ] ) ;
-	ui.id = uiId ++ ;
-	
-	if ( action.path ) { followPath( book , ui , action.path , triggerCallback ) ; }
-	
-	if ( uiCallback ) { uiCallback( ui ) ; }
-	
-	// This must be done, or some events will be missing
-	book.clients[ 0 ].authenticate( {} ) ;
+	cleanUp() ;
 	
 	return book ;
 }
@@ -161,57 +159,39 @@ function followPath( book , ui , path , callback )
 
 describe( "I/O tags" , function() {
 	
-	it( "[message]/[chant] tag" , function( done ) {
-		
+	it( "[message]/[chant] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Some text.' , null ] ,
-					[ 'Some other text.' , null ] ,
-					[ 'Welcome to The Shadow Terminal.' , {
-						next: true ,
-						slowTyping: true
-					} ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
+			ui => ui.bus.on( 'message' , ( ... args ) => messages.push( args ) )
 		) ;
+		
+		expect( messages ).to.equal( [
+			[ 'Some text.' , null ] ,
+			[ 'Some other text.' , null ] ,
+			[ 'Welcome to The Shadow Terminal.' , {
+				next: true ,
+				slowTyping: true
+			} ]
+		] ) ;
 	} ) ;
 	
-	it( "[input] tag" , function( done ) {
+	it( "[input] tag" , async function() {
+		var messages = [] ;
 		
-		// TMP
-		// Unit test should be rewritten with async/await everywhere
-		( async function() {
-			var book , messages = [] ;
-			
-			book = await runBook( __dirname + '/books/input.kfg' , { type: 'cast' , target: 'input' } ,
-				function( ui ) {
-					ui.bus.on( 'message' , function() {
-						messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-					} ) ;
-					ui.bus.on( 'textInput' , function( label ) {
-						expect( label ).to.equal(  'Enter your name: ' ) ;
-						book.roles[ 0 ].emit( 'textSubmit' , 'Jack Wallace' ) ;
-					} ) ;
-				} ,
-				function() {
-					expect( messages ).to.equal( [
-						[ 'Hello Jack Wallace!' ]
-					] ) ;
-					
-					done() ;
-				}
-			) ;
-		} )() ;
+		await runBook( __dirname + '/books/input.kfg' , { type: 'cast' , target: 'input' } ,
+			( ui , book_ ) => {
+				ui.bus.on( 'message' , msg => messages.push( [ msg ] ) ) ;
+				ui.bus.on( 'textInput' , label => {
+					expect( label ).to.equal(  'Enter your name: ' ) ;
+					book_.roles[ 0 ].emit( 'textSubmit' , 'Jack Wallace' ) ;
+				} ) ;
+			}
+		) ;
+		
+		expect( messages ).to.equal( [
+			[ 'Hello Jack Wallace!' ]
+		] ) ;
 	} ) ;
 	
 	it( "[fortune] tag" ) ;
@@ -222,900 +202,612 @@ describe( "I/O tags" , function() {
 
 describe( "Control flow tags" , function() {
 	
-	it( "[if], [elsif]/[elseif] and [else] tags" , function( done ) {
-		
+	it( "[if], [elsif]/[elseif] and [else] tags" , async function() {
 		var book , messages ;
 				
-		async.series( [
-			async function( seriesCallback ) {
-				messages = [] ;
-				
-				book = await runBook( __dirname + '/books/if-elseif-else.kfg' , { type: 'cast' , target: 'if-elseif-else' } ,
-					function( ui ) {
-						ui.bus.on( 'message' , function() {
-							messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-						} ) ;
-					} ,
-					function() {
-						expect( messages ).to.equal( [
-							[ 'Condition #1 else' ] ,
-							[ 'Condition #2 else' ] ,
-						] ) ;
-						
-						seriesCallback() ;
-					}
-				) ;
-			} ,
-			async function( seriesCallback ) {
-				// Reset messages and change the value to be tested
-				messages = [] ;
-				book.data.value = 2 ;
-				
-				await book.cast( 'if-elseif-else' ) ;
-				
-				expect( messages ).to.equal( [
-					[ 'Condition #1 else' ] ,
-					[ 'Condition #2 elseif' ] ,
-				] ) ;
-				
-				seriesCallback() ;
-			} ,
-			async function( seriesCallback ) {
-				// Reset messages and change the value to be tested
-				messages = [] ;
-				book.data.value = 3 ;
-				
-				await book.cast( 'if-elseif-else' ) ;
-				expect( messages ).to.equal( [
-					[ 'Condition #1 else' ] ,
-					[ 'Condition #2 elsif' ] ,
-				] ) ;
-				
-				seriesCallback() ;
-			} ,
-			async function( seriesCallback ) {
-				// Reset messages and change the value to be tested
-				messages = [] ;
-				book.data.value = 5 ;
-				
-				await book.cast( 'if-elseif-else' ) ;
-				expect( messages ).to.equal( [
-					[ 'Condition #0 if' ] ,
-					[ 'Condition #1 if' ] ,
-					[ 'Condition #2 if' ] ,
-				] ) ;
-				
-				seriesCallback() ;
-			} ,
-		] )
-		.exec( done ) ;
+		messages = [] ;
+		
+		book = await runBook( __dirname + '/books/if-elseif-else.kfg' , { type: 'cast' , target: 'if-elseif-else' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		)
+		
+		expect( messages ).to.equal( [
+			[ 'Condition #1 else' ] ,
+			[ 'Condition #2 else' ] ,
+		] ) ;
+		
+		// Reset messages and change the value to be tested
+		messages = [] ;
+		book.data.value = 2 ;
+			
+		await book.cast( 'if-elseif-else' ) ;
+		
+		expect( messages ).to.equal( [
+			[ 'Condition #1 else' ] ,
+			[ 'Condition #2 elseif' ] ,
+		] ) ;
+		
+		// Reset messages and change the value to be tested
+		messages = [] ;
+		book.data.value = 3 ;
+		
+		await book.cast( 'if-elseif-else' ) ;
+		expect( messages ).to.equal( [
+			[ 'Condition #1 else' ] ,
+			[ 'Condition #2 elsif' ] ,
+		] ) ;
+			
+		// Reset messages and change the value to be tested
+		messages = [] ;
+		book.data.value = 5 ;
+		
+		await book.cast( 'if-elseif-else' ) ;
+		expect( messages ).to.equal( [
+			[ 'Condition #0 if' ] ,
+			[ 'Condition #1 if' ] ,
+			[ 'Condition #2 if' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[foreach] tag" , function( done ) {
-		
+	it( "[foreach] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/foreach.kfg' , { type: 'cast' , target: 'foreach' } ,
-			function( ui ) {
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'The value is: one' ] ,
-					[ 'The value is: two' ] ,
-					[ 'The value is: three' ] ,
-					[ 'The key/value is: 0/one' ] ,
-					[ 'The key/value is: 1/two' ] ,
-					[ 'The key/value is: 2/three' ] ,
-					[ 'The value is: 1' ] ,
-					[ 'The value is: 2' ] ,
-					[ 'The value is: 3' ] ,
-					[ 'The key/value is: one/1' ] ,
-					[ 'The key/value is: two/2' ] ,
-					[ 'The key/value is: three/3' ] ,
-				] ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/foreach.kfg' , { type: 'cast' , target: 'foreach' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'message' , msg => messages.push( [ msg ] ) ) ;
 			}
 		) ;
+		
+		expect( messages ).to.equal( [
+			[ 'The value is: one' ] ,
+			[ 'The value is: two' ] ,
+			[ 'The value is: three' ] ,
+			[ 'The key/value is: 0/one' ] ,
+			[ 'The key/value is: 1/two' ] ,
+			[ 'The key/value is: 2/three' ] ,
+			[ 'The value is: 1' ] ,
+			[ 'The value is: 2' ] ,
+			[ 'The value is: 3' ] ,
+			[ 'The key/value is: one/1' ] ,
+			[ 'The key/value is: two/2' ] ,
+			[ 'The key/value is: three/3' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[while] tag" , function( done ) {
-		
+	it( "[while] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/while.kfg' , { type: 'cast' , target: 'while' } ,
-			function( ui ) {
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Count: 5' ] ,
-					[ 'Count: 4' ] ,
-					[ 'Count: 3' ] ,
-					[ 'Count: 2' ] ,
-					[ 'Count: 1' ] ,
-				] ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/while.kfg' , { type: 'cast' , target: 'while' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'message' , msg => messages.push( [ msg ] ) ) ;
 			}
 		) ;
+		
+		expect( messages ).to.equal( [
+			[ 'Count: 5' ] ,
+			[ 'Count: 4' ] ,
+			[ 'Count: 3' ] ,
+			[ 'Count: 2' ] ,
+			[ 'Count: 1' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[break] tag into [foreach]" , function( done ) {
-		
+	it( "[break] tag into [foreach]" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/foreach-break.kfg' , { type: 'cast' , target: 'foreach-break' } ,
-			function( ui ) {
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'The value is: zero' ] ,
-					[ 'The value is: one' ] ,
-					[ 'The value is: two' ] ,
-					[ 'The value is: three' ] ,
-				] ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/foreach-break.kfg' , { type: 'cast' , target: 'foreach-break' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'message' , msg => messages.push( [ msg ] ) ) ;
 			}
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'The value is: zero' ] ,
+			[ 'The value is: one' ] ,
+			[ 'The value is: two' ] ,
+			[ 'The value is: three' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[break] tag into [while]" , function( done ) {
-		
+	it( "[break] tag into [while]" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/while-break.kfg' , { type: 'cast' , target: 'while-break' } ,
-			function( ui ) {
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Count: 5' ] ,
-					[ 'Count: 4' ] ,
-				] ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/while-break.kfg' , { type: 'cast' , target: 'while-break' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'message' , msg => messages.push( [ msg ] ) ) ;
 			}
 		) ;
+		
+		expect( messages ).to.equal( [
+			[ 'Count: 5' ] ,
+			[ 'Count: 4' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[continue] tag into [foreach]" , function( done ) {
-		
+	it( "[continue] tag into [foreach]" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/foreach-continue.kfg' , { type: 'cast' , target: 'foreach-continue' } ,
-			function( ui ) {
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'The value is: zero' ] ,
-					[ 'The value is: one' ] ,
-					[ 'The value is: two' ] ,
-					[ 'The value is: four' ] ,
-					[ 'The value is: five' ] ,
-				] ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/foreach-continue.kfg' , { type: 'cast' , target: 'foreach-continue' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'message' , msg => messages.push( [ msg ] ) ) ;
 			}
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'The value is: zero' ] ,
+			[ 'The value is: one' ] ,
+			[ 'The value is: two' ] ,
+			[ 'The value is: four' ] ,
+			[ 'The value is: five' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[continue] tag into [while]" , function( done ) {
-		
+	it( "[continue] tag into [while]" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/while-continue.kfg' , { type: 'cast' , target: 'while-continue' } ,
-			function( ui ) {
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Count: 5' ] ,
-					[ 'End.' ] ,
-					[ 'Count: 4' ] ,
-					[ 'End.' ] ,
-					[ 'Count: 3' ] ,
-					[ 'Count: 2' ] ,
-					[ 'Count: 1' ] ,
-				] ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/while-continue.kfg' , { type: 'cast' , target: 'while-continue' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'message' , msg => messages.push( [ msg ] ) ) ;
 			}
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Count: 5' ] ,
+			[ 'End.' ] ,
+			[ 'Count: 4' ] ,
+			[ 'End.' ] ,
+			[ 'Count: 3' ] ,
+			[ 'Count: 2' ] ,
+			[ 'Count: 1' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[fn], [call] and [return] tags" , function( done ) {
-		
+	it( "[fn], [call] and [return] tags" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/fn.kfg' , { type: 'cast' , target: 'fn' } ,
-			function( ui ) {
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Global myfn' ] ,
-					[ 'value arg1 arg2' ] ,
-					[ 'Global myfn' ] ,
-					[ 'value one two three' ] ,
-					[ 'Local fn' ] ,
-					[ 'Global myfn' ] ,
-					[ 'other value one 2 (undefined)' ] ,
-					[ 'Local fn' ] ,
-					[ 'Global myfn' ] ,
-					[ 'other value 1 2' ] ,
-					[ 'nsfn' ] ,
-					[ 'myfn2' ] ,
-					[ 'nsfn2' ] ,
-				] ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/fn.kfg' , { type: 'cast' , target: 'fn' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'message' , msg => messages.push( [ msg ] ) ) ;
 			}
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Global myfn' ] ,
+			[ 'value arg1 arg2' ] ,
+			[ 'Global myfn' ] ,
+			[ 'value one two three' ] ,
+			[ 'Local fn' ] ,
+			[ 'Global myfn' ] ,
+			[ 'other value one 2 (undefined)' ] ,
+			[ 'Local fn' ] ,
+			[ 'Global myfn' ] ,
+			[ 'other value 1 2' ] ,
+			[ 'nsfn' ] ,
+			[ 'myfn2' ] ,
+			[ 'nsfn2' ] ,
+		] ) ;
 	} ) ;
 	
 	it( "[call] tag on real function (not on [fn] tag)" ) ;
 	it( "[return] tag" ) ;
 	
-	it( "explicit [return] from [gosub]" , function( done ) {
-		
+	it( "explicit [return] from [gosub]" , async function() {
 		var messages = [] , ends = [] , leaveSceneCount = 0 ;
 		
-		runBook( __dirname + '/books/explicit-return.kfg' , { type: 'story' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-				ui.bus.on( 'leaveScene' , function() {
-					leaveSceneCount ++ ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'before' ] ,
-					[ 'subscene' ] ,
-					[ 'after' ]
-				] ) ;
-				
-				expect( leaveSceneCount ).to.equal(  1 ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/explicit-return.kfg' , { type: 'story' } ,
+			ui => {
+				ui.bus.on( 'message' , msg => messages.push( [ msg ] ) ) ;
+				ui.bus.on( 'leaveScene' , () => leaveSceneCount ++ ) ;
 			}
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'before' ] ,
+			[ 'subscene' ] ,
+			[ 'after' ]
+		] ) ;
+		
+		expect( leaveSceneCount ).to.equal( 1 ) ;
 	} ) ;
 	
-	it( "implicit [return] from [gosub]" , function( done ) {
-		
+	it( "implicit [return] from [gosub]" , async function() {
 		var messages = [] , ends = [] , leaveSceneCount = 0 ;
 		
-		runBook( __dirname + '/books/implicit-return.kfg' , { type: 'story' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-				ui.bus.on( 'leaveScene' , function() {
-					leaveSceneCount ++ ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'before' ] ,
-					[ 'subscene' ] ,
-					[ 'after' ]
-				] ) ;
-				
-				expect( leaveSceneCount ).to.equal(  1 ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/implicit-return.kfg' , { type: 'story' } ,
+			ui => {
+				ui.bus.on( 'message' , msg => messages.push( [ msg ] ) ) ;
+				ui.bus.on( 'leaveScene' , () => leaveSceneCount ++ ) ;
 			}
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'before' ] ,
+			[ 'subscene' ] ,
+			[ 'after' ]
+		] ) ;
+		
+		expect( leaveSceneCount ).to.equal( 1 ) ;
 	} ) ;
-	
 } ) ;
 
 
 
 describe( "Operations tags" , function() {
 	
-	it( "[set] tag and dynamic resolution" , function( done ) {
-		
+	it( "[set] tag and dynamic resolution" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/set.kfg' , { type: 'cast' , target: 'set' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Value of $a: something' ] ,
-					[ 'Value of $b: bob something' ] ,
-					[ 'Value of $c: bob' ] ,
-					[ 'Value of $d: bob' ] ,
-					[ 'Value of alert: bob' ] ,
-					[ 'Value of ref: bob' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/set.kfg' , { type: 'cast' , target: 'set' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+		
+		expect( messages ).to.equal( [
+			[ 'Value of $a: something' ] ,
+			[ 'Value of $b: bob something' ] ,
+			[ 'Value of $c: bob' ] ,
+			[ 'Value of $d: bob' ] ,
+			[ 'Value of alert: bob' ] ,
+			[ 'Value of ref: bob' ]
+		] ) ;
 	} ) ;
 	
-	it( "[set] tag and complex references" , function( done ) {
-		
+	it( "[set] tag and complex references" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/complex-set.kfg' , { type: 'cast' , target: 'complex-set' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Strength: 18' ],
-					[ 'Strength: 20' ],
-					[ 'Intelligence: 7' ],
-					[ 'Intelligence: 6' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/complex-set.kfg' , { type: 'cast' , target: 'complex-set' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Strength: 18' ],
+			[ 'Strength: 20' ],
+			[ 'Intelligence: 7' ],
+			[ 'Intelligence: 6' ]
+		] ) ;
 	} ) ;
 	
-	it( "[define] tag" , function( done ) {
-		
+	it( "[define] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/define.kfg' , { type: 'cast' , target: 'define' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'value: 5' ] ,
-					[ 'value: 5' ] ,
-					[ 'value: 8' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/define.kfg' , { type: 'cast' , target: 'define' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'value: 5' ] ,
+			[ 'value: 5' ] ,
+			[ 'value: 8' ]
+		] ) ;
 	} ) ;
 	
-	it( "[unset] tag" , function( done ) {
-		
+	it( "[unset] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/unset.kfg' , { type: 'cast' , target: 'unset' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'value: 5' ] ,
-					[ 'value: (undefined)' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/unset.kfg' , { type: 'cast' , target: 'unset' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'value: 5' ] ,
+			[ 'value: (undefined)' ]
+		] ) ;
 	} ) ;
 	
-	it( "[swap] tag should swap the values of two Ref" , function( done ) {
-		
+	it( "[swap] tag should swap the values of two Ref" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/swap.kfg' , { type: 'cast' , target: 'swap' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'one two' ] ,
-					[ 'two one' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/swap.kfg' , { type: 'cast' , target: 'swap' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'one two' ] ,
+			[ 'two one' ]
+		] ) ;
 	} ) ;
 	
-	it( "[add] tag" , function( done ) {
-		
+	it( "[add] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/add.kfg' , { type: 'cast' , target: 'add' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Value: 3' ] ,
-					[ 'Value: 5' ] ,
-					[ 'Value: 4' ] ,
-					[ 'Value: 9' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/add.kfg' , { type: 'cast' , target: 'add' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Value: 3' ] ,
+			[ 'Value: 5' ] ,
+			[ 'Value: 4' ] ,
+			[ 'Value: 9' ]
+		] ) ;
 	} ) ;
 	
-	it( "[sub] tag" , function( done ) {
-		
+	it( "[sub] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/sub.kfg' , { type: 'cast' , target: 'sub' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Value: 3' ] ,
-					[ 'Value: 1' ] ,
-					[ 'Value: 2' ] ,
-					[ 'Value: -3' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/sub.kfg' , { type: 'cast' , target: 'sub' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Value: 3' ] ,
+			[ 'Value: 1' ] ,
+			[ 'Value: 2' ] ,
+			[ 'Value: -3' ]
+		] ) ;
 	} ) ;
 	
-	it( "[mul] tag" , function( done ) {
-		
+	it( "[mul] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/mul.kfg' , { type: 'cast' , target: 'mul' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Value: 3' ] ,
-					[ 'Value: 6' ] ,
-					[ 'Value: -6' ] ,
-					[ 'Value: -30' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/mul.kfg' , { type: 'cast' , target: 'mul' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Value: 3' ] ,
+			[ 'Value: 6' ] ,
+			[ 'Value: -6' ] ,
+			[ 'Value: -30' ]
+		] ) ;
 	} ) ;
 	
-	it( "[div] tag" , function( done ) {
-		
+	it( "[div] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/div.kfg' , { type: 'cast' , target: 'div' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Value: 42' ] ,
-					[ 'Value: 14' ] ,
-					[ 'Value: -14' ] ,
-					[ 'Value: -2' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/div.kfg' , { type: 'cast' , target: 'div' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Value: 42' ] ,
+			[ 'Value: 14' ] ,
+			[ 'Value: -14' ] ,
+			[ 'Value: -2' ]
+		] ) ;
 	} ) ;
 	
-	it( "[inc] and [dec] tags" , function( done ) {
-		
+	it( "[inc] and [dec] tags" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/inc-dec.kfg' , { type: 'cast' , target: 'inc-dec' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Value: 3' ] ,
-					[ 'Value: 4' ] ,
-					[ 'Value: 5' ] ,
-					[ 'Value: 4' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/inc-dec.kfg' , { type: 'cast' , target: 'inc-dec' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Value: 3' ] ,
+			[ 'Value: 4' ] ,
+			[ 'Value: 5' ] ,
+			[ 'Value: 4' ]
+		] ) ;
 	} ) ;
 	
-	it( "[apply] tag" , function( done ) {
-		
+	it( "[apply] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/apply.kfg' , { type: 'cast' , target: 'apply' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'This is a template! Here some characters.' ] ,
-					[ 'This is a template! Here some texts.' ] ,
-					[ 'This is a template! Here some words.' ] ,
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/apply.kfg' , { type: 'cast' , target: 'apply' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'This is a template! Here some characters.' ] ,
+			[ 'This is a template! Here some texts.' ] ,
+			[ 'This is a template! Here some words.' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[merge] tag" , function( done ) {
-		
+	it( "[merge] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/merge.kfg' , { type: 'cast' , target: 'merge' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'tree.a: 1 tree.b: 2 out.a: 4 out.b: 2' ] ,
-					[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 2' ] ,
-					[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 10' ] ,
-					[ 'tree.a: 4 tree.b: 2' ] ,
-					[ 'tree.a: 11 tree.b: 2' ] ,
-					[ 'tree.a: 11 tree.b: 10' ] ,
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/merge.kfg' , { type: 'cast' , target: 'merge' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'tree.a: 1 tree.b: 2 out.a: 4 out.b: 2' ] ,
+			[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 2' ] ,
+			[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 10' ] ,
+			[ 'tree.a: 4 tree.b: 2' ] ,
+			[ 'tree.a: 11 tree.b: 2' ] ,
+			[ 'tree.a: 11 tree.b: 10' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[clone] tag" , function( done ) {
-		
+	it( "[clone] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/clone.kfg' , { type: 'cast' , target: 'clone' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Value of clone.c.d: 4' ],
-					[ 'Value of clone.c.d: Dee!' ],
-					[ 'Value of original.c.d: 4' ],
-					[ 'Value of clone.c.d: (undefined)' ],
-					[ 'Value of clone.c.one: ONE!' ],
-					[ 'Value of original.c.d: 4' ],
-					[ 'Value of original.c.one: (undefined)' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/clone.kfg' , { type: 'cast' , target: 'clone' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Value of clone.c.d: 4' ],
+			[ 'Value of clone.c.d: Dee!' ],
+			[ 'Value of original.c.d: 4' ],
+			[ 'Value of clone.c.d: (undefined)' ],
+			[ 'Value of clone.c.one: ONE!' ],
+			[ 'Value of original.c.d: 4' ],
+			[ 'Value of original.c.one: (undefined)' ]
+		] ) ;
 	} ) ;
 	
-	it( "[append] tag" , function( done ) {
-		
+	it( "[append] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/append.kfg' , { type: 'cast' , target: 'append' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Array: one two three four' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/append.kfg' , { type: 'cast' , target: 'append' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Array: one two three four' ]
+		] ) ;
 	} ) ;
 	
-	it( "[prepend] tag" , function( done ) {
-		
+	it( "[prepend] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/prepend.kfg' , { type: 'cast' , target: 'prepend' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Array: zero one two three' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/prepend.kfg' , { type: 'cast' , target: 'prepend' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Array: zero one two three' ]
+		] ) ;
 	} ) ;
 	
-	it( "[concat] tag" , function( done ) {
-		
+	it( "[concat] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/concat.kfg' , { type: 'cast' , target: 'concat' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Array: one two three four five six' ] ,
-					[ 'Array: one two three' ] ,
-					[ 'Target: one two three four five six' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/concat.kfg' , { type: 'cast' , target: 'concat' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Array: one two three four five six' ] ,
+			[ 'Array: one two three' ] ,
+			[ 'Target: one two three four five six' ]
+		] ) ;
 	} ) ;
 	
-	it( "[slice] tag" , function( done ) {
-		
+	it( "[slice] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/slice.kfg' , { type: 'cast' , target: 'slice' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Array: three four five six' ] ,
-					[ 'Array: three four' ] ,
-					[ 'Array: zero one two three four five six' ] ,
-					[ 'Target: three four' ] ,
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/slice.kfg' , { type: 'cast' , target: 'slice' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Array: three four five six' ] ,
+			[ 'Array: three four' ] ,
+			[ 'Array: zero one two three four five six' ] ,
+			[ 'Target: three four' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[splice] tag" , function( done ) {
-		
+	it( "[splice] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/splice.kfg' , { type: 'cast' , target: 'splice' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Array: zero one two' ] ,
-					[ 'Array: zero one two five six' ] ,
-					[ 'Array: zero one two 3 4 five six' ] ,
-					[ 'Array: zero one two three four five six' ] ,
-					[ 'Target: zero one two five six' ] ,
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/splice.kfg' , { type: 'cast' , target: 'splice' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Array: zero one two' ] ,
+			[ 'Array: zero one two five six' ] ,
+			[ 'Array: zero one two 3 4 five six' ] ,
+			[ 'Array: zero one two three four five six' ] ,
+			[ 'Target: zero one two five six' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[copy-within] tag" , function( done ) {
-		
+	it( "[copy-within] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/copy-within.kfg' , { type: 'cast' , target: 'copy-within' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Array: zero one two three four zero one' ] ,
-					[ 'Array: zero one two three one two three' ] ,
-					[ 'Array: zero one two three four five six' ] ,
-					[ 'Target: zero one two three one two three' ] ,
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/copy-within.kfg' , { type: 'cast' , target: 'copy-within' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Array: zero one two three four zero one' ] ,
+			[ 'Array: zero one two three one two three' ] ,
+			[ 'Array: zero one two three four five six' ] ,
+			[ 'Target: zero one two three one two three' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[fill] tag" , function( done ) {
-		
+	it( "[fill] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/fill.kfg' , { type: 'cast' , target: 'fill' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Array: three three three three three three three' ] ,
-					[ 'Array: zero three three three four five six' ] ,
-					[ 'Array: zero one two three four five six' ] ,
-					[ 'Target: zero three three three four five six' ] ,
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/fill.kfg' , { type: 'cast' , target: 'fill' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Array: three three three three three three three' ] ,
+			[ 'Array: zero three three three four five six' ] ,
+			[ 'Array: zero one two three four five six' ] ,
+			[ 'Target: zero three three three four five six' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[filter] tag" , function( done ) {
-		
+	it( "[filter] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/filter.kfg' , { type: 'cast' , target: 'filter' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Filtered length: 3' ],
-					[ 'Filtered: orange apple ananas' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/filter.kfg' , { type: 'cast' , target: 'filter' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Filtered length: 3' ],
+			[ 'Filtered: orange apple ananas' ]
+		] ) ;
 	} ) ;
 	
-	it( "[map] tag" , function( done ) {
-		
+	it( "[map] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/map.kfg' , { type: 'cast' , target: 'map' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Map: orange apple cabbage ananas' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/map.kfg' , { type: 'cast' , target: 'map' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Map: orange apple cabbage ananas' ]
+		] ) ;
 	} ) ;
 	
-	it( "[reduce] tag" , function( done ) {
-		
+	it( "[reduce] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/reduce.kfg' , { type: 'cast' , target: 'reduce' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Reduce: 15' ],
-					[ 'Reduce: 15' ],
-					[ 'Reduce: 19' ],
-					[ 'Reduce: 22' ],
-					[ 'Reduce: 8' ],
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/reduce.kfg' , { type: 'cast' , target: 'reduce' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Reduce: 15' ],
+			[ 'Reduce: 15' ],
+			[ 'Reduce: 19' ],
+			[ 'Reduce: 22' ],
+			[ 'Reduce: 8' ],
+		] ) ;
 	} ) ;
 	
-	it( "[reverse] tag" , function( done ) {
-		
+	it( "[reverse] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/reverse.kfg' , { type: 'cast' , target: 'reverse' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Array: six five four three two one zero' ] ,
-					[ 'Array: zero one two three four five six' ] ,
-					[ 'Target: six five four three two one zero' ] ,
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/reverse.kfg' , { type: 'cast' , target: 'reverse' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Array: six five four three two one zero' ] ,
+			[ 'Array: zero one two three four five six' ] ,
+			[ 'Target: six five four three two one zero' ] ,
+		] ) ;
 	} ) ;
 	
-	it( "[sort] tag" , function( done ) {
-		
+	it( "[sort] tag" , async function() {
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/sort.kfg' , { type: 'cast' , target: 'sort' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Original: 13 15 8' ],
-					[ 'Result: 8 13 15' ],
-					[ 'Original: 13 15 8' ],
-					[ 'Result: 15 13 8' ],
-					[ 'Original: 8 13 15' ],
-					[ 'Result: 16 19 23' ],
-					[ 'Result: 23 19 16' ],
-					[ 'Result: 16 23 19' ]
-				] ) ;
-				
-				done() ;
-			}
+		await runBook( __dirname + '/books/sort.kfg' , { type: 'cast' , target: 'sort' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Original: 13 15 8' ],
+			[ 'Result: 8 13 15' ],
+			[ 'Original: 13 15 8' ],
+			[ 'Result: 15 13 8' ],
+			[ 'Original: 8 13 15' ],
+			[ 'Result: 16 19 23' ],
+			[ 'Result: 23 19 16' ],
+			[ 'Result: 16 23 19' ]
+		] ) ;
 	} ) ;
 } ) ;
 
@@ -1127,98 +819,72 @@ describe( "Basic caster tags and features" , function() {
 		fsKit.deltree( __dirname + '/build/*' , done ) ;
 	} ) ;
 	
-	it( "[scroll] tag" , function( done ) {
-		
+	it( "[scroll] tag" , async function() {
 		var extOutputs = [] ;
 		
-		runBook( __dirname + '/books/scroll.kfg' , { type: 'cast' , target: 'echo' } ,
-			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( extOutputs ).to.equal( [
-					[ 'bob\n' ]
-				] ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/scroll.kfg' , { type: 'cast' , target: 'echo' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
 			}
 		) ;
+		
+		expect( extOutputs ).to.equal( [
+			[ 'bob\n' ]
+		] ) ;
 	} ) ;
 	
-	it( "[scroll] tag failure" , function( done ) {
-		
+	it( "[scroll] tag failure" , async function() {
 		var extOutputs = [] , casts = [] ;
 		
-		runBook( __dirname + '/books/scroll-of-failing.kfg' , { type: 'cast' , target: 'scroll-of-failing' } ,
-			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-				
-				ui.bus.on( 'cast' , function() {
-					casts.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( extOutputs ).to.equal( [
-					[ 'before fail\n' ]
-				] ) ;
+		try {
+			await runBook( __dirname + '/books/scroll-of-failing.kfg' , { type: 'cast' , target: 'scroll-of-failing' } ,
+				ui => {
+					ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+					ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+					ui.bus.on( 'cast' , ( ... args ) => casts.push( args ) ) ;
+				}
+			) ;
+		}
+		catch ( error ) {
+		}
+		
+		expect( extOutputs ).to.equal( [
+			[ 'before fail\n' ]
+		] ) ;
 
-				expect( casts ).to.be.like( [
-					[ 'scroll-of-failing' , 'error' , { type: 'nonZeroExit' } ]
-				] ) ;
-				
-				done() ;
-			}
-		) ;
+		expect( casts ).to.be.like( [
+			[ 'scroll-of-failing' , 'error' , { type: 'nonZeroExit' } ]
+		] ) ;
 	} ) ;
 	
-	it( "[scroll] tag: store and split attribute" , function( done ) {
-		
+	it( "[scroll] tag: store and split attribute" , async function() {
 		var extOutputs = [] , messages = [] ;
 		
-		runBook( __dirname + '/books/scroll-store-split.kfg' , { type: 'cast' , target: 'ls' } ,
-			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( extOutputs ).to.equal( [
-					[ 'one\nthree\ntwo\n' ]
-				] ) ;
-				
-				expect( messages ).to.equal( [
-					[ 'Command second line output: three' ]
-				] ) ;
-				
-				done() ;
+		await runBook( __dirname + '/books/scroll-store-split.kfg' , { type: 'cast' , target: 'ls' } ,
+			ui => {
+				ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) ) ;
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
 			}
 		) ;
+
+		expect( extOutputs ).to.equal( [
+			[ 'one\nthree\ntwo\n' ]
+		] ) ;
+		
+		expect( messages ).to.equal( [
+			[ 'Command second line output: three' ]
+		] ) ;
 	} ) ;
 	
 	it( "[spell] tag" ) ;
 	
-	it( "[summoning] tag: regular summoning" , function( done ) {
+	it( "[summoning] tag: regular summoning" , async function() {
 		
 		var extOutputs = [] , summons = [] ;
 		
-		runBook( __dirname + '/books/summoning.kfg' , { type: 'summon' , target: '../build/summoning.txt' } ,
+		await runBook( __dirname + '/books/summoning.kfg' , { type: 'summon' , target: '../build/summoning.txt' } ,
 			function( ui ) {
 				//console.log( 'UI ready' ) ;
 				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -1245,11 +911,11 @@ describe( "Basic caster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "[summoning] tag: glob summoning" , function( done ) {
+	it( "[summoning] tag: glob summoning" , async function() {
 		
 		var extOutputs = [] , summons = [] ;
 		
-		runBook( __dirname + '/books/glob-summoning.kfg' , { type: 'summon' , target: '../build/file.ext' } ,
+		await runBook( __dirname + '/books/glob-summoning.kfg' , { type: 'summon' , target: '../build/file.ext' } ,
 			function( ui ) {
 				//console.log( 'UI ready' ) ;
 				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -1276,7 +942,7 @@ describe( "Basic caster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "[summoning] tag: regex summoning" , function( done ) {
+	it( "[summoning] tag: regex summoning" , async function() {
 		
 		var book , extOutputs = [] , summons = [] ;
 		
@@ -1330,11 +996,11 @@ describe( "Basic caster tags and features" , function() {
 		.exec( done ) ;
 	} ) ;
 	
-	it( "[summoning] tag: fake summoning" , function( done ) {
+	it( "[summoning] tag: fake summoning" , async function() {
 		
 		var extOutputs = [] , summons = [] ;
 		
-		runBook( __dirname + '/books/fake-summoning.kfg' , { type: 'summon' , target: 'fake.txt' } ,
+		await runBook( __dirname + '/books/fake-summoning.kfg' , { type: 'summon' , target: 'fake.txt' } ,
 			function( ui ) {
 				//console.log( 'UI ready' ) ;
 				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -1363,11 +1029,11 @@ describe( "Basic caster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "[summoning] tag: failed summoning" , function( done ) {
+	it( "[summoning] tag: failed summoning" , async function() {
 		
 		var extOutputs = [] , summons = [] ;
 		
-		runBook( __dirname + '/books/failed-summoning.kfg' , { type: 'summon' , target: 'failed.txt' } ,
+		await runBook( __dirname + '/books/failed-summoning.kfg' , { type: 'summon' , target: 'failed.txt' } ,
 			function( ui ) {
 				//console.log( 'UI ready' ) ;
 				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -1394,11 +1060,11 @@ describe( "Basic caster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "[reverse-summoning] tag: summon everything" , function( done ) {
+	it( "[reverse-summoning] tag: summon everything" , async function() {
 		
 		var extOutputs = [] , casts = [] , summons = [] ;
 		
-		runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'cast' , target: 'reverse' } ,
+		await runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'cast' , target: 'reverse' } ,
 			function( ui ) {
 				//console.log( 'UI ready' ) ;
 				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -1441,11 +1107,11 @@ describe( "Basic caster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "[reverse-summoning] tag: summon one" , function( done ) {
+	it( "[reverse-summoning] tag: summon one" , async function() {
 		
 		var extOutputs = [] , summons = [] ;
 		
-		runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'summon' , target: '../build/file1.rev' } ,
+		await runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'summon' , target: '../build/file1.rev' } ,
 			function( ui ) {
 				//console.log( 'UI ready' ) ;
 				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
@@ -1472,7 +1138,7 @@ describe( "Basic caster tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "[summon] tag: direct static dependencies" , function( done ) {
+	it( "[summon] tag: direct static dependencies" , async function() {
 		
 		var book , extOutputs = [] , summons = [] ;
 		
@@ -1555,7 +1221,7 @@ describe( "Basic caster tags and features" , function() {
 		.exec( done ) ;
 	} ) ;
 	
-	it( "[summon] tag: cascading dependencies" , function( done ) {
+	it( "[summon] tag: cascading dependencies" , async function() {
 		
 		var book , extOutputs = [] , summons = [] ;
 		
@@ -1665,7 +1331,7 @@ describe( "Basic caster tags and features" , function() {
 		.exec( done ) ;
 	} ) ;
 	
-	it( "[summon] tag: cascading failing dependencies should abort current cast/summon" , function( done ) {
+	it( "[summon] tag: cascading failing dependencies should abort current cast/summon" , async function() {
 		
 		var book , extOutputs = [] , summons = [] ;
 		
@@ -1722,16 +1388,16 @@ describe( "Basic caster tags and features" , function() {
 
 describe( "Basic story tags and features" , function() {
 	
-	it( "Basic story book, with [chapter], [scene] and [next] tags" , function( done ) {
+	it( "Basic story book, with [chapter], [scene] and [next] tags" , async function() {
 		
 		var messages , ends ;
 		
 		async.series( [
-			function( seriesCallback ) {
+			async function( seriesCallback ) {
 				messages = [] ;
 				ends = [] ;
 						
-				runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'story' , path: [ 2 , 0 , 2 ] } ,
+				await runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'story' , path: [ 2 , 0 , 2 ] } ,
 					function( ui ) {
 						
 						ui.bus.on( 'message' , function() {
@@ -1758,11 +1424,11 @@ describe( "Basic story tags and features" , function() {
 					}
 				) ;
 			} ,
-			function( seriesCallback ) {
+			async function( seriesCallback ) {
 				messages = [] ;
 				ends = [] ;
 						
-				runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'story' , path: [ 1 , 0 , 0 ] } ,
+				await runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'story' , path: [ 1 , 0 , 0 ] } ,
 					function( ui ) {
 						
 						ui.bus.on( 'message' , function() {
@@ -1793,11 +1459,11 @@ describe( "Basic story tags and features" , function() {
 		.exec( done ) ;
 	} ) ;
 	
-	it( "[starting-scene] tag" , function( done ) {
+	it( "[starting-scene] tag" , async function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/starting-scene.kfg' , { type: 'story' , path: [ 0 ] } ,
+		await runBook( __dirname + '/books/starting-scene.kfg' , { type: 'story' , path: [ 0 ] } ,
 			function( ui ) {
 				
 				ui.bus.on( 'message' , function() {
@@ -1815,11 +1481,11 @@ describe( "Basic story tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "[module] tag" , function( done ) {
+	it( "[module] tag" , async function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/module-loader.kfg' , { type: 'story' , path: [ 0 ] } ,
+		await runBook( __dirname + '/books/module-loader.kfg' , { type: 'story' , path: [ 0 ] } ,
 			function( ui ) {
 				
 				ui.bus.on( 'message' , function() {
@@ -1851,10 +1517,10 @@ describe( "Basic story tags and features" , function() {
 	it( "[here] tag" ) ;
 	it( "[here-actions] tag" ) ;
 	
-	it( "Special var $local" , function( done ) {
+	it( "Special var $local" , async function() {
 		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/local-var.kfg' , { type: 'story' , path: [ 0 ] } ,
+		await runBook( __dirname + '/books/local-var.kfg' , { type: 'story' , path: [ 0 ] } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1873,10 +1539,10 @@ describe( "Basic story tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "Special var $global" , function( done ) {
+	it( "Special var $global" , async function() {
 		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/global-var.kfg' , { type: 'story' , path: [ 0 ] } ,
+		await runBook( __dirname + '/books/global-var.kfg' , { type: 'story' , path: [ 0 ] } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1896,10 +1562,10 @@ describe( "Basic story tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "Special var $static into [fn] tags" , function( done ) {
+	it( "Special var $static into [fn] tags" , async function() {
 		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/static-var.kfg' , { type: 'cast' , target: 'static-var' } ,
+		await runBook( __dirname + '/books/static-var.kfg' , { type: 'cast' , target: 'static-var' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1917,10 +1583,10 @@ describe( "Basic story tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "Special var $static into [scene] tags" , function( done ) {
+	it( "Special var $static into [scene] tags" , async function() {
 		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/scene-static-var.kfg' , { type: 'story' , path: [ 0 ] } ,
+		await runBook( __dirname + '/books/scene-static-var.kfg' , { type: 'story' , path: [ 0 ] } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1939,11 +1605,11 @@ describe( "Basic story tags and features" , function() {
 		) ;
 	} ) ;
 	
-	it( "Special var $args" , function( done ) {
+	it( "Special var $args" , async function() {
 		
 		var messages = [] , ends = [] ;
 		
-		runBook( __dirname + '/books/args-stack.kfg' , { type: 'story' } ,
+		await runBook( __dirname + '/books/args-stack.kfg' , { type: 'story' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -1985,11 +1651,11 @@ describe( "RPG tags and features" , function() {
 
 describe( "API" , function() {
 	
-	it( "Event [on]/[off]/[emit] tags" , function( done ) {
+	it( "Event [on]/[off]/[emit] tags" , async function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/event.kfg' , { type: 'cast' , target: 'event' } ,
+		await runBook( __dirname + '/books/event.kfg' , { type: 'cast' , target: 'event' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -2015,11 +1681,11 @@ describe( "API" , function() {
 
 describe( "Wands/extensions" , function() {
 	
-	it( "[wand] and [zap] tags" , function( done ) {
+	it( "[wand] and [zap] tags" , async function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/wand.kfg' , { type: 'cast' , target: 'wand' } ,
+		await runBook( __dirname + '/books/wand.kfg' , { type: 'cast' , target: 'wand' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -2045,11 +1711,11 @@ describe( "Wands/extensions" , function() {
 
 
 describe( "Misc tags" , function() {
-	it( "[pause] tag should pause the execution" , function( done ) {
+	it( "[pause] tag should pause the execution" , async function() {
 		
 		var messages = [] , time ;
 		
-		runBook( __dirname + '/books/pause.kfg' , { type: 'cast' , target: 'pause' } ,
+		await runBook( __dirname + '/books/pause.kfg' , { type: 'cast' , target: 'pause' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -2077,11 +1743,11 @@ describe( "Misc tags" , function() {
 
 describe( "Embedded Javascript code" , function() {
 	
-	it( "[js] tag" , function( done ) {
+	it( "[js] tag" , async function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' } ,
+		await runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -2098,11 +1764,11 @@ describe( "Embedded Javascript code" , function() {
 		) ;
 	} ) ;
 	
-	it( "when [js] tags are disabled but present in the user script, it should be interrupted by an error" , function( done ) {
+	it( "when [js] tags are disabled but present in the user script, it should be interrupted by an error" , async function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' , allowJsTag: false } ,
+		await runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' , allowJsTag: false } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -2133,11 +1799,11 @@ describe( "Spellcast exe features" , function() {
 
 describe( "Prevent from infinite loop in user-script, using the 'maxTicks' option" , function() {
 	
-	it( "[while] infinity" , function( done ) {
+	it( "[while] infinity" , async function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/infinite-loop-protection.kfg' , { type: 'cast' , target: 'test1' , maxTicks: 1000 } ,
+		await runBook( __dirname + '/books/infinite-loop-protection.kfg' , { type: 'cast' , target: 'test1' , maxTicks: 1000 } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -2162,13 +1828,13 @@ describe( "Spellcast operators" , function() {
 
 describe( "Historical bugs" , function() {
 	
-	it( "should be able to load the same book twice" , function( done ) {
+	it( "should be able to load the same book twice" , async function() {
 		
 		async.series( [
-			function( seriesCallback ) {
+			async function( seriesCallback ) {
 				var messages = [] ;
 				
-				runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
+				await runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
 					function( ui ) {
 						ui.bus.on( 'message' , function() {
 							messages.push( Array.from( arguments ) ) ;
@@ -2188,10 +1854,10 @@ describe( "Historical bugs" , function() {
 					}
 				) ;
 			} ,
-			function( seriesCallback ) {
+			async function( seriesCallback ) {
 				var messages = [] ;
 				
-				runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
+				await runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
 					function( ui ) {
 						ui.bus.on( 'message' , function() {
 							messages.push( Array.from( arguments ) ) ;
@@ -2215,11 +1881,11 @@ describe( "Historical bugs" , function() {
 		.exec( done ) ;
 	} ) ;
 	
-	it( "array ops in-place operations using non in-place JS method should modify the original hosted array" , function( done ) {
+	it( "array ops in-place operations using non in-place JS method should modify the original hosted array" , async function() {
 		
 		var messages = [] ;
 		
-		runBook( __dirname + '/books/array-op-historical-bug.kfg' , { type: 'cast' , target: 'bug' } ,
+		await runBook( __dirname + '/books/array-op-historical-bug.kfg' , { type: 'cast' , target: 'bug' } ,
 			function( ui ) {
 				ui.bus.on( 'message' , function() {
 					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
@@ -2236,5 +1902,4 @@ describe( "Historical bugs" , function() {
 		) ;
 	} ) ;
 } ) ;
-
 
