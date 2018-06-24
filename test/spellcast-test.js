@@ -881,265 +881,166 @@ describe( "Basic caster tags and features" , function() {
 	it( "[spell] tag" ) ;
 	
 	it( "[summoning] tag: regular summoning" , async function() {
-		
 		var extOutputs = [] , summons = [] ;
 		
 		await runBook( __dirname + '/books/summoning.kfg' , { type: 'summon' , target: '../build/summoning.txt' } ,
-			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-				
-				ui.bus.on( 'summon' , function() {
-					summons.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				expect( summons ).to.equal( [
-					[ '../build/summoning.txt' , 'ok' ]
-				] ) ;
-				
-				expect( fs.readFileSync( __dirname + '/build/summoning.txt' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
-				
-				done() ;
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
 			}
 		) ;
+
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/summoning.txt' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/summoning.txt' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
 	} ) ;
 	
 	it( "[summoning] tag: glob summoning" , async function() {
-		
 		var extOutputs = [] , summons = [] ;
 		
 		await runBook( __dirname + '/books/glob-summoning.kfg' , { type: 'summon' , target: '../build/file.ext' } ,
-			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-				
-				ui.bus.on( 'summon' , function() {
-					summons.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				expect( summons ).to.equal( [
-					[ '../build/file.ext' , 'ok' ]
-				] ) ;
-				
-				expect( fs.readFileSync( __dirname + '/build/file.ext' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
-				
-				done() ;
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
 			}
 		) ;
+
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/file.ext' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/file.ext' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
 	} ) ;
 	
 	it( "[summoning] tag: regex summoning" , async function() {
-		
 		var book , extOutputs = [] , summons = [] ;
 		
-		async.series( [
-			async function( seriesCallback ) {
-			
-				book = await runBook( __dirname + '/books/regex-summoning.kfg' , { type: 'summon' , target: '../build/file.ext' } ,
-					function( ui ) {
-						//console.log( 'UI ready' ) ;
-						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-						
-						ui.bus.on( 'extOutput' , function() {
-							extOutputs.push( Array.from( arguments ) ) ;
-						} ) ;
-						
-						ui.bus.on( 'summon' , function() {
-							summons.push( Array.from( arguments ) ) ;
-						} ) ;
-					} ,
-					function() {
-						expect( extOutputs ).to.equal( [] ) ;
-						
-						expect( summons ).to.equal( [
-							[ '../build/file.ext' , 'ok' ]
-						] ) ;
-						
-						expect( fs.readFileSync( __dirname + '/build/file.ext' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
-						
-						seriesCallback() ;
-					}
-				) ;
-			} ,
-			async function( seriesCallback ) {
+		book = await runBook( __dirname + '/books/regex-summoning.kfg' , { type: 'summon' , target: '../build/file.ext' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
+			}
+		) ;
+
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/file.ext' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/file.ext' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
 				
-				// Reset
-				extOutputs = [] ;
-				summons = [] ;
-				
-				await book.summon( '../build/FiLe2.ExT' ) ;
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				expect( summons ).to.equal( [
-					[ '../build/FiLe2.ExT' , 'ok' ]
-				] ) ;
-				
-				expect( fs.readFileSync( __dirname + '/build/FiLe2.ExT' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
-				
-				seriesCallback() ;
-			} ,
-		] )
-		.exec( done ) ;
+		// Reset
+		extOutputs = [] ;
+		summons = [] ;
+		
+		await book.summon( '../build/FiLe2.ExT' ) ;
+		
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/FiLe2.ExT' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/FiLe2.ExT' , 'utf8' ) ).to.be( "This is a dummy static dependency file.\n" ) ;
 	} ) ;
 	
 	it( "[summoning] tag: fake summoning" , async function() {
-		
 		var extOutputs = [] , summons = [] ;
 		
 		await runBook( __dirname + '/books/fake-summoning.kfg' , { type: 'summon' , target: 'fake.txt' } ,
-			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-				
-				ui.bus.on( 'summon' , function() {
-					summons.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( extOutputs ).to.equal( [
-					[ 'this produces nothing\n' ]
-				] ) ;
-				
-				expect( summons ).to.equal( [
-					[ 'fake.txt' , 'noop' ]
-				] ) ;
-				
-				expect( fs.accessSync ).with.args( __dirname + '/build/fake.txt' ).to.throw() ;
-				
-				done() ;
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
 			}
 		) ;
+
+		expect( extOutputs ).to.equal( [
+			[ 'this produces nothing\n' ]
+		] ) ;
+		
+		expect( summons ).to.equal( [
+			[ 'fake.txt' , 'noop' ]
+		] ) ;
+		
+		expect( fs.accessSync ).with.args( __dirname + '/build/fake.txt' ).to.throw() ;
 	} ) ;
 	
 	it( "[summoning] tag: failed summoning" , async function() {
-		
 		var extOutputs = [] , summons = [] ;
 		
 		await runBook( __dirname + '/books/failed-summoning.kfg' , { type: 'summon' , target: 'failed.txt' } ,
-			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-				
-				ui.bus.on( 'summon' , function() {
-					summons.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				expect( fs.accessSync ).with.args( __dirname + '/build/failed.txt' ).to.throw() ;
-				
-				expect( summons ).to.be.like( [
-					[ 'failed.txt' , 'error' , { type: 'nonZeroExit' } ]
-				] ) ;
-				
-				done() ;
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
 			}
 		) ;
+
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( fs.accessSync ).with.args( __dirname + '/build/failed.txt' ).to.throw() ;
+		
+		expect( summons ).to.be.like( [
+			[ 'failed.txt' , 'error' , { type: 'nonZeroExit' } ]
+		] ) ;
 	} ) ;
 	
 	it( "[reverse-summoning] tag: summon everything" , async function() {
-		
 		var extOutputs = [] , casts = [] , summons = [] ;
 		
 		await runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'cast' , target: 'reverse' } ,
-			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-				
-				/*
-				ui.bus.on( 'cast' , function() {
-					casts.push( Array.from( arguments ) ) ;
-				} ) ;
-				*/
-				
-				ui.bus.on( 'summon' , function() {
-					summons.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				/*
-				expect( casts ).to.equal( [
-					[ 'gzip' , 'ok' ]
-				] ) ;
-				*/
-				
-				expect( summons ).to.equal( [
-					[ '../build/file1.rev' , 'ok' ] ,
-					[ '../build/file2.rev' , 'ok' ] ,
-					[ '../build/file3.rev' , 'ok' ]
-				] ) ;
-				
-				expect( fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
-				expect( fs.readFileSync( __dirname + '/build/file2.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
-				expect( fs.readFileSync( __dirname + '/build/file3.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
-
-				done() ;
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
 			}
 		) ;
+
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/file1.rev' , 'ok' ] ,
+			[ '../build/file2.rev' , 'ok' ] ,
+			[ '../build/file3.rev' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
+		expect( fs.readFileSync( __dirname + '/build/file2.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
+		expect( fs.readFileSync( __dirname + '/build/file3.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
 	} ) ;
 	
 	it( "[reverse-summoning] tag: summon one" , async function() {
-		
 		var extOutputs = [] , summons = [] ;
 		
 		await runBook( __dirname + '/books/reverse-summoning.kfg' , { type: 'summon' , target: '../build/file1.rev' } ,
-			function( ui ) {
-				//console.log( 'UI ready' ) ;
-				ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-				
-				ui.bus.on( 'extOutput' , function() {
-					extOutputs.push( Array.from( arguments ) ) ;
-				} ) ;
-				
-				ui.bus.on( 'summon' , function() {
-					summons.push( Array.from( arguments ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				expect( summons ).to.equal( [
-					[ '../build/file1.rev' , 'ok' ]
-				] ) ;
-				
-				expect( fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
-				
-				done() ;
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
 			}
 		) ;
+
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/file1.rev' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/file1.rev' , 'utf8' ) ).to.be( "...txet modnar emoS\n" ) ;
 	} ) ;
 	
 	it( "[summon] tag: direct static dependencies" , async function() {
-		
 		var book , extOutputs = [] , summons = [] ;
 		
 		// Touch files, because some of them may have time set in the future by other tests
@@ -1147,82 +1048,59 @@ describe( "Basic caster tags and features" , function() {
 		fsKit.touchSync( __dirname + '/src/file2.txt' ) ;
 		fsKit.touchSync( __dirname + '/src/file3.txt' ) ;
 		
-		async.series( [
-			async function( seriesCallback ) {
-			
-				book = await runBook( __dirname + '/books/summoning-static-dependencies.kfg' , { type: 'summon' , target: '../build/concat.txt' } ,
-					function( ui ) {
-						//console.log( 'UI ready' ) ;
-						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-						
-						ui.bus.on( 'extOutput' , function() {
-							extOutputs.push( Array.from( arguments ) ) ;
-						} ) ;
-						
-						ui.bus.on( 'summon' , function() {
-							summons.push( Array.from( arguments ) ) ;
-						} ) ;
-					} ,
-					function() {
-						expect( extOutputs ).to.equal( [] ) ;
-						
-						expect( summons ).to.equal( [
-							[ '../build/concat.txt' , 'ok' ]
-						] ) ;
-						
-						expect( fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) )
-							.to.be( "Some random text...\nSome random text...\nSome random text...\n" ) ;
-						
-						seriesCallback() ;
-					}
-				) ;
-			} ,
-			async function( seriesCallback ) {
+		book = await runBook( __dirname + '/books/summoning-static-dependencies.kfg' , { type: 'summon' , target: '../build/concat.txt' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
+			}
+		) ;
+		
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/concat.txt' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) )
+			.to.be( "Some random text...\nSome random text...\nSome random text...\n" ) ;
 				
-				// Reset
-				extOutputs = [] ;
-				summons = [] ;
-				
-				await book.summon( '../build/concat.txt' ) ;
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				expect( summons ).to.equal( [
-					[ '../build/concat.txt' , 'upToDate' ]
-				] ) ;
-				
-				expect( fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) )
-					.to.be( "Some random text...\nSome random text...\nSome random text...\n" ) ;
-				
-				seriesCallback() ;
-			} ,
-			async function( seriesCallback ) {
-				
-				// Force a rebuild by 'touching' the dependency, but set the date one second in the future
-				// (if not, the test would not works consistently)
-				fsKit.touchSync( __dirname + '/src/file1.txt' , { time: Date.now() + 1000 } ) ;
-				
-				// Reset
-				extOutputs = [] ;
-				summons = [] ;
-				
-				await book.summon( '../build/concat.txt' ) ;
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				expect( summons ).to.equal( [
-					[ '../build/concat.txt' , 'ok' ]
-				] ) ;
-				
-				expect( fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) )
-					.to.be( "Some random text...\nSome random text...\nSome random text...\n" ) ;
-				
-				seriesCallback() ;
-			} ,
-		] )
-		.exec( done ) ;
+		// Reset
+		extOutputs = [] ;
+		summons = [] ;
+		
+		await book.summon( '../build/concat.txt' ) ;
+		
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/concat.txt' , 'upToDate' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) )
+			.to.be( "Some random text...\nSome random text...\nSome random text...\n" ) ;
+
+		// Force a rebuild by 'touching' the dependency, but set the date one second in the future
+		// (if not, the test would not works consistently)
+		fsKit.touchSync( __dirname + '/src/file1.txt' , { time: Date.now() + 1000 } ) ;
+		
+		// Reset
+		extOutputs = [] ;
+		summons = [] ;
+		
+		await book.summon( '../build/concat.txt' ) ;
+		
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/concat.txt' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/concat.txt' , 'utf8' ) )
+			.to.be( "Some random text...\nSome random text...\nSome random text...\n" ) ;
 	} ) ;
 	
 	it( "[summon] tag: cascading dependencies" , async function() {
-		
 		var book , extOutputs = [] , summons = [] ;
 		
 		// Touch files, because some of them may have time set in the future by other tests
@@ -1231,108 +1109,80 @@ describe( "Basic caster tags and features" , function() {
 		fsKit.touchSync( __dirname + '/src/file3.txt' ) ;
 		fsKit.touchSync( __dirname + '/src/something' ) ;
 		
-		async.series( [
-			async function( seriesCallback ) {
+		book = await runBook( __dirname + '/books/summoning-cascading-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
+			}
+		) ;
+
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/concat.txt' , 'ok' ] ,
+			[ '../build/cascade.txt' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
+			.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
 				
-				book = await runBook( __dirname + '/books/summoning-cascading-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
-					function( ui ) {
-						//console.log( 'UI ready' ) ;
-						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-						
-						ui.bus.on( 'extOutput' , function() {
-							extOutputs.push( Array.from( arguments ) ) ;
-						} ) ;
-						
-						ui.bus.on( 'summon' , function() {
-							summons.push( Array.from( arguments ) ) ;
-						} ) ;
-					} ,
-					function() {
-						expect( extOutputs ).to.equal( [] ) ;
-						
-						expect( summons ).to.equal( [
-							[ '../build/concat.txt' , 'ok' ] ,
-							[ '../build/cascade.txt' , 'ok' ]
-						] ) ;
-						
-						expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
-							.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
-						
-						seriesCallback() ;
-					}
-				) ;
-			} ,
-			async function( seriesCallback ) {
+		// Reset
+		extOutputs = [] ;
+		summons = [] ;
+		
+		await book.summon( '../build/cascade.txt' ) ;
+		
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/concat.txt' , 'upToDate' ] ,
+			[ '../build/cascade.txt' , 'upToDate' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
+			.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
 				
-				// Reset
-				extOutputs = [] ;
-				summons = [] ;
+		// Force a rebuild by 'touching' the dependency, but set the date one second in the future
+		// (if not, the test would not works consistently)
+		fsKit.touchSync( __dirname + '/src/something' , { time: Date.now() + 1000 } ) ;
+		
+		// Reset
+		extOutputs = [] ;
+		summons = [] ;
+		
+		await book.summon( '../build/cascade.txt' ) ;
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/concat.txt' , 'upToDate' ] ,
+			[ '../build/cascade.txt' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
+			.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
 				
-				await book.summon( '../build/cascade.txt' ) ;
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				expect( summons ).to.equal( [
-					[ '../build/concat.txt' , 'upToDate' ] ,
-					[ '../build/cascade.txt' , 'upToDate' ]
-				] ) ;
-				
-				expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
-					.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
-				
-				seriesCallback() ;
-			} ,
-			async function( seriesCallback ) {
-				
-				// Force a rebuild by 'touching' the dependency, but set the date one second in the future
-				// (if not, the test would not works consistently)
-				fsKit.touchSync( __dirname + '/src/something' , { time: Date.now() + 1000 } ) ;
-				
-				// Reset
-				extOutputs = [] ;
-				summons = [] ;
-				
-				await book.summon( '../build/cascade.txt' ) ;
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				expect( summons ).to.equal( [
-					[ '../build/concat.txt' , 'upToDate' ] ,
-					[ '../build/cascade.txt' , 'ok' ]
-				] ) ;
-				
-				expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
-					.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
-				
-				seriesCallback() ;
-			} ,
-			async function( seriesCallback ) {
-				
-				// Force a rebuild by 'touching' the dependency, but set the date one second in the future
-				// (if not, the test would not works consistently)
-				fsKit.touchSync( __dirname + '/src/file1.txt' , { time: Date.now() + 1000 } ) ;
-				
-				// Reset
-				extOutputs = [] ;
-				summons = [] ;
-				
-				await book.summon( '../build/cascade.txt' ) ;
-				expect( extOutputs ).to.equal( [] ) ;
-				
-				expect( summons ).to.equal( [
-					[ '../build/concat.txt' , 'ok' ] ,
-					[ '../build/cascade.txt' , 'ok' ]
-				] ) ;
-				
-				expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
-					.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
-				
-				seriesCallback() ;
-			} ,
-		] )
-		.exec( done ) ;
+		// Force a rebuild by 'touching' the dependency, but set the date one second in the future
+		// (if not, the test would not works consistently)
+		fsKit.touchSync( __dirname + '/src/file1.txt' , { time: Date.now() + 1000 } ) ;
+		
+		// Reset
+		extOutputs = [] ;
+		summons = [] ;
+		
+		await book.summon( '../build/cascade.txt' ) ;
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.equal( [
+			[ '../build/concat.txt' , 'ok' ] ,
+			[ '../build/cascade.txt' , 'ok' ]
+		] ) ;
+		
+		expect( fs.readFileSync( __dirname + '/build/cascade.txt' , 'utf8' ) )
+			.to.be( "Cascade:\nSome random text...\nSome random text...\nSome random text...\nsomething" ) ;
 	} ) ;
 	
 	it( "[summon] tag: cascading failing dependencies should abort current cast/summon" , async function() {
-		
 		var book , extOutputs = [] , summons = [] ;
 		
 		// Touch files, because some of them may have time set in the future by other tests
@@ -1343,38 +1193,22 @@ describe( "Basic caster tags and features" , function() {
 		fsKit.touchSync( __dirname + '/src/something' ) ;
 		*/
 		
-		async.series( [
-			async function( seriesCallback ) {
-				
-				book = await runBook( __dirname + '/books/summoning-failing-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
-					function( ui ) {
-						//console.log( 'UI ready' ) ;
-						ui.bus.on( 'extError' , function() { throw arguments ; } ) ;
-						
-						ui.bus.on( 'extOutput' , function() {
-							extOutputs.push( Array.from( arguments ) ) ;
-						} ) ;
-						
-						ui.bus.on( 'summon' , function() {
-							summons.push( Array.from( arguments ) ) ;
-						} ) ;
-					} ,
-					function() {
-						expect( extOutputs ).to.equal( [] ) ;
-						
-						expect( summons ).to.be.like( [
-							[ '../build/concat.txt' , 'error' , { type: 'nonZeroExit' } ] ,
-							[ '../build/cascade.txt' , 'error' , { type: 'dependencyFailed' } ]
-						] ) ;
-						
-						expect( fs.accessSync ).with.args( __dirname + '/build/cascade.txt' ).to.throw() ;
-						
-						seriesCallback() ;
-					}
-				) ;
-			} ,
-		] )
-		.exec( done ) ;
+		book = await runBook( __dirname + '/books/summoning-failing-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
+			ui => {
+				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
+			}
+		) ;
+
+		expect( extOutputs ).to.equal( [] ) ;
+		
+		expect( summons ).to.be.like( [
+			[ '../build/concat.txt' , 'error' , { type: 'nonZeroExit' } ] ,
+			[ '../build/cascade.txt' , 'error' , { type: 'dependencyFailed' } ]
+		] ) ;
+		
+		expect( fs.accessSync ).with.args( __dirname + '/build/cascade.txt' ).to.throw() ;
 	} ) ;
 	
 	it( "[cast] tag" ) ;
