@@ -1,6 +1,6 @@
 {
   "name": "spellcast",
-  "version": "0.45.9",
+  "version": "0.46.0",
   "description": "Make: your own adventure!",
   "main": "lib/Book.js",
   "engines": {
@@ -31,13 +31,12 @@
     "semver": "^5.5.0",
     "server-kit": "^0.8.1",
     "seventh": "^0.7.12",
-    "string-kit": "^0.7.9",
+    "string-kit": "^0.7.10",
     "svg-kit": "^0.1.20",
     "terminal-kit": "^1.17.11",
     "tree-kit": "^0.5.27"
   },
   "devDependencies": {
-    "async-kit": "^2.2.4",
     "browserify": "^16.2.2",
     "electron": "^2.0.1",
     "expect.js": "^0.3.1",
