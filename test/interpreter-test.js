@@ -30,7 +30,6 @@
 
 var fs = require( 'fs' ) ;
 
-var async = require( 'async-kit' ) ;
 var fsKit = require( 'fs-kit' ) ;
 var string = require( 'string-kit' ) ;
 

@@ -30,7 +30,6 @@
 
 var fs = require( 'fs' ) ;
 
-var async = require( 'async-kit' ) ;
 var fsKit = require( 'fs-kit' ) ;
 var string = require( 'string-kit' ) ;
 
@@ -957,13 +956,19 @@ describe( "Basic caster tags and features" , function() {
 	it( "[summoning] tag: fake summoning" , async function() {
 		var extOutputs = [] , summons = [] ;
 		
-		await runBook( __dirname + '/books/fake-summoning.kfg' , { type: 'summon' , target: 'fake.txt' } ,
-			ui => {
-				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
-				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
-				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
-			}
-		) ;
+		try {
+			await runBook( __dirname + '/books/fake-summoning.kfg' , { type: 'summon' , target: 'fake.txt' } ,
+				ui => {
+					ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+					ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+					ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
+				}
+			) ;
+			expect().fail( "expected to throw" ) ;
+		}
+		catch ( error ) {
+			expect( error ).to.be.partially.like( { type: 'noop' } )
+		}
 
 		expect( extOutputs ).to.equal( [
 			[ 'this produces nothing\n' ]
@@ -979,13 +984,19 @@ describe( "Basic caster tags and features" , function() {
 	it( "[summoning] tag: failed summoning" , async function() {
 		var extOutputs = [] , summons = [] ;
 		
-		await runBook( __dirname + '/books/failed-summoning.kfg' , { type: 'summon' , target: 'failed.txt' } ,
-			ui => {
-				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
-				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
-				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
-			}
-		) ;
+		try {
+			await runBook( __dirname + '/books/failed-summoning.kfg' , { type: 'summon' , target: 'failed.txt' } ,
+				ui => {
+					ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+					ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+					ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
+				}
+			) ;
+			expect().fail( "expected to throw an Error" ) ;
+		}
+		catch ( error ) {
+			expect( error ).to.be.partially.like( { type: 'nonZeroExit' } )
+		}
 
 		expect( extOutputs ).to.equal( [] ) ;
 		
@@ -1193,13 +1204,18 @@ describe( "Basic caster tags and features" , function() {
 		fsKit.touchSync( __dirname + '/src/something' ) ;
 		*/
 		
-		book = await runBook( __dirname + '/books/summoning-failing-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
-			ui => {
-				ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
-				ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
-				ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
-			}
-		) ;
+		try {
+			book = await runBook( __dirname + '/books/summoning-failing-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
+				ui => {
+					ui.bus.on( 'extError' , ( ... args ) => { throw args ; } ) ;
+					ui.bus.on( 'extOutput' , ( ... args ) => extOutputs.push( args ) ) ;
+					ui.bus.on( 'summon' , ( ... args ) => summons.push( args ) ) ;
+				}
+			) ;
+		}
+		catch ( error ) {
+			expect( error ).to.be.partially.like( { type: 'dependencyFailed' } )
+		}
 
 		expect( extOutputs ).to.equal( [] ) ;
 		
@@ -1223,118 +1239,72 @@ describe( "Basic caster tags and features" , function() {
 describe( "Basic story tags and features" , function() {
 	
 	it( "Basic story book, with [chapter], [scene] and [next] tags" , async function() {
+		var messages = [] , ends = [] ;
+				
+		await runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'story' , path: [ 2 , 0 , 2 ] } ,
+			ui => {
+				ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) ) ;
+				ui.bus.on( 'end' , ( type ) => ends.push( [ type ] ) ) ;
+			}
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Once upon a time...' ],
+			[ 'There was a child...' ],
+			[ 'Who was constantly...' ],
+			[ 'Crying...' ]
+		] ) ;
 		
-		var messages , ends ;
+		expect( ends ).to.equal( [
+			[ 'lost' ]
+		] ) ;
+
+		messages = [] ;
+		ends = [] ;
+
+		await runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'story' , path: [ 1 , 0 , 0 ] } ,
+			ui => {
+				ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) ) ;
+				ui.bus.on( 'end' , ( type ) => ends.push( [ type ] ) ) ;
+			}
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Once upon a time...' ],
+			[ 'There was a woman...' ],
+			[ 'Who was constantly...' ],
+			[ 'Fencing...' ]
+		] ) ;
 		
-		async.series( [
-			async function( seriesCallback ) {
-				messages = [] ;
-				ends = [] ;
-						
-				await runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'story' , path: [ 2 , 0 , 2 ] } ,
-					function( ui ) {
-						
-						ui.bus.on( 'message' , function() {
-							messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-						} ) ;
-						
-						ui.bus.on( 'end' , function() {
-							ends.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-						} ) ;
-					} ,
-					function() {
-						expect( messages ).to.equal( [
-							[ 'Once upon a time...' ],
-							[ 'There was a child...' ],
-							[ 'Who was constantly...' ],
-							[ 'Crying...' ]
-						] ) ;
-						
-						expect( ends ).to.equal( [
-							[ 'lost' ]
-						] ) ;
-						
-						seriesCallback() ;
-					}
-				) ;
-			} ,
-			async function( seriesCallback ) {
-				messages = [] ;
-				ends = [] ;
-						
-				await runBook( __dirname + '/books/scene-and-next.kfg' , { type: 'story' , path: [ 1 , 0 , 0 ] } ,
-					function( ui ) {
-						
-						ui.bus.on( 'message' , function() {
-							messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-						} ) ;
-						
-						ui.bus.on( 'end' , function() {
-							ends.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-						} ) ;
-					} ,
-					function() {
-						expect( messages ).to.equal( [
-							[ 'Once upon a time...' ],
-							[ 'There was a woman...' ],
-							[ 'Who was constantly...' ],
-							[ 'Fencing...' ]
-						] ) ;
-						
-						expect( ends ).to.equal( [
-							[ 'win' ]
-						] ) ;
-						
-						seriesCallback() ;
-					}
-				) ;
-			} ,
-		] )
-		.exec( done ) ;
+		expect( ends ).to.equal( [
+			[ 'win' ]
+		] ) ;
 	} ) ;
 	
 	it( "[starting-scene] tag" , async function() {
-		
 		var messages = [] ;
 		
 		await runBook( __dirname + '/books/starting-scene.kfg' , { type: 'story' , path: [ 0 ] } ,
-			function( ui ) {
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'First!' ],
-					[ 'Last!' ]
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'First!' ],
+			[ 'Last!' ]
+		] ) ;
 	} ) ;
 	
 	it( "[module] tag" , async function() {
-		
 		var messages = [] ;
 		
 		await runBook( __dirname + '/books/module-loader.kfg' , { type: 'story' , path: [ 0 ] } ,
-			function( ui ) {
-				
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Once upon a time...' ],
-					[ 'Cool story bro!' ]
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Once upon a time...' ],
+			[ 'Cool story bro!' ]
+		] ) ;
 	} ) ;
 	
 	it( "[next] tag instances ([next] into loop)" ) ;
@@ -1355,110 +1325,74 @@ describe( "Basic story tags and features" , function() {
 		var messages = [] , ends = [] ;
 		
 		await runBook( __dirname + '/books/local-var.kfg' , { type: 'story' , path: [ 0 ] } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'bob: 15 -- local.bob: 1' ] ,
-					[ 'bob: 15 -- local.bob: 1' ] ,
-					[ 'bob: 15 -- local.bob: 1' ] ,
-					[ 'bob: 15 -- local.bob: 1' ]
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'bob: 15 -- local.bob: 1' ] ,
+			[ 'bob: 15 -- local.bob: 1' ] ,
+			[ 'bob: 15 -- local.bob: 1' ] ,
+			[ 'bob: 15 -- local.bob: 1' ]
+		] ) ;
 	} ) ;
 	
 	it( "Special var $global" , async function() {
 		var messages = [] , ends = [] ;
 		
 		await runBook( __dirname + '/books/global-var.kfg' , { type: 'story' , path: [ 0 ] } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'bob: 15 -- global.bob: 6' ] ,
-					[ 'bob: 16 -- global.bob: 7' ] ,
-					[ 'bob: 17 -- global.bob: 8' ] ,
-					[ 'bob: 19 -- global.bob: 19' ]	// because we return on the global scope
-					//[ 'bob: 18 -- global.bob: 9' ] // behavior changed: only the top-level/init-time run is global
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'bob: 15 -- global.bob: 6' ] ,
+			[ 'bob: 16 -- global.bob: 7' ] ,
+			[ 'bob: 17 -- global.bob: 8' ] ,
+			[ 'bob: 19 -- global.bob: 19' ]	// because we return on the global scope
+			//[ 'bob: 18 -- global.bob: 9' ] // behavior changed: only the top-level/init-time run is global
+		] ) ;
 	} ) ;
 	
 	it( "Special var $static into [fn] tags" , async function() {
 		var messages = [] , ends = [] ;
 		
 		await runBook( __dirname + '/books/static-var.kfg' , { type: 'cast' , target: 'static-var' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'static.bob: 6 -- local.bob: 6' ] ,
-					[ 'static.bob: 7 -- local.bob: 6' ] ,
-					[ 'static.bob: 8 -- local.bob: 6' ]
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'static.bob: 6 -- local.bob: 6' ] ,
+			[ 'static.bob: 7 -- local.bob: 6' ] ,
+			[ 'static.bob: 8 -- local.bob: 6' ]
+		] ) ;
 	} ) ;
 	
 	it( "Special var $static into [scene] tags" , async function() {
 		var messages = [] , ends = [] ;
 		
 		await runBook( __dirname + '/books/scene-static-var.kfg' , { type: 'story' , path: [ 0 ] } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'static.bob: 6 -- local.bob: 6' ] ,
-					[ 'static.bob: 7 -- local.bob: 6' ] ,
-					[ 'static.bob: 8 -- local.bob: 6' ] ,
-					[ 'static.bob: 9 -- local.bob: 6' ]
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'static.bob: 6 -- local.bob: 6' ] ,
+			[ 'static.bob: 7 -- local.bob: 6' ] ,
+			[ 'static.bob: 8 -- local.bob: 6' ] ,
+			[ 'static.bob: 9 -- local.bob: 6' ]
+		] ) ;
 	} ) ;
 	
 	it( "Special var $args" , async function() {
-		
 		var messages = [] , ends = [] ;
 		
 		await runBook( __dirname + '/books/args-stack.kfg' , { type: 'story' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'sub args before: 1 2' ] ,
-					[ 'subsub args.a: 5 7' ] ,
-					[ 'sub args after: 1 2' ]
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'sub args before: 1 2' ] ,
+			[ 'subsub args.a: 5 7' ] ,
+			[ 'sub args after: 1 2' ]
+		] ) ;
 	} ) ;
 	
 	it( "Special var $here" ) ;
@@ -1486,25 +1420,17 @@ describe( "RPG tags and features" , function() {
 describe( "API" , function() {
 	
 	it( "Event [on]/[off]/[emit] tags" , async function() {
-		
 		var messages = [] ;
 		
 		await runBook( __dirname + '/books/event.kfg' , { type: 'cast' , target: 'event' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Blasted Troll!' ] ,
-					[ 'Roasted Troll!' ] ,
-					[ 'Blasted Gnoll!' ] ,
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Blasted Troll!' ] ,
+			[ 'Roasted Troll!' ] ,
+			[ 'Blasted Gnoll!' ] ,
+		] ) ;
 	} ) ;
 	
 	it( "Global listeners [on]+[global] tags" ) ;
@@ -1516,29 +1442,21 @@ describe( "API" , function() {
 describe( "Wands/extensions" , function() {
 	
 	it( "[wand] and [zap] tags" , async function() {
-		
 		var messages = [] ;
 		
 		await runBook( __dirname + '/books/wand.kfg' , { type: 'cast' , target: 'wand' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
-					[ "Zang'dar killed the gnoll..." ] ,
-					[ "ssssshhhhh... SSSSSHHHHH..." ] ,
-					[ "ROOOOARRRR-CRASHHHHH!" ] ,
-					[ "Zang'dar killed the troll berserker, with a delay..." ] ,
-					[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
-					[ "Zang'dar killed the orc..." ] ,
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
+			[ "Zang'dar killed the gnoll..." ] ,
+			[ "ssssshhhhh... SSSSSHHHHH..." ] ,
+			[ "ROOOOARRRR-CRASHHHHH!" ] ,
+			[ "Zang'dar killed the troll berserker, with a delay..." ] ,
+			[ "ZASH... ROOOOARRRR-CRASHHHHH!" ] ,
+			[ "Zang'dar killed the orc..." ] ,
+		] ) ;
 	} ) ;
 } ) ;
 
@@ -1546,28 +1464,22 @@ describe( "Wands/extensions" , function() {
 
 describe( "Misc tags" , function() {
 	it( "[pause] tag should pause the execution" , async function() {
-		
 		var messages = [] , time ;
 		
 		await runBook( __dirname + '/books/pause.kfg' , { type: 'cast' , target: 'pause' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
+			ui => {
+				ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) ) ;
 				time = Date.now() ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Before pause' ] ,
-					[ 'After pause' ]
-				] ) ;
-				
-				//log.error( "Time: %s" , Date.now() - time ) ;
- 				expect( Date.now() - time ).to.be.at.least( 500 ) ;
-				
-				done() ;
 			}
 		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Before pause' ] ,
+			[ 'After pause' ]
+		] ) ;
+		
+		//log.error( "Time: %s" , Date.now() - time ) ;
+		expect( Date.now() - time ).to.be.at.least( 500 ) ;
 	} ) ;
 	
 	it( "[debug] tag" ) ;
@@ -1578,44 +1490,34 @@ describe( "Misc tags" , function() {
 describe( "Embedded Javascript code" , function() {
 	
 	it( "[js] tag" , async function() {
-		
 		var messages = [] ;
 		
 		await runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ "Hello Zang'dar!" ] ,
-					[ "Hello Oz!" ] ,
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+		expect( messages ).to.equal( [
+			[ "Hello Zang'dar!" ] ,
+			[ "Hello Oz!" ] ,
+		] ) ;
 	} ) ;
 	
 	it( "when [js] tags are disabled but present in the user script, it should be interrupted by an error" , async function() {
-		
 		var messages = [] ;
 		
-		await runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' , allowJsTag: false } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ "Hello Zang'dar!" ]
-				] ) ;
-				
-				done() ;
-			}
-		) ;
+		try {
+			await runBook( __dirname + '/books/js.kfg' , { type: 'cast' , target: 'js' , allowJsTag: false } ,
+				ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
+			) ;
+			expect().fail( 'expected to throw' ) ;
+		}
+		catch ( error ) {
+			expect( error ).to.be.partially.like( { message: "The [js] tag is disabled" } ) ;
+		}
+
+		expect( messages ).to.equal( [
+			[ "Hello Zang'dar!" ]
+		] ) ;
 	} ) ;
 	
 	it( "Security tests" ) ;
@@ -1634,21 +1536,19 @@ describe( "Spellcast exe features" , function() {
 describe( "Prevent from infinite loop in user-script, using the 'maxTicks' option" , function() {
 	
 	it( "[while] infinity" , async function() {
-		
 		var messages = [] ;
 		
-		await runBook( __dirname + '/books/infinite-loop-protection.kfg' , { type: 'cast' , target: 'test1' , maxTicks: 1000 } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function( error ) {
-				// It should produce a RangeError
-				expect( error ).to.be.a( RangeError ) ;
-				done() ;
-			}
-		) ;
+		try {
+			await runBook( __dirname + '/books/infinite-loop-protection.kfg' , { type: 'cast' , target: 'test1' , maxTicks: 1000 } ,
+				ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
+			) ;
+			expect().fail( 'expected to throw' ) ;
+		}
+		catch ( error ) {
+			// It should produce a RangeError
+			expect( error ).to.be.a( RangeError ) ;
+			expect( error ).to.be.partially.like( { message: "Too much ticks without any user interaction" } ) ;
+		}
 	} ) ;
 } ) ;
 
@@ -1663,77 +1563,48 @@ describe( "Spellcast operators" , function() {
 describe( "Historical bugs" , function() {
 	
 	it( "should be able to load the same book twice" , async function() {
+		var messages = [] ;
 		
-		async.series( [
-			async function( seriesCallback ) {
-				var messages = [] ;
-				
-				await runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
-					function( ui ) {
-						ui.bus.on( 'message' , function() {
-							messages.push( Array.from( arguments ) ) ;
-						} ) ;
-					} ,
-					function() {
-						expect( messages ).to.equal( [
-							[ 'Some text.' , null ] ,
-							[ 'Some other text.' , null ] ,
-							[ 'Welcome to The Shadow Terminal.' , {
-								next: true ,
-								slowTyping: true
-							} ]
-						] ) ;
-						
-						seriesCallback() ;
-					}
-				) ;
-			} ,
-			async function( seriesCallback ) {
-				var messages = [] ;
-				
-				await runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
-					function( ui ) {
-						ui.bus.on( 'message' , function() {
-							messages.push( Array.from( arguments ) ) ;
-						} ) ;
-					} ,
-					function() {
-						expect( messages ).to.equal( [
-							[ 'Some text.' , null ] ,
-							[ 'Some other text.' , null ] ,
-							[ 'Welcome to The Shadow Terminal.' , {
-								next: true ,
-								slowTyping: true
-							} ]
-						] ) ;
-						
-						seriesCallback() ;
-					}
-				) ;
-			} ,
-		] )
-		.exec( done ) ;
+		await runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
+			ui => ui.bus.on( 'message' , ( ... args ) => messages.push( args ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Some text.' , null ] ,
+			[ 'Some other text.' , null ] ,
+			[ 'Welcome to The Shadow Terminal.' , {
+				next: true ,
+				slowTyping: true
+			} ]
+		] ) ;
+		
+		messages = [] ;
+		
+		await runBook( __dirname + '/books/message.kfg' , { type: 'cast' , target: 'message' } ,
+			ui => ui.bus.on( 'message' , ( ... args ) => messages.push( args ) )
+		) ;
+		
+		expect( messages ).to.equal( [
+			[ 'Some text.' , null ] ,
+			[ 'Some other text.' , null ] ,
+			[ 'Welcome to The Shadow Terminal.' , {
+				next: true ,
+				slowTyping: true
+			} ]
+		] ) ;
 	} ) ;
 	
 	it( "array ops in-place operations using non in-place JS method should modify the original hosted array" , async function() {
-		
 		var messages = [] ;
 		
 		await runBook( __dirname + '/books/array-op-historical-bug.kfg' , { type: 'cast' , target: 'bug' } ,
-			function( ui ) {
-				ui.bus.on( 'message' , function() {
-					messages.push( Array.from( arguments ).slice( 0 , 1 ) ) ;
-				} ) ;
-			} ,
-			function() {
-				expect( messages ).to.equal( [
-					[ 'Array: one two three four five six' ],
-					[ 'Ref: one two three four five six' ]
-				] ) ;
-				
-				done() ;
-			}
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
 		) ;
+
+			expect( messages ).to.equal( [
+				[ 'Array: one two three four five six' ],
+				[ 'Ref: one two three four five six' ]
+			] ) ;
 	} ) ;
 } ) ;
 
