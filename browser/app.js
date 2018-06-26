@@ -76,7 +76,7 @@ function Dom() {
 	this.uis = {} ;
 	this.markers = {} ;
 	this.cards = {} ;
-	this.cardLocations = {} ;
+	this.uiLocations = {} ;
 	this.animations = {} ;
 
 	this.hintTimer = null ;
@@ -1140,7 +1140,7 @@ Dom.prototype.clearSprite = function clearSprite( id ) {
 		return ;
 	}
 
-	this.clearUiObject( this.sprites[ id ] ) ;
+	this.clearGItem( this.sprites[ id ] ) ;
 
 	delete this.sprites[ id ] ;
 } ;
@@ -1153,7 +1153,7 @@ Dom.prototype.clearUi = function clearUi( id ) {
 		return ;
 	}
 
-	this.clearUiObject( this.uis[ id ] ) ;
+	this.clearGItem( this.uis[ id ] ) ;
 
 	delete this.uis[ id ] ;
 } ;
@@ -1166,7 +1166,7 @@ Dom.prototype.clearMarker = function clearMarker( id ) {
 		return ;
 	}
 
-	this.clearUiObject( this.markers[ id ] ) ;
+	this.clearGItem( this.markers[ id ] ) ;
 
 	delete this.markers[ id ] ;
 } ;
@@ -1179,7 +1179,7 @@ Dom.prototype.clearCard = function clearCard( id ) {
 		return ;
 	}
 
-	this.clearCardObject( this.cards[ id ] ) ;
+	this.clearGItem( this.cards[ id ] ) ;
 
 	delete this.cards[ id ] ;
 } ;
@@ -1189,9 +1189,9 @@ Dom.prototype.clearCard = function clearCard( id ) {
 Dom.prototype.showSprite = function showSprite( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
-	if ( this.sprites[ id ] ) { this.clearUiObject( this.sprites[ id ] ) ; }
+	if ( this.sprites[ id ] ) { this.clearGItem( this.sprites[ id ] ) ; }
 
-	var sprite = this.sprites[ id ] = this.createUiObject( {
+	var sprite = this.sprites[ id ] = this.createGItem( {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'sprite' ,
@@ -1200,7 +1200,7 @@ Dom.prototype.showSprite = function showSprite( id , data ) {
 		animation: null
 	} ) ;
 
-	this.updateUiObject( sprite , data ) ;
+	this.updateGItem( sprite , data ) ;
 } ;
 
 
@@ -1208,9 +1208,9 @@ Dom.prototype.showSprite = function showSprite( id , data ) {
 Dom.prototype.showUi = function showUi( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
-	if ( this.uis[ id ] ) { this.clearUiObject( this.uis[ id ] ) ; }
+	if ( this.uis[ id ] ) { this.clearGItem( this.uis[ id ] ) ; }
 
-	var ui = this.uis[ id ] = this.createUiObject( {
+	var ui = this.uis[ id ] = this.createGItem( {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'ui' ,
@@ -1220,7 +1220,7 @@ Dom.prototype.showUi = function showUi( id , data ) {
 		animation: null
 	} ) ;
 
-	this.updateUiObject( ui , data ) ;
+	this.updateGItem( ui , data ) ;
 } ;
 
 
@@ -1228,9 +1228,9 @@ Dom.prototype.showUi = function showUi( id , data ) {
 Dom.prototype.showMarker = function showMarker( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
-	if ( this.markers[ id ] ) { this.clearUiObject( this.markers[ id ] ) ; }
+	if ( this.markers[ id ] ) { this.clearGItem( this.markers[ id ] ) ; }
 
-	var marker = this.markers[ id ] = this.createUiObject( {
+	var marker = this.markers[ id ] = this.createGItem( {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'marker' ,
@@ -1241,7 +1241,7 @@ Dom.prototype.showMarker = function showMarker( id , data ) {
 		animation: null
 	} ) ;
 
-	this.updateUiObject( marker , data ) ;
+	this.updateGItem( marker , data ) ;
 } ;
 
 
@@ -1251,9 +1251,9 @@ var cardAutoIncrement = 0 ;
 Dom.prototype.showCard = function showCard( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
-	if ( this.cards[ id ] ) { this.clearCardObject( this.cards[ id ] ) ; }
+	if ( this.cards[ id ] ) { this.clearGItem( this.cards[ id ] ) ; }
 
-	var marker = this.cards[ id ] = this.createUiObject( {
+	var card = this.cards[ id ] = this.createGItem( {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'card' ,
@@ -1267,8 +1267,10 @@ Dom.prototype.showCard = function showCard( id , data ) {
 		animation: null ,
 		contents: {}
 	} ) ;
+	
+	this.createCardMarkup( card ) ;
 
-	this.updateCardObject( marker , data ) ;
+	this.updateCardObject( card , data ) ;
 } ;
 
 
@@ -1279,7 +1281,7 @@ Dom.prototype.updateSprite = function updateSprite( id , data ) {
 		return ;
 	}
 
-	this.updateUiObject( this.sprites[ id ] , data ) ;
+	this.updateGItem( this.sprites[ id ] , data ) ;
 } ;
 
 
@@ -1290,7 +1292,7 @@ Dom.prototype.updateUi = function updateUi( id , data ) {
 		return ;
 	}
 
-	this.updateUiObject( this.uis[ id ] , data ) ;
+	this.updateGItem( this.uis[ id ] , data ) ;
 } ;
 
 
@@ -1301,7 +1303,7 @@ Dom.prototype.updateMarker = function updateMarker( id , data ) {
 		return ;
 	}
 
-	this.updateUiObject( this.markers[ id ] , data ) ;
+	this.updateGItem( this.markers[ id ] , data ) ;
 } ;
 
 
@@ -1328,7 +1330,7 @@ Dom.prototype.animateSprite = function animateSprite( spriteId , animationId ) {
 		return ;
 	}
 
-	this.animateUiObject( this.sprites[ spriteId ] , this.animations[ animationId ] ) ;
+	this.animateGItem( this.sprites[ spriteId ] , this.animations[ animationId ] ) ;
 } ;
 
 
@@ -1344,7 +1346,7 @@ Dom.prototype.animateUi = function animateUi( uiId , animationId ) {
 		return ;
 	}
 
-	this.animateUiObject( this.uis[ uiId ] , this.animations[ animationId ] ) ;
+	this.animateGItem( this.uis[ uiId ] , this.animations[ animationId ] ) ;
 } ;
 
 
@@ -1360,7 +1362,7 @@ Dom.prototype.animateMarker = function animateMarker( markerId , animationId ) {
 		return ;
 	}
 
-	this.animateUiObject( this.markers[ markerId ] , this.animations[ animationId ] ) ;
+	this.animateGItem( this.markers[ markerId ] , this.animations[ animationId ] ) ;
 } ;
 
 
@@ -1376,29 +1378,40 @@ Dom.prototype.animateCard = function animateCard( cardId , animationId ) {
 		return ;
 	}
 
-	this.animateUiObject( this.cards[ cardId ] , this.animations[ animationId ] ) ;
+	this.animateGItem( this.cards[ cardId ] , this.animations[ animationId ] ) ;
 } ;
 
 
 
-Dom.prototype.createUiObject = function createUiObject( data ) {
-	var ui = new Ngev() ;
-	Object.assign( ui , data ) ;
-	ui.defineStates( 'loaded' , 'loading' ) ;
+Dom.prototype.createGItem = function createGItem( data ) {
+	var gItem = new Ngev() ;
+	
+	if ( data.type !== 'marker' ) {
+		gItem.$wrapper = document.createElement( 'div' ) ;
+		gItem.$wrapper.classList.add( 'g-item-wrapper' , data.type + '-wrapper' ) ;
+		this.$gfx.append( gItem.$wrapper ) ;
+	}
+	
+	Object.assign( gItem , data ) ;
+	gItem.defineStates( 'loaded' , 'loading' ) ;
 
-	return ui ;
+	return gItem ;
 } ;
 
 
 
-Dom.prototype.clearUiObject = function clearUiObject( ui ) {
-	ui.$image.remove() ;
-	if ( ui.$mask ) { ui.$mask.remove() ; }
+Dom.prototype.clearGItem = function clearGItem( gItem ) {
+	if ( gItem.$locationSlot ) { gItem.$locationSlot.remove() ; }
+	gItem.$wrapper.remove() ;
+	/*
+	gItem.$image.remove() ;
+	if ( gItem.$mask ) { gItem.$mask.remove() ; }
+	*/
 } ;
 
 
 
-Dom.prototype.updateUiObject = function updateUiObject( ui , data ) {
+Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 	var $element ;
 
 	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
@@ -1406,39 +1419,39 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data ) {
 	// Forbidden styles:
 	delete data.style.position ;
 
-	// Load/replace the ui image, if needed
+	// Load/replace the gItem image, if needed
 	if ( data.url ) {
 		if ( data.url.endsWith( '.svg' ) ) {
 			// Always wipe any existing $image element and pre-create the <svg> tag
-			if ( ui.$image ) { ui.$image.remove() ; }
+			if ( gItem.$image ) { gItem.$image.remove() ; }
 
-			if ( ui.type === 'marker' ) {
+			if ( gItem.type === 'marker' ) {
 				// If it's a marker, load it inside a <g> tag, that will be part of the main UI's <svg>
 				// <svg> inside <svg> are great, but Chrome sucks at it (it does not support CSS transform, etc)
-				ui.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'g' ) ;
+				gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'g' ) ;
 			}
 			else {
-				ui.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
-				ui.$image.classList.add( 'svg' ) ;
+				gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+				gItem.$image.classList.add( 'svg' ) ;
 			}
 
-			switch ( ui.type ) {
+			switch ( gItem.type ) {
 				case 'ui' :
 					// Stop event propagation
-					ui.onClick = ( event ) => {
-						//ui.actionCallback( ui.action ) ;
+					gItem.onClick = ( event ) => {
+						//gItem.actionCallback( gItem.action ) ;
 						event.stopPropagation() ;
 					} ;
 
-					ui.$image.addEventListener( 'click' , ui.onClick ) ;
-					ui.$image.classList.add( 'ui' ) ;
+					gItem.$image.addEventListener( 'click' , gItem.onClick ) ;
+					gItem.$image.classList.add( 'ui' ) ;
 					this.uiLoadingCount ++ ;
 					break ;
 				case 'sprite' :
-					ui.$image.classList.add( 'sprite' ) ;
+					gItem.$image.classList.add( 'sprite' ) ;
 					break ;
 				case 'marker' :
-					ui.$image.classList.add( 'marker' ) ;
+					gItem.$image.classList.add( 'marker' ) ;
 					break ;
 			}
 
@@ -1449,49 +1462,55 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data ) {
 				removeComments: true ,
 				removeExoticNamespaces: true ,
 				//removeDefaultStyles: true ,
-				as: ui.$image
+				as: gItem.$image
 			} , () => {
 
-				if ( ui.type === 'ui' ) {
-					this.setUiButtons( ui.$image ) ;
-					this.setUiPassiveHints( ui.$image ) ;
-					ui.emit( 'loaded' ) ;
+				if ( gItem.type === 'ui' ) {
+					this.setUiButtons( gItem.$image ) ;
+					this.setUiPassiveHints( gItem.$image ) ;
+					gItem.emit( 'loaded' ) ;
 					if ( -- this.uiLoadingCount <= 0 ) { this.emit( 'uiLoaded' ) ; }
 				}
 				else {
-					ui.emit( 'loaded' ) ;
+					gItem.emit( 'loaded' ) ;
 				}
 			} ) ;
 
-			ui.emit( 'loading' ) ;
+			gItem.emit( 'loading' ) ;
 		}
 		else {
-			if ( ! ui.$image || ui.$image.tagName.toLowerCase() !== 'img' ) {
-				if ( ui.$image ) { ui.$image.remove() ; }
+			if ( ! gItem.$image || gItem.$image.tagName.toLowerCase() !== 'img' ) {
+				if ( gItem.$image ) { gItem.$image.remove() ; }
 
-				ui.$image = document.createElement( 'img' ) ;
+				gItem.$image = document.createElement( 'img' ) ;
 
 				// /!\ support UI that are not SVG??? /!\
-				ui.$image.classList.add( ui.type ) ;
+				gItem.$image.classList.add( gItem.type ) ;
 			}
 
-			ui.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
+			gItem.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 		}
-
-		if ( ui.type !== 'marker' ) {
-			this.$gfx.append( ui.$image ) ;
+		
+		if ( gItem.type !== 'marker' ) {
+			gItem.$wrapper.append( gItem.$image ) ;
 		}
+		
+		/*
+		if ( gItem.type !== 'marker' ) {
+			this.$gfx.append( gItem.$image ) ;
+		}
+		*/
 	}
 
 	// Load/replace the sprite/ui mask, if needed
-	if ( data.maskUrl && data.maskUrl.endsWith( '.svg' ) && ui.type === 'sprite' ) {
+	if ( data.maskUrl && data.maskUrl.endsWith( '.svg' ) && gItem.type === 'sprite' ) {
 		console.warn( 'has mask!' ) ;
 
 		// Always wipe any existing $mask element and pre-create the <svg> tag
-		if ( ui.$mask ) { ui.$mask.remove() ; }
+		if ( gItem.$mask ) { gItem.$mask.remove() ; }
 
-		ui.$mask = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
-		ui.$mask.classList.add( 'sprite-mask' ) ;
+		gItem.$mask = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+		gItem.$mask.classList.add( 'sprite-mask' ) ;
 
 		svgKit.load( this.cleanUrl( data.maskUrl ) , {
 			removeSvgStyle: true ,
@@ -1500,65 +1519,69 @@ Dom.prototype.updateUiObject = function updateUiObject( ui , data ) {
 			removeComments: true ,
 			removeExoticNamespaces: true ,
 			//removeDefaultStyles: true ,
-			as: ui.$mask
+			as: gItem.$mask
 		} ) ;
 
-		this.$gfx.append( ui.$mask ) ;
+		gItem.$wrapper.append( gItem.$mask ) ;
+		//this.$gfx.append( gItem.$mask ) ;
 	}
 
 	// /!\ DEPRECATED /!\
 	// Click action
 	if ( data.action !== undefined ) {
-		$element = ui.$mask || ui.$image ;
+		$element = gItem.$mask || gItem.$image ;
 
-		if ( data.action && ! ui.action ) {
-			ui.onClick = ( event ) => {
-				ui.actionCallback( ui.action ) ;
+		if ( data.action && ! gItem.action ) {
+			gItem.onClick = ( event ) => {
+				gItem.actionCallback( gItem.action ) ;
 				event.stopPropagation() ;
 			} ;
 
 			$element.classList.add( 'button' ) ;
-			$element.addEventListener( 'click' , ui.onClick ) ;
+			$element.addEventListener( 'click' , gItem.onClick ) ;
 		}
-		else if ( ! data.action && ui.action ) {
+		else if ( ! data.action && gItem.action ) {
 			$element.classList.remove( 'button' ) ;
-			$element.removeEventListener( 'click' , ui.onClick ) ;
+			$element.removeEventListener( 'click' , gItem.onClick ) ;
 		}
 
-		ui.action = data.action || null ;
+		gItem.action = data.action || null ;
 	}
 
-	// Use data.style, NOT ui.style: we have to set only new/updated styles
-	if ( data.style ) {
-		Object.assign( ui.style , data.style ) ;
-		domKit.css( ui.$image , data.style ) ;
+	// Use data.style, NOT gItem.style: we have to set only new/updated styles
+	if ( data.style && gItem.$wrapper ) {
+		Object.assign( gItem.style , data.style ) ;
+		domKit.css( gItem.$wrapper , data.style ) ;
+	}
 
-		// Update the mask, if any
-		if ( ui.$mask ) {
-			console.warn( 'update mask!' ) ;
-			domKit.css( ui.$mask , data.style ) ;
-		}
+	if ( data.imageStyle && gItem.$image ) {
+		Object.assign( gItem.imageStyle , data.imageStyle ) ;
+		domKit.css( gItem.$image , data.imageStyle ) ;
+	}
+	
+	if ( data.backImageStyle && gItem.$backImage ) {
+		Object.assign( gItem.backImageStyle , data.backImageStyle ) ;
+		domKit.css( gItem.$backImage , data.backImageStyle ) ;
+	}
+	
+	if ( data.maskStyle && gItem.$mask ) {
+		Object.assign( gItem.maskStyle , data.maskStyle ) ;
+		domKit.css( gItem.$mask , data.maskStyle ) ;
 	}
 
 	if ( data.class ) {
 		data.class = commonUtils.toClassObject( data.class ) ;
 		console.log( "Data.class" , data.class ) ;
-		Object.assign( ui.class , data.class ) ;
-		domKit.class( ui.$image , data.class , 's-' ) ;
-
-		// Update the mask, if any
-		if ( ui.$mask ) {
-			console.warn( 'update mask!' ) ;
-			domKit.class( ui.$mask , data.class , 's-' ) ;
-		}
+		Object.assign( gItem.class , data.class ) ;
+		domKit.class( gItem.$wrapper || gItem.$image , data.class , 's-' ) ;
 	}
 
 	if ( data.area ) {
-		this.updateUiArea( ui , data.area ) ;
+		this.updateUiArea( gItem , data.area ) ;
 	}
 
 	if ( data.ui || data.location ) {
-		this.updateMarkerLocation( ui , data.ui , data.location ) ;
+		this.updateMarkerLocation( gItem , data.ui , data.location ) ;
 	}
 } ;
 
@@ -1581,7 +1604,7 @@ Dom.prototype.updateUiArea = function updateUiArea( ui , areaData ) {
 		if ( areaData[ area ].hint !== undefined ) { ui.area[ area ].hint = areaData[ area ].hint || null ; }
 		if ( areaData[ area ].status ) { Object.assign( ui.area[ area ].status , areaData[ area ].status ) ; }
 
-		Array.from( ui.$image.querySelectorAll( '[area=' + area + ']' ) ).forEach( ( $element ) => {	// jshint ignore:line
+		Array.from( ui.$image.querySelectorAll( '[area=' + area + ']' ) ).forEach( ( $element ) => {
 			var statusName ;
 
 			if ( areaData[ area ].hint !== undefined ) {
@@ -1689,20 +1712,8 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 
 
 
-Dom.prototype.clearCardObject = function clearCardObject( card ) {
-	if ( card.$locationSlot ) { card.$locationSlot.remove() ; }
-	card.$wrapper.remove() ;
-} ;
-
-
-
 Dom.prototype.updateCardObject = function updateCardObject( card , data ) {
 	var contentName , content , $content , statusName , status ;
-
-	if ( ! card.$wrapper ) {
-		this.createCardMarkup( card ) ;
-		//this.$gfx.append( card.$wrapper ) ;
-	}
 
 	if ( data.url ) {
 		card.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
@@ -1735,7 +1746,7 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data ) {
 	// Location where to insert it in the DOM,
 	// it needs a callback to ensure that transition effects has correctly happened
 	if ( data.location && card.location !== data.location ) {
-		this.moveCardTo( card , data.location , () => {
+		this.moveGItemToLocation( card , data.location , () => {
 			this.updateCardObject( card , data ) ;
 		} ) ;
 		delete data.location ;
@@ -1788,10 +1799,7 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data ) {
 
 
 Dom.prototype.createCardMarkup = function createCardMarkup( card ) {
-	// The wrapper is the placeholder, hover effects happen on it
-	card.$wrapper = document.createElement( 'div' ) ;
-	card.$wrapper.classList.add( 'card-wrapper' ) ;
-
+	// .$wrapper is the placeholder, hover effects happen on it
 	card.$card = document.createElement( 'div' ) ;
 	card.$card.classList.add( 'card' ) ;
 	card.$wrapper.append( card.$card ) ;
@@ -1815,72 +1823,73 @@ Dom.prototype.createCardMarkup = function createCardMarkup( card ) {
 
 
 
-Dom.prototype.createCardLocation = function createCardLocation( locationName ) {
+Dom.prototype.createGItemLocation = function createGItemLocation( locationName ) {
 	var $location ;
 
-	if ( this.cardLocations[ locationName ] ) { return ; }
+	if ( this.uiLocations[ locationName ] ) { return ; }
 
-	$location = this.cardLocations[ locationName ] = document.createElement( 'div' ) ;
-	$location.classList.add( 'card-location' ) ;
-	$location.classList.add( 'card-location-' + locationName ) ;
+	$location = this.uiLocations[ locationName ] = document.createElement( 'div' ) ;
+	$location.classList.add( 'g-item-location' ) ;
+	$location.classList.add( 'g-item-location-' + locationName ) ;
 	this.$gfx.append( $location ) ;
 } ;
 
 
 
-Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback ) {
+Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , locationName , callback ) {
 	var $location , $oldLocation , oldLocationName , $slot , $oldSlot , direction , oldDirection ,
-		siblingCards , siblingSlotRectsBefore , siblingSlotRectsAfter ,
+		siblingGItems , siblingSlotRectsBefore , siblingSlotRectsAfter ,
 		slotSize , slotBbox , oldSlotBbox ;
 
 	// Timeout value used to enable FLIP transition
 	var flipTimeout = 10 ;
 
-	if ( card.location === locationName ) { callback() ; return ; }
+	if ( gItem.location === locationName ) { callback() ; return ; }
 
-	$location = this.cardLocations[ locationName ] ;
-	$oldSlot = card.$locationSlot ;
+	$location = this.uiLocations[ locationName ] ;
+	$oldSlot = gItem.$locationSlot ;
 
-	if ( card.location ) {
-		oldLocationName = card.location ;
-		$oldLocation = this.cardLocations[ card.location ] ;
+	if ( gItem.location ) {
+		oldLocationName = gItem.location ;
+		$oldLocation = this.uiLocations[ gItem.location ] ;
 	}
 
 	if ( ! $location ) {
-		$location = this.cardLocations[ locationName ] = document.createElement( 'div' ) ;
-		$location.classList.add( 'card-location' ) ;
-		$location.classList.add( 'card-location-' + locationName ) ;
+		$location = this.uiLocations[ locationName ] = document.createElement( 'div' ) ;
+		$location.classList.add( 'g-item-location' ) ;
+		$location.classList.add( 'g-item-location-' + locationName ) ;
 		this.$gfx.append( $location ) ;
 	}
 
 	if ( ! $oldSlot ) {
-		// Chrome requires it to be rendered for computed styles to work, otherwise: brace yourself, the NaN are coming!
-		this.$gfx.append( card.$wrapper ) ;
+		// Chrome requires it to be rendered for computed styles to work, otherwise:
+		// “brace yourself, the NaN are coming!”
+		this.$gfx.append( gItem.$wrapper ) ;
 	}
 
 	// Computed styles
-	var cardComputedStyle = window.getComputedStyle( card.$wrapper ) ;
+	var gItemComputedStyle = window.getComputedStyle( gItem.$wrapper ) ;
 	var locationComputedStyle = window.getComputedStyle( $location ) ;
 
-	// Card size
-	var cardWidth = parseFloat( cardComputedStyle.width ) ;
-	var cardHeight = parseFloat( cardComputedStyle.height ) ;
+	// GItem size
+	var gItemWidth = parseFloat( gItemComputedStyle.width ) ;
+	var gItemHeight = parseFloat( gItemComputedStyle.height ) ;
 
-	card.location = locationName ;
-	$slot = card.$locationSlot = document.createElement( 'div' ) ;
-	$slot.classList.add( 'card-slot' ) ;
-	$slot.style.order = card.order ;
-	//$slot.style.zIndex = card.order ;	// Not needed, rendering preserve ordering, not DOM precedence, so it's ok
+	gItem.location = locationName ;
+	$slot = gItem.$locationSlot = document.createElement( 'div' ) ;
+	$slot.classList.add( 'g-item-slot' ) ;
+	$slot.style.order = gItem.order ;
+	//$slot.style.zIndex = gItem.order ;	// Not needed, rendering preserve ordering, not DOM precedence, so it's ok
 
 	// Before appending, save all rects of existing sibling slots
-	siblingCards = Object.values( this.cards )
-		.filter( e => e !== card && ( e.location === locationName || e.location === oldLocationName ) ) ;
+	siblingGItems = [ ... Object.values( this.cards ) , ... Object.values( this.sprites ) ]
+		.filter( e => e !== gItem && ( e.location === locationName || e.location === oldLocationName ) ) ;
 
-	siblingSlotRectsBefore = siblingCards.map( e => e.$locationSlot.getBoundingClientRect() ) ;
+	siblingSlotRectsBefore = siblingGItems.map( e => e.$locationSlot.getBoundingClientRect() ) ;
 
 
 	// We should preserve the :last-child pseudo selector, since there isn't any :last-ordered-child for flex-box...
-	if ( $location.lastChild && parseFloat( $location.lastChild.style.order ) > card.order ) {
+	if ( $location.lastChild && parseFloat( $location.lastChild.style.order ) > gItem.order ) {
 		// The last item has a greater order, so we prepend instead
 		$location.prepend( $slot ) ;
 	}
@@ -1895,29 +1904,29 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 
 
 	// Get slots rects after
-	siblingSlotRectsAfter = siblingCards.map( e => e.$locationSlot.getBoundingClientRect() ) ;
+	siblingSlotRectsAfter = siblingGItems.map( e => e.$locationSlot.getBoundingClientRect() ) ;
 
 	// Immediately compute the translation delta and the FLIP for siblings
-	siblingCards.forEach( ( siblingCard , index ) => {
+	siblingGItems.forEach( ( siblingGItem , index ) => {
 		var beforeRect = siblingSlotRectsBefore[ index ] ,
 			afterRect = siblingSlotRectsAfter[ index ] ;
 
-		var transitionStr = siblingCard.$wrapper.style.transition ;
-		var transformStr = siblingCard.$wrapper.style.transform ;
+		var transitionStr = siblingGItem.$wrapper.style.transition ;
+		var transformStr = siblingGItem.$wrapper.style.transform ;
 
 		// Get the local transform, and patch it!
-		var transformDelta = Object.assign( {} , siblingCard.localTransform ) ;
+		var transformDelta = Object.assign( {} , siblingGItem.localTransform ) ;
 		transformDelta.translateX += beforeRect.left - afterRect.left ;
 		transformDelta.translateY += beforeRect.top - beforeRect.top ;
 
 		// First, disable transitions, so the transform will apply now!
-		siblingCard.$wrapper.style.transition = 'none' ;
-		siblingCard.$wrapper.style.transform = domKit.stringifyTransform( transformDelta ) ;
+		siblingGItem.$wrapper.style.transition = 'none' ;
+		siblingGItem.$wrapper.style.transform = domKit.stringifyTransform( transformDelta ) ;
 
 		setTimeout( () => {
 			// Re-enable transitions, restore the transform value
-			siblingCard.$wrapper.style.transition = transitionStr ;
-			siblingCard.$wrapper.style.transform = transformStr ;
+			siblingGItem.$wrapper.style.transition = transitionStr ;
+			siblingGItem.$wrapper.style.transform = transformStr ;
 		} , flipTimeout ) ;
 	} ) ;
 
@@ -1929,31 +1938,31 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 		case 'row' :
 		case 'row-reverse' :
 			slotSize = parseFloat( locationComputedStyle.height ) ;
-			targetTransform.scaleX = targetTransform.scaleY = slotSize / cardHeight ;
+			targetTransform.scaleX = targetTransform.scaleY = slotSize / gItemHeight ;
 			break ;
 		case 'column' :
 		case 'column-reverse' :
 			slotSize = parseFloat( locationComputedStyle.width ) ;
-			targetTransform.scaleX = targetTransform.scaleY = slotSize / cardWidth ;
+			targetTransform.scaleX = targetTransform.scaleY = slotSize / gItemWidth ;
 			break ;
 		default :
 			slotSize = parseFloat( locationComputedStyle.height ) ;
-			targetTransform.scaleX = targetTransform.scaleY = slotSize / cardHeight ;
+			targetTransform.scaleX = targetTransform.scaleY = slotSize / gItemHeight ;
 			console.warn( 'flex-direction' , locationComputedStyle.flexDirection ) ;
 	}
 
 	// Translation compensation due to scaling, since the origin is in the middle
-	targetTransform.translateX -= ( cardWidth - cardWidth * targetTransform.scaleX ) / 2 ;
-	targetTransform.translateY -= ( cardHeight - cardHeight * targetTransform.scaleY ) / 2 ;
+	targetTransform.translateX -= ( gItemWidth - gItemWidth * targetTransform.scaleX ) / 2 ;
+	targetTransform.translateY -= ( gItemHeight - gItemHeight * targetTransform.scaleY ) / 2 ;
 
-	var localTransform = card.localTransform ;
-	card.localTransform = targetTransform ;
+	var localTransform = gItem.localTransform ;
+	gItem.localTransform = targetTransform ;
 
 
-	// If there is no older position, then just put the card on its slot immediately
+	// If there is no older position, then just put the gItem on its slot immediately
 	if ( ! $oldSlot ) {
-		card.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
-		$slot.append( card.$wrapper ) ;
+		gItem.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
+		$slot.append( gItem.$wrapper ) ;
 		callback() ;
 		return ;
 	}
@@ -1984,23 +1993,23 @@ Dom.prototype.moveCardTo = function moveCardTo( card , locationName , callback )
 		scaleY: localTransform.scaleY
 	} ;
 
-	card.$wrapper.style.transform = domKit.stringifyTransform( sourceTransform ) ;
-	$slot.append( card.$wrapper ) ;
+	gItem.$wrapper.style.transform = domKit.stringifyTransform( sourceTransform ) ;
+	$slot.append( gItem.$wrapper ) ;
 
 	// Do not initiate the new transform value in the same synchronous flow,
 	// it would not animate anything
 	setTimeout( () => {
-		card.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
+		gItem.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
 		callback() ;
 	} , flipTimeout ) ;
 } ;
 
 
 
-Dom.prototype.animateUiObject = function animateUiObject( ui , animation ) {
+Dom.prototype.animateGItem = function animateGItem( gItem , animation ) {
 	var frame , frameIndex = 0 ;
 
-	ui.animation = animation.id ;
+	gItem.animation = animation.id ;
 
 	// What should be done if an animation is already running???
 
@@ -2012,8 +2021,8 @@ Dom.prototype.animateUiObject = function animateUiObject( ui , animation ) {
 	var nextFrame = () => {
 		frame = animation.frames[ frameIndex ] ;
 
-		// Update the ui
-		this.updateUiObject( ui , frame ) ;
+		// Update the gItem
+		this.updateGItem( gItem , frame ) ;
 
 		if ( ++ frameIndex < animation.frames.length ) {
 			setTimeout( nextFrame , frame.duration * 1000 ) ;
@@ -2021,7 +2030,7 @@ Dom.prototype.animateUiObject = function animateUiObject( ui , animation ) {
 		else {
 			// This is the end of the animation...
 			// Restore something here?
-			ui.animation = null ;
+			gItem.animation = null ;
 		}
 	} ;
 

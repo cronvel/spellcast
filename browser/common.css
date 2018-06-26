@@ -80,9 +80,14 @@ body {
 
 /* Sprite */
 
-.sprite {
+.sprite-wrapper {
 	position: absolute;
 	height: 50%;
+	z-index: 30;
+	transition: all 1s ;
+}
+
+.sprite {
 	z-index: 30;
 	opacity: 1;
 	transition: all 1s ;
@@ -99,8 +104,6 @@ body {
 }
 
 .sprite-mask {
-	position: absolute;
-	height: 50%;
 	z-index: 1;
 	opacity: 1;
 	transition: all 1s ;
@@ -174,7 +177,7 @@ body {
 
 /* Cards */
 
-.card-location {
+.g-item-location {
 	display: flex;
 	justify-content: space-around;
 	position: absolute;
@@ -182,7 +185,7 @@ body {
 	pointer-events: none;
 }
 
-.card-slot {
+.g-item-slot {
 	position: relative; /* So cards will be positioned relative to this div */
 }
 
@@ -249,8 +252,8 @@ body {
 }
 
 /* the 3D rotation/flip */
-/*.card-wrapper:hover .card ,*/ /* <-- for testing purpose */
-.card-wrapper[pose="face-down"] .card {
+/*.g-item-wrapper:hover .card ,*/ /* <-- for testing purpose */
+.g-item-wrapper[pose="face-down"] .card {
 	transform: rotateY(-180deg);
 }
 
