@@ -5695,7 +5695,7 @@ module.exports.isBrowser = true ;
 }).call(this,require('_process'))
 },{"./NextGenEvents.js":9,"_process":13}],12:[function(require,module,exports){
 module.exports={
-  "_from": "nextgen-events@^1.1.0",
+  "_from": "nextgen-events@1.1",
   "_id": "nextgen-events@1.1.0",
   "_inBundle": false,
   "_integrity": "sha512-Emz5rh584fygInd3gtwP+xGyJhEnyxQa0/Xbmw8sbpXVGV/luqDnVPq1cQopYR7qg6KUlPfwWVhxrhZri1wDAw==",
@@ -5704,20 +5704,21 @@ module.exports={
   "_requested": {
     "type": "range",
     "registry": true,
-    "raw": "nextgen-events@^1.1.0",
+    "raw": "nextgen-events@1.1",
     "name": "nextgen-events",
     "escapedName": "nextgen-events",
-    "rawSpec": "^1.1.0",
+    "rawSpec": "1.1",
     "saveSpec": null,
-    "fetchSpec": "^1.1.0"
+    "fetchSpec": "1.1"
   },
   "_requiredBy": [
+    "#USER",
     "/",
     "/terminal-kit"
   ],
   "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-1.1.0.tgz",
   "_shasum": "a37dd6244eb222745c57a8fcc596fd78ef429a46",
-  "_spec": "nextgen-events@^1.1.0",
+  "_spec": "nextgen-events@1.1",
   "_where": "/home/cedric/inside/github/spellcast",
   "author": {
     "name": "Cédric Ronvel"
@@ -7485,7 +7486,7 @@ var ansi = require( './ansi.js' ) ;
 		  Display a minimal JSON-like output
 		* protoBlackList: `Set` of blacklisted object prototype (will not recurse inside it)
 		* propertyBlackList: `Set` of blacklisted property names (will not even display it)
-		* useInspect? use .inspect() method when available on an object
+		* useInspect: use .inspect() method when available on an object
 */
 
 function inspect( options , variable ) {
@@ -7669,7 +7670,7 @@ function inspect_( runtime , options , variable ) {
 			str += options.style.newline ;
 		}
 		else if ( ! propertyList.length && ! options.proto ) {
-			str += '{}' + options.style.newline ;
+			str += ( isArray ? '[]' : '{}' ) + options.style.newline ;
 		}
 		else if ( runtime.depth >= options.depth ) {
 			str += options.style.limit( '[depth limit]' ) + options.style.newline ;
