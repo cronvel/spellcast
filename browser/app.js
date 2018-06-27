@@ -1267,7 +1267,7 @@ Dom.prototype.showCard = function showCard( id , data ) {
 		animation: null ,
 		contents: {}
 	} ) ;
-	
+
 	this.createCardMarkup( card ) ;
 
 	this.updateCardObject( card , data ) ;
@@ -1385,13 +1385,13 @@ Dom.prototype.animateCard = function animateCard( cardId , animationId ) {
 
 Dom.prototype.createGItem = function createGItem( data ) {
 	var gItem = new Ngev() ;
-	
+
 	if ( data.type !== 'marker' ) {
 		gItem.$wrapper = document.createElement( 'div' ) ;
 		gItem.$wrapper.classList.add( 'g-item-wrapper' , data.type + '-wrapper' ) ;
 		this.$gfx.append( gItem.$wrapper ) ;
 	}
-	
+
 	Object.assign( gItem , data ) ;
 	gItem.defineStates( 'loaded' , 'loading' ) ;
 
@@ -1415,6 +1415,19 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 	// The order matters
 	if ( data.url ) { this.updateGItemImage( gItem , data ) ; }
 	if ( data.maskUrl ) { this.updateGItemMask( gItem , data ) ; }
+	if ( data.content ) { this.updateGItemContent( gItem , data ) ; }
+
+	if ( data.location && gItem.type !== 'marker' ) {
+		// It needs a callback to ensure that transition effects have correctly happened
+		// /!\ Once async/await will be supported in most browser, we would rewrite this
+		// This would avoid all delete data.thing in previous methods
+		this.moveGItemToLocation( gItem , data , () => this.updateGItem( gItem , data ) ) ;
+		return ;
+	}
+
+	if ( data.pose !== undefined ) { this.updateGItemPose( gItem , data ) ; }
+	if ( data.status ) { this.updateGItemStatus( gItem , data ) ; }
+
 	if ( data.action !== undefined ) { this.updateGItemAction( gItem , data ) ; }
 
 	// Use data.style, NOT gItem.style: we have to set only new/updated styles
@@ -1429,13 +1442,13 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 		Object.assign( gItem.imageStyle , data.imageStyle ) ;
 		domKit.css( gItem.$image , data.imageStyle ) ;
 	}
-	
+
 	if ( data.backImageStyle && gItem.$backImage ) {
 		delete data.backImageStyle.position ;	// Forbidden style
 		Object.assign( gItem.backImageStyle , data.backImageStyle ) ;
 		domKit.css( gItem.$backImage , data.backImageStyle ) ;
 	}
-	
+
 	if ( data.maskStyle && gItem.$mask ) {
 		delete data.maskStyle.position ;	// Forbidden style
 		Object.assign( gItem.maskStyle , data.maskStyle ) ;
@@ -1452,76 +1465,8 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 		this.updateUiArea( gItem , data.area ) ;
 	}
 
-	if ( data.ui || data.location ) {
+	if ( gItem.type === 'marker' && ( data.ui || data.location ) ) {
 		this.updateMarkerLocation( gItem , data.ui , data.location ) ;
-	}
-} ;
-
-
-
-Dom.prototype.updateCardObject_copy = function updateCardObject( card , data ) {
-	var contentName , content , $content , statusName , status ;
-
-	if ( data.url ) {
-		card.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
-		delete data.url ;
-	}
-
-	if ( data.backUrl ) {
-		card.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
-		delete data.backUrl ;
-	}
-
-	// Location where to insert it in the DOM,
-	// it needs a callback to ensure that transition effects has correctly happened
-	if ( data.location && card.location !== data.location ) {
-		this.moveGItemToLocation( card , data.location , () => {
-			this.updateCardObject( card , data ) ;
-		} ) ;
-		delete data.location ;
-		return ;
-	}
-
-	if ( data.pose !== undefined ) {
-		if ( typeof data.pose === 'string' ) {
-			card.$wrapper.setAttribute( 'pose' , data.pose ) ;
-			card.pose = data.pose ;
-		}
-		else {
-			card.$wrapper.removeAttribute( 'pose' ) ;
-			card.pose = null ;
-		}
-	}
-
-	if ( data.status ) {
-		for ( statusName in data.status ) {
-			status = data.status[ statusName ] ;
-
-			if ( status ) {
-				card.$wrapper.classList.add( 'status-' + statusName ) ;
-
-				if ( typeof status === 'number' || typeof status === 'string' ) {
-					card.$wrapper.setAttribute( 'status-' + statusName , status ) ;
-				}
-			}
-			else {
-				card.$wrapper.classList.remove( 'status-' + statusName ) ;
-
-				if ( card.$wrapper.hasAttribute( 'status-' + statusName ) ) {
-					card.$wrapper.removeAttribute( 'status-' + statusName ) ;
-				}
-			}
-		}
-	}
-
-	if ( data.style ) {
-		Object.assign( card.style , data.style ) ;
-		domKit.css( card.$wrapper , data.style ) ;
-	}
-
-	if ( data.imageStyle ) {
-		Object.assign( card.imageStyle , data.imageStyle ) ;
-		domKit.css( card.$image , data.imageStyle ) ;
 	}
 } ;
 
@@ -1529,8 +1474,15 @@ Dom.prototype.updateCardObject_copy = function updateCardObject( card , data ) {
 
 // Load/replace the gItem image (data.url)
 Dom.prototype.updateGItemImage = function updateGItemImage( gItem , data ) {
-	
-	if ( data.url.endsWith( '.svg' ) ) {
+	var imageUrl = data.url ;
+	delete data.url ;
+
+	if ( gItem.type === 'card' ) {
+		gItem.$image.style.backgroundImage = 'url("' + this.cleanUrl( imageUrl ) + '")' ;
+		return ;
+	}
+
+	if ( imageUrl.endsWith( '.svg' ) ) {
 		// Always wipe any existing $image element and pre-create the <svg> tag
 		if ( gItem.$image ) { gItem.$image.remove() ; }
 
@@ -1564,7 +1516,7 @@ Dom.prototype.updateGItemImage = function updateGItemImage( gItem , data ) {
 				break ;
 		}
 
-		svgKit.load( this.cleanUrl( data.url ) , {
+		svgKit.load( this.cleanUrl( imageUrl ) , {
 			removeSvgStyle: true ,
 			//removeSize: true ,
 			//removeIds: true ,
@@ -1597,11 +1549,23 @@ Dom.prototype.updateGItemImage = function updateGItemImage( gItem , data ) {
 			gItem.$image.classList.add( gItem.type ) ;
 		}
 
-		gItem.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
+		gItem.$image.setAttribute( 'src' , this.cleanUrl( imageUrl ) ) ;
 	}
-	
+
 	if ( gItem.type !== 'marker' ) {
 		gItem.$wrapper.append( gItem.$image ) ;
+	}
+} ;
+
+
+
+// Load/replace the gItem backImage (data.backUrl)
+Dom.prototype.updateGItemBackImage = function updateGItemBackImage( gItem , data ) {
+	var imageUrl = data.backUrl ;
+	delete data.backUrl ;
+
+	if ( gItem.type === 'card' ) {
+		gItem.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( imageUrl ) + '")' ;
 	}
 } ;
 
@@ -1630,8 +1594,78 @@ Dom.prototype.updateGItemMask = function updateGItemMask( gItem , data ) {
 
 		gItem.$wrapper.append( gItem.$mask ) ;
 	}
+
+	delete data.maskUrl ;
 } ;
 
+
+
+// Update content (data.content), card-only
+Dom.prototype.updateGItemContent = function updateGItemContent( gItem , data ) {
+	var content , $content ;
+
+	if ( gItem.type !== 'card' ) { return ; }
+
+	for ( let contentName in data.content ) {
+		content = data.content[ contentName ] ;
+		$content = gItem.contents[ contentName ] ;
+
+		if ( ! $content ) {
+			$content = gItem.contents[ contentName ] = document.createElement( 'div' ) ;
+			$content.classList.add( 'content-' + contentName ) ;
+			gItem.$front.append( $content ) ;
+		}
+
+		$content.textContent = content ;
+		$content.setAttribute( 'content' , content ) ;
+	}
+
+	delete data.content ;
+} ;
+
+
+
+// Update pose (data.pose)
+Dom.prototype.updateGItemPose = function updateGItemPose( gItem , data ) {
+	if ( typeof data.pose === 'string' ) {
+		gItem.$wrapper.setAttribute( 'pose' , data.pose ) ;
+		gItem.pose = data.pose ;
+	}
+	else {
+		gItem.$wrapper.removeAttribute( 'pose' ) ;
+		gItem.pose = null ;
+	}
+
+	delete data.pose ;
+} ;
+
+
+
+// Update status (data.status)
+Dom.prototype.updateGItemStatus = function updateGItemStatus( gItem , data ) {
+	var status , statusName ;
+
+	for ( statusName in data.status ) {
+		status = data.status[ statusName ] ;
+
+		if ( status ) {
+			gItem.$wrapper.classList.add( 'status-' + statusName ) ;
+
+			if ( typeof status === 'number' || typeof status === 'string' ) {
+				gItem.$wrapper.setAttribute( 'status-' + statusName , status ) ;
+			}
+		}
+		else {
+			gItem.$wrapper.classList.remove( 'status-' + statusName ) ;
+
+			if ( gItem.$wrapper.hasAttribute( 'status-' + statusName ) ) {
+				gItem.$wrapper.removeAttribute( 'status-' + statusName ) ;
+			}
+		}
+	}
+
+	delete data.status ;
+} ;
 
 
 // /!\ DEPRECATED /!\
@@ -1654,29 +1688,183 @@ Dom.prototype.updateGItemAction = function updateGItemAction( gItem , data ) {
 	}
 
 	gItem.action = data.action || null ;
+
+	delete data.action ;
 } ;
 
 
 
-// Update content (data.content), card-only
-Dom.prototype.updateGItemContent = function updateGItemContent( gItem , data ) {
-	var contentName ;
-	
-	for ( contentName in data.content ) {
-		content = data.content[ contentName ] ;
-		$content = gItem.contents[ contentName ] ;
+Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data , callback ) {
+	var locationName = data.location ;
+	delete data.location ;
 
-		if ( ! $content ) {
-			$content = gItem.contents[ contentName ] = document.createElement( 'div' ) ;
-			$content.classList.add( 'content-' + contentName ) ;
-			gItem.$front.append( $content ) ;
-		}
+	if ( gItem.location === locationName ) { return ; }
 
-		$content.textContent = content ;
-		$content.setAttribute( 'content' , content ) ;
+	var $location , $oldLocation , oldLocationName , $slot , $oldSlot , direction , oldDirection ,
+		siblingGItems , siblingSlotRectsBefore , siblingSlotRectsAfter ,
+		slotSize , slotBbox , oldSlotBbox ;
+
+	// Timeout value used to enable FLIP transition
+	var flipTimeout = 10 ;
+
+	if ( gItem.location === locationName ) { callback() ; return ; }
+
+	$location = this.uiLocations[ locationName ] ;
+	$oldSlot = gItem.$locationSlot ;
+
+	if ( gItem.location ) {
+		oldLocationName = gItem.location ;
+		$oldLocation = this.uiLocations[ gItem.location ] ;
 	}
 
-	delete data.content ;
+	if ( ! $location ) {
+		$location = this.uiLocations[ locationName ] = document.createElement( 'div' ) ;
+		$location.classList.add( 'g-item-location' ) ;
+		$location.classList.add( 'g-item-location-' + locationName ) ;
+		this.$gfx.append( $location ) ;
+	}
+
+	if ( ! $oldSlot ) {
+		// Chrome requires it to be rendered for computed styles to work, otherwise:
+		// “brace yourself, the NaN are coming!”
+		this.$gfx.append( gItem.$wrapper ) ;
+	}
+
+	// Computed styles
+	var gItemComputedStyle = window.getComputedStyle( gItem.$wrapper ) ;
+	var locationComputedStyle = window.getComputedStyle( $location ) ;
+
+	// GItem size
+	var gItemWidth = parseFloat( gItemComputedStyle.width ) ;
+	var gItemHeight = parseFloat( gItemComputedStyle.height ) ;
+
+	gItem.location = locationName ;
+	$slot = gItem.$locationSlot = document.createElement( 'div' ) ;
+	$slot.classList.add( 'g-item-slot' ) ;
+	$slot.style.order = gItem.order ;
+	//$slot.style.zIndex = gItem.order ;	// Not needed, rendering preserve ordering, not DOM precedence, so it's ok
+
+	// Before appending, save all rects of existing sibling slots
+	siblingGItems = [ ... Object.values( this.cards ) , ... Object.values( this.sprites ) ]
+		.filter( e => e !== gItem && ( e.location === locationName || e.location === oldLocationName ) ) ;
+
+	siblingSlotRectsBefore = siblingGItems.map( e => e.$locationSlot.getBoundingClientRect() ) ;
+
+
+	// We should preserve the :last-child pseudo selector, since there isn't any :last-ordered-child for flex-box...
+	if ( $location.lastChild && parseFloat( $location.lastChild.style.order ) > gItem.order ) {
+		// The last item has a greater order, so we prepend instead
+		$location.prepend( $slot ) ;
+	}
+	else {
+		$location.append( $slot ) ;
+	}
+
+	if ( $oldSlot ) {
+		oldSlotBbox = $oldSlot.getBoundingClientRect() ;
+		$oldSlot.remove() ;
+	}
+
+
+	// Get slots rects after
+	siblingSlotRectsAfter = siblingGItems.map( e => e.$locationSlot.getBoundingClientRect() ) ;
+
+	// Immediately compute the translation delta and the FLIP for siblings
+	siblingGItems.forEach( ( siblingGItem , index ) => {
+		var beforeRect = siblingSlotRectsBefore[ index ] ,
+			afterRect = siblingSlotRectsAfter[ index ] ;
+
+		var transitionStr = siblingGItem.$wrapper.style.transition ;
+		var transformStr = siblingGItem.$wrapper.style.transform ;
+
+		// Get the local transform, and patch it!
+		var transformDelta = Object.assign( {} , siblingGItem.localTransform ) ;
+		transformDelta.translateX += beforeRect.left - afterRect.left ;
+		transformDelta.translateY += beforeRect.top - beforeRect.top ;
+
+		// First, disable transitions, so the transform will apply now!
+		siblingGItem.$wrapper.style.transition = 'none' ;
+		siblingGItem.$wrapper.style.transform = domKit.stringifyTransform( transformDelta ) ;
+
+		setTimeout( () => {
+			// Re-enable transitions, restore the transform value
+			siblingGItem.$wrapper.style.transition = transitionStr ;
+			siblingGItem.$wrapper.style.transform = transformStr ;
+		} , flipTimeout ) ;
+	} ) ;
+
+
+	var targetTransform = { translateX: 0 , translateY: 0 } ;
+
+	// Scale transform
+	switch ( locationComputedStyle.flexDirection ) {
+		case 'row' :
+		case 'row-reverse' :
+			slotSize = parseFloat( locationComputedStyle.height ) ;
+			targetTransform.scaleX = targetTransform.scaleY = slotSize / gItemHeight ;
+			break ;
+		case 'column' :
+		case 'column-reverse' :
+			slotSize = parseFloat( locationComputedStyle.width ) ;
+			targetTransform.scaleX = targetTransform.scaleY = slotSize / gItemWidth ;
+			break ;
+		default :
+			slotSize = parseFloat( locationComputedStyle.height ) ;
+			targetTransform.scaleX = targetTransform.scaleY = slotSize / gItemHeight ;
+			console.warn( 'flex-direction' , locationComputedStyle.flexDirection ) ;
+	}
+
+	// Translation compensation due to scaling, since the origin is in the middle
+	targetTransform.translateX -= ( gItemWidth - gItemWidth * targetTransform.scaleX ) / 2 ;
+	targetTransform.translateY -= ( gItemHeight - gItemHeight * targetTransform.scaleY ) / 2 ;
+
+	var localTransform = gItem.localTransform ;
+	gItem.localTransform = targetTransform ;
+
+
+	// If there is no older position, then just put the gItem on its slot immediately
+	if ( ! $oldSlot ) {
+		gItem.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
+		$slot.append( gItem.$wrapper ) ;
+		callback() ;
+		return ;
+	}
+
+
+	// Computed styles
+	var oldLocationComputedStyle = window.getComputedStyle( $oldLocation ) ;
+
+	// Old location direction
+	switch ( oldLocationComputedStyle.flexDirection ) {
+		case 'column' :
+		case 'column-reverse' :
+			oldDirection = 'column' ;
+			break ;
+		default :
+			oldDirection = 'row' ;
+	}
+
+	// Compute the FLIP (First Last Invert Play)
+	slotBbox = $slot.getBoundingClientRect() ;
+	//console.warn( 'bboxes' , slotBbox ,  oldSlotBbox ) ;
+
+	// Old/new difference
+	var sourceTransform = {
+		translateX: oldSlotBbox.left + localTransform.translateX - slotBbox.left ,
+		translateY: oldSlotBbox.top + localTransform.translateY - slotBbox.top ,
+		scaleX: localTransform.scaleX ,
+		scaleY: localTransform.scaleY
+	} ;
+
+	gItem.$wrapper.style.transform = domKit.stringifyTransform( sourceTransform ) ;
+	$slot.append( gItem.$wrapper ) ;
+
+	// Do not initiate the new transform value in the same synchronous flow,
+	// it would not animate anything
+	setTimeout( () => {
+		gItem.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
+		callback() ;
+	} , flipTimeout ) ;
 } ;
 
 
@@ -1716,7 +1904,7 @@ Dom.prototype.updateCardObject = function updateCardObject( card , data ) {
 	// Location where to insert it in the DOM,
 	// it needs a callback to ensure that transition effects has correctly happened
 	if ( data.location && card.location !== data.location ) {
-		this.moveGItemToLocation( card , data.location , () => {
+		this.moveGItemToLocation( card , data , () => {
 			this.updateCardObject( card , data ) ;
 		} ) ;
 		delete data.location ;
@@ -1931,173 +2119,6 @@ Dom.prototype.createGItemLocation = function createGItemLocation( locationName )
 
 
 
-Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , locationName , callback ) {
-	var $location , $oldLocation , oldLocationName , $slot , $oldSlot , direction , oldDirection ,
-		siblingGItems , siblingSlotRectsBefore , siblingSlotRectsAfter ,
-		slotSize , slotBbox , oldSlotBbox ;
-
-	// Timeout value used to enable FLIP transition
-	var flipTimeout = 10 ;
-
-	if ( gItem.location === locationName ) { callback() ; return ; }
-
-	$location = this.uiLocations[ locationName ] ;
-	$oldSlot = gItem.$locationSlot ;
-
-	if ( gItem.location ) {
-		oldLocationName = gItem.location ;
-		$oldLocation = this.uiLocations[ gItem.location ] ;
-	}
-
-	if ( ! $location ) {
-		$location = this.uiLocations[ locationName ] = document.createElement( 'div' ) ;
-		$location.classList.add( 'g-item-location' ) ;
-		$location.classList.add( 'g-item-location-' + locationName ) ;
-		this.$gfx.append( $location ) ;
-	}
-
-	if ( ! $oldSlot ) {
-		// Chrome requires it to be rendered for computed styles to work, otherwise:
-		// “brace yourself, the NaN are coming!”
-		this.$gfx.append( gItem.$wrapper ) ;
-	}
-
-	// Computed styles
-	var gItemComputedStyle = window.getComputedStyle( gItem.$wrapper ) ;
-	var locationComputedStyle = window.getComputedStyle( $location ) ;
-
-	// GItem size
-	var gItemWidth = parseFloat( gItemComputedStyle.width ) ;
-	var gItemHeight = parseFloat( gItemComputedStyle.height ) ;
-
-	gItem.location = locationName ;
-	$slot = gItem.$locationSlot = document.createElement( 'div' ) ;
-	$slot.classList.add( 'g-item-slot' ) ;
-	$slot.style.order = gItem.order ;
-	//$slot.style.zIndex = gItem.order ;	// Not needed, rendering preserve ordering, not DOM precedence, so it's ok
-
-	// Before appending, save all rects of existing sibling slots
-	siblingGItems = [ ... Object.values( this.cards ) , ... Object.values( this.sprites ) ]
-		.filter( e => e !== gItem && ( e.location === locationName || e.location === oldLocationName ) ) ;
-
-	siblingSlotRectsBefore = siblingGItems.map( e => e.$locationSlot.getBoundingClientRect() ) ;
-
-
-	// We should preserve the :last-child pseudo selector, since there isn't any :last-ordered-child for flex-box...
-	if ( $location.lastChild && parseFloat( $location.lastChild.style.order ) > gItem.order ) {
-		// The last item has a greater order, so we prepend instead
-		$location.prepend( $slot ) ;
-	}
-	else {
-		$location.append( $slot ) ;
-	}
-
-	if ( $oldSlot ) {
-		oldSlotBbox = $oldSlot.getBoundingClientRect() ;
-		$oldSlot.remove() ;
-	}
-
-
-	// Get slots rects after
-	siblingSlotRectsAfter = siblingGItems.map( e => e.$locationSlot.getBoundingClientRect() ) ;
-
-	// Immediately compute the translation delta and the FLIP for siblings
-	siblingGItems.forEach( ( siblingGItem , index ) => {
-		var beforeRect = siblingSlotRectsBefore[ index ] ,
-			afterRect = siblingSlotRectsAfter[ index ] ;
-
-		var transitionStr = siblingGItem.$wrapper.style.transition ;
-		var transformStr = siblingGItem.$wrapper.style.transform ;
-
-		// Get the local transform, and patch it!
-		var transformDelta = Object.assign( {} , siblingGItem.localTransform ) ;
-		transformDelta.translateX += beforeRect.left - afterRect.left ;
-		transformDelta.translateY += beforeRect.top - beforeRect.top ;
-
-		// First, disable transitions, so the transform will apply now!
-		siblingGItem.$wrapper.style.transition = 'none' ;
-		siblingGItem.$wrapper.style.transform = domKit.stringifyTransform( transformDelta ) ;
-
-		setTimeout( () => {
-			// Re-enable transitions, restore the transform value
-			siblingGItem.$wrapper.style.transition = transitionStr ;
-			siblingGItem.$wrapper.style.transform = transformStr ;
-		} , flipTimeout ) ;
-	} ) ;
-
-
-	var targetTransform = { translateX: 0 , translateY: 0 } ;
-
-	// Scale transform
-	switch ( locationComputedStyle.flexDirection ) {
-		case 'row' :
-		case 'row-reverse' :
-			slotSize = parseFloat( locationComputedStyle.height ) ;
-			targetTransform.scaleX = targetTransform.scaleY = slotSize / gItemHeight ;
-			break ;
-		case 'column' :
-		case 'column-reverse' :
-			slotSize = parseFloat( locationComputedStyle.width ) ;
-			targetTransform.scaleX = targetTransform.scaleY = slotSize / gItemWidth ;
-			break ;
-		default :
-			slotSize = parseFloat( locationComputedStyle.height ) ;
-			targetTransform.scaleX = targetTransform.scaleY = slotSize / gItemHeight ;
-			console.warn( 'flex-direction' , locationComputedStyle.flexDirection ) ;
-	}
-
-	// Translation compensation due to scaling, since the origin is in the middle
-	targetTransform.translateX -= ( gItemWidth - gItemWidth * targetTransform.scaleX ) / 2 ;
-	targetTransform.translateY -= ( gItemHeight - gItemHeight * targetTransform.scaleY ) / 2 ;
-
-	var localTransform = gItem.localTransform ;
-	gItem.localTransform = targetTransform ;
-
-
-	// If there is no older position, then just put the gItem on its slot immediately
-	if ( ! $oldSlot ) {
-		gItem.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
-		$slot.append( gItem.$wrapper ) ;
-		callback() ;
-		return ;
-	}
-
-
-	// Computed styles
-	var oldLocationComputedStyle = window.getComputedStyle( $oldLocation ) ;
-
-	// Old location direction
-	switch ( oldLocationComputedStyle.flexDirection ) {
-		case 'column' :
-		case 'column-reverse' :
-			oldDirection = 'column' ;
-			break ;
-		default :
-			oldDirection = 'row' ;
-	}
-
-	// Compute the FLIP (First Last Invert Play)
-	slotBbox = $slot.getBoundingClientRect() ;
-	//console.warn( 'bboxes' , slotBbox ,  oldSlotBbox ) ;
-
-	// Old/new difference
-	var sourceTransform = {
-		translateX: oldSlotBbox.left + localTransform.translateX - slotBbox.left ,
-		translateY: oldSlotBbox.top + localTransform.translateY - slotBbox.top ,
-		scaleX: localTransform.scaleX ,
-		scaleY: localTransform.scaleY
-	} ;
-
-	gItem.$wrapper.style.transform = domKit.stringifyTransform( sourceTransform ) ;
-	$slot.append( gItem.$wrapper ) ;
-
-	// Do not initiate the new transform value in the same synchronous flow,
-	// it would not animate anything
-	setTimeout( () => {
-		gItem.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
-		callback() ;
-	} , flipTimeout ) ;
-} ;
 
 
 
