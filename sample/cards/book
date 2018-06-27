@@ -41,6 +41,8 @@
 		[next face-up] $> face up
 		[next spin-face-up] $> spin face up
 		[next wheel-face-up] $> wheel face up
+		[next-group-break]
+		[next main-area] $> main area
 		
 	[scene next-card]
 		[set $local.index] $= ( ( $cards.indexOf -> $card ) + 1 ) % $cards.length
@@ -48,6 +50,13 @@
 		
 		[goto choice]
 		
+	[scene main-area]
+		
+		[update-card $card]
+			location: null
+		
+		[goto choice]
+	
 	[scene face-down-in-hand]
 		
 		[update-card $card]

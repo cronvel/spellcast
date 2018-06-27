@@ -76,7 +76,7 @@ function Dom() {
 	this.uis = {} ;
 	this.markers = {} ;
 	this.cards = {} ;
-	this.uiLocations = {} ;
+	this.gItemLocations = {} ;
 	this.animations = {} ;
 
 	this.hintTimer = null ;
@@ -1195,6 +1195,7 @@ Dom.prototype.showSprite = function showSprite( id , data ) {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'sprite' ,
+		location: null ,
 		class: data.class ,
 		style: {} ,
 		animation: null
@@ -1270,7 +1271,7 @@ Dom.prototype.showCard = function showCard( id , data ) {
 
 	this.createCardMarkup( card ) ;
 
-	this.updateCardObject( card , data ) ;
+	this.updateGItem( card , data ) ;
 } ;
 
 
@@ -1314,7 +1315,7 @@ Dom.prototype.updateCard = function updateCard( id , data ) {
 		return ;
 	}
 
-	this.updateCardObject( this.cards[ id ] , data ) ;
+	this.updateGItem( this.cards[ id ] , data ) ;
 } ;
 
 
@@ -1414,10 +1415,12 @@ Dom.prototype.clearGItem = function clearGItem( gItem ) {
 Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 	// The order matters
 	if ( data.url ) { this.updateGItemImage( gItem , data ) ; }
+	if ( data.backUrl ) { this.updateGItemBackImage( gItem , data ) ; }
 	if ( data.maskUrl ) { this.updateGItemMask( gItem , data ) ; }
 	if ( data.content ) { this.updateGItemContent( gItem , data ) ; }
-
-	if ( data.location && gItem.type !== 'marker' ) {
+	
+	console.warn( "update" ) ;
+	if ( data.location !== undefined && gItem.type !== 'marker' ) {
 		// It needs a callback to ensure that transition effects have correctly happened
 		// /!\ Once async/await will be supported in most browser, we would rewrite this
 		// This would avoid all delete data.thing in previous methods
@@ -1694,12 +1697,15 @@ Dom.prototype.updateGItemAction = function updateGItemAction( gItem , data ) {
 
 
 
+// Move to a location and perform a FLIP (First Last Invert Play)
 Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data , callback ) {
+	console.warn( "bob?" ) ;
 	var locationName = data.location ;
 	delete data.location ;
 
-	if ( gItem.location === locationName ) { return ; }
+	if ( gItem.location === locationName ) { callback() ; return ; }
 
+	console.warn( "bob?" ) ;
 	var $location , $oldLocation , oldLocationName , $slot , $oldSlot , direction , oldDirection ,
 		siblingGItems , siblingSlotRectsBefore , siblingSlotRectsAfter ,
 		slotSize , slotBbox , oldSlotBbox ;
@@ -1707,30 +1713,22 @@ Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data ,
 	// Timeout value used to enable FLIP transition
 	var flipTimeout = 10 ;
 
-	if ( gItem.location === locationName ) { callback() ; return ; }
-
-	$location = this.uiLocations[ locationName ] ;
-	$oldSlot = gItem.$locationSlot ;
-
-	if ( gItem.location ) {
-		oldLocationName = gItem.location ;
-		$oldLocation = this.uiLocations[ gItem.location ] ;
-	}
-
+	oldLocationName = gItem.location ;
+	$oldLocation = oldLocationName ? this.gItemLocations[ oldLocationName ] : this.$gfx ;
+	$oldSlot = gItem.$locationSlot || this.$gfx ;
+	gItem.location = locationName ;
+	
+	$location = locationName ? this.gItemLocations[ locationName ] : this.$gfx ;
+	
 	if ( ! $location ) {
-		$location = this.uiLocations[ locationName ] = document.createElement( 'div' ) ;
+		// Create the location if it doesn't exist
+		$location = this.gItemLocations[ locationName ] = document.createElement( 'div' ) ;
 		$location.classList.add( 'g-item-location' ) ;
 		$location.classList.add( 'g-item-location-' + locationName ) ;
 		this.$gfx.append( $location ) ;
 	}
 
-	if ( ! $oldSlot ) {
-		// Chrome requires it to be rendered for computed styles to work, otherwise:
-		// “brace yourself, the NaN are coming!”
-		this.$gfx.append( gItem.$wrapper ) ;
-	}
-
-	// Computed styles
+	// Save computed styles now
 	var gItemComputedStyle = window.getComputedStyle( gItem.$wrapper ) ;
 	var locationComputedStyle = window.getComputedStyle( $location ) ;
 
@@ -1738,32 +1736,40 @@ Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data ,
 	var gItemWidth = parseFloat( gItemComputedStyle.width ) ;
 	var gItemHeight = parseFloat( gItemComputedStyle.height ) ;
 
-	gItem.location = locationName ;
-	$slot = gItem.$locationSlot = document.createElement( 'div' ) ;
-	$slot.classList.add( 'g-item-slot' ) ;
-	$slot.style.order = gItem.order ;
-	//$slot.style.zIndex = gItem.order ;	// Not needed, rendering preserve ordering, not DOM precedence, so it's ok
+	if ( $location === this.$gfx ) {
+		$slot = this.$gfx ;
+	}
+	else {
+		$slot = gItem.$locationSlot = document.createElement( 'div' ) ;
+		$slot.classList.add( 'g-item-slot' ) ;
+		$slot.style.order = gItem.order ;
+		//$slot.style.zIndex = gItem.order ;	// Not needed, rendering preserve ordering, not DOM precedence, so it's ok
+	}
 
 	// Before appending, save all rects of existing sibling slots
 	siblingGItems = [ ... Object.values( this.cards ) , ... Object.values( this.sprites ) ]
-		.filter( e => e !== gItem && ( e.location === locationName || e.location === oldLocationName ) ) ;
+		.filter( e => e !== gItem && e.location && ( e.location === locationName || e.location === oldLocationName ) ) ;
 
 	siblingSlotRectsBefore = siblingGItems.map( e => e.$locationSlot.getBoundingClientRect() ) ;
 
 
-	// We should preserve the :last-child pseudo selector, since there isn't any :last-ordered-child for flex-box...
-	if ( $location.lastChild && parseFloat( $location.lastChild.style.order ) > gItem.order ) {
-		// The last item has a greater order, so we prepend instead
-		$location.prepend( $slot ) ;
-	}
-	else {
-		$location.append( $slot ) ;
+	// Insert the slot, if it's not $gfx
+	if ( $slot !== this.$gfx ) {
+		// We should preserve the :last-child pseudo selector, since there isn't any :last-ordered-child for flex-box...
+		if ( $location.lastChild && parseFloat( $location.lastChild.style.order ) > gItem.order ) {
+			// The last item has a greater order, so we prepend instead
+			$location.prepend( $slot ) ;
+		}
+		else {
+			$location.append( $slot ) ;
+		}
 	}
 
-	if ( $oldSlot ) {
-		oldSlotBbox = $oldSlot.getBoundingClientRect() ;
-		$oldSlot.remove() ;
-	}
+	// Save the old slot BBox
+	oldSlotBbox = $oldSlot.getBoundingClientRect() ;
+	
+	// Remove that slot now
+	if ( $oldSlot !== this.$gfx ) { $oldSlot.remove() ; }
 
 
 	// Get slots rects after
@@ -1821,9 +1827,8 @@ Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data ,
 	var localTransform = gItem.localTransform ;
 	gItem.localTransform = targetTransform ;
 
-
-	// If there is no older position, then just put the gItem on its slot immediately
-	if ( ! $oldSlot ) {
+	// If this is not a true slot, then just put the gItem on this slot immediately
+	if ( $oldSlot === this.$gfx ) {
 		gItem.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
 		$slot.append( gItem.$wrapper ) ;
 		callback() ;
@@ -1865,93 +1870,6 @@ Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data ,
 		gItem.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
 		callback() ;
 	} , flipTimeout ) ;
-} ;
-
-
-
-// ------------- MUST BE REMOVED ONCED REFACTORED ----------------------------------------------------------------
-Dom.prototype.updateCardObject = function updateCardObject( card , data ) {
-	var contentName , content , $content , statusName , status ;
-
-	if ( data.url ) {
-		card.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
-		delete data.url ;
-	}
-
-	if ( data.backUrl ) {
-		card.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
-		delete data.backUrl ;
-	}
-
-	if ( data.content ) {
-		for ( contentName in data.content ) {
-			content = data.content[ contentName ] ;
-			$content = card.contents[ contentName ] ;
-
-			if ( ! $content ) {
-				$content = card.contents[ contentName ] = document.createElement( 'div' ) ;
-				$content.classList.add( 'content-' + contentName ) ;
-				card.$front.append( $content ) ;
-			}
-
-			$content.textContent = content ;
-			$content.setAttribute( 'content' , content ) ;
-		}
-
-		delete data.content ;
-	}
-
-	// Location where to insert it in the DOM,
-	// it needs a callback to ensure that transition effects has correctly happened
-	if ( data.location && card.location !== data.location ) {
-		this.moveGItemToLocation( card , data , () => {
-			this.updateCardObject( card , data ) ;
-		} ) ;
-		delete data.location ;
-		return ;
-	}
-
-	if ( data.pose !== undefined ) {
-		if ( typeof data.pose === 'string' ) {
-			card.$wrapper.setAttribute( 'pose' , data.pose ) ;
-			card.pose = data.pose ;
-		}
-		else {
-			card.$wrapper.removeAttribute( 'pose' ) ;
-			card.pose = null ;
-		}
-	}
-
-	if ( data.status ) {
-		for ( statusName in data.status ) {
-			status = data.status[ statusName ] ;
-
-			if ( status ) {
-				card.$wrapper.classList.add( 'status-' + statusName ) ;
-
-				if ( typeof status === 'number' || typeof status === 'string' ) {
-					card.$wrapper.setAttribute( 'status-' + statusName , status ) ;
-				}
-			}
-			else {
-				card.$wrapper.classList.remove( 'status-' + statusName ) ;
-
-				if ( card.$wrapper.hasAttribute( 'status-' + statusName ) ) {
-					card.$wrapper.removeAttribute( 'status-' + statusName ) ;
-				}
-			}
-		}
-	}
-
-	if ( data.style ) {
-		Object.assign( card.style , data.style ) ;
-		domKit.css( card.$wrapper , data.style ) ;
-	}
-
-	if ( data.imageStyle ) {
-		Object.assign( card.imageStyle , data.imageStyle ) ;
-		domKit.css( card.$image , data.imageStyle ) ;
-	}
 } ;
 
 
@@ -2109,9 +2027,9 @@ Dom.prototype.createCardMarkup = function createCardMarkup( card ) {
 Dom.prototype.createGItemLocation = function createGItemLocation( locationName ) {
 	var $location ;
 
-	if ( this.uiLocations[ locationName ] ) { return ; }
+	if ( this.gItemLocations[ locationName ] ) { return ; }
 
-	$location = this.uiLocations[ locationName ] = document.createElement( 'div' ) ;
+	$location = this.gItemLocations[ locationName ] = document.createElement( 'div' ) ;
 	$location.classList.add( 'g-item-location' ) ;
 	$location.classList.add( 'g-item-location-' + locationName ) ;
 	this.$gfx.append( $location ) ;
