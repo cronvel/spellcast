@@ -1412,98 +1412,204 @@ Dom.prototype.clearGItem = function clearGItem( gItem ) {
 
 
 Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
-	var $element ;
+	// The order matters
+	if ( data.url ) { this.updateGItemImage( gItem , data ) ; }
+	if ( data.maskUrl ) { this.updateGItemMask( gItem , data ) ; }
+	if ( data.action !== undefined ) { this.updateGItemAction( gItem , data ) ; }
 
-	if ( ! data.style || typeof data.style !== 'object' ) { data.style = {} ; }
-
-	// Forbidden styles:
-	delete data.style.position ;
-
-	// Load/replace the gItem image, if needed
-	if ( data.url ) {
-		if ( data.url.endsWith( '.svg' ) ) {
-			// Always wipe any existing $image element and pre-create the <svg> tag
-			if ( gItem.$image ) { gItem.$image.remove() ; }
-
-			if ( gItem.type === 'marker' ) {
-				// If it's a marker, load it inside a <g> tag, that will be part of the main UI's <svg>
-				// <svg> inside <svg> are great, but Chrome sucks at it (it does not support CSS transform, etc)
-				gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'g' ) ;
-			}
-			else {
-				gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
-				gItem.$image.classList.add( 'svg' ) ;
-			}
-
-			switch ( gItem.type ) {
-				case 'ui' :
-					// Stop event propagation
-					gItem.onClick = ( event ) => {
-						//gItem.actionCallback( gItem.action ) ;
-						event.stopPropagation() ;
-					} ;
-
-					gItem.$image.addEventListener( 'click' , gItem.onClick ) ;
-					gItem.$image.classList.add( 'ui' ) ;
-					this.uiLoadingCount ++ ;
-					break ;
-				case 'sprite' :
-					gItem.$image.classList.add( 'sprite' ) ;
-					break ;
-				case 'marker' :
-					gItem.$image.classList.add( 'marker' ) ;
-					break ;
-			}
-
-			svgKit.load( this.cleanUrl( data.url ) , {
-				removeSvgStyle: true ,
-				//removeSize: true ,
-				//removeIds: true ,
-				removeComments: true ,
-				removeExoticNamespaces: true ,
-				//removeDefaultStyles: true ,
-				as: gItem.$image
-			} , () => {
-
-				if ( gItem.type === 'ui' ) {
-					this.setUiButtons( gItem.$image ) ;
-					this.setUiPassiveHints( gItem.$image ) ;
-					gItem.emit( 'loaded' ) ;
-					if ( -- this.uiLoadingCount <= 0 ) { this.emit( 'uiLoaded' ) ; }
-				}
-				else {
-					gItem.emit( 'loaded' ) ;
-				}
-			} ) ;
-
-			gItem.emit( 'loading' ) ;
-		}
-		else {
-			if ( ! gItem.$image || gItem.$image.tagName.toLowerCase() !== 'img' ) {
-				if ( gItem.$image ) { gItem.$image.remove() ; }
-
-				gItem.$image = document.createElement( 'img' ) ;
-
-				// /!\ support UI that are not SVG??? /!\
-				gItem.$image.classList.add( gItem.type ) ;
-			}
-
-			gItem.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
-		}
-		
-		if ( gItem.type !== 'marker' ) {
-			gItem.$wrapper.append( gItem.$image ) ;
-		}
-		
-		/*
-		if ( gItem.type !== 'marker' ) {
-			this.$gfx.append( gItem.$image ) ;
-		}
-		*/
+	// Use data.style, NOT gItem.style: we have to set only new/updated styles
+	if ( data.style && gItem.$wrapper ) {
+		delete data.style.position ;	// Forbidden style
+		Object.assign( gItem.style , data.style ) ;
+		domKit.css( gItem.$wrapper , data.style ) ;
 	}
 
-	// Load/replace the sprite/ui mask, if needed
-	if ( data.maskUrl && data.maskUrl.endsWith( '.svg' ) && gItem.type === 'sprite' ) {
+	if ( data.imageStyle && gItem.$image ) {
+		delete data.imageStyle.position ;	// Forbidden style
+		Object.assign( gItem.imageStyle , data.imageStyle ) ;
+		domKit.css( gItem.$image , data.imageStyle ) ;
+	}
+	
+	if ( data.backImageStyle && gItem.$backImage ) {
+		delete data.backImageStyle.position ;	// Forbidden style
+		Object.assign( gItem.backImageStyle , data.backImageStyle ) ;
+		domKit.css( gItem.$backImage , data.backImageStyle ) ;
+	}
+	
+	if ( data.maskStyle && gItem.$mask ) {
+		delete data.maskStyle.position ;	// Forbidden style
+		Object.assign( gItem.maskStyle , data.maskStyle ) ;
+		domKit.css( gItem.$mask , data.maskStyle ) ;
+	}
+
+	if ( data.class ) {
+		data.class = commonUtils.toClassObject( data.class ) ;
+		Object.assign( gItem.class , data.class ) ;
+		domKit.class( gItem.$wrapper || gItem.$image , data.class , 's-' ) ;
+	}
+
+	if ( data.area ) {
+		this.updateUiArea( gItem , data.area ) ;
+	}
+
+	if ( data.ui || data.location ) {
+		this.updateMarkerLocation( gItem , data.ui , data.location ) ;
+	}
+} ;
+
+
+
+Dom.prototype.updateCardObject_copy = function updateCardObject( card , data ) {
+	var contentName , content , $content , statusName , status ;
+
+	if ( data.url ) {
+		card.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
+		delete data.url ;
+	}
+
+	if ( data.backUrl ) {
+		card.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
+		delete data.backUrl ;
+	}
+
+	// Location where to insert it in the DOM,
+	// it needs a callback to ensure that transition effects has correctly happened
+	if ( data.location && card.location !== data.location ) {
+		this.moveGItemToLocation( card , data.location , () => {
+			this.updateCardObject( card , data ) ;
+		} ) ;
+		delete data.location ;
+		return ;
+	}
+
+	if ( data.pose !== undefined ) {
+		if ( typeof data.pose === 'string' ) {
+			card.$wrapper.setAttribute( 'pose' , data.pose ) ;
+			card.pose = data.pose ;
+		}
+		else {
+			card.$wrapper.removeAttribute( 'pose' ) ;
+			card.pose = null ;
+		}
+	}
+
+	if ( data.status ) {
+		for ( statusName in data.status ) {
+			status = data.status[ statusName ] ;
+
+			if ( status ) {
+				card.$wrapper.classList.add( 'status-' + statusName ) ;
+
+				if ( typeof status === 'number' || typeof status === 'string' ) {
+					card.$wrapper.setAttribute( 'status-' + statusName , status ) ;
+				}
+			}
+			else {
+				card.$wrapper.classList.remove( 'status-' + statusName ) ;
+
+				if ( card.$wrapper.hasAttribute( 'status-' + statusName ) ) {
+					card.$wrapper.removeAttribute( 'status-' + statusName ) ;
+				}
+			}
+		}
+	}
+
+	if ( data.style ) {
+		Object.assign( card.style , data.style ) ;
+		domKit.css( card.$wrapper , data.style ) ;
+	}
+
+	if ( data.imageStyle ) {
+		Object.assign( card.imageStyle , data.imageStyle ) ;
+		domKit.css( card.$image , data.imageStyle ) ;
+	}
+} ;
+
+
+
+// Load/replace the gItem image (data.url)
+Dom.prototype.updateGItemImage = function updateGItemImage( gItem , data ) {
+	
+	if ( data.url.endsWith( '.svg' ) ) {
+		// Always wipe any existing $image element and pre-create the <svg> tag
+		if ( gItem.$image ) { gItem.$image.remove() ; }
+
+		if ( gItem.type === 'marker' ) {
+			// If it's a marker, load it inside a <g> tag, that will be part of the main UI's <svg>
+			// <svg> inside <svg> are great, but Chrome sucks at it (it does not support CSS transform, etc)
+			gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'g' ) ;
+		}
+		else {
+			gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+			gItem.$image.classList.add( 'svg' ) ;
+		}
+
+		switch ( gItem.type ) {
+			case 'ui' :
+				// Stop event propagation
+				gItem.onClick = ( event ) => {
+					//gItem.actionCallback( gItem.action ) ;
+					event.stopPropagation() ;
+				} ;
+
+				gItem.$image.addEventListener( 'click' , gItem.onClick ) ;
+				gItem.$image.classList.add( 'ui' ) ;
+				this.uiLoadingCount ++ ;
+				break ;
+			case 'sprite' :
+				gItem.$image.classList.add( 'sprite' ) ;
+				break ;
+			case 'marker' :
+				gItem.$image.classList.add( 'marker' ) ;
+				break ;
+		}
+
+		svgKit.load( this.cleanUrl( data.url ) , {
+			removeSvgStyle: true ,
+			//removeSize: true ,
+			//removeIds: true ,
+			removeComments: true ,
+			removeExoticNamespaces: true ,
+			//removeDefaultStyles: true ,
+			as: gItem.$image
+		} , () => {
+
+			if ( gItem.type === 'ui' ) {
+				this.setUiButtons( gItem.$image ) ;
+				this.setUiPassiveHints( gItem.$image ) ;
+				gItem.emit( 'loaded' ) ;
+				if ( -- this.uiLoadingCount <= 0 ) { this.emit( 'uiLoaded' ) ; }
+			}
+			else {
+				gItem.emit( 'loaded' ) ;
+			}
+		} ) ;
+
+		gItem.emit( 'loading' ) ;
+	}
+	else {
+		if ( ! gItem.$image || gItem.$image.tagName.toLowerCase() !== 'img' ) {
+			if ( gItem.$image ) { gItem.$image.remove() ; }
+
+			gItem.$image = document.createElement( 'img' ) ;
+
+			// /!\ support UI that are not SVG??? /!\
+			gItem.$image.classList.add( gItem.type ) ;
+		}
+
+		gItem.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
+	}
+	
+	if ( gItem.type !== 'marker' ) {
+		gItem.$wrapper.append( gItem.$image ) ;
+	}
+} ;
+
+
+
+// Load/replace the gItem mask (data.maskUrl)
+Dom.prototype.updateGItemMask = function updateGItemMask( gItem , data ) {
+	if ( data.maskUrl.endsWith( '.svg' ) && gItem.type === 'sprite' ) {
 		console.warn( 'has mask!' ) ;
 
 		// Always wipe any existing $mask element and pre-create the <svg> tag
@@ -1523,65 +1629,140 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 		} ) ;
 
 		gItem.$wrapper.append( gItem.$mask ) ;
-		//this.$gfx.append( gItem.$mask ) ;
+	}
+} ;
+
+
+
+// /!\ DEPRECATED /!\
+// Click action (data.action)
+Dom.prototype.updateGItemAction = function updateGItemAction( gItem , data ) {
+	var $element = gItem.$mask || gItem.$image ;
+
+	if ( data.action && ! gItem.action ) {
+		gItem.onClick = ( event ) => {
+			gItem.actionCallback( gItem.action ) ;
+			event.stopPropagation() ;
+		} ;
+
+		$element.classList.add( 'button' ) ;
+		$element.addEventListener( 'click' , gItem.onClick ) ;
+	}
+	else if ( ! data.action && gItem.action ) {
+		$element.classList.remove( 'button' ) ;
+		$element.removeEventListener( 'click' , gItem.onClick ) ;
 	}
 
-	// /!\ DEPRECATED /!\
-	// Click action
-	if ( data.action !== undefined ) {
-		$element = gItem.$mask || gItem.$image ;
+	gItem.action = data.action || null ;
+} ;
 
-		if ( data.action && ! gItem.action ) {
-			gItem.onClick = ( event ) => {
-				gItem.actionCallback( gItem.action ) ;
-				event.stopPropagation() ;
-			} ;
 
-			$element.classList.add( 'button' ) ;
-			$element.addEventListener( 'click' , gItem.onClick ) ;
-		}
-		else if ( ! data.action && gItem.action ) {
-			$element.classList.remove( 'button' ) ;
-			$element.removeEventListener( 'click' , gItem.onClick ) ;
-		}
 
-		gItem.action = data.action || null ;
-	}
-
-	// Use data.style, NOT gItem.style: we have to set only new/updated styles
-	if ( data.style && gItem.$wrapper ) {
-		Object.assign( gItem.style , data.style ) ;
-		domKit.css( gItem.$wrapper , data.style ) ;
-	}
-
-	if ( data.imageStyle && gItem.$image ) {
-		Object.assign( gItem.imageStyle , data.imageStyle ) ;
-		domKit.css( gItem.$image , data.imageStyle ) ;
-	}
+// Update content (data.content), card-only
+Dom.prototype.updateGItemContent = function updateGItemContent( gItem , data ) {
+	var contentName ;
 	
-	if ( data.backImageStyle && gItem.$backImage ) {
-		Object.assign( gItem.backImageStyle , data.backImageStyle ) ;
-		domKit.css( gItem.$backImage , data.backImageStyle ) ;
-	}
-	
-	if ( data.maskStyle && gItem.$mask ) {
-		Object.assign( gItem.maskStyle , data.maskStyle ) ;
-		domKit.css( gItem.$mask , data.maskStyle ) ;
+	for ( contentName in data.content ) {
+		content = data.content[ contentName ] ;
+		$content = gItem.contents[ contentName ] ;
+
+		if ( ! $content ) {
+			$content = gItem.contents[ contentName ] = document.createElement( 'div' ) ;
+			$content.classList.add( 'content-' + contentName ) ;
+			gItem.$front.append( $content ) ;
+		}
+
+		$content.textContent = content ;
+		$content.setAttribute( 'content' , content ) ;
 	}
 
-	if ( data.class ) {
-		data.class = commonUtils.toClassObject( data.class ) ;
-		console.log( "Data.class" , data.class ) ;
-		Object.assign( gItem.class , data.class ) ;
-		domKit.class( gItem.$wrapper || gItem.$image , data.class , 's-' ) ;
+	delete data.content ;
+} ;
+
+
+
+// ------------- MUST BE REMOVED ONCED REFACTORED ----------------------------------------------------------------
+Dom.prototype.updateCardObject = function updateCardObject( card , data ) {
+	var contentName , content , $content , statusName , status ;
+
+	if ( data.url ) {
+		card.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
+		delete data.url ;
 	}
 
-	if ( data.area ) {
-		this.updateUiArea( gItem , data.area ) ;
+	if ( data.backUrl ) {
+		card.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
+		delete data.backUrl ;
 	}
 
-	if ( data.ui || data.location ) {
-		this.updateMarkerLocation( gItem , data.ui , data.location ) ;
+	if ( data.content ) {
+		for ( contentName in data.content ) {
+			content = data.content[ contentName ] ;
+			$content = card.contents[ contentName ] ;
+
+			if ( ! $content ) {
+				$content = card.contents[ contentName ] = document.createElement( 'div' ) ;
+				$content.classList.add( 'content-' + contentName ) ;
+				card.$front.append( $content ) ;
+			}
+
+			$content.textContent = content ;
+			$content.setAttribute( 'content' , content ) ;
+		}
+
+		delete data.content ;
+	}
+
+	// Location where to insert it in the DOM,
+	// it needs a callback to ensure that transition effects has correctly happened
+	if ( data.location && card.location !== data.location ) {
+		this.moveGItemToLocation( card , data.location , () => {
+			this.updateCardObject( card , data ) ;
+		} ) ;
+		delete data.location ;
+		return ;
+	}
+
+	if ( data.pose !== undefined ) {
+		if ( typeof data.pose === 'string' ) {
+			card.$wrapper.setAttribute( 'pose' , data.pose ) ;
+			card.pose = data.pose ;
+		}
+		else {
+			card.$wrapper.removeAttribute( 'pose' ) ;
+			card.pose = null ;
+		}
+	}
+
+	if ( data.status ) {
+		for ( statusName in data.status ) {
+			status = data.status[ statusName ] ;
+
+			if ( status ) {
+				card.$wrapper.classList.add( 'status-' + statusName ) ;
+
+				if ( typeof status === 'number' || typeof status === 'string' ) {
+					card.$wrapper.setAttribute( 'status-' + statusName , status ) ;
+				}
+			}
+			else {
+				card.$wrapper.classList.remove( 'status-' + statusName ) ;
+
+				if ( card.$wrapper.hasAttribute( 'status-' + statusName ) ) {
+					card.$wrapper.removeAttribute( 'status-' + statusName ) ;
+				}
+			}
+		}
+	}
+
+	if ( data.style ) {
+		Object.assign( card.style , data.style ) ;
+		domKit.css( card.$wrapper , data.style ) ;
+	}
+
+	if ( data.imageStyle ) {
+		Object.assign( card.imageStyle , data.imageStyle ) ;
+		domKit.css( card.$image , data.imageStyle ) ;
 	}
 } ;
 
@@ -1707,92 +1888,6 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 	// Append the <g> tag to the main UI's <svg> now, if needed
 	if ( marker.$image.ownerSVGElement !== ui.$image ) {
 		ui.$image.append( marker.$image ) ;
-	}
-} ;
-
-
-
-Dom.prototype.updateCardObject = function updateCardObject( card , data ) {
-	var contentName , content , $content , statusName , status ;
-
-	if ( data.url ) {
-		card.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
-		delete data.url ;
-	}
-
-	if ( data.backUrl ) {
-		card.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
-		delete data.backUrl ;
-	}
-
-	if ( data.content ) {
-		for ( contentName in data.content ) {
-			content = data.content[ contentName ] ;
-			$content = card.contents[ contentName ] ;
-
-			if ( ! $content ) {
-				$content = card.contents[ contentName ] = document.createElement( 'div' ) ;
-				$content.classList.add( 'content-' + contentName ) ;
-				card.$front.append( $content ) ;
-			}
-
-			$content.textContent = content ;
-			$content.setAttribute( 'content' , content ) ;
-		}
-
-		delete data.content ;
-	}
-
-	// Location where to insert it in the DOM,
-	// it needs a callback to ensure that transition effects has correctly happened
-	if ( data.location && card.location !== data.location ) {
-		this.moveGItemToLocation( card , data.location , () => {
-			this.updateCardObject( card , data ) ;
-		} ) ;
-		delete data.location ;
-		return ;
-	}
-
-	if ( data.pose !== undefined ) {
-		if ( typeof data.pose === 'string' ) {
-			card.$wrapper.setAttribute( 'pose' , data.pose ) ;
-			card.pose = data.pose ;
-		}
-		else {
-			card.$wrapper.removeAttribute( 'pose' ) ;
-			card.pose = null ;
-		}
-	}
-
-	if ( data.status ) {
-		for ( statusName in data.status ) {
-			status = data.status[ statusName ] ;
-
-			if ( status ) {
-				card.$wrapper.classList.add( 'status-' + statusName ) ;
-
-				if ( typeof status === 'number' || typeof status === 'string' ) {
-					card.$wrapper.setAttribute( 'status-' + statusName , status ) ;
-				}
-			}
-			else {
-				card.$wrapper.classList.remove( 'status-' + statusName ) ;
-
-				if ( card.$wrapper.hasAttribute( 'status-' + statusName ) ) {
-					card.$wrapper.removeAttribute( 'status-' + statusName ) ;
-				}
-			}
-		}
-	}
-
-	if ( data.style ) {
-		Object.assign( card.style , data.style ) ;
-		domKit.css( card.$wrapper , data.style ) ;
-	}
-
-	if ( data.imageStyle ) {
-		Object.assign( card.imageStyle , data.imageStyle ) ;
-		domKit.css( card.$image , data.imageStyle ) ;
 	}
 } ;
 
