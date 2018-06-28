@@ -1419,7 +1419,6 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 	if ( data.maskUrl ) { this.updateGItemMask( gItem , data ) ; }
 	if ( data.content ) { this.updateGItemContent( gItem , data ) ; }
 	
-	console.warn( "update" ) ;
 	if ( data.location !== undefined && gItem.type !== 'marker' ) {
 		// It needs a callback to ensure that transition effects have correctly happened
 		// /!\ Once async/await will be supported in most browser, we would rewrite this
@@ -1699,13 +1698,11 @@ Dom.prototype.updateGItemAction = function updateGItemAction( gItem , data ) {
 
 // Move to a location and perform a FLIP (First Last Invert Play)
 Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data , callback ) {
-	console.warn( "bob?" ) ;
 	var locationName = data.location ;
 	delete data.location ;
 
 	if ( gItem.location === locationName ) { callback() ; return ; }
 
-	console.warn( "bob?" ) ;
 	var $location , $oldLocation , oldLocationName , $slot , $oldSlot , direction , oldDirection ,
 		siblingGItems , siblingSlotRectsBefore , siblingSlotRectsAfter ,
 		slotSize , slotBbox , oldSlotBbox ;
@@ -1747,7 +1744,7 @@ Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data ,
 	}
 
 	// Before appending, save all rects of existing sibling slots
-	siblingGItems = [ ... Object.values( this.cards ) , ... Object.values( this.sprites ) ]
+	siblingGItems = [ ... Object.values( this.cards ) , ... Object.values( this.sprites ) , ... Object.values( this.uis ) ]
 		.filter( e => e !== gItem && e.location && ( e.location === locationName || e.location === oldLocationName ) ) ;
 
 	siblingSlotRectsBefore = siblingGItems.map( e => e.$locationSlot.getBoundingClientRect() ) ;
@@ -1999,6 +1996,19 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 
 
 
+Dom.prototype.createGItemLocation = function createGItemLocation( locationName ) {
+	var $location ;
+
+	if ( this.gItemLocations[ locationName ] ) { return ; }
+
+	$location = this.gItemLocations[ locationName ] = document.createElement( 'div' ) ;
+	$location.classList.add( 'g-item-location' ) ;
+	$location.classList.add( 'g-item-location-' + locationName ) ;
+	this.$gfx.append( $location ) ;
+} ;
+
+
+
 Dom.prototype.createCardMarkup = function createCardMarkup( card ) {
 	// .$wrapper is the placeholder, hover effects happen on it
 	card.$card = document.createElement( 'div' ) ;
@@ -2021,22 +2031,6 @@ Dom.prototype.createCardMarkup = function createCardMarkup( card ) {
 	card.$backImage.classList.add( 'card-image' ) ;
 	card.$back.append( card.$backImage ) ;
 } ;
-
-
-
-Dom.prototype.createGItemLocation = function createGItemLocation( locationName ) {
-	var $location ;
-
-	if ( this.gItemLocations[ locationName ] ) { return ; }
-
-	$location = this.gItemLocations[ locationName ] = document.createElement( 'div' ) ;
-	$location.classList.add( 'g-item-location' ) ;
-	$location.classList.add( 'g-item-location-' + locationName ) ;
-	this.$gfx.append( $location ) ;
-} ;
-
-
-
 
 
 
