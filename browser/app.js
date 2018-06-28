@@ -1418,7 +1418,7 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 	if ( data.backUrl ) { this.updateGItemBackImage( gItem , data ) ; }
 	if ( data.maskUrl ) { this.updateGItemMask( gItem , data ) ; }
 	if ( data.content ) { this.updateGItemContent( gItem , data ) ; }
-	
+
 	if ( data.location !== undefined && gItem.type !== 'marker' ) {
 		// It needs a callback to ensure that transition effects have correctly happened
 		// /!\ Once async/await will be supported in most browser, we would rewrite this
@@ -1430,6 +1430,7 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 	if ( data.pose !== undefined ) { this.updateGItemPose( gItem , data ) ; }
 	if ( data.status ) { this.updateGItemStatus( gItem , data ) ; }
 
+	if ( data.button !== undefined ) { this.updateGItemButton( gItem , data ) ; }
 	if ( data.action !== undefined ) { this.updateGItemAction( gItem , data ) ; }
 
 	// Use data.style, NOT gItem.style: we have to set only new/updated styles
@@ -1670,6 +1671,22 @@ Dom.prototype.updateGItemStatus = function updateGItemStatus( gItem , data ) {
 } ;
 
 
+
+// Button ID (data.button)
+Dom.prototype.updateGItemButton = function updateGItemButton( gItem , data ) {
+	var $element = gItem.$mask || gItem.$wrapper ;
+
+	var buttonId = data.button ;
+	
+	$element.setAttribute( 'id' , 'button-' + buttonId ) ;
+	$element.classList.add( 'button' ) ;
+	$element.classList.add( 'disabled' ) ;
+	
+	delete data.button ;
+} ;
+
+
+
 // /!\ DEPRECATED /!\
 // Click action (data.action)
 Dom.prototype.updateGItemAction = function updateGItemAction( gItem , data ) {
@@ -1714,9 +1731,9 @@ Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data ,
 	$oldLocation = oldLocationName ? this.gItemLocations[ oldLocationName ] : this.$gfx ;
 	$oldSlot = gItem.$locationSlot || this.$gfx ;
 	gItem.location = locationName ;
-	
+
 	$location = locationName ? this.gItemLocations[ locationName ] : this.$gfx ;
-	
+
 	if ( ! $location ) {
 		// Create the location if it doesn't exist
 		$location = this.gItemLocations[ locationName ] = document.createElement( 'div' ) ;
@@ -1764,7 +1781,7 @@ Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data ,
 
 	// Save the old slot BBox
 	oldSlotBbox = $oldSlot.getBoundingClientRect() ;
-	
+
 	// Remove that slot now
 	if ( $oldSlot !== this.$gfx ) { $oldSlot.remove() ; }
 
@@ -2076,13 +2093,13 @@ Dom.prototype.defineAnimation = function defineAnimation( id , data ) {
 
 Dom.prototype.setUiButtons = function setUiButtons( $svg ) {
 	Array.from( $svg.querySelectorAll( '[button]' ) ).forEach( ( $element ) => {
-		var buttonName = $element.getAttribute( 'button' ) ;
+		var buttonId = $element.getAttribute( 'button' ) ;
 
-		$element.setAttribute( 'id' , 'button-' + buttonName ) ;
+		$element.setAttribute( 'id' , 'button-' + buttonId ) ;
 
 		if ( ! $element.getAttribute( 'area' ) ) {
-			// Create a default area's name equals to the button's name, if not present
-			$element.setAttribute( 'area' , buttonName ) ;
+			// Create a default area's name equals to the button's ID, if not present
+			$element.setAttribute( 'area' , buttonId ) ;
 		}
 
 		$element.classList.add( 'button' ) ;

@@ -9,7 +9,6 @@
 		[goto new-card]
 		
 	[scene new-card]
-		
 		[set $card] $> card${cards.length}
 		[append $cards] $card
 		
@@ -18,6 +17,7 @@
 			back-url: /textures/card-back.png
 			location: hand
 			pose: face-down
+			button: $> show-card-${cards.length}
 			content:
 				title: $> The Druidess
 				description:
@@ -28,9 +28,8 @@
 		[goto choice]
 		
 	[scene choice]
-		
 		[message] $> Select your animation choice.
-		
+
 		[next-style] table
 		[next new-card] $> new card
 		[next next-card] $> next card
@@ -44,6 +43,10 @@
 		[next-group-break]
 		[next main-area] $> main area
 		
+		[next show-card-1]
+			[label] $> Show card 1
+			[button] show-card-1
+		
 	[scene next-card]
 		[set $local.index] $= ( ( $cards.indexOf -> $card ) + 1 ) % $cards.length
 		[set $card] $cards[$local.index]
@@ -51,14 +54,12 @@
 		[goto choice]
 		
 	[scene main-area]
-		
 		[update-card $card]
 			location: null
 		
 		[goto choice]
 	
 	[scene face-down-in-hand]
-		
 		[update-card $card]
 			location: hand
 			pose: face-down
@@ -66,7 +67,6 @@
 		[goto choice]
 		
 	[scene face-up]
-		
 		[update-card $card]
 			location: showing
 			pose: null
@@ -74,7 +74,6 @@
 		[goto choice]
 	
 	[scene face-up-in-hand]
-		
 		[update-card $card]
 			location: hand
 			pose: null
@@ -82,7 +81,6 @@
 		[goto choice]
 	
 	[scene spin-face-up]
-		
 		[update-card $card]
 			location: showing
 			pose: spin-face-up
@@ -90,10 +88,16 @@
 		[goto choice]
 	
 	[scene wheel-face-up]
-		
 		[update-card $card]
 			location: showing
 			pose: wheel-face-up
+		
+		[goto choice]
+	
+	[scene show-card-1]
+		[update-card $card]
+			location: showing
+			pose: null
 		
 		[goto choice]
 	
