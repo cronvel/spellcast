@@ -78,6 +78,22 @@ body {
 
 
 
+/* G Item */
+
+.g-item-location {
+	display: flex;
+	justify-content: space-around;
+	position: absolute;
+	z-index: 40;
+	pointer-events: none;
+}
+
+.g-item-slot {
+	position: relative; /* So cards will be positioned relative to this div */
+}
+
+
+
 /* Sprite */
 
 .sprite-wrapper {
@@ -85,6 +101,15 @@ body {
 	height: 50%;
 	z-index: 30;
 	transition: all 1s ;
+}
+
+.sprite-wrapper[data-select-index]:not(.has-mask) {
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.sprite-wrapper[data-select-index]:not(.has-mask):hover {
+	filter: drop-shadow(0px 0px 5px red)
 }
 
 .sprite {
@@ -96,15 +121,6 @@ body {
 	opacity: 1;
 	transition: all 1s ;
 	pointer-events: none;
-}
-
-.sprite.button {
-	cursor: pointer;
-	pointer-events: auto;
-}
-
-.sprite.button:hover {
-	filter: drop-shadow(0px 0px 5px red)
 }
 
 .sprite-mask {
@@ -121,12 +137,12 @@ body {
 	pointer-events: none;
 }
 
-.sprite-mask.button path {
+.sprite-wrapper[data-select-index] .sprite-mask path {
 	cursor: pointer;
 	pointer-events: painted;
 }
 
-.sprite-mask.button path:hover {
+.sprite-wrapper[data-select-index] .sprite-mask path:hover {
 	filter: drop-shadow(0px 0px 50px red)
 }
 
@@ -195,18 +211,6 @@ body {
 
 /* Cards */
 
-.g-item-location {
-	display: flex;
-	justify-content: space-around;
-	position: absolute;
-	z-index: 40;
-	pointer-events: none;
-}
-
-.g-item-slot {
-	position: relative; /* So cards will be positioned relative to this div */
-}
-
 /* The wrapper is the placeholder, hover effects happen on it */
 .card-wrapper {
 	position: absolute;
@@ -216,6 +220,15 @@ body {
 	/*pointer-events: none;*/
 	
 	perspective: 1000px;
+}
+
+.card-wrapper[data-select-index] {
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.card-wrapper[data-select-index]:hover {
+	filter: drop-shadow(0px 0px 5px red)
 }
 
 .card {

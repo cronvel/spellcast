@@ -122,7 +122,14 @@ Dom.prototype.preload = function preload() {
 
 Dom.prototype.initEvents = function initEvents() {
 	this.$main.addEventListener( 'click' , () => this.emit( 'continue' ) , false ) ;
-	this.$gfx.addEventListener( 'click' , () => this.toggleSceneImage() , false ) ;
+	
+	this.$gfx.addEventListener( 'click' , event => {
+		//console.warn( 'event' , event ) ;
+		if ( event.target.classList.contains( 'scene-image' ) ) {
+			this.toggleSceneImage() ;
+		}
+	} , false ) ;
+	
 	this.$dialogWrapper.addEventListener( 'click' , () => this.clearDialog() , false ) ;
 
 	// Things that can get the .toggled class when clicked
@@ -1412,6 +1419,9 @@ Dom.prototype.clearGItem = function clearGItem( gItem ) {
 
 
 
+/*
+	Execute only DOM and critical stuff first.
+*/
 Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 	// The order matters
 	if ( data.url ) { this.updateGItemImage( gItem , data ) ; }
@@ -1419,19 +1429,41 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 	if ( data.maskUrl ) { this.updateGItemMask( gItem , data ) ; }
 	if ( data.content ) { this.updateGItemContent( gItem , data ) ; }
 
+	if ( data.button !== undefined ) { this.updateGItemButton( gItem , data ) ; }
+	//if ( data.action !== undefined ) { this.updateGItemAction( gItem , data ) ; }
+	
+	if ( data.area ) {
+		this.updateUiArea( gItem , data.area ) ;
+	}
+
+	if ( gItem.type === 'marker' && ( data.ui || data.location ) ) {
+		this.updateMarkerLocation( gItem , data.ui , data.location ) ;
+	}
+	
+	// For some unknown reasons, that remove animation glitch
+	setTimeout( () => this.updateGItemCosmetics( gItem , data ) , 10 ) ;
+	//this.updateGItemCosmetics( gItem , data ) ;
+} ;
+
+
+
+/*
+	Execute less important things, like things triggering animations
+*/
+Dom.prototype.updateGItemCosmetics = function updateGItemCosmetics( gItem , data ) {
+	// The order matters
 	if ( data.location !== undefined && gItem.type !== 'marker' ) {
+		// Should be triggered first, or pose/style would conflict with it
+		
 		// It needs a callback to ensure that transition effects have correctly happened
 		// /!\ Once async/await will be supported in most browser, we would rewrite this
 		// This would avoid all delete data.thing in previous methods
-		this.moveGItemToLocation( gItem , data , () => this.updateGItem( gItem , data ) ) ;
+		this.moveGItemToLocation( gItem , data , () => this.updateGItemCosmetics( gItem , data ) ) ;
 		return ;
 	}
-
+	
 	if ( data.pose !== undefined ) { this.updateGItemPose( gItem , data ) ; }
 	if ( data.status ) { this.updateGItemStatus( gItem , data ) ; }
-
-	if ( data.button !== undefined ) { this.updateGItemButton( gItem , data ) ; }
-	if ( data.action !== undefined ) { this.updateGItemAction( gItem , data ) ; }
 
 	// Use data.style, NOT gItem.style: we have to set only new/updated styles
 	if ( data.style && gItem.$wrapper ) {
@@ -1462,14 +1494,6 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 		data.class = commonUtils.toClassObject( data.class ) ;
 		Object.assign( gItem.class , data.class ) ;
 		domKit.class( gItem.$wrapper || gItem.$image , data.class , 's-' ) ;
-	}
-
-	if ( data.area ) {
-		this.updateUiArea( gItem , data.area ) ;
-	}
-
-	if ( gItem.type === 'marker' && ( data.ui || data.location ) ) {
-		this.updateMarkerLocation( gItem , data.ui , data.location ) ;
 	}
 } ;
 
@@ -1596,6 +1620,11 @@ Dom.prototype.updateGItemMask = function updateGItemMask( gItem , data ) {
 		} ) ;
 
 		gItem.$wrapper.append( gItem.$mask ) ;
+		gItem.$wrapper.classList.add( 'has-mask' ) ;
+	}
+	else if ( gItem.$mask ) {
+		gItem.$mask.remove() ;
+		gItem.$wrapper.classList.remove( 'has-mask' ) ;
 	}
 
 	delete data.maskUrl ;
