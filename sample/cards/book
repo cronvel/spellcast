@@ -9,7 +9,8 @@
 		[goto new-card]
 		
 	[scene new-card]
-		[set $card] $> card${cards.length}
+		[set $local.index] $cards.length
+		[set $card] $= "card" . $local.index
 		[append $cards] $card
 		
 		[show-card $card]
@@ -17,7 +18,7 @@
 			back-url: /textures/card-back.png
 			location: hand
 			pose: face-down
-			button: $> show-card-${cards.length}
+			button: $= "select-card-" . $local.index
 			content:
 				title: $> The Druidess
 				description:
@@ -43,9 +44,16 @@
 		[next-group-break]
 		[next main-area] $> main area
 		
-		[next show-card-1]
-			[label] $> Show card 1
-			[button] show-card-1
+		[foreach $cards => $local.index : $local.card]
+			[next select-card]
+				[args]
+					index: $local.index
+					card: $local.card
+				#[label] $> Show card ${local.index}
+				[label] $> Select this card
+				[button] $= "select-card-" . $local.index
+				[on-trigger]
+					[set $card] $args.card
 		
 	[scene next-card]
 		[set $local.index] $= ( ( $cards.indexOf -> $card ) + 1 ) % $cards.length
@@ -94,10 +102,16 @@
 		
 		[goto choice]
 	
-	[scene show-card-1]
-		[update-card $card]
-			location: showing
-			pose: null
+	[scene select-card]
+		# Toggle card
+		[if $card.location = "showing"]
+			[update-card $card]
+				location: hand
+				pose: null
+		[else]
+			[update-card $card]
+				location: showing
+				pose: null
 		
 		[goto choice]
 	

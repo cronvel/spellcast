@@ -36,6 +36,15 @@
 		[message]
 			$> ^/Once ^Bupon a time... 
 			# (${roles.alice.client.user.name})
+		
+		[for-roles "alice"]
+			[m] $> Good day, noble Dame!
+		
+		[for-roles "bob"]
+			[m] $> Hi Bob!
+		
+		[m] $> How are you?
+		
 		[next intro1]
 		
 	[scene intro1]
