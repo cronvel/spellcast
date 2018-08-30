@@ -14,7 +14,7 @@
 		[goto new-card-bob]
 		
 	[scene new-card-alice]
-		[for-roles "alice"]
+		[only-for-roles "alice"]
 			[set $local.index] $cards.length
 			[set $card] $= "card" . $local.index
 			[append $cards] $card
@@ -35,7 +35,7 @@
 		[goto choice]
 		
 	[scene new-card-bob]
-		[for-roles "bob"]
+		[only-for-roles "bob"]
 			[set $local.index] $cards.length
 			[set $card] $= "card" . $local.index
 			[append $cards] $card
@@ -132,11 +132,13 @@
 		[goto choice]
 	
 	[scene select-card]
+		[get-card-info $card => $local.card-info]
+		
 		# Toggle card
-		[if $card.location = "showing"]
+		[if $local.card-info.location = "showing"]
 			[update-card $card]
 				location: hand
-				pose: null
+				pose: face-down
 		[else]
 			[update-card $card]
 				location: showing

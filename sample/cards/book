@@ -103,9 +103,9 @@
 		[goto choice]
 	
 	[scene select-card]
-		# Toggle card
 		[get-card-info $card => $local.card-info]
 		
+		# Toggle card
 		[if $local.card-info.location = "showing"]
 			[update-card $card]
 				location: hand

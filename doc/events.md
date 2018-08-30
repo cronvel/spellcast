@@ -125,8 +125,9 @@ Events emitted here are usually **userland** event, except few standard events:
 * leaveScene (isReturn, backToMainBuffer): the book is leaving the current scene
   `isReturn` is true if we are returning from a gosub
   `backToMainBuffer` is true if the sub-scene return to the *main buffer*
-* nextList (nexts, grantedRoleIds, undecidedRoleIds, options, isUpdate): users should make a choice between multiple
+* nextList (nexts, undecidedRoleIds, options, isUpdate): users should make a choice between multiple
   alternatives, `nexts` is an array of objects containing those alternatives (aka *next items*), where:
+	* id `number` the *next item* ID that should be returned by client upon selection
 	* label `string` contains the text describing the choice
 	* groupBreak `boolean` true if the item start a new group
 	* style `object` (optional) this is a CSS object to style the next element
@@ -148,7 +149,7 @@ Events emitted here are usually **userland** event, except few standard events:
 	  * *inline*: all choices are on the same line, if possible
 	  * *smallInline*: same than inline, with smaller buttons
 	  * *table*: display button as a table, using [group-break] parameter tag to create a new row
-* nextTriggered (nextIndex, roleIds, special): a next action was triggered, `nextIndex` contains its index in the
+* nextTriggered (nextId, roleIds, special): a next action was triggered, `nextId` is the ID of the *next item* in the
   `nextList` event's argument `nexts`, and `roleIds`, if not null, is an array of IDs of roles that activated it (if relevant),
   provided in the last `roleList` event, in the `roles` argument. If the last argument `special` is set, it contains a
   special trigger conditions code:
@@ -321,10 +322,11 @@ Events emitted here are usually **userland** event, except few standard events:
 
 * chat (text): the text sent by a client as a chat message when player are still in the role assignement phase.
 
-* selectRole (index): in response of a `roleList` event, it contains the index of the role the current client want
-  to be assigned to, if `index` is `null`, the client is unassigned to any role
+* selectRole (id): in response of a `roleList` event, it contains the ID of the role the current client want
+  to be assigned to, if `id` is `null`, the client has just unselected the role it was assigned to
 
-* selectNext (index): in response of a `nextList` event, it contains the index of the item selected by the user
+* selectNext (id): in response of a `nextList` event, it contains the ID of the *next item* selected by the user,
+  if `id` is `null`, the client has just unselected the *next item* it had chosen so far
 
 * authenticate (data): authenticate a user. (WIP API).
 

@@ -139,12 +139,12 @@ async function runBook( bookPath , action , uiCallback ) {
 function followPath( book , ui , path , callback ) {
 	var pathIndex = 0 ;
 
-	ui.bus.on( 'nextList' , ( nexts , grantedRoleIds , undecidedRoleIds , timeout , isUpdate ) => {
+	ui.bus.on( 'nextList' , ( nexts , undecidedRoleIds , timeout , isUpdate ) => {
 		if ( isUpdate ) { return ; }
 		//log.info( 'nextList: %I' , Array.from( arguments ) ) ;
 
 		// Avoid concurrency issues:
-		setTimeout( () => ui.bus.emit( 'selectNext' , path[ pathIndex ++ ] ) , 0 ) ;
+		setTimeout( () => ui.bus.emit( 'selectNext' , nexts[ path[ pathIndex ++ ] ].id ) , 0 ) ;
 	} ) ;
 }
 
