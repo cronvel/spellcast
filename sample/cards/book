@@ -104,10 +104,12 @@
 	
 	[scene select-card]
 		# Toggle card
-		[if $card.location = "showing"]
+		[info-card $card => $local.card-info]
+		
+		[if $local.card-info.location = "showing"]
 			[update-card $card]
 				location: hand
-				pose: null
+				pose: face-down
 		[else]
 			[update-card $card]
 				location: showing
