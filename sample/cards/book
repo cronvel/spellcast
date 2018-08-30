@@ -104,7 +104,7 @@
 	
 	[scene select-card]
 		# Toggle card
-		[info-card $card => $local.card-info]
+		[get-card-info $card => $local.card-info]
 		
 		[if $local.card-info.location = "showing"]
 			[update-card $card]
