@@ -122,14 +122,14 @@ Dom.prototype.preload = function preload() {
 
 Dom.prototype.initEvents = function initEvents() {
 	this.$main.addEventListener( 'click' , () => this.emit( 'continue' ) , false ) ;
-	
+
 	this.$gfx.addEventListener( 'click' , event => {
 		//console.warn( 'event' , event ) ;
 		if ( event.target.classList.contains( 'scene-image' ) ) {
 			this.toggleSceneImage() ;
 		}
 	} , false ) ;
-	
+
 	this.$dialogWrapper.addEventListener( 'click' , () => this.clearDialog() , false ) ;
 
 	// Things that can get the .toggled class when clicked
@@ -1431,7 +1431,7 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 
 	if ( data.button !== undefined ) { this.updateGItemButton( gItem , data ) ; }
 	//if ( data.action !== undefined ) { this.updateGItemAction( gItem , data ) ; }
-	
+
 	if ( data.area ) {
 		this.updateUiArea( gItem , data.area ) ;
 	}
@@ -1439,8 +1439,8 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 	if ( gItem.type === 'marker' && ( data.ui || data.location ) ) {
 		this.updateMarkerLocation( gItem , data.ui , data.location ) ;
 	}
-	
-	// For some unknown reasons, that remove animation glitch
+
+	// For some unknown reasons, that timeout removes animation glitch
 	setTimeout( () => this.updateGItemCosmetics( gItem , data ) , 10 ) ;
 	//this.updateGItemCosmetics( gItem , data ) ;
 } ;
@@ -1454,14 +1454,14 @@ Dom.prototype.updateGItemCosmetics = function updateGItemCosmetics( gItem , data
 	// The order matters
 	if ( data.location !== undefined && gItem.type !== 'marker' ) {
 		// Should be triggered first, or pose/style would conflict with it
-		
+
 		// It needs a callback to ensure that transition effects have correctly happened
 		// /!\ Once async/await will be supported in most browser, we would rewrite this
 		// This would avoid all delete data.thing in previous methods
 		this.moveGItemToLocation( gItem , data , () => this.updateGItemCosmetics( gItem , data ) ) ;
 		return ;
 	}
-	
+
 	if ( data.pose !== undefined ) { this.updateGItemPose( gItem , data ) ; }
 	if ( data.status ) { this.updateGItemStatus( gItem , data ) ; }
 
@@ -1706,11 +1706,11 @@ Dom.prototype.updateGItemButton = function updateGItemButton( gItem , data ) {
 	var $element = gItem.$mask || gItem.$wrapper ;
 
 	var buttonId = data.button ;
-	
+
 	$element.setAttribute( 'id' , 'button-' + buttonId ) ;
 	$element.classList.add( 'button' ) ;
 	$element.classList.add( 'disabled' ) ;
-	
+
 	delete data.button ;
 } ;
 
@@ -2669,8 +2669,8 @@ UI.prototype.initBus = function initBus() {
 
 	this.bus.on( 'textInput' , UI.textInput.bind( this ) ) ;
 
-	//this.bus.on( 'split' , UI.split.bind( this ) ) ;
-	this.bus.on( 'rejoin' , UI.rejoin.bind( this ) ) ;
+	//this.bus.on( 'splitRoles' , UI.splitRoles.bind( this ) ) ;
+	this.bus.on( 'rejoinRoles' , UI.rejoinRoles.bind( this ) ) ;
 
 	this.bus.on( 'pause' , UI.pause.bind( this ) ) ;
 	this.bus.on( 'unpause' , UI.unpause.bind( this ) ) ;
@@ -2803,7 +2803,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned ) {
 			return ;
 		}
 		else {
-			this.bus.emit( 'selectRole' , index ) ;
+			this.bus.emit( 'selectRole' , roles[ index ].id ) ;
 		}
 	} ;
 
@@ -2896,12 +2896,12 @@ UI.leaveScene = function leaveScene( isReturn , backToMainBuffer ) {
 
 
 // 'nextTriggered' event
-UI.nextTriggered = function nextTriggered( nextIndex ) {
-	var selected = this.nexts[ nextIndex ] ;
+UI.nextTriggered = function nextTriggered( nextId ) {
+	var selected = this.nexts.find( e => e.id === nextId ) ;
 
 	this.dom.newSegmentOnContent( 'inter-segment' ) ;
 
-	if ( selected.label && ! selected.button ) {
+	if ( selected && selected.label && ! selected.button ) {
 		this.dom.addSelectedChoice( selected.label ) ;
 	}
 
@@ -2912,7 +2912,7 @@ UI.nextTriggered = function nextTriggered( nextIndex ) {
 
 
 
-UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , options , isUpdate ) {
+UI.nextList = function nextList( nexts , undecidedRoleIds , options , isUpdate ) {
 	var choices = [] , undecidedNames , charCount = 0 ;
 
 	this.nexts = nexts ;
@@ -2962,7 +2962,7 @@ UI.nextList = function nextList( nexts , grantedRoleIds , undecidedRoleIds , opt
 			this.bus.emit( 'selectNext' , null ) ;
 		}
 		else {
-			this.bus.emit( 'selectNext' , index ) ;
+			this.bus.emit( 'selectNext' , nexts[ index ].id ) ;
 		}
 	} ;
 
@@ -3018,8 +3018,8 @@ UI.unpause = function unpause() {
 
 
 
-// rejoin event
-UI.rejoin = function rejoin() {} ;
+// rejoinRoles event (probably better to listen to that event before using it in the 'wait' event)
+UI.rejoinRoles = function rejoinRoles() {} ;
 
 
 
@@ -3027,7 +3027,7 @@ UI.wait = function wait( what ) {
 	switch ( what ) {
 		case 'otherBranches' :
 			this.dom.setBigHint( "WAITING FOR OTHER BRANCHES TO FINISH..." , { wait: true , "pulse-animation": true } ) ;
-			this.bus.once( 'rejoin' , () => this.dom.clearHint() ) ;
+			this.bus.once( 'rejoinRoles' , () => this.dom.clearHint() ) ;
 			break ;
 		default :
 			this.dom.setBigHint( "WAITING FOR " + what , { wait: true , "pulse-animation": true } ) ;
@@ -6918,12 +6918,16 @@ exports.shellArg = function escapeShellArg( str ) {
 
 
 var escapeControlMap = {
-	'\r': '\\r' , '\n': '\\n' , '\t': '\\t' , '\x7f': '\\x7f'
+	'\r': '\\r' ,
+	'\n': '\\n' ,
+	'\t': '\\t' ,
+	'\x7f': '\\x7f'
 } ;
 
 // Escape \r \n \t so they become readable again, escape all ASCII control character as well, using \x syntaxe
-exports.control = function escapeControl( str ) {
+exports.control = function escapeControl( str , keepNewLineAndTab = false ) {
 	return str.replace( /[\x00-\x1f\x7f]/g , ( match ) => {
+		if ( keepNewLineAndTab && ( match === '\n' || match === '\t' ) ) { return match ; }
 		if ( escapeControlMap[ match ] !== undefined ) { return escapeControlMap[ match ] ; }
 		var hex = match.charCodeAt( 0 ).toString( 16 ) ;
 		if ( hex.length % 2 ) { hex = '0' + hex ; }
@@ -6934,7 +6938,11 @@ exports.control = function escapeControl( str ) {
 
 
 var escapeHtmlMap = {
-	'&': '&amp;' , '<': '&lt;' , '>': '&gt;' , '"': '&quot;' , "'": '&#039;'
+	'&': '&amp;' ,
+	'<': '&lt;' ,
+	'>': '&gt;' ,
+	'"': '&quot;' ,
+	"'": '&#039;'
 } ;
 
 // Only escape & < > so this is suited for content outside tags
@@ -6951,7 +6959,6 @@ exports.htmlAttr = function escapeHtmlAttr( str ) {
 exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
 	return str.replace( /[&<>"']/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
 } ;
-
 
 
 },{}],20:[function(require,module,exports){
@@ -6995,6 +7002,7 @@ exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
 // Load modules
 var inspect = require( './inspect.js' ).inspect ;
 var inspectError = require( './inspect.js' ).inspectError ;
+var escape = require( './escape.js' ) ;
 var ansi = require( './ansi.js' ) ;
 
 
@@ -7002,6 +7010,7 @@ var ansi = require( './ansi.js' ) ;
 /*
 	%%		a single %
 	%s		string
+	%r		raw string: without sanitizer
 	%f		float
 	%d	%i	integer
 	%u		unsigned integer
@@ -7037,8 +7046,7 @@ exports.formatMethod = function format( ... args ) {
 		else { str = '' ; }
 	}
 
-	var arg , value ,
-		autoIndex = 1 , length = args.length ,
+	var arg , autoIndex = 1 , length = args.length ,
 		hasMarkup = false , shift = null , markupStack = [] ;
 
 	if ( this.markupReset && this.startingMarkupReset ) {
@@ -7052,12 +7060,13 @@ exports.formatMethod = function format( ... args ) {
 	str = str.replace( /\^(.?)|(%%)|%([+-]?)([0-9]*)(?:\[([^\]]*)\])?([a-zA-Z])/g ,
 		( match , markup , doublePercent , relative , index , modeArg , mode ) => {
 
-			var replacement , i , n , depth , tmp , fn , fnArgString , argMatches , argList = [] ;
+			var replacement , i , tmp , fn , fnArgString , argMatches , argList = [] ;
 
 			//console.log( 'replaceArgs:' , arguments ) ;
 			if ( doublePercent ) { return '%' ; }
 
 			if ( markup ) {
+				if ( this.noMarkup ) { return '^' + markup ; }
 				if ( markup === '^' ) { return '^' ; }
 
 				if ( this.shiftMarkup && this.shiftMarkup[ markup ] ) {
@@ -7121,136 +7130,53 @@ exports.formatMethod = function format( ... args ) {
 			if ( index >= length || index < 1 ) { arg = undefined ; }
 			else { arg = args[ index ] ; }
 
-			switch ( mode ) {
-				case 's' :	// string
-					if ( arg === null || arg === undefined ) { return '(' + arg + ')' ; }
-					if ( typeof arg === 'string' ) { return arg ; }
-					if ( typeof arg === 'number' ) { return '' + arg ; }
-					if ( typeof arg.toString === 'function' ) { return arg.toString() ; }
-					return '(' + arg + ')' ;
-				case 'f' :	// float
-					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-					if ( typeof arg !== 'number' ) { return '0' ; }
-					if ( modeArg !== undefined ) {
-						// Use jQuery number format?
-						switch ( modeArg[ 0 ] ) {
-							case 'p' :
-								n = parseInt( modeArg.slice( 1 ) , 10 ) ;
-								if ( n >= 1 ) { arg = arg.toPrecision( n ) ; }
-								break ;
-							case 'f' :
-								n = parseInt( modeArg.slice( 1 ) , 10 ) ;
-								arg = arg.toFixed( n ) ;
-								break ;
-						}
-					}
-					return '' + arg ;
-				case 'd' :
-				case 'i' :	// integer decimal
-					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-					if ( typeof arg === 'number' ) { return '' + Math.floor( arg ) ; }
-					return '0' ;
-				case 'k' :	// metric prefixes (like k,M,G, etc)
-					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-					if ( typeof arg !== 'number' ) { return '0' ; }
-					return metricPrefix( arg ) ;
-				case 'u' :	// unsigned decimal
-					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ) ; }
-					return '0' ;
-				case 'U' :	// unsigned positive decimal
-					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 1 ) ; }
-					return '1' ;
-				case 'x' :	// unsigned hexadecimal, force pair of symbole
-					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-					if ( typeof arg !== 'number' ) { return '0' ; }
-					value = '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ;
-					if ( value.length % 2 ) { value = '0' + value ; }
-					return value ;
-				case 'h' :	// unsigned hexadecimal
-					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ; }
-					return '0' ;
-				case 'o' :	// unsigned octal
-					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 8 ) ; }
-					return '0' ;
-				case 'b' :	// unsigned binary
-					if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-					if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 2 ) ; }
-					return '0' ;
-				case 'z' :	// base64
-					if ( typeof arg === 'string' ) { arg = Buffer.from( arg ) ; }
-					else if ( ! Buffer.isBuffer( arg ) ) { return '' ; }
-					return arg.toString( 'base64' ) ;
-				case 'Z' :	// base64url
-					if ( typeof arg === 'string' ) { arg = Buffer.from( arg ) ; }
-					else if ( ! Buffer.isBuffer( arg ) ) { return '' ; }
-					return arg.toString( 'base64' ).replace( /\+/g , '-' ).replace( /\//g , '_' ).replace( /[=]{1,2}$/g , '' ) ;
-				case 'I' :
-					depth = 3 ;
-					if ( modeArg !== undefined ) { depth = parseInt( modeArg , 10 ) ; }
-					return inspect( { depth: depth , style: ( this && this.color ? 'color' : 'none' ) } , arg ) ;
-				case 'Y' :
-					depth = 3 ;
-					if ( modeArg !== undefined ) { depth = parseInt( modeArg , 10 ) ; }
-					return inspect( {
-						depth: depth ,
-						style: ( this && this.color ? 'color' : 'none' ) ,
-						noFunc: true ,
-						enumOnly: true ,
-						noDescriptor: true
-					} ,
-					arg ) ;
-				case 'E' :
-					return inspectError( { style: ( this && this.color ? 'color' : 'none' ) } , arg ) ;
-				case 'J' :
-					return JSON.stringify( arg ) ;
-				case 'D' :
-					return '' ;
-				case 'F' :	// Function
-
-					autoIndex -- ;	// %F does not eat any arg
-
-					if ( modeArg === undefined ) { return '' ; }
-					tmp = modeArg.split( ':' ) ;
-					fn = tmp[ 0 ] ;
-					fnArgString = tmp[ 1 ] ;
-					if ( ! fn ) { return '' ; }
-
-					if ( fnArgString && ( argMatches = fnArgString.match( /%([+-]?)([0-9]*)[a-zA-Z]/g ) ) ) {
-						//console.log( argMatches ) ;
-						//console.log( fnArgString ) ;
-						for ( i = 0 ; i < argMatches.length ; i ++ ) {
-							relative = argMatches[ i ][ 1 ] ;
-							index = argMatches[ i ][ 2 ] ;
-
-							if ( index ) {
-								index = parseInt( index , 10 ) ;
-
-								if ( relative ) {
-									if ( relative === '+' ) { index = autoIndex + index ; }		// jshint ignore:line
-									else if ( relative === '-' ) { index = autoIndex - index ; }	// jshint ignore:line
-								}
-							}
-							else {
-								index = autoIndex ;
-							}
-
-							autoIndex ++ ;
-
-							if ( index >= length || index < 1 ) { argList[ i ] = undefined ; }
-							else { argList[ i ] = args[ index ] ; }
-						}
-					}
-
-					if ( ! this || ! this.fn || typeof this.fn[ fn ] !== 'function' ) { return '' ; }
-					return this.fn[ fn ].apply( this , argList ) ;
-
-				default :
-					return '' ;
+			if ( modes[ mode ] ) {
+				replacement = modes[ mode ]( arg , modeArg , this ) ;
+				if ( this.argumentSanitizer && ! modes[ mode ].noSanitize ) { replacement = this.argumentSanitizer( replacement ) ; }
+				return replacement ;
 			}
+
+			// Function mode
+			if ( mode === 'F' ) {
+				autoIndex -- ;	// %F does not eat any arg
+
+				if ( modeArg === undefined ) { return '' ; }
+				tmp = modeArg.split( ':' ) ;
+				fn = tmp[ 0 ] ;
+				fnArgString = tmp[ 1 ] ;
+				if ( ! fn ) { return '' ; }
+
+				if ( fnArgString && ( argMatches = fnArgString.match( /%([+-]?)([0-9]*)[a-zA-Z]/g ) ) ) {
+					//console.log( argMatches ) ;
+					//console.log( fnArgString ) ;
+					for ( i = 0 ; i < argMatches.length ; i ++ ) {
+						relative = argMatches[ i ][ 1 ] ;
+						index = argMatches[ i ][ 2 ] ;
+
+						if ( index ) {
+							index = parseInt( index , 10 ) ;
+
+							if ( relative ) {
+								if ( relative === '+' ) { index = autoIndex + index ; }		// jshint ignore:line
+								else if ( relative === '-' ) { index = autoIndex - index ; }	// jshint ignore:line
+							}
+						}
+						else {
+							index = autoIndex ;
+						}
+
+						autoIndex ++ ;
+
+						if ( index >= length || index < 1 ) { argList[ i ] = undefined ; }
+						else { argList[ i ] = args[ index ] ; }
+					}
+				}
+
+				if ( ! this || ! this.fn || typeof this.fn[ fn ] !== 'function' ) { return '' ; }
+				return this.fn[ fn ].apply( this , argList ) ;
+			}
+
+			return '' ;
 		}
 	) ;
 
@@ -7272,9 +7198,191 @@ exports.formatMethod = function format( ... args ) {
 } ;
 
 
+var modes = {} ;
+
+
+
+// string
+modes.s = arg => {
+	if ( typeof arg === 'string' ) { return arg ; }
+	if ( arg === null || arg === undefined || arg === true || arg === false ) { return '(' + arg + ')' ; }
+	if ( typeof arg === 'number' ) { return '' + arg ; }
+	if ( typeof arg.toString === 'function' ) { return arg.toString() ; }
+	return '(' + arg + ')' ;
+} ;
+
+modes.r = arg => modes.s( arg ) ;
+modes.r.noSanitize = true ;
+
+
+
+// float
+modes.f = ( arg , modeArg ) => {
+	var n ;
+
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg !== 'number' ) { return '0' ; }
+	if ( modeArg !== undefined ) {
+		// Use jQuery number format?
+		switch ( modeArg[ 0 ] ) {
+			case 'p' :
+				n = parseInt( modeArg.slice( 1 ) , 10 ) ;
+				if ( n >= 1 ) { arg = arg.toPrecision( n ) ; }
+				break ;
+			case 'f' :
+				n = parseInt( modeArg.slice( 1 ) , 10 ) ;
+				arg = arg.toFixed( n ) ;
+				break ;
+		}
+	}
+	return '' + arg ;
+} ;
+
+
+
+// integer
+modes.d = modes.i = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg === 'number' ) { return '' + Math.floor( arg ) ; }
+	return '0' ;
+} ;
+
+
+
+// metric system
+modes.k = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg !== 'number' ) { return '0' ; }
+	return metricPrefix( arg ) ;
+} ;
+
+
+
+// unsigned integer
+modes.u = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ) ; }
+	return '0' ;
+} ;
+
+
+
+// unsigned positive integer
+modes.U = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 1 ) ; }
+	return '1' ;
+} ;
+
+
+
+// unsigned hexadecimal, force pair of symboles
+modes.x = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg !== 'number' ) { return '0' ; }
+
+	var value = '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ;
+
+	if ( value.length % 2 ) { value = '0' + value ; }
+	return value ;
+} ;
+
+
+
+// unsigned hexadecimal
+modes.h = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ; }
+	return '0' ;
+} ;
+
+
+
+// unsigned octal
+modes.o = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 8 ) ; }
+	return '0' ;
+} ;
+
+
+
+// unsigned binary
+modes.b = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 2 ) ; }
+	return '0' ;
+} ;
+
+
+
+// base64
+modes.z = arg => {
+	if ( typeof arg === 'string' ) { arg = Buffer.from( arg ) ; }
+	else if ( ! Buffer.isBuffer( arg ) ) { return '' ; }
+	return arg.toString( 'base64' ) ;
+} ;
+
+
+
+// base64url
+modes.Z = arg => {
+	if ( typeof arg === 'string' ) { arg = Buffer.from( arg ) ; }
+	else if ( ! Buffer.isBuffer( arg ) ) { return '' ; }
+	return arg.toString( 'base64' ).replace( /\+/g , '-' ).replace( /\//g , '_' ).replace( /[=]{1,2}$/g , '' ) ;
+} ;
+
+
+
+// inspect
+modes.I = ( arg , modeArg , options ) => {
+	var depth = 3 ;
+	if ( modeArg !== undefined ) { depth = parseInt( modeArg , 10 ) ; }
+	return inspect( {
+		depth: depth ,
+		style: ( options && options.color ? 'color' : 'none' )
+	} , arg ) ;
+} ;
+
+modes.I.noSanitize = true ;
+
+
+
+// more minimalist inspect
+modes.Y = ( arg , modeArg , options ) => {
+	var depth = 3 ;
+	if ( modeArg !== undefined ) { depth = parseInt( modeArg , 10 ) ; }
+	return inspect( {
+		depth: depth ,
+		style: ( options && options.color ? 'color' : 'none' ) ,
+		noFunc: true ,
+		enumOnly: true ,
+		noDescriptor: true ,
+		useInspect: true
+	} , arg ) ;
+} ;
+
+modes.Y.noSanitize = true ;
+
+
+
+// inspect error
+modes.E = ( arg , modeArg , options ) => inspectError( { style: ( options && options.color ? 'color' : 'none' ) } , arg ) ;
+modes.E.noSanitize = true ;
+
+// json
+modes.J = arg => JSON.stringify( arg ) ;
+
+// drop
+modes.D = () => '' ;
+
+
 
 var defaultFormatter = {
+	argumentSanitizer: str => escape.control( str , true ) ,
 	extraArguments: true ,
+	color: false ,
+	noMarkup: false ,
 	endingMarkupReset: true ,
 	startingMarkupReset: false ,
 	markupReset: ansi.reset ,
@@ -7333,6 +7441,7 @@ var defaultFormatter = {
 	}
 } ;
 
+exports.createFormatter = ( options ) => exports.formatMethod.bind( Object.assign( {} , defaultFormatter , options ) ) ;
 exports.format = exports.formatMethod.bind( defaultFormatter ) ;
 exports.format.default = defaultFormatter ;
 
@@ -7410,6 +7519,7 @@ exports.markupMethod = function markup_( str ) {
 
 
 
+exports.createMarkup = ( options ) => exports.markupMethod.bind( Object.assign( {} , defaultFormatter , options ) ) ;
 exports.markup = exports.markupMethod.bind( defaultFormatter ) ;
 
 
@@ -7499,7 +7609,7 @@ function round( v , step ) {
 
 
 }).call(this,require("buffer").Buffer)
-},{"./ansi.js":18,"./inspect.js":21,"buffer":6}],21:[function(require,module,exports){
+},{"./ansi.js":18,"./escape.js":19,"./inspect.js":21,"buffer":6}],21:[function(require,module,exports){
 (function (Buffer,process){
 /*
 	String Kit
@@ -7526,8 +7636,6 @@ function round( v , step ) {
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
 */
-
-/* global Map, Set */
 
 /*
 	Variable inspector.
@@ -7569,7 +7677,7 @@ var ansi = require( './ansi.js' ) ;
 		  Display a minimal JSON-like output
 		* protoBlackList: `Set` of blacklisted object prototype (will not recurse inside it)
 		* propertyBlackList: `Set` of blacklisted property names (will not even display it)
-		* useInspect: use .inspect() method when available on an object
+		* useInspect: use .inspect() method when available on an object (default to false)
 */
 
 function inspect( options , variable ) {
@@ -7734,20 +7842,25 @@ function inspect_( runtime , options , variable ) {
 		if ( options.sort ) { propertyList.sort() ; }
 
 		// Special Objects
-		specialObject = specialObjectSubstitution( variable ) ;
+		specialObject = specialObjectSubstitution( variable , runtime , options ) ;
 
 		if ( options.protoBlackList && options.protoBlackList.has( proto ) ) {
 			str += options.style.limit( '[skip]' ) + options.style.newline ;
 		}
 		else if ( specialObject !== undefined ) {
-			str += '=> ' + inspect_( {
-				depth: runtime.depth ,
-				ancestors: runtime.ancestors ,
-				noPre: true
-			} ,
-			options ,
-			specialObject
-			) ;
+			if ( typeof specialObject === 'string' ) {
+				str += '=> ' + specialObject ;
+			}
+			else {
+				str += '=> ' + inspect_( {
+					depth: runtime.depth ,
+					ancestors: runtime.ancestors ,
+					noPre: true
+				} ,
+				options ,
+				specialObject
+				) ;
+			}
 		}
 		else if ( isFunc && ! options.funcDetails ) {
 			str += options.style.newline ;
@@ -7863,50 +7976,93 @@ function keyNeedingQuotes( key ) {
 
 
 
+var promiseStates = [ 'pending' , 'fulfilled' , 'rejected' ] ;
+
+
+
 // Some special object are better written down when substituted by something else
-function specialObjectSubstitution( variable ) {
-	if ( typeof variable.constructor !== 'function' ) {
+function specialObjectSubstitution( object , runtime , options ) {
+	if ( typeof object.constructor !== 'function' ) {
 		// Some objects have no constructor, e.g.: Object.create(null)
-		//console.error( variable ) ;
+		//console.error( object ) ;
 		return ;
 	}
 
-	switch ( variable.constructor.name ) {
-		case 'String' :
-			if ( variable instanceof String ) {
-				return variable.toString() ;
+	if ( object instanceof String ) {
+		return object.toString() ;
+	}
+
+	if ( object instanceof RegExp ) {
+		return object.toString() ;
+	}
+
+	if ( object instanceof Date ) {
+		return object.toString() + ' [' + object.getTime() + ']' ;
+	}
+
+	if ( typeof Set === 'function' && object instanceof Set ) {
+		// This is an ES6 'Set' Object
+		return Array.from( object ) ;
+	}
+
+	if ( typeof Map === 'function' && object instanceof Map ) {
+		// This is an ES6 'Map' Object
+		return Array.from( object ) ;
+	}
+
+	if ( object instanceof Promise ) {
+		if ( process && process.binding && process.binding( 'util' ) && process.binding( 'util' ).getPromiseDetails ) {
+			let details = process.binding( 'util' ).getPromiseDetails( object ) ;
+			let state =  promiseStates[ details[ 0 ] ] ;
+			let str = 'Promise <' + state + '>' ;
+
+			if ( state === 'fulfilled' ) {
+				str += ' ' + inspect_(
+					{
+						depth: runtime.depth ,
+						ancestors: runtime.ancestors ,
+						noPre: true
+					} ,
+					options ,
+					details[ 1 ]
+				) ;
 			}
-			break ;
-		case 'RegExp' :
-			if ( variable instanceof RegExp ) {
-				return variable.toString() ;
+			else if ( state === 'rejected' ) {
+				if ( details[ 1 ] instanceof Error ) {
+					str += ' ' + inspectError(
+						{
+							style: options.style ,
+							noErrorStack: true
+						} ,
+						details[ 1 ]
+					) ;
+				}
+				else {
+					str += ' ' + inspect_(
+						{
+							depth: runtime.depth ,
+							ancestors: runtime.ancestors ,
+							noPre: true
+						} ,
+						options ,
+						details[ 1 ]
+					) ;
+				}
 			}
-			break ;
-		case 'Date' :
-			if ( variable instanceof Date ) {
-				return variable.toString() + ' [' + variable.getTime() + ']' ;
-			}
-			break ;
-		case 'Set' :
-			if ( typeof Set === 'function' && variable instanceof Set ) {
-				// This is an ES6 'Set' Object
-				return Array.from( variable ) ;
-			}
-			break ;
-		case 'Map' :
-			if ( typeof Map === 'function' && variable instanceof Map ) {
-				// This is an ES6 'Map' Object
-				return Array.from( variable ) ;
-			}
-			break ;
-		case 'ObjectID' :
-			if ( variable._bsontype ) {
-				// This is a MongoDB ObjectID, rather boring to display in its original form
-				// due to esoteric characters that confuse both the user and the terminal displaying it.
-				// Substitute it to its string representation
-				return variable.toString() ;
-			}
-			break ;
+
+			return str ;
+		}
+	}
+
+	if ( object._bsontype ) {
+		// This is a MongoDB ObjectID, rather boring to display in its original form
+		// due to esoteric characters that confuse both the user and the terminal displaying it.
+		// Substitute it to its string representation
+		return object.toString() ;
+	}
+
+	if ( options.useInspect && typeof object.inspect === 'function' ) {
+		return object.inspect() ;
 	}
 
 	return ;
@@ -7914,6 +8070,10 @@ function specialObjectSubstitution( variable ) {
 
 
 
+/*
+	Options:
+		noErrorStack: set to true if the stack should not be displayed
+*/
 function inspectError( options , error ) {
 	var str = '' , stack , type , code ;
 
@@ -7927,7 +8087,7 @@ function inspectError( options , error ) {
 	if ( ! options.style ) { options.style = inspectStyle.none ; }
 	else if ( typeof options.style === 'string' ) { options.style = inspectStyle[ options.style ] ; }
 
-	if ( error.stack ) { stack = inspectStack( options , error.stack ) ; }
+	if ( error.stack && ! options.noErrorStack ) { stack = inspectStack( options , error.stack ) ; }
 
 	type = error.type || error.constructor.name ;
 	code = error.code || error.name || error.errno || error.number ;
@@ -8613,8 +8773,114 @@ svgKit.standalone = function standalone( content , viewBox )
 
 }).call(this,require('_process'))
 },{"_process":13,"dom-kit":7,"fs":6,"string-kit/lib/escape.js":23}],23:[function(require,module,exports){
-arguments[4][19][0].apply(exports,arguments)
-},{"dup":19}],24:[function(require,module,exports){
+/*
+	String Kit
+
+	Copyright (c) 2014 - 2018 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+/*
+	Escape collection.
+*/
+
+
+
+"use strict" ;
+
+
+
+// From Mozilla Developper Network
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+exports.regExp = exports.regExpPattern = function escapeRegExpPattern( str ) {
+	return str.replace( /([.*+?^${}()|[\]/\\])/g , '\\$1' ) ;
+} ;
+
+exports.regExpReplacement = function escapeRegExpReplacement( str ) {
+	return str.replace( /\$/g , '$$$$' ) ;	// This replace any single $ by a double $$
+} ;
+
+
+
+exports.format = function escapeFormat( str ) {
+	return str.replace( /%/g , '%%' ) ;	// This replace any single % by a double %%
+} ;
+
+
+
+exports.jsSingleQuote = function escapeJsSingleQuote( str ) {
+	return exports.control( str ).replace( /'/g , "\\'" ) ;
+} ;
+
+exports.jsDoubleQuote = function escapeJsDoubleQuote( str ) {
+	return exports.control( str ).replace( /"/g , '\\"' ) ;
+} ;
+
+
+
+exports.shellArg = function escapeShellArg( str ) {
+	return '\'' + str.replace( /'/g , "'\\''" ) + '\'' ;
+} ;
+
+
+
+var escapeControlMap = {
+	'\r': '\\r' , '\n': '\\n' , '\t': '\\t' , '\x7f': '\\x7f'
+} ;
+
+// Escape \r \n \t so they become readable again, escape all ASCII control character as well, using \x syntaxe
+exports.control = function escapeControl( str ) {
+	return str.replace( /[\x00-\x1f\x7f]/g , ( match ) => {
+		if ( escapeControlMap[ match ] !== undefined ) { return escapeControlMap[ match ] ; }
+		var hex = match.charCodeAt( 0 ).toString( 16 ) ;
+		if ( hex.length % 2 ) { hex = '0' + hex ; }
+		return '\\x' + hex ;
+	} ) ;
+} ;
+
+
+
+var escapeHtmlMap = {
+	'&': '&amp;' , '<': '&lt;' , '>': '&gt;' , '"': '&quot;' , "'": '&#039;'
+} ;
+
+// Only escape & < > so this is suited for content outside tags
+exports.html = function escapeHtml( str ) {
+	return str.replace( /[&<>]/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
+} ;
+
+// Escape & < > " so this is suited for content inside a double-quoted attribute
+exports.htmlAttr = function escapeHtmlAttr( str ) {
+	return str.replace( /[&<>"]/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
+} ;
+
+// Escape all html special characters & < > " '
+exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
+	return str.replace( /[&<>"']/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
+} ;
+
+
+
+},{}],24:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

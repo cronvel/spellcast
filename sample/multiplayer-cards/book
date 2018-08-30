@@ -74,15 +74,18 @@
 		[next main-area] $> main area
 		
 		[foreach $cards => $local.index : $local.card]
-			[next select-card]
-				[args]
-					index: $local.index
-					card: $local.card
-				#[label] $> Show card ${local.index}
-				[label] $> Select this card
-				[button] $= "select-card-" . $local.index
-				[on-trigger]
-					[set $card] $args.card
+			[get-card-info $local.card => $local.card-info]
+			
+			[only-for-roles $local.card-info.roles]
+				[next select-card]
+					[args]
+						index: $local.index
+						card: $local.card
+					#[label] $> Show card ${local.index}
+					[label] $> Select this card
+					[button] $= "select-card-" . $local.index
+					[on-trigger]
+						[set $card] $args.card
 		
 	[scene next-card]
 		[set $local.index] $= ( ( $cards.indexOf -> $card ) + 1 ) % $cards.length
