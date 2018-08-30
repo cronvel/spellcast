@@ -37,10 +37,10 @@
 			$> ^/Once ^Bupon a time... 
 			# (${roles.alice.client.user.name})
 		
-		[for-roles "alice"]
+		[only-for-roles "alice"]
 			[m] $> Good day, noble Dame!
 		
-		[for-roles "bob"]
+		[only-for-roles "bob"]
 			[m] $> Hi Bob!
 		
 		[m] $> How are you?
@@ -54,7 +54,7 @@
 		[hurry-time] 5
 #		[show-timer] false
 		
-		[split]
+		[split-roles]
 #			[branch]
 			[gosub alice]
 				[roles]
