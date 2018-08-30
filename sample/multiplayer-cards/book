@@ -1,0 +1,146 @@
+
+[[doctype spellcast/book]]
+#[[assets ./]]
+
+[role alice]
+	[name] Alice
+[role bob]
+	[name] Bob
+
+[chapter intro]
+	
+	[scene intro]
+		[set $cards] <Array>
+		[goto new-card-bob]
+		
+	[scene new-card-alice]
+		[for-roles "alice"]
+			[set $local.index] $cards.length
+			[set $card] $= "card" . $local.index
+			[append $cards] $card
+			
+			[show-card $card]
+				url: /sprites/shaman.png
+				back-url: /textures/card-back.png
+				location: hand
+				pose: face-down
+				button: $= "select-card-" . $local.index
+				content:
+					title: $> The Druidess
+					description:
+						$> The Alice's Druidess is a great support unit, that can heal and boost allies.
+				image-style:
+					background-size: contain
+		
+		[goto choice]
+		
+	[scene new-card-bob]
+		[for-roles "bob"]
+			[set $local.index] $cards.length
+			[set $card] $= "card" . $local.index
+			[append $cards] $card
+			
+			[show-card $card]
+				url: /sprites/shaman.png
+				back-url: /textures/card-back.png
+				location: hand
+				pose: face-down
+				button: $= "select-card-" . $local.index
+				content:
+					title: $> The Druidess
+					description:
+						$> The Bob's Druidess is a great support unit, that can heal and boost allies.
+				image-style:
+					background-size: contain
+		
+		[goto choice]
+		
+	[scene choice]
+		[vote-style] immediate
+		[message] $> Select your animation choice.
+
+		[next-style] table
+		[next new-card-alice] $> new card alice
+		[next new-card-bob] $> new card bob
+		[next next-card] $> next card
+		[next-group-break]
+		[next face-down-in-hand] $> face down in hand
+		[next face-up-in-hand] $> face up in hand
+		[next-group-break]
+		[next face-up] $> face up
+		[next spin-face-up] $> spin face up
+		[next wheel-face-up] $> wheel face up
+		[next-group-break]
+		[next main-area] $> main area
+		
+		[foreach $cards => $local.index : $local.card]
+			[next select-card]
+				[args]
+					index: $local.index
+					card: $local.card
+				#[label] $> Show card ${local.index}
+				[label] $> Select this card
+				[button] $= "select-card-" . $local.index
+				[on-trigger]
+					[set $card] $args.card
+		
+	[scene next-card]
+		[set $local.index] $= ( ( $cards.indexOf -> $card ) + 1 ) % $cards.length
+		[set $card] $cards[$local.index]
+		
+		[goto choice]
+		
+	[scene main-area]
+		[update-card $card]
+			location: null
+		
+		[goto choice]
+	
+	[scene face-down-in-hand]
+		[update-card $card]
+			location: hand
+			pose: face-down
+		
+		[goto choice]
+		
+	[scene face-up]
+		[update-card $card]
+			location: showing
+			pose: null
+		
+		[goto choice]
+	
+	[scene face-up-in-hand]
+		[update-card $card]
+			location: hand
+			pose: null
+		
+		[goto choice]
+	
+	[scene spin-face-up]
+		[update-card $card]
+			location: showing
+			pose: spin-face-up
+		
+		[goto choice]
+	
+	[scene wheel-face-up]
+		[update-card $card]
+			location: showing
+			pose: wheel-face-up
+		
+		[goto choice]
+	
+	[scene select-card]
+		# Toggle card
+		[if $card.location = "showing"]
+			[update-card $card]
+				location: hand
+				pose: null
+		[else]
+			[update-card $card]
+				location: showing
+				pose: null
+		
+		[goto choice]
+	
