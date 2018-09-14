@@ -34,7 +34,7 @@
     "string-kit": "^0.8.12",
     "svg-kit": "^0.1.20",
     "terminal-kit": "^1.26.2",
-    "tree-kit": "^0.5.27"
+    "tree-kit": "^0.6.0"
   },
   "devDependencies": {
     "browserify": "^16.2.2",
