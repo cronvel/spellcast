@@ -419,6 +419,18 @@ Its content is a string, where:
 
 
 
+<a name="ref.scenario.scene.shuffle-next"></a>
+### [shuffle-next]
+
+* types: parameter
+* attribute style: none
+* content type: boolean or none (default to true)
+
+It is used to shuffle the next-list, so the different choices are not in the same place from one game to another,
+or if the player returns to the same scene during the same game.
+
+
+
 <a name="ref.scenario.scene.vote-time"></a>
 ### [vote-time]
 
