@@ -2,9 +2,8 @@
 [[doctype locale]]
 [[locale fr]]
 
-sentences:
-	- > Yes
-	- > Oui
-	
-	- > No
-	- > Non
+--- sentences ---
+<<: Yes
+:>> Oui
+<<: No
+:>> Non

@@ -2,30 +2,22 @@
 [[doctype locale]]
 [[locale fr]]
 
-sentences:
-	- You drink a cup of vine...
-	- Vous buvez une coupe de vin...
-	
-	- ^/Once ^Bupon a time...
-	- Il était une fois...
-	
-	- > ${this.data} was blasted!
-	- > ${this.data} s'est fait exploser!
-	
-	- Select your background.
-	- Sélectionnez l'histoire de votre personnage.
-	
-	- You are a blacksmith
-	- Vous êtes un forgeron
-
-	-
-		> You lived in a small village of few hundred peoples.
-		> You started learning how to forge horseshoe since the age of 12 with your father, the local smith.
-		> At the age of 15, you got tired of horseshoes and wanted to forge more exciting things like axes and swords,
-		> but your father was not competent for this kind of stuff.
-	-
-		> Vous avez vécu dans un petit village d'une centaine de personnes.
-		> Vous appreniez le métier de forgeron depuis l'âge de 12 ans avec votre père, le maréchal-ferrand local.
-		> À l'âge de 15 ans, vous en aviez assez des fers à cheval et vous souhaitiez apprendre à forger des choses plus
-		> excitantes, telle que des haches et des épées, mais votre père n'était pas compétent dans ce domaine.
-
+--- sentences ---
+<<: You drink a cup of vine...
+:>> Vous buvez une coupe de vin...
+<<: ^/Once ^Bupon a time...
+:>> Il était une fois...
+<<: ${this.data} was blasted!
+:>> ${this.data} s'est fait exploser!
+<<: Select your background.
+:>> Sélectionnez l'histoire de votre personnage.
+<<: You are a blacksmith
+:>> Vous êtes un forgeron
+<<: You lived in a small village of few hundred peoples.
+<<: You started learning how to forge horseshoe since the age of 12 with your father, the local smith.
+<<: At the age of 15, you got tired of horseshoes and wanted to forge more exciting things like axes and swords,
+<<: but your father was not competent for this kind of stuff.
+:>> Vous avez vécu dans un petit village d'une centaine de personnes.
+:>> Vous appreniez le métier de forgeron depuis l'âge de 12 ans avec votre père, le maréchal-ferrand local.
+:>> À l'âge de 15 ans, vous en aviez assez des fers à cheval et vous souhaitiez apprendre à forger des choses plus
+:>> excitantes, telle que des haches et des épées, mais votre père n'était pas compétent dans ce domaine.
