@@ -21,7 +21,7 @@
 		- four
 		- five
 		- six
-	[copy-within $array] $= 4 , 1 , 4
+	[copy-within $array] $= [ 4 , 1 , 4 ]
 	[message] $> Array: ${array}[enum]
 	
 	[set $array]
@@ -32,7 +32,7 @@
 		- four
 		- five
 		- six
-	[copy-within $array => $target] $= 4 , 1 , 4
+	[copy-within $array => $target] $= [ 4 , 1 , 4 ]
 	[message] $> Array: ${array}[enum]
 	[message] $> Target: ${target}[enum]
 	

@@ -21,7 +21,7 @@
 		- four
 		- five
 		- six
-	[fill $array] $= "three" , 1 , 4
+	[fill $array] $= [ "three" , 1 , 4 ]
 	[message] $> Array: ${array}[enum]
 	
 	[set $array]
@@ -32,7 +32,7 @@
 		- four
 		- five
 		- six
-	[fill $array => $target] $= "three" , 1 , 4
+	[fill $array => $target] $= [ "three" , 1 , 4 ]
 	[message] $> Array: ${array}[enum]
 	[message] $> Target: ${target}[enum]
 	
