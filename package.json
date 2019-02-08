@@ -22,7 +22,7 @@
     "glob": "^7.1.3",
     "hash-kit": "^0.3.2",
     "jsbindat": "^0.9.6",
-    "kung-fig": "^0.49.1",
+    "kung-fig": "^0.49.2",
     "logfella": "^1.1.5",
     "math-kit": "^0.12.1",
     "minimist": "^1.2.0",

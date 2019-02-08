@@ -643,7 +643,7 @@
 		
 		[inc $target.adhoc.fight.goneThrough]
 		
-		[if success-roll $local.attack-score $local.defense-score $const.melee-attack-roll]
+		[if success-roll( $local.attack-score , $local.defense-score , ... $const.melee-attack-roll )]
 			[call deal-damages]
 
 			[call effects]
@@ -732,7 +732,7 @@
 
 		[inc $target.adhoc.fight.goneThrough]
 		
-		[if success-roll $local.attack-score $local.defense-score $const.melee-attack-roll]
+		[if success-roll( $local.attack-score , $local.defense-score , ... $const.melee-attack-roll )]
 			[call deal-damages]
 
 			[if $fight.deadly-push]
@@ -826,7 +826,7 @@
 
 			#[message] $> Close range: ${local.attack-score} vs ${local.defense-score}
 
-			[if ! ( success-roll $local.attack-score $local.defense-score $const.melee-attack-roll )]
+			[if ! ( success-roll( $local.attack-score , $local.defense-score , ... $const.melee-attack-roll ) )]
 				[message] $> ${target.name//uc1} prevents ${subject.name} from attacking from afar.
 				[return]
 
@@ -841,7 +841,7 @@
 		[set $local.guard-score] $= $target.actual-usages.ranged-fighting.compound.guard
 		
 		# We use a correlated-success-rolls to avoid decreasing the chance to hit by performing two uncorrelated rolls
-		[set $local.aiming] $= correlated-success-rolls $local.aiming-score ( $local.anti-aiming-score , $local.guard-score ) $ranged-aiming-roll
+		[set $local.aiming] $= correlated-success-rolls( $local.aiming-score , [ $local.anti-aiming-score , $local.guard-score ] , ... $const.ranged-aiming-roll )
 		#[message] $> Aiming: ${local.aiming-score} vs ${local.anti-aiming-score} / ${local.guard-score} => ${local.aiming[0]} / ${local.aiming[1]}
 		
 		[if ! $local.aiming[0]]
@@ -879,7 +879,7 @@
 
 		#[message] $> B: ${local.attack-score} vs ${local.defense-score}
 
-		[if success-roll $local.attack-score $local.defense-score $const.ranged-attack-roll]
+		[if success-roll( $local.attack-score , $local.defense-score , ... $const.ranged-attack-roll )]
 			[call deal-damages]
 				usage: $subject.actual-usages.ranged-fighting
 
@@ -1245,7 +1245,7 @@
 			[if $target != $args.subject]
 				[inc $target.adhoc.fight.goneThrough]
 			
-			[if success-roll $local.attack-score $local.defense-score $const.melee-attack-roll]
+			[if success-roll( $local.attack-score , $local.defense-score , ... $const.melee-attack-roll )]
 				[call deal-damages]
 					target: $target
 					hit-flavor: $args.hit-flavor
@@ -1295,7 +1295,7 @@
 		[elseif $target.adhoc.fight.offensiveness < 0]
 			[mul $local.defense-score] $const.offensiveness-bonus
 
-		[if success-roll $local.attack-score $local.defense-score $const.wrestling-attack-roll]
+		[if success-roll( $local.attack-score , $local.defense-score , ... $const.wrestling-attack-roll )]
 			[if $target.status.health > 0]
 				[set $target.status.health] 0
 			[apply $fight.deadly-push.flavor => $local.flavor] $

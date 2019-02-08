@@ -58,7 +58,7 @@
 		# Update malus now, after the score computation
 		[call rpg:common/update-malus] $subject
 		
-		[if ! ( success-roll $local.cast-score $local.vs-score $local.cast-roll )]
+		[if ! ( success-roll( $local.cast-score , $local.vs-score , ... $local.cast-roll ) )]
 			[message] $> ${args.subject.name//uc1} miscasts ^/${args.item.name}^:!
 			[return] false
 		
