@@ -1020,12 +1020,12 @@
 		#[message] $> Damages: ${local.attack-score} vs ${local.defense-score}
 
 		[set $damages]
-			$= quantity-roll $local.attack-score $local.defense-score (
-			$=   base: 15
-			$=   over-power: 2
-			$=   critical-factor: $args.usage.compound.critical-factor
-			$=   critical-chance: 0.05
-			$=   lower-divide: false
+			$= quantity-roll( $local.attack-score , $local.defense-score ,
+			$=   base: 15 ,
+			$=   over-power: 2 ,
+			$=   critical-factor: $args.usage.compound.critical-factor ,
+			$=   critical-chance: 0.05 ,
+			$=   lower-divide: false ,
 			$=   round: true
 			$= )
 
@@ -1109,12 +1109,12 @@
 			[mul $healing-score] $args.bonus-factor
 		
 		[set $healing]
-			$= quantity-roll $local.healing-score $local.defense-score (
-			$=   base: 10
-			$=   over-power: 1
-			$=   critical-factor: $args.usage.compound.critical-factor
-			$=   critical-chance: 0.05
-			$=   lower-divide: true
+			$= quantity-roll( $local.healing-score , $local.defense-score ,
+			$=   base: 10 ,
+			$=   over-power: 1 ,
+			$=   critical-factor: $args.usage.compound.critical-factor ,
+			$=   critical-chance: 0.05 ,
+			$=   lower-divide: true ,
 			$=   round: true
 			$= )
 		

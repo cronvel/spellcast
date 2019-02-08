@@ -20,12 +20,12 @@
 		#[message] $> Mana ${local.cast-score} vs ${local.vs-score}
 		
 		[set $local.mana]
-			$= quantity-roll $local.attack-score $local.defense-score (
-			$=   base: 10
-			$=   over-power: 2
-			$=   critical-factor: 1.5
-			$=   critical-chance: 0.05
-			$=   lower-divide: true
+			$= quantity-roll( $local.attack-score , $local.defense-score ,
+			$=   base: 10 ,
+			$=   over-power: 2 ,
+			$=   critical-factor: 1.5 ,
+			$=   critical-chance: 0.05 ,
+			$=   lower-divide: true ,
 			$=   round: true
 			$= )
 		
