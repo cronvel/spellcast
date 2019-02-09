@@ -15,12 +15,12 @@
 		
 		# First, mana consumption
 		[set $local.cast-score] $args.usage.compound.mana
-		[set $local.vs-score] $args.usage.params.mana-level
+		[set $local.consumption-score] $args.usage.params.mana-level
 		
-		#[message] $> Mana ${local.cast-score} vs ${local.vs-score}
+		#[message] $> Mana ${local.cast-score} vs ${local.consumption-score}
 		
 		[set $local.mana]
-			$= quantity-roll( $local.attack-score , $local.defense-score ,
+			$= quantity-roll( $local.cast-score , $local.consumption-score ,
 			$=   base: 10 ,
 			$=   over-power: 2 ,
 			$=   critical-factor: 1.5 ,
@@ -46,19 +46,19 @@
 		
 		# Then spellcasting
 		[set $local.cast-score] $args.usage.compound.spellcasting
-		[set $local.vs-score] $args.usage.params.spell-level
+		[set $local.difficulty-score] $args.usage.params.spell-level
 		
 		[if $args.bonus-factor is-set?]
 			[mul $local.cast-score] $args.bonus-factor
 		
-		#[message] $> Casting ${local.cast-score} vs ${local.vs-score}
+		#[message] $> Casting ${local.cast-score} vs ${local.difficulty-score}
 		
 		#[debug info] $> ${args.subject.actual.stats.spellcasting}
 		
 		# Update malus now, after the score computation
 		[call rpg:common/update-malus] $subject
 		
-		[if ! ( success-roll( $local.cast-score , $local.vs-score , ... $local.cast-roll ) )]
+		[if ! ( success-roll( $local.cast-score , $local.difficulty-score , ... $local.cast-roll ) )]
 			[message] $> ${args.subject.name//uc1} miscasts ^/${args.item.name}^:!
 			[return] false
 		
