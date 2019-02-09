@@ -61,7 +61,7 @@
 			[append $fight.turns] $local.foe
 			[set $local.foe.adhoc.fight]
 				side: foes
-				offensiveness: $= ( $local.foe.stances.offensiveness is-set? ) ? $local.foe.stances.offensiveness 0
+				offensiveness: $= $local.foe.stances.offensiveness is-set? $local.foe.stances.offensiveness 0
 				press-target: null
 				pressure: 0
 				speed: 0
@@ -78,7 +78,7 @@
 			[append $fight.turns] $local.ally
 			[set $local.ally.adhoc.fight]
 				side: allies
-				offensiveness: $= ( $local.ally.stances.offensiveness is-set? ) ? $local.ally.stances.offensiveness 0
+				offensiveness: $= $local.ally.stances.offensiveness is-set? $local.ally.stances.offensiveness 0
 				press-target: null
 				pressure: 0
 				speed: 0
@@ -131,7 +131,7 @@
 				[remove-from-scheduler $fight.scheduler] $args.subject
 				[return]
 			
-			[set $fight.subject] $= $args.subject
+			[set $fight.subject] $args.subject
 			
 			[if $args.subject.npc]
 				[call npc-turn]
@@ -148,7 +148,7 @@
 				[return]
 			
 			#[message] $> prepared: ${args.subject.name} ${args.action}
-			[set $local.fn] $= $args.action . "-prepared"
+			[set $local.fn] $= $args.action .. "-prepared"
 			[call $local.fn] $args.action-data
 		
 			[set $args.subject.adhoc.fight.goneThrough] 0
@@ -160,7 +160,7 @@
 				[message]
 					text: $> ^W^+At the same time: 
 					continue: true
-			[set $local.fn] $= $args.action . "-released"
+			[set $local.fn] $= $args.action .. "-released"
 			[call $local.fn] $args.action-data
 			
 			# It is called AFTER anything else, the "releasing" state is unbreakable
@@ -175,7 +175,7 @@
 			[elseif $fight.ending]
 				[remove-from-scheduler $fight.scheduler] $args.subject
 			#[message] $> recovered: ${args.subject.name} ${args.action}
-			#[set $local.fn] $= $args.action . "-recovered"
+			#[set $local.fn] $= $args.action .. "-recovered"
 			#[call $local.fn] $args.action-data
 		
 		[loop]
@@ -210,9 +210,9 @@
 			[map $fight.alive-foes => $local.foes-speed] $this.adhoc.fight.speed
 
 			[set $local.time-factor] $= $args / 20
-			[set $local.speed] $= ( avg $local.allies-speed ) + ( avg $local.foes-speed )
+			[set $local.speed] $= ( avg( ... $local.allies-speed ) ) + ( avg( ... $local.foes-speed ) )
 			
-			[set $fight.true-distance] $= max 0 ( $fight.true-distance - ( $local.speed * $local.time-factor ) )
+			[set $fight.true-distance] $= max( 0 , ( $fight.true-distance - ( $local.speed * $local.time-factor ) ) )
 			[set $local.distance] $= round $fight.true-distance 2
 			
 			[if $local.distance != $fight.distance]
@@ -234,7 +234,7 @@
 		[foreach $fight.foes => $local.entity]
 			[add $local.xp-reward] $local.entity.params.xp-reward
 
-		[set $local.xp-reward] $= ceil ( $local.xp-reward / $fight.allies.length )
+		[set $local.xp-reward] $= ceil( $local.xp-reward / $fight.allies.length )
 
 		[foreach $fight.allies => $local.index : $local.entity]
 			[add $local.entity.status.xp] $local.xp-reward
@@ -264,7 +264,7 @@
 		# Pressure has a max level, because when the target is "saturated",
 		# extra opponents are not able to reach the target properly:
 		# both the target and its opponents get some malus, therefore the pressure is capped to 18 (4 charging opponents)
-		[set $args.adhoc.fight.pressure] $= min ( max 0 ( $args.adhoc.fight.pressure - 6 ) ) 18
+		[set $args.adhoc.fight.pressure] $= min( max( 0 , $args.adhoc.fight.pressure - 6 ) , 18 )
 
 
 
@@ -274,19 +274,19 @@
 		[filter $fight.alive-foes => $middle] $= $this.adhoc.fight.offensiveness = 0
 		[filter $fight.alive-foes => $back] $= $this.adhoc.fight.offensiveness < 0
 
-		[set $offset] $= ceil ( ( 1 - $front.length ) / 2 )
+		[set $offset] $= ceil( ( 1 - $front.length ) / 2 )
 		[foreach $front => $index : $entity]
 			[set $entity.adhoc.fight.position]
 				x: $= $fight.distance / 2
 				y: $= $index + $offset
 
-		[set $offset] $= ceil ( ( 1 - $middle.length ) / 2 )
+		[set $offset] $= ceil( ( 1 - $middle.length ) / 2 )
 		[foreach $middle => $index : $entity]
 			[set $entity.adhoc.fight.position]
 				x: $= ( $fight.distance / 2 ) + 1
 				y: $= $index + $offset
 
-		[set $offset] $= ceil ( ( 1 - $back.length ) / 2 )
+		[set $offset] $= ceil( ( 1 - $back.length ) / 2 )
 		[foreach $back => $index : $entity]
 			[set $entity.adhoc.fight.position]
 				x: $= ( $fight.distance / 2 ) + 2
@@ -302,19 +302,19 @@
 		[filter $fight.alive-allies => $middle] $= $this.adhoc.fight.offensiveness = 0
 		[filter $fight.alive-allies => $back] $= $this.adhoc.fight.offensiveness < 0
 
-		[set $offset] $= ceil ( ( 1 - $front.length ) / 2 )
+		[set $offset] $= ceil( ( 1 - $front.length ) / 2 )
 		[foreach $front => $index : $entity]
 			[set $entity.adhoc.fight.position]
 				x: $= - ( $fight.distance / 2 )
 				y: $= $index + $offset
 
-		[set $offset] $= ceil ( ( 1 - $middle.length ) / 2 )
+		[set $offset] $= ceil( ( 1 - $middle.length ) / 2 )
 		[foreach $middle => $index : $entity]
 			[set $entity.adhoc.fight.position]
 				x: $= ( - ( $fight.distance / 2 ) ) - 1
 				y: $= $index + $offset
 
-		[set $offset] $= ceil ( ( 1 - $back.length ) / 2 )
+		[set $offset] $= ceil( ( 1 - $back.length ) / 2 )
 		[foreach $back => $index : $entity]
 			[set $entity.adhoc.fight.position]
 				x: $= ( - ( $fight.distance / 2 ) ) - 2
@@ -368,7 +368,7 @@
 		[if ( $fight.subject.adhoc.fight.side = "foes" ) xor ( $args.target-allies )]
 			[concat $local.possible-targets] $fight.alive-allies
 
-		[set $local.index] $= random ( $local.possible-targets.length - 1 )
+		[set $local.index] $= random( $local.possible-targets.length - 1 )
 		
 		# Which one?
 		[set $fight.target] $local.possible-targets[$local.index]
@@ -664,7 +664,7 @@
 		[set $subject] $args.subject
 		[set $target] $args.target
 	
-		[set $subject.adhoc.fight.speed] $= $subject.actual.stats.quickness
+		[set $subject.adhoc.fight.speed] $subject.actual.stats.quickness
 		[set $subject.adhoc.fight.offensiveness] 1
 
 		[if $fight.distance > 0]
@@ -679,9 +679,9 @@
 				subject: $subject
 				target: $target
 			ready-time: $subject.adhoc.fight.alertness
-			prepare-time: $= $subject.actual-usages.melee-fighting.compound.prepare-time
-			release-time: $= $subject.actual-usages.melee-fighting.compound.release-time
-			recover-time: $= $subject.actual-usages.melee-fighting.compound.recover-time
+			prepare-time: $subject.actual-usages.melee-fighting.compound.prepare-time
+			release-time: $subject.actual-usages.melee-fighting.compound.release-time
+			recover-time: $subject.actual-usages.melee-fighting.compound.recover-time
 		
 	
 	
@@ -699,8 +699,8 @@
 		[if $fight.distance > 0]
 			[return]
 
-		[set $local.attack-score] $= $subject.actual-usages.melee-fighting.compound.attack
-		[set $local.defense-score] $= $target.actual-usages.melee-fighting.compound.defense
+		[set $local.attack-score] $subject.actual-usages.melee-fighting.compound.attack
+		[set $local.defense-score] $target.actual-usages.melee-fighting.compound.defense
 
 		[set $subject.adhoc.fight.press-target] $target
 		[set $subject.adhoc.fight.press-value] 6
@@ -806,8 +806,8 @@
 		# against the anti-ranged stat
 		[if $fight.distance = 0]
 			
-			[set $local.attack-score] $= $subject.actual-usages.ranged-fighting.compound.close-ranged
-			[set $local.defense-score] $= $target.actual-usages.melee-fighting.compound.anti-ranged
+			[set $local.attack-score] $subject.actual-usages.ranged-fighting.compound.close-ranged
+			[set $local.defense-score] $target.actual-usages.melee-fighting.compound.anti-ranged
 
 			#[message] $> Close range A: ${local.attack-score} vs ${local.defense-score}
 			#[message] $> Pressure: ${subject.adhoc.fight.pressure}
@@ -830,7 +830,7 @@
 				[message] $> ${target.name//uc1} prevents ${subject.name} from attacking from afar.
 				[return]
 
-		[set $local.aiming-score] $= $subject.actual-usages.ranged-fighting.compound.aiming
+		[set $local.aiming-score] $subject.actual-usages.ranged-fighting.compound.aiming
 		[set $local.anti-aiming-score] $= $const.anti-aiming-base + ( $const.anti-aiming-factor * ( $fight.distance + ( ( abs $target.adhoc.fight.speed ) / 2 ) ) )
 		
 		#[message] $> Aiming A: ${local.aiming-score} vs ${local.guard-score}
@@ -838,7 +838,7 @@
 
 		[mul $local.aiming-score] $= $const.pressure ^ $subject.adhoc.fight.pressure
 		
-		[set $local.guard-score] $= $target.actual-usages.ranged-fighting.compound.guard
+		[set $local.guard-score] $target.actual-usages.ranged-fighting.compound.guard
 		
 		# We use a correlated-success-rolls to avoid decreasing the chance to hit by performing two uncorrelated rolls
 		[set $local.aiming] $= correlated-success-rolls( $local.aiming-score , [ $local.anti-aiming-score , $local.guard-score ] , ... $const.ranged-aiming-roll )
@@ -856,8 +856,8 @@
 				[message] $> ${subject.name//uc1} misses ${target.name}.
 			[return]
 
-		[set $local.attack-score] $= $subject.actual-usages.ranged-fighting.compound.attack
-		[set $local.defense-score] $= $target.actual-usages.ranged-fighting.compound.defense
+		[set $local.attack-score] $subject.actual-usages.ranged-fighting.compound.attack
+		[set $local.defense-score] $target.actual-usages.ranged-fighting.compound.defense
 
 		# /!\ FIXME?
 		[add $local.defense-score] $= $fight.distance / 5
@@ -915,9 +915,9 @@
 
 		# Check if the ability has its own speed and offensiveness value
 		[if $item.params.speed is-number?]
-			[set $subject.adhoc.fight.speed] $= $item.params.speed
+			[set $subject.adhoc.fight.speed] $item.params.speed
 		[if $item.params.offensiveness is-number?]
-			[set $subject.adhoc.fight.offensiveness] $= $item.params.offensiveness
+			[set $subject.adhoc.fight.offensiveness] $item.params.offensiveness
 
 		[schedule-action $fight.scheduler]
 			subject: $subject
@@ -927,9 +927,9 @@
 				target: $target
 				position: $local.position
 			ready-time: $subject.adhoc.fight.alertness
-			prepare-time: $= $subject.actual-usages.battle-ability.compound.prepare-time
-			release-time: $= $subject.actual-usages.battle-ability.compound.release-time
-			recover-time: $= $subject.actual-usages.battle-ability.compound.recover-time
+			prepare-time: $subject.actual-usages.battle-ability.compound.prepare-time
+			release-time: $subject.actual-usages.battle-ability.compound.release-time
+			recover-time: $subject.actual-usages.battle-ability.compound.recover-time
 
 	
 	
@@ -995,9 +995,9 @@
 		
 		# Damage level
 		[if $args.damages is-real?]
-			[set $local.attack-score] $= $args.damages
+			[set $local.attack-score] $args.damages
 		[else]
-			[set $local.attack-score] $= $args.usage.compound.damages
+			[set $local.attack-score] $args.usage.compound.damages
 			
 			[if $args.usage.compound.offensiveness-damage-mod]
 				# Attacker offensiveness is used only when not using fixed damage base
@@ -1009,7 +1009,7 @@
 		[if $args.bonus-factor is-real?]
 			[mul $local.attack-score] $args.bonus-factor
 
-		[set $local.defense-score] $= $target.actual.stats.resilience
+		[set $local.defense-score] $target.actual.stats.resilience
 
 		[if $args.usage.compound.offensiveness-damage-mod]
 			[if $target.adhoc.fight.offensiveness > 0]
@@ -1099,11 +1099,11 @@
 
 		# Healing score
 		[if $args.healing is-real?]
-			[set $local.healing-score] $= $args.healing
+			[set $local.healing-score] $args.healing
 		[else]
-			[set $local.healing-score] $= $args.usage.compound.healing
+			[set $local.healing-score] $args.usage.compound.healing
 
-		[set $local.defense-score] $= $target.actual.stats.resilience
+		[set $local.defense-score] $target.actual.stats.resilience
 
 		[if $args.bonus-factor is-real?]
 			[mul $healing-score] $args.bonus-factor
@@ -1121,7 +1121,7 @@
 		#[message] $> ^Khealing: ${healing}
 
 		# Cap the healing
-		[set $healing] $= min $healing ( 100 - $target.status.health )
+		[set $healing] $= min( $healing , 100 - $target.status.health )
 
 		[add $target.status.health] $healing
 
@@ -1171,8 +1171,8 @@
 				[call attack-effect]
 					subject: $args.subject
 					entities: $local.entities
-					attack: $= $local.effect-compound.attack
-					damages: $= $local.effect-compound.damages
+					attack: $local.effect-compound.attack
+					damages: $local.effect-compound.damages
 					defense-type: $local.effect.defense-type
 					miss-flavor: $local.effect.miss-flavor
 					hit-flavor: $local.effect.hit-flavor
@@ -1182,7 +1182,7 @@
 				[call healing-effect]
 					subject: $args.subject
 					entities: $local.entities
-					healing: $= $local.effect-compound.healing
+					healing: $local.effect-compound.healing
 					flavor: $local.effect.flavor
 
 
@@ -1203,13 +1203,13 @@
 
 			# If the target is currently attacking/pressing the current position and is not defensive,
 			# act as if its y twice as close as the spash y position, because of encirclement
-			[set $local.press-pos] $= $local.target.adhoc.fight.press-target.adhoc.fight.position
+			[set $local.press-pos] $local.target.adhoc.fight.press-target.adhoc.fight.position
 
 			[if $local.press-pos && ( $local.target.adhoc.fight.offensiveness >= 0 ) && ( $local.press-pos.x = $args.position.x ) && ( $local.press-pos.y = $args.position.y )]
 				# Divide the delta-y by 2
-				[set $local.target-pos.y] $= avg $local.target-pos.y $args.position.y
+				[set $local.target-pos.y] $= avg( $local.target-pos.y , $args.position.y )
 
-			[set $local.distance] $= hypot ( $local.target-pos.x - $args.position.x ) ( $local.target-pos.y - $args.position.y )
+			[set $local.distance] $= hypot( $local.target-pos.x - $args.position.x , $local.target-pos.y - $args.position.y )
 
 			[if $local.distance <= $args.radius]
 				[append $local.entities] $local.target
@@ -1225,8 +1225,8 @@
 
 		[foreach $args.entities => $target]
 
-			[set $local.attack-score] $= $args.attack
-			[set $local.defense-score] $= $target.actual-usages[$args.defense-type].compound.defense
+			[set $local.attack-score] $args.attack
+			[set $local.defense-score] $target.actual-usages[$args.defense-type].compound.defense
 
 			[call pressure] $target
 
@@ -1276,7 +1276,7 @@
 
 	[fn deadly-push]
 		[set $local.attack-score]
-			$= ( max $subject.actual.stats.strength ( $subject.actual.stats.fighting - 3 ) )
+			$= ( max( $subject.actual.stats.strength , $subject.actual.stats.fighting - 3 ) )
 			$= * $fight.deadly-push.bonus-factor
 		[set $local.defense-score] $= $target.actual.stats.strength
 		

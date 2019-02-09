@@ -232,7 +232,7 @@
 	# Equip an ability as primary, or make any equipped item (ability or not) a primary
 	[scene ability-usage-menu]
 		[set $subject] $args.subject
-		[set $usage] $= ( $args.usage is-set? ) ? $args.usage true
+		[set $usage] $= $args.usage is-set? $args.usage true
 		
 		[message] $> Use what?
 		
@@ -302,7 +302,7 @@
 	[scene equip-object-slot-menu]
 		[set $subject] $args.subject
 		[set $local.scheduler] $args.scheduler
-		[set $slot] $= ( $args.slot is-set? ) ? $args.slot "hand"
+		[set $slot] $= $args.slot is-set? $args.slot "hand"
 		
 		[if $slot = "hand"]
 			[set $equip-verb] $> wield
@@ -458,7 +458,7 @@
 			
 			[if ( $args.buy-price is-number? ) && ( $local.item.own-stats.price is-number? )]
 				[set $local.verb] buy
-				[set $local.price] $= ceil ( $local.item.own-stats.price * $args.buy-price )
+				[set $local.price] $= ceil( $local.item.own-stats.price * $args.buy-price )
 				[set $local.price-string] $> (${local.price}[$:cash-unit])
 			[else]
 				[set $local.verb] grab
@@ -491,7 +491,7 @@
 			
 			[if ( $args.sell-price is-number? ) && ( $local.item.own-stats.price is-number? )]
 				[set $local.verb] sell
-				[set $local.price] $= floor ( $local.item.own-stats.price * $args.sell-price )
+				[set $local.price] $= floor( $local.item.own-stats.price * $args.sell-price )
 				[set $local.price-string] $> (${local.price}[$:cash-unit])
 			[else]
 				[set $local.verb] drop

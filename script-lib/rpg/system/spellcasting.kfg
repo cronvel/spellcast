@@ -14,8 +14,8 @@
 			[return] false
 		
 		# First, mana consumption
-		[set $local.cast-score] $= $args.usage.compound.mana
-		[set $local.vs-score] $= $args.usage.params.mana-level
+		[set $local.cast-score] $args.usage.compound.mana
+		[set $local.vs-score] $args.usage.params.mana-level
 		
 		#[message] $> Mana ${local.cast-score} vs ${local.vs-score}
 		
@@ -45,8 +45,8 @@
 		
 		
 		# Then spellcasting
-		[set $local.cast-score] $= $args.usage.compound.spellcasting
-		[set $local.vs-score] $= $args.usage.params.spell-level
+		[set $local.cast-score] $args.usage.compound.spellcasting
+		[set $local.vs-score] $args.usage.params.spell-level
 		
 		[if $args.bonus-factor is-set?]
 			[mul $local.cast-score] $args.bonus-factor

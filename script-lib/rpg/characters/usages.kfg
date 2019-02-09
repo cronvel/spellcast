@@ -19,7 +19,7 @@
 	# Guard is the defensive anti-aiming stat, mostly provided by shields
 	guard: $= $stats.fighting ^° 0.333
 	# When used in close range, a ranged attack should win the close-range pass, using this stat
-	close-ranged: $= ( avg $stats.shooting $stats.fighting ) * $status.body-bonus-factor
+	close-ranged: $= ( avg( $stats.shooting , $stats.fighting ) ) * $status.body-bonus-factor
 	attack: $= $stats.shooting * ( $status.body-bonus-factor ^ 0.5 )
 	defense: $= $stats.fighting * $status.body-bonus-factor
 	damages: $= $stats.strength * $status.body-bonus-factor
