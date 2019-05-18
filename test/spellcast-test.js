@@ -30,19 +30,20 @@
 
 
 
-var fs = require( 'fs' ) ;
+const fs = require( 'fs' ) ;
 
-var fsKit = require( 'fs-kit' ) ;
-var string = require( 'string-kit' ) ;
+const fsKit = require( 'fs-kit' ) ;
+const string = require( 'string-kit' ) ;
 
-//var Book = require( '../lib/Book.js' ) ;
-var StoryBook = require( '../lib/StoryBook.js' ) ;
-var CasterBook = require( '../lib/CasterBook.js' ) ;
-var Client = require( '../lib/Client.js' ) ;
-var UnitUI = require( '../lib/ui/unit.js' ) ;
+//const Book = require( '../lib/Book.js' ) ;
+const StoryBook = require( '../lib/StoryBook.js' ) ;
+const CasterBook = require( '../lib/CasterBook.js' ) ;
+const kungFig = require( 'kung-fig' ) ;
+const Client = require( '../lib/Client.js' ) ;
+const UnitUI = require( '../lib/ui/unit.js' ) ;
 
-var Logfella = require( 'logfella' ) ;
-var log = Logfella.global.use( 'unit-tests' ) ;
+const Logfella = require( 'logfella' ) ;
+const log = Logfella.global.use( 'unit-tests' ) ;
 
 Logfella.global.setGlobalConfig( {
 	minLevel: 'info' ,
