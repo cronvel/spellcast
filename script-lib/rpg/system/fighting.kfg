@@ -6,7 +6,6 @@
 
 	# We have to gosub to that scene, not call to a fn, because we need a fresh scope
 	[scene fight]
-
 		[add-to-panel]
 			-	label: $> Primary/ability
 				image: /icons/primary.svg
@@ -107,7 +106,6 @@
 
 
 	[fn scheduler-loop]
-		
 		[set $fight.time] 0
 		[set $fight.round] 0
 		
@@ -269,7 +267,6 @@
 
 
 	[fn battle-lines]
-
 		[filter $fight.alive-foes => $front] $= $this.adhoc.fight.offensiveness > 0
 		[filter $fight.alive-foes => $middle] $= $this.adhoc.fight.offensiveness = 0
 		[filter $fight.alive-foes => $back] $= $this.adhoc.fight.offensiveness < 0
@@ -328,7 +325,6 @@
 
 
 	[fn npc-turn]
-
 		[call npc-targeting]
 		#[call npc-targeting => $local.target]
 
@@ -359,7 +355,6 @@
 
 
 	[fn npc-targeting]
-
 		[set $local.possible-targets] <Array>
 
 		[if ( $fight.subject.adhoc.fight.side = "allies" ) xor ( $args.target-allies )]
@@ -1219,12 +1214,10 @@
 
 
 	[fn attack-effect]
-
 		[if $args.usage-type is-empty?]
 			[set $args.defense-type] ranged-fighting
 
 		[foreach $args.entities => $target]
-
 			[set $local.attack-score] $args.attack
 			[set $local.defense-score] $target.actual-usages[$args.defense-type].compound.defense
 
@@ -1261,9 +1254,7 @@
 
 
 	[fn healing-effect]
-
 		[foreach $args.entities => $target]
-
 			[if $target != $args.subject]
 				[inc $target.adhoc.fight.goneThrough]
 			
