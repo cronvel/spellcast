@@ -34,7 +34,7 @@
     "svg-kit": "^0.1.21",
     "terminal-kit": "^1.28.0",
     "tree-kit": "^0.6.1",
-    "utterminal": "^0.5.34",
+    "utterminal": "^0.5.35",
     "xregexp": "4.2.0"
   },
   "devDependencies": {
