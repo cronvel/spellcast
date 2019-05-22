@@ -25,7 +25,6 @@
     "kung-fig": "^0.52.3",
     "logfella": "^1.2.4",
     "math-kit": "^0.12.4",
-    "minimist": "^1.2.0",
     "nextgen-events": "^1.1.1",
     "nomi-ninja": "^0.1.1",
     "semver": "^6.0.0",
@@ -35,6 +34,7 @@
     "svg-kit": "^0.1.21",
     "terminal-kit": "^1.28.0",
     "tree-kit": "^0.6.1",
+    "utterminal": "^0.5.34",
     "xregexp": "4.2.0"
   },
   "devDependencies": {
