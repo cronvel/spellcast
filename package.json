@@ -15,7 +15,7 @@
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
     "babel-tower": "^0.18.2",
-    "chokidar": "cronvel/chokidar#656b283fd07a8c5916d57733d08d50f927152b08",
+    "chokidar": "^3.0.0",
     "dom-kit": "^0.3.10",
     "doormen": "^0.9.3",
     "fs-kit": "^0.3.2",
@@ -29,8 +29,8 @@
     "nextgen-events": "^1.1.1",
     "nomi-ninja": "^0.1.1",
     "semver": "^6.0.0",
-    "server-kit": "^0.9.12",
-    "seventh": "^0.7.21",
+    "server-kit": "^0.9.14",
+    "seventh": "^0.7.23",
     "string-kit": "^0.9.5",
     "svg-kit": "^0.1.21",
     "terminal-kit": "^1.28.0",
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "browserify": "^16.2.3",
-    "electron": "^3.0.10",
+    "electron": "^5.0.1",
     "uglify-es": "^3.3.9"
   },
   "scripts": {
