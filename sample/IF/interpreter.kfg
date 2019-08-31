@@ -3,22 +3,31 @@
 
 
 
-[interpreter bot]
+[interpreter command-interpreter]
 	
 	[substitutions]
 		input: <Object>
 	
 	[pattern-list]
 		- input
-		- topic
 	
 	[query]
 		[pattern] > go *
 		[pattern] > go to *
-		[reply] $> Go to: <${args.stars.input[0]}>
+		[reply]
+			command: go
+			target: $args.stars.input[0]
 		
 	[query]
-		[pattern] > get *
-		[pattern] > go to *
-		[reply] $> Go to: <${args.stars.input[0]}>
+		[pattern] > attack *
+		[pattern] > hit *
+		[reply]
+			command: attack
+			target: $args.stars.input[0]
+		
+	# Catchall
+	#[query]
+	#	[pattern] > *
+	#	#[pattern] > *
+	#	[reply] $> ${args.stars.input[0]}
 		

@@ -28,7 +28,8 @@
 		#[pattern mood] happy
 		
 		# <something> is like an AIML <srai>something</srai>: it performs a sub-query
-		[reply] $> I know that: <${args.stars.input[0]}>
+		#[reply] $> Yes, I know that: <${args.stars.input[0]}>.
+		[reply] $> Yes, I know that: ${args.stars.input[0]}.
 		
 	[query]
 		[pattern] > do you know that * and that *
@@ -39,7 +40,8 @@
 		#[pattern mood] happy
 		
 		# <something> is like an AIML <srai>something</srai>: it performs a sub-query
-		[reply] $> I know that <${args.stars.input[0]}>. I hear about <${args.stars.input[1]}>
+		#[reply] $> I know that <${args.stars.input[0]}>. I heard about <${args.stars.input[1]}>.
+		[reply] $> I know that ${args.stars.input[0]}. I heard about ${args.stars.input[1]}.
 		
 	[query]
 		[pattern] > hello

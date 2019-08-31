@@ -25,7 +25,6 @@
 
 
 [here-actions]
-	[message] > plop1
 	[call input/input]
 
 
@@ -36,24 +35,55 @@
 		
 		[define $state]
 			input: ""
-		[message] > plop2
+		[message] > input:
 		[input $state.input]
 		[request bot => $reply] $state
+		[message] $> reply: ${reply}
 		[debug] $reply
 
 
 
 [chapter game]
 	
-	[starting-scene intro1]
-		
-		[here]
-			items: <Array>
-		
-		[message]
-			> Some well written texts.
-		
-		[input $text]
-		
-		[message] $> Well: ${text}
+	[starting-scene info]
+		#[message] > Use with --script-debug
+		[goto loop]
+
+	[scene loop]
+		[input $input]
+		[request command-interpreter => $reply] $input
+		[debug] $reply
+		[message] $> Command: ${reply.command}, target: ${reply.target}
+		[goto loop]
+
+
+
+
+[create-main-sandbox]
+	[place garden]
+		ways:
+			-	to: fountain
+				label: to the fountain (south)
+				# if present, 'from' indicate continuation from that direction,
+				# here if we are going from the hall, we can continue to the fountain.
+				from: hall
+			-	to: hall
+				label: to the hall (north)
+				from: fountain
+				door:
+					name: metallic door
+			-	to: chapel
+				label: to the chapel (east)
+				door:
+					name: wood door
+	
+	[place chapel]
+		# no need to define ways, there is only one way out: to the garden,
+		# and a bi-directional passage through a wood door was created by the garden itself
+
+[chapter wanted-api]
+
+	[scene wanted-api]
+		[sandbox]
+
 
