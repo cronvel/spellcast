@@ -80,6 +80,22 @@
 	[place chapel]
 		# no need to define ways, there is only one way out: to the garden,
 		# and a bi-directional passage through a wood door was created by the garden itself
+	
+	[action unlock]
+		[check]
+			[if $args.target.lock = false]
+				[message] $> ${args.target.name} is not locked.
+				[return] false
+			
+			[if $args.target.key != $args.agent]
+				[message] $> ${args.agent.name} can't unlock ${args.target.name}.
+				[return] false
+
+		[on-success]
+			[set $args.target.lock] false
+		
+		[success-report]
+			[message] $> ${args.subject.name} unlock ${args.target.name}.
 
 [chapter wanted-api]
 
