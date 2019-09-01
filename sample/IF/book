@@ -83,19 +83,26 @@
 	
 	[action unlock]
 		[check]
-			[if $args.target.lock = false]
-				[message] $> ${args.target.name} is not locked.
+			[if $target.lock = false]
+				[message] $> ${target.name} is not locked.
 				[return] false
 			
-			[if $args.target.key != $args.agent]
-				[message] $> ${args.agent.name} can't unlock ${args.target.name}.
+			[if $target.key != $using]
+				[message] $> ${using.name} can't unlock ${target.name}.
 				[return] false
 
-		[on-success]
-			[set $args.target.lock] false
+		[effect]
+			[set $target.lock] false
 		
-		[success-report]
-			[message] $> ${args.subject.name} unlock ${args.target.name}.
+		[report]
+			[message] $> ${performer.name} unlocks ${target.name}.
+
+	# like [action][check]
+	[check-action kiss when ( $performer = $player ) and ( $target.name = "Sofia" )]
+		[success]
+	
+	[check-action kiss when $target.params.is-human]
+		[failure]
 
 [chapter wanted-api]
 
