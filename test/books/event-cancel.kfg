@@ -1,0 +1,35 @@
+
+[[doctype spellcast/spellbook]]
+
+[spell event]
+	[on blast]
+		[global]
+		[off]
+		[message]
+			$> Blasted ${args}!
+		[cancel] > cancel-value
+
+	[on blast]
+		[global]
+		[off]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast => $cancel] Troll
+	[message] $> $$cancel: ${cancel}
+
+	[on blast]
+		[global]
+		[off]
+		[message]
+			$> Blasted ${args}!
+		[cancel] > cancel-value2
+
+	[on blast]
+		[global]
+		[off]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast => $cancel] Gnoll
+	[message] $> $$cancel: ${cancel}

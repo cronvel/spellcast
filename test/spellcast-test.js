@@ -1432,6 +1432,22 @@ describe( "API" , () => {
 		] ) ;
 	} ) ;
 
+	it( "Event [cancel] tags" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/event-cancel.kfg' , { type: 'cast' , target: 'event' } ,
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Blasted Troll!' ] ,
+			[ '$cancel: cancel-value' ] ,
+			[ 'Roasted Troll!' ] ,
+			[ 'Blasted Gnoll!' ] ,
+			[ '$cancel: cancel-value2' ]
+		] ) ;
+	} ) ;
+
 	it( "Global listeners [on]+[global] tags" ) ;
 	it( "[emit] tag" ) ;
 } ) ;
