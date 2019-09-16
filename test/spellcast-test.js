@@ -1432,6 +1432,20 @@ describe( "API" , () => {
 		] ) ;
 	} ) ;
 
+	it( "Event [on] tag priorities" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/event-priorities.kfg' , { type: 'cast' , target: 'event' } ,
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Fried Troll!' ] ,
+			[ 'Roasted Troll!' ] ,
+			[ 'Blasted Troll!' ]
+		] ) ;
+	} ) ;
+
 	it( "Event [cancel] tags" , async () => {
 		var messages = [] ;
 
@@ -1445,6 +1459,22 @@ describe( "API" , () => {
 			[ 'Roasted Troll!' ] ,
 			[ 'Blasted Gnoll!' ] ,
 			[ '$cancel: cancel-value2' ]
+		] ) ;
+	} ) ;
+
+	it( "Event [success] and [failure] tags" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/event-success-failure.kfg' , { type: 'cast' , target: 'event' } ,
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Blasted Troll!' ] ,
+			[ '$cancel: success' ] ,
+			[ 'Roasted Troll!' ] ,
+			[ 'Blasted Gnoll!' ] ,
+			[ '$cancel: failure' ]
 		] ) ;
 	} ) ;
 

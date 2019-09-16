@@ -1,0 +1,14 @@
+
+[[doctype spellcast/spellbook]]
+
+[spell event]
+	[on-low blast]
+		[message]
+			$> Blasted ${args}!
+	[on blast]
+		[message]
+			$> Roasted ${args}!
+	[on-high blast]
+		[message]
+			$> Fried ${args}!
+	[emit blast] Troll
