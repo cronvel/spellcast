@@ -18,18 +18,18 @@
 	[emit blast => $cancel] Troll
 	[message] $> $$cancel: ${cancel}
 
-	[on blast]
+	[on blast2]
 		[global]
 		[off]
 		[message]
 			$> Blasted ${args}!
 		[cancel] > cancel-value2
 
-	[on blast]
+	[on blast2]
 		[global]
 		[off]
 		[message]
 			$> Roasted ${args}!
 
-	[emit blast => $cancel] Gnoll
+	[emit blast2 => $cancel] Gnoll
 	[message] $> $$cancel: ${cancel}

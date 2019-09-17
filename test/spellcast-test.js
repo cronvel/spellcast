@@ -1456,7 +1456,6 @@ describe( "API" , () => {
 		expect( messages ).to.equal( [
 			[ 'Blasted Troll!' ] ,
 			[ '$cancel: cancel-value' ] ,
-			[ 'Roasted Trollaaaaa!' ] ,
 			[ 'Blasted Gnoll!' ] ,
 			[ '$cancel: cancel-value2' ]
 		] ) ;
@@ -1472,7 +1471,6 @@ describe( "API" , () => {
 		expect( messages ).to.equal( [
 			[ 'Blasted Troll!' ] ,
 			[ '$cancel: success' ] ,
-			[ 'Roasted Troll!' ] ,
 			[ 'Blasted Gnoll!' ] ,
 			[ '$cancel: failure' ]
 		] ) ;
@@ -1488,9 +1486,14 @@ describe( "API" , () => {
 		expect( messages ).to.equal( [
 			[ 'Blasted Troll!' ] ,
 			[ '1: Success!' ] ,
-			[ 'Roasted Troll!' ] ,
 			[ 'Blasted Gnoll!' ] ,
-			[ '2: Failure!' ]
+			[ '2: Failure!' ] ,
+			[ 'Blasted Giant Rat!' ] ,
+			[ '3: Failure!' ] ,
+			[ 'Blasted Giant Midge!' ] ,
+			[ 'Roasted Giant Midge!' ] ,
+			[ '4: Success!' ] ,
+			[ '5: Success!' ]
 		] ) ;
 	} ) ;
 

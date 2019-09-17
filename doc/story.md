@@ -120,12 +120,16 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Copy-within Tag](#ref.ops.copy-within)
 	* [Event Tags](#ref.event)
 		* [Emit Tag](#ref.event.emit)
+			* [On-success Tag](#ref.event.emit.on-success)
+			* [On-failure Tag](#ref.event.emit.on-failure)
 		* [On Tag](#ref.event.on)
 			* [Global Tag](#ref.event.on.global)
 			* [Default Tag](#ref.event.on.default)
 			* [Id Tag](#ref.event.on.id)
 		* [Off Tag](#ref.event.off)
 		* [Cancel Tag](#ref.event.cancel)
+		* [Success Tag](#ref.event.success)
+		* [Failure Tag](#ref.event.failure)
 		* [Client-emit Tag](#ref.event.client-emit)
 	* [Multiplayer Tags](#ref.multiplayer)
 		* [Role Tag](#ref.multiplayer.role)
@@ -2151,18 +2155,82 @@ The value can be of any type, and is produced by the listener.
 
 
 
-<a name="ref.event.on"></a>
-## [on *event-label*]
+### Emit construct
 
-* types: run, exec
-* attribute style: label
+It is possible to attach to an *emit* tag an *on-success* and/or an *on-failure* tag, those tags **MUST** come immediately after the *emit* tag,
+the same way *elseif* and *else* tags come after an *if* tag.
+
+The execution of those tags depends on wether the *emit* tag succeeded or failed.
+
+An *emit* tag succeed if:
+- there is no listener attached to the emitted *event*
+- no listener have *cancelled* (i.e. interrupted) the event emitting
+- a listener have *cancelled* the event emitting with a *success* tag, or alternatively (not recommended) with a *cancel* tag whose value is the string `'success'`
+
+Reciprocally, an *emit* tag fails if:
+- a listener have *cancelled* the event emitting with a *failure* tag, or alternatively (not recommended) with a *cancel* tag whose value is the string `'failure'`
+- a listener have *cancelled* the event emitting with a *cancel* tag with no value or with any value different from `'success'`
+
+Exemple:
+```
+[on blast]
+	[message]
+		$> Blasted ${args}!
+	[success]
+
+[on blast]
+	[message]
+		$> Roasted ${args}!
+
+[emit blast] Troll
+[on-success]
+	[message] $> Blast: Success!
+[on-failure]
+	[message] $> Blast: Failure!
+```
+
+This will output `"Blasted Troll!"` and `"Blast: Success!"`.
+The second event listener is not triggered because the event is interrupted.
+Since the first listener is interrupted with a success, the *on-success* tag is triggered.
+
+
+
+<a name="ref.event.emit.on-success"></a>
+### [on-success]
+
+* types: run
+* attribute style: none
 * content type: tags
 
-The *on* tag listen for the *event-label* event: whenever the event is fired, it executes its content.
+The *on-success* is part of the *emit* tag construct.
+The *on-success* tag runs its content if the *emit* construct it is part of have succeeded.
+
+
+
+<a name="ref.event.emit.on-failure"></a>
+### [on-failure]
+
+* types: run
+* attribute style: none
+* content type: tags
+
+The *on-failure* is part of the *emit* tag construct.
+The *on-failure* tag runs its content if the *emit* construct it is part of have failed.
+
+
+
+<a name="ref.event.on"></a>
+## [on *event-name*] / [on $emitter *event-name*] / [on `<`*priority*`>` *event-name*] / [on <*priority*> $emitter *event-name*]
+
+* types: run, exec
+* attribute style: specific
+* content type: tags
+
+The *on* tag listen for the *event-name* event: whenever the event is fired, it executes its content.
 
 The content of the *on* tag is called a **listener**.
 
-Inside the listener, the special **$args** variable will contain the data of the event, e.g. the solved content
+Inside the listener, the special **$args** variable will contain the data of the event, i.e. the solved content
 of the *emit* tag that fired the event.
 The context inside the listener is **NOT** the context of the parent tag, **INSTEAD** the context of the emitter is used.
 In fact, listeners work almost like functions defined by the *fn* tag.
@@ -2173,6 +2241,14 @@ But it still apply for any nested level of sub-scene (*gosub*).
 
 Parameters tags can modify many things about the listener mechanism, but there are **NOT** dynamic,
 i.e. they do not contain variable but direct constant data.
+
+**When the $emitter syntax is used:** instead of listening the event globally, instead it listen the event *on* a particular *emitter* object.
+
+**When the `<`*priority*`>` syntax is used:** it set the priority for that listener (default to *medium* or 0).
+The value for *priority* can be any number or one of those special string values:
+- low: replaced by -1
+- medium: replaced by 0
+- high: replaced by 1
 
 
 
@@ -2235,7 +2311,7 @@ If the tag has no content, then the *off* tag must be inside a *on* tag, the lis
 
 The *cancel* tag is meant to cancel something in progress.
 
-When used inside a *on*-family tag (*on, once, on-global, once-global* tags), it immediately exit (like *return*).
+When used inside a *on* tag, it immediately exit (like *return*).
 **Furthermore it aborts the event propagation:** listeners that haven't been triggered yet will never receive the event.
 
 If the *emit* tag has used the `[emit event => $cancelReason]` syntax,
@@ -2248,6 +2324,40 @@ If the content value is any *falsy* value, it will be replaced by `true`.
 It can be used to aborts the *next* tag validation sequence, e.g. placed inside a *on-trigger* tag,
 or inside a function called by the *on-trigger* tag.
 Doing so abort the *next* tag execution: the scene remains the same, just as if a the *[next]* tag was a *[fake-next]* tag.
+
+
+
+<a name="ref.event.success"></a>
+## [success]
+
+* types: run
+* attribute style: none
+* content type: none
+
+The *success* tag is used inside a *on* tag.
+
+It immediately exits (like *return*) the current execution of the *on* tag.
+**Furthermore it aborts the event propagation:** listeners that haven't been triggered yet will never receive the event.
+
+If the *emit* tag that triggered that listener have a *on-success* construct, that *on-success* tag is immediately triggered.
+If the *emit* tag has used the `[emit event => $cancelReason]` syntax, then the *$cancelReason* variable will be assigned the string `"success"`.
+
+
+
+<a name="ref.event.failure"></a>
+## [failure]
+
+* types: run
+* attribute style: none
+* content type: none
+
+The *failure* tag is used inside a *on* tag.
+
+It immediately exits (like *return*) the current execution of the *on* tag.
+**Furthermore it aborts the event propagation:** listeners that haven't been triggered yet will never receive the event.
+
+If the *emit* tag that triggered that listener have a *on-failure* construct, that *on-failure* tag is immediately triggered.
+If the *emit* tag has used the `[emit event => $cancelReason]` syntax, then the *$cancelReason* variable will be assigned the string `"failure"`.
 
 
 

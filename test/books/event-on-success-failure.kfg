@@ -21,22 +21,67 @@
 	[on-failure]
 		[message] $> 1: Failure!
 
-	[on blast]
+	[on blast2]
 		[global]
 		[off]
 		[message]
 			$> Blasted ${args}!
 		[failure]
 
-	[on blast]
+	[on blast2]
 		[global]
 		[off]
 		[message]
 			$> Roasted ${args}!
 
-	[emit blast] Gnoll
+	[emit blast2] Gnoll
 	[on-success]
 		[message] $> 2: Success!
 	[on-failure]
 		[message] $> 2: Failure!
+
+	[on blast3]
+		[global]
+		[off]
+		[message]
+			$> Blasted ${args}!
+		[cancel]
+
+	[on blast3]
+		[global]
+		[off]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast3] Giant Rat
+	[on-success]
+		[message] $> 3: Success!
+	[on-failure]
+		[message] $> 3: Failure!
+
+
+	[on blast4]
+		[global]
+		[off]
+		[message]
+			$> Blasted ${args}!
+
+	[on blast4]
+		[global]
+		[off]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast4] Giant Midge
+	[on-success]
+		[message] $> 4: Success!
+	[on-failure]
+		[message] $> 4: Failure!
+
+
+	[emit blast5] Phantom
+	[on-success]
+		[message] $> 5: Success!
+	[on-failure]
+		[message] $> 5: Failure!
 
