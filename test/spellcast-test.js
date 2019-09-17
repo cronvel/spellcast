@@ -1456,7 +1456,7 @@ describe( "API" , () => {
 		expect( messages ).to.equal( [
 			[ 'Blasted Troll!' ] ,
 			[ '$cancel: cancel-value' ] ,
-			[ 'Roasted Troll!' ] ,
+			[ 'Roasted Trollaaaaa!' ] ,
 			[ 'Blasted Gnoll!' ] ,
 			[ '$cancel: cancel-value2' ]
 		] ) ;
@@ -1475,6 +1475,22 @@ describe( "API" , () => {
 			[ 'Roasted Troll!' ] ,
 			[ 'Blasted Gnoll!' ] ,
 			[ '$cancel: failure' ]
+		] ) ;
+	} ) ;
+
+	it( "Event [success] and [failure] in conjunction with [on-success] and [on-failure] tags" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/event-on-success-failure.kfg' , { type: 'cast' , target: 'event' } ,
+			ui => ui.bus.on( 'message' , ( msg ) => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Blasted Troll!' ] ,
+			[ '1: Success!' ] ,
+			[ 'Roasted Troll!' ] ,
+			[ 'Blasted Gnoll!' ] ,
+			[ '2: Failure!' ]
 		] ) ;
 	} ) ;
 

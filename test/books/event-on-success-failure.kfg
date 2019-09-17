@@ -1,0 +1,42 @@
+
+[[doctype spellcast/spellbook]]
+
+[spell event]
+	[on blast]
+		[global]
+		[off]
+		[message]
+			$> Blasted ${args}!
+		[success]
+
+	[on blast]
+		[global]
+		[off]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast] Troll
+	[on-success]
+		[message] $> 1: Success!
+	[on-failure]
+		[message] $> 1: Failure!
+
+	[on blast]
+		[global]
+		[off]
+		[message]
+			$> Blasted ${args}!
+		[failure]
+
+	[on blast]
+		[global]
+		[off]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast] Gnoll
+	[on-success]
+		[message] $> 2: Success!
+	[on-failure]
+		[message] $> 2: Failure!
+
