@@ -45,7 +45,7 @@
 
 [chapter game]
 	
-	[starting-scene info]
+	[scene info]
 		#[message] > Use with --script-debug
 		[goto loop]
 
@@ -122,4 +122,14 @@
 	[scene wanted-sandbox-api]
 		[sandbox]
 
+
+[chapter test]
+
+	[starting-scene test]
+		[action drink]
+			[effect]
+				[message] $> ${args.performer.name//uc1} drinks some water.
+		
+		[perform drink]
+			performer: $player
 
