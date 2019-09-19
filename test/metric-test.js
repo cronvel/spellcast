@@ -31,7 +31,7 @@
 
 
 var string = require( 'string-kit' ) ;
-var Metric = require( '../lib/rpg/Metric.js' ) ;
+var Metric = require( '../lib/objects/Metric.js' ) ;
 
 
 

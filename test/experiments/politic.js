@@ -25,7 +25,7 @@
 */
 "use strict" ;
 
-var Demographic = require( '../../lib/rpg/Demographic.js' ) ;
+var Demographic = require( '../../lib/objects/Demographic.js' ) ;
 
 // This test the Demographic class
 

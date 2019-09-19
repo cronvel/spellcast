@@ -127,9 +127,13 @@
 
 	[starting-scene test]
 		[action drink]
+			[require]
+				- commander
+				- performer
 			[effect]
 				[message] $> ${args.performer.name//uc1} drinks some water.
 		
 		[perform drink]
+			commander: $player
 			performer: $player
 
