@@ -82,6 +82,12 @@
 		# and a bi-directional passage through a wood door was created by the garden itself
 	
 	[action unlock]
+		[require]
+			- performer
+			- target
+		[optional]
+			- using
+		
 		[check]
 			[if $target.lock = false]
 				[message] $> ${target.name} is not locked.
@@ -107,6 +113,13 @@
 [chapter wanted-api]
 
 	[scene wanted-api]
+		[perform $reply.command]
+		
+		[perform unlock]
+			performer: $player
+			target: $door
+		
+	[scene wanted-sandbox-api]
 		[sandbox]
 
 
