@@ -107,8 +107,8 @@
 				[next inventory-menu]
 					[label] $> Unequip and drop ${item.name}
 					[on-trigger]
-						[emit rpg:drop-item => $local.cancel] $item
-						[if ! $local.cancel]
+						[emit rpg:drop-item] $item
+						[on-success]
 							[set $equipped] false
 							[unequip $subject]
 								item: $item
@@ -128,8 +128,8 @@
 				[next inventory-menu]
 					[label] $> Drop ${item.name}
 					[on-trigger]
-						[emit rpg:drop-item => $local.cancel] $item
-						[if ! $local.cancel]
+						[emit rpg:drop-item] $item
+						[on-success]
 							[drop $subject]
 								item: $item
 								stack: $stack

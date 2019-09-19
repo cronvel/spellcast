@@ -22,7 +22,7 @@
 		[message]
 			> Hey! You can't drop such a classy cloak on the ground!
 			>
-		[cancel]
+		[failure]
 
 
 
