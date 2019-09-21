@@ -1470,9 +1470,9 @@ describe( "API" , () => {
 
 		expect( messages ).to.equal( [
 			[ 'Blasted Troll!' ] ,
-			[ '$cancel: success' ] ,
+			[ '$cancel: true' ] ,
 			[ 'Blasted Gnoll!' ] ,
-			[ '$cancel: failure' ]
+			[ '$cancel: true' ]
 		] ) ;
 	} ) ;
 

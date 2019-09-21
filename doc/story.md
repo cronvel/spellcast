@@ -130,6 +130,8 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Cancel Tag](#ref.event.cancel)
 		* [Success Tag](#ref.event.success)
 		* [Failure Tag](#ref.event.failure)
+		* [Maybe Success Tag](#ref.event.maybe-success)
+		* [Maybe Failure Tag](#ref.event.maybe-failure)
 		* [Client-emit Tag](#ref.event.client-emit)
 	* [Multiplayer Tags](#ref.multiplayer)
 		* [Role Tag](#ref.multiplayer.role)
@@ -2165,11 +2167,15 @@ The execution of those tags depends on wether the *emit* tag succeeded or failed
 An *emit* tag succeed if:
 - there is no listener attached to the emitted *event*
 - no listener have *cancelled* (i.e. interrupted) the event emitting
-- a listener have *cancelled* the event emitting with a *success* tag, or alternatively (not recommended) with a *cancel* tag whose value is the string `'success'`
+- a listener have *cancelled* the event emitting with a *success* tag
+- a listener have *cancelled* the event emitting with a *cancel* tag but a *maybe-success* tag was encountered during some listener's execution
 
 Reciprocally, an *emit* tag fails if:
-- a listener have *cancelled* the event emitting with a *failure* tag, or alternatively (not recommended) with a *cancel* tag whose value is the string `'failure'`
-- a listener have *cancelled* the event emitting with a *cancel* tag with no value or with any value different from `'success'`
+- a listener have *cancelled* the event emitting with a *failure* tag
+- a listener have *cancelled* the event emitting with a *cancel* tag
+- no listener have *cancelled* the event emitting but a *maybe-failure* tag was encountered during some listener's execution
+
+If multiple *maybe-success*/*maybe-failure* tags are encountered, the last one prevails.
 
 Exemple:
 ```
@@ -2340,7 +2346,6 @@ It immediately exits (like *return*) the current execution of the *on* tag.
 **Furthermore it aborts the event propagation:** listeners that haven't been triggered yet will never receive the event.
 
 If the *emit* tag that triggered that listener have a *on-success* construct, that *on-success* tag is immediately triggered.
-If the *emit* tag has used the `[emit event => $cancelReason]` syntax, then the *$cancelReason* variable will be assigned the string `"success"`.
 
 
 
@@ -2357,7 +2362,38 @@ It immediately exits (like *return*) the current execution of the *on* tag.
 **Furthermore it aborts the event propagation:** listeners that haven't been triggered yet will never receive the event.
 
 If the *emit* tag that triggered that listener have a *on-failure* construct, that *on-failure* tag is immediately triggered.
-If the *emit* tag has used the `[emit event => $cancelReason]` syntax, then the *$cancelReason* variable will be assigned the string `"failure"`.
+
+
+
+<a name="ref.event.maybe-success"></a>
+## [maybe-success]
+
+* types: run
+* attribute style: none
+* content type: none
+
+The *maybe-success* tag is used inside a *on* tag.
+
+It marks the current event as a success: if no other *success/failure/maybe-success/maybe-failure* are encountered and
+if the *emit* tag that triggered that listener have a *on-success* construct, that *on-success* tag will enventually be triggered.
+
+**Note:** It does not exits the current execution of the *on* tag and does not aborts the event propagation (like the *success* tag would).
+
+
+
+<a name="ref.event.maybe-failure"></a>
+## [maybe-failure]
+
+* types: run
+* attribute style: none
+* content type: none
+
+The *maybe-failure* tag is used inside a *on* tag.
+
+It marks the current event as a failure: if no other *success/failure/maybe-success/maybe-failure* are encountered and
+if the *emit* tag that triggered that listener have a *on-failure* construct, that *on-failure* tag will enventually be triggered.
+
+**Note:** It does not exits the current execution of the *on* tag and does not aborts the event propagation (like the *failure* tag would).
 
 
 
