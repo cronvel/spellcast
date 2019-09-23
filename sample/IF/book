@@ -166,6 +166,9 @@
 		[on $player performer:drink]
 			[message] $> performer:drink
 		
+		[on $item using:drink]
+			[message] $> using:drink
+		
 		[perform drink]
 			commander: $player
 			performer: $player
