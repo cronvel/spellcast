@@ -2,7 +2,7 @@
 [[doctype spellcast/book]]
 
 [module] @@{core}/utils.kfg
-#[module] @@{rpg}/system/inventory.kfg
+[module] @@{rpg}/characters/common-characters.kfg
 
 [module] @@interpreter.kfg
 
@@ -138,6 +138,10 @@
 	[starting-scene test]
 		[create-item $item] water
 		
+		[create-entity $sofia]
+			model: human
+			name: Sofia
+
 		[action drink]
 			[check]
 				[message] $> Check #1
@@ -149,38 +153,53 @@
 			[require]
 				- commander
 				- performer
-				- using
+				- object
 			[effect]
-				[message] $> ${args.performer.name//uc1} drinks ${args.using.name}.
+				[message] $> ^B${args.performer.name//uc1} drinks ${args.object.name}.
 		
 		[on action:drink]
-			[if $args.using.status.quantity <= 0]
-				[message] $> Hey ${args.performer.name}! There is no more ${args.using.name}!
+			[if $args.object.status.quantity <= 0]
+				[message] $> ^yHey ${args.performer.name}! There is no more ${args.object.name}!
 				[failure]
-			[dec $args.using.status.quantity]
+			[dec $args.object.status.quantity]
 			[maybe-success]
 
 		[on <low> action:drink]
-			[message] $> LOL
+			[message] $> action:drink
+		
+		[on $player commanding:drink]
+			[message] $> commanding:drink player
+		
+		[on $player commanded:drink]
+			[message] $> commanded:drink player
+		
+		[on $sofia commanded:drink]
+			[message] $> commanded:drink sofia
+			#[maybe-success]
 		
 		[on $player performer:drink]
-			[message] $> performer:drink
+			[message] $> performer:drink player
 		
-		[on $item using:drink]
-			[message] $> using:drink
+		[on $item object:drink]
+			[message] $> object:drink item
 		
 		[perform drink]
 			commander: $player
-			performer: $player
-			using: $item
+			performer: $sofia
+			object: $item
 
 		[perform drink]
 			commander: $player
 			performer: $player
-			using: $item
+			object: $item
 
 		[perform drink]
 			commander: $player
 			performer: $player
-			using: $item
+			object: $item
+
+		[perform drink]
+			commander: $player
+			performer: $player
+			object: $item
 
