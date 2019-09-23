@@ -128,7 +128,9 @@
 
 [item-model water]
 	class: object
-	name: a bottle of water
+	name: water
+	status:
+		quantity: 2
 
 
 [chapter test]
@@ -137,6 +139,13 @@
 		[create-item $item] water
 		
 		[action drink]
+			[check]
+				[message] $> Check #1
+			[check]
+				[message] $> Check #2
+			[check <low>]
+				[message] $> Check #3
+			
 			[require]
 				- commander
 				- performer
@@ -144,8 +153,29 @@
 			[effect]
 				[message] $> ${args.performer.name//uc1} drinks ${args.using.name}.
 		
-		#[on action:drink]
+		[on action:drink]
+			[if $args.using.status.quantity <= 0]
+				[message] $> Hey ${args.performer.name}! There is no more ${args.using.name}!
+				[failure]
+			[dec $args.using.status.quantity]
+			[maybe-success]
+
+		[on <low> action:drink]
+			[message] $> LOL
 		
+		[on $player performer:drink]
+			[message] $> performer:drink
+		
+		[perform drink]
+			commander: $player
+			performer: $player
+			using: $item
+
+		[perform drink]
+			commander: $player
+			performer: $player
+			using: $item
+
 		[perform drink]
 			commander: $player
 			performer: $player
