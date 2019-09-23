@@ -123,17 +123,31 @@
 		[sandbox]
 
 
+
+
+
+[item-model water]
+	class: object
+	name: a bottle of water
+
+
 [chapter test]
 
 	[starting-scene test]
+		[create-item $item] water
+		
 		[action drink]
 			[require]
 				- commander
 				- performer
+				- using
 			[effect]
-				[message] $> ${args.performer.name//uc1} drinks some water.
+				[message] $> ${args.performer.name//uc1} drinks ${args.using.name}.
+		
+		#[on action:drink]
 		
 		[perform drink]
 			commander: $player
 			performer: $player
+			using: $item
 

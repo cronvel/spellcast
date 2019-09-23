@@ -67,7 +67,7 @@
 				goneThrough: 0
 				alertness: $= 100 / $local.foe.actual.stats.fighting
 			[add-to-scheduler $fight.scheduler]
-				subject: $local.foe
+				performer: $local.foe
 				ready-time: $local.foe.adhoc.fight.alertness
 
 		[foreach $args.allies => $local.index : $local.ally]
@@ -84,7 +84,7 @@
 				goneThrough: 0
 				alertness: $= 100 / $local.ally.actual.stats.fighting
 			[add-to-scheduler $fight.scheduler]
-				subject: $local.ally
+				performer: $local.ally
 				ready-time: $local.ally.adhoc.fight.alertness
 
 		#[debug info] $fight.allies
@@ -120,41 +120,41 @@
 			[set $fight.ended] true
 		
 		[on $fight.scheduler ready]
-			#[message] $> ready: ${args.subject.name}
+			#[message] $> ready: ${args.performer.name}
 			
-			[if $args.subject.status.health <= 0]
-				[call manage-death] $args.subject
+			[if $args.performer.status.health <= 0]
+				[call manage-death] $args.performer
 				[return]
 			[elseif $fight.ending]
-				[remove-from-scheduler $fight.scheduler] $args.subject
+				[remove-from-scheduler $fight.scheduler] $args.performer
 				[return]
 			
-			[set $fight.subject] $args.subject
+			[set $fight.performer] $args.performer
 			
-			[if $args.subject.npc]
+			[if $args.performer.npc]
 				[call npc-turn]
 			[else]
 				[gosub pc-turn]
 		
 		# Not useful, it kicks in immediately after	ready
 		#[on $fight.scheduler started]
-		#	[message] $> started: ${args.subject.name} ${args.action}
+		#	[message] $> started: ${args.performer.name} ${args.action}
 		
 		[on $fight.scheduler prepared]
-			[if $args.subject.status.health <= 0]
-				[call manage-death] $args.subject
+			[if $args.performer.status.health <= 0]
+				[call manage-death] $args.performer
 				[return]
 			
-			#[message] $> prepared: ${args.subject.name} ${args.action}
+			#[message] $> prepared: ${args.performer.name} ${args.action}
 			[set $local.fn] $= $args.action .. "-prepared"
 			[call $local.fn] $args.action-data
 		
-			[set $args.subject.adhoc.fight.goneThrough] 0
+			[set $args.performer.adhoc.fight.goneThrough] 0
 			
 		[on $fight.scheduler released]
-			#[message] $> released: ${args.subject.name} ${args.action} ${args.action-data.subject}
-			#[if $args.subject.status.health <= 0]
-			[if $args.subject.adhoc.fight.goneThrough]
+			#[message] $> released: ${args.performer.name} ${args.action} ${args.action-data.performer}
+			#[if $args.performer.status.health <= 0]
+			[if $args.performer.adhoc.fight.goneThrough]
 				[message]
 					text: $> ^W^+At the same time: 
 					continue: true
@@ -162,17 +162,17 @@
 			[call $local.fn] $args.action-data
 			
 			# It is called AFTER anything else, the "releasing" state is unbreakable
-			#[message] $> after release: ${args.subject.status.health}
-			[if $args.subject.status.health <= 0]
-				[call manage-death] $args.subject
+			#[message] $> after release: ${args.performer.status.health}
+			[if $args.performer.status.health <= 0]
+				[call manage-death] $args.performer
 		
 		[on $fight.scheduler recovered]
-			#[message] $> recovered: ${args.subject.name} ${args.action} ${args.action-data.subject}
-			[if $args.subject.status.health <= 0]
-				[call manage-death] $args.subject
+			#[message] $> recovered: ${args.performer.name} ${args.action} ${args.action-data.performer}
+			[if $args.performer.status.health <= 0]
+				[call manage-death] $args.performer
 			[elseif $fight.ending]
-				[remove-from-scheduler $fight.scheduler] $args.subject
-			#[message] $> recovered: ${args.subject.name} ${args.action}
+				[remove-from-scheduler $fight.scheduler] $args.performer
+			#[message] $> recovered: ${args.performer.name} ${args.action}
 			#[set $local.fn] $= $args.action .. "-recovered"
 			#[call $local.fn] $args.action-data
 		
@@ -241,7 +241,7 @@
 
 		[gosub loot]
 			# Temp:
-			subject: $fight.allies[0]
+			performer: $fight.allies[0]
 			targets: $fight.foes
 
 
@@ -328,26 +328,26 @@
 		[call npc-targeting]
 		#[call npc-targeting => $local.target]
 
-		[set $subject] $fight.subject
+		[set $performer] $fight.performer
 
-		[if $subject.params.battle-cry && ( ( random ) <= $subject.params.battle-cry )]
-			[if $subject.params.battle-cry-flavor]
-				[set $local.battle-cry] $= random-element $subject.params.battle-cry-flavor
+		[if $performer.params.battle-cry && ( ( random ) <= $performer.params.battle-cry )]
+			[if $performer.params.battle-cry-flavor]
+				[set $local.battle-cry] $= random-element $performer.params.battle-cry-flavor
 				[apply $local.battle-cry => $local.flavor] $
 				[message] $local.flavor
 			[else]
-				[message] $> ${subject.name//uc1} shouts!
+				[message] $> ${performer.name//uc1} shouts!
 
 
-		[if $subject.params.charge && ( ( random ) <= $subject.params.charge )]
+		[if $performer.params.charge && ( ( random ) <= $performer.params.charge )]
 			[call charge]
-				subject: $subject
+				performer: $performer
 				target: $fight.target
 			
 			[return]
 
 		[call melee-fighting]
-			subject: $subject
+			performer: $performer
 			target: $fight.target
 
 		[return]
@@ -357,10 +357,10 @@
 	[fn npc-targeting]
 		[set $local.possible-targets] <Array>
 
-		[if ( $fight.subject.adhoc.fight.side = "allies" ) xor ( $args.target-allies )]
+		[if ( $fight.performer.adhoc.fight.side = "allies" ) xor ( $args.target-allies )]
 			[concat $local.possible-targets] $fight.alive-foes
 
-		[if ( $fight.subject.adhoc.fight.side = "foes" ) xor ( $args.target-allies )]
+		[if ( $fight.performer.adhoc.fight.side = "foes" ) xor ( $args.target-allies )]
 			[concat $local.possible-targets] $fight.alive-allies
 
 		[set $local.index] $= random( $local.possible-targets.length - 1 )
@@ -375,7 +375,7 @@
 		[next-style] table
 		
 		[if $fight.distance = 0]
-			[set $local.item] $fight.subject.primary.melee-fighting
+			[set $local.item] $fight.performer.primary.melee-fighting
 
 			[if $local.item.usages.melee-fighting.primary.params.menu-label]
 				[set $local.label] $local.item.usages.melee-fighting.primary.params.menu-label
@@ -385,39 +385,39 @@
 			[next pc-melee-fighting]
 				[label] $> ${local.label//uc1}
 				[on-trigger]
-					[set $fight.subject.adhoc.fight.offensiveness] 0
+					[set $fight.performer.adhoc.fight.offensiveness] 0
 
 			[next pc-melee-fighting]
 				[label] $> ${local.label//uc1} boldly
 				[on-trigger]
-					[set $fight.subject.adhoc.fight.offensiveness] 1
+					[set $fight.performer.adhoc.fight.offensiveness] 1
 
 			[next pc-melee-fighting]
 				[label] $> ${local.label//uc1} cautiously
 				[on-trigger]
-					[set $fight.subject.adhoc.fight.offensiveness] -1
+					[set $fight.performer.adhoc.fight.offensiveness] -1
 		[else]
 			[next pc-melee-fighting]
 				[label] $> March
 				[on-trigger]
-					[set $fight.subject.adhoc.fight.offensiveness] 0
+					[set $fight.performer.adhoc.fight.offensiveness] 0
 
 			[next pc-melee-fighting]
 				[label] $> March boldly
 				[on-trigger]
-					[set $fight.subject.adhoc.fight.offensiveness] 1
+					[set $fight.performer.adhoc.fight.offensiveness] 1
 
 			[next pc-melee-fighting]
 				[label] $> March cautiously
 				[on-trigger]
-					[set $fight.subject.adhoc.fight.offensiveness] -1
+					[set $fight.performer.adhoc.fight.offensiveness] -1
 
 		[next-group-break]
 		
 		[next pc-charge] $> Charge!
 
-		[if $fight.subject.primary.ranged-fighting]
-			[set $local.item] $fight.subject.primary.ranged-fighting
+		[if $fight.performer.primary.ranged-fighting]
+			[set $local.item] $fight.performer.primary.ranged-fighting
 
 			[if $local.item.usages.ranged-fighting.primary.params.menu-label]
 				[set $local.label] $local.item.usages.ranged-fighting.primary.params.menu-label
@@ -426,8 +426,8 @@
 
 			[next pc-ranged-fighting] $> ${local.label//uc1}
 
-		[if $fight.subject.primary.battle-ability]
-			[set $local.item] $fight.subject.primary.battle-ability
+		[if $fight.performer.primary.battle-ability]
+			[set $local.item] $fight.performer.primary.battle-ability
 
 			[if $local.item.usages.battle-ability.primary.params.menu-label]
 				[set $local.label] $local.item.usages.battle-ability.primary.params.menu-label
@@ -445,7 +445,7 @@
 				[gosub rpg:inventory/ability-menu]
 					[alt]
 					[args]
-						subject: $fight.subject
+						performer: $fight.performer
 
 		[next pc-turn]
 			[label] $> Wield/unwield
@@ -454,14 +454,14 @@
 				[gosub rpg:inventory/equip-object-slot-menu => $local.changed]
 					[alt]
 					[args]
-						subject: $fight.subject
+						performer: $fight.performer
 						slot: hand
 						scheduler: $fight.scheduler
 				[if $local.changed]
-					[set $fight.subject.adhoc.fight.speed] 0
-					[set $fight.subject.adhoc.fight.offensiveness] -1
-					[set $fight.subject.adhoc.fight.press-target] null
-					[set $fight.subject.adhoc.fight.press-value] 0
+					[set $fight.performer.adhoc.fight.speed] 0
+					[set $fight.performer.adhoc.fight.offensiveness] -1
+					[set $fight.performer.adhoc.fight.press-target] null
+					[set $fight.performer.adhoc.fight.press-value] 0
 					[return]
 
 
@@ -471,10 +471,10 @@
 
 		[set $local.possible-targets] <Array>
 
-		[if ( $fight.subject.adhoc.fight.side = "allies" ) xor ( $args.target-allies )]
+		[if ( $fight.performer.adhoc.fight.side = "allies" ) xor ( $args.target-allies )]
 			[concat $local.possible-targets] $fight.alive-foes
 
-		[if ( $fight.subject.adhoc.fight.side = "foes" ) xor ( $args.target-allies )]
+		[if ( $fight.performer.adhoc.fight.side = "foes" ) xor ( $args.target-allies )]
 			[concat $local.possible-targets] $fight.alive-allies
 
 		[if $local.possible-targets.length <= 1]
@@ -505,7 +505,7 @@
 			[gosub pc-targeting]
 				[alt]
 		[call melee-fighting]
-			subject: $fight.subject
+			performer: $fight.performer
 			target: $fight.target
 		[return]
 
@@ -516,7 +516,7 @@
 			[gosub pc-targeting]
 				[alt]
 		[call charge]
-			subject: $fight.subject
+			performer: $fight.performer
 			target: $fight.target
 		[return]
 
@@ -526,7 +526,7 @@
 		[gosub pc-targeting]
 			[alt]
 		[call ranged-fighting]
-			subject: $fight.subject
+			performer: $fight.performer
 			target: $fight.target
 		[return]
 
@@ -534,50 +534,50 @@
 
 	[scene pc-battle-ability]
 		[call battle-ability]
-			subject: $fight.subject
+			performer: $fight.performer
 		[return]
 
 
 
 	[fn melee-fighting]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
 	
-		[set $subject.adhoc.fight.speed] $= $subject.actual.stats.quickness * ( $subject.adhoc.fight.offensiveness ??? 0.3 0.6 0.9 )
+		[set $performer.adhoc.fight.speed] $= $performer.actual.stats.quickness * ( $performer.adhoc.fight.offensiveness ??? 0.3 0.6 0.9 )
 
 		[if $fight.distance > 0]
-			[set $subject.adhoc.fight.press-target] null
-			[set $subject.adhoc.fight.press-value] 0
+			[set $performer.adhoc.fight.press-target] null
+			[set $performer.adhoc.fight.press-value] 0
 
-			[if $subject.adhoc.fight.offensiveness > 0]
-				[message] $> ${subject.name//uc1} runs toward the opposing crew.
-			[elseif $subject.adhoc.fight.offensiveness < 0]
-				[message] $> ${subject.name//uc1} walks cautiously toward the opposing crew.
+			[if $performer.adhoc.fight.offensiveness > 0]
+				[message] $> ${performer.name//uc1} runs toward the opposing crew.
+			[elseif $performer.adhoc.fight.offensiveness < 0]
+				[message] $> ${performer.name//uc1} walks cautiously toward the opposing crew.
 			[else]
-				[message] $> ${subject.name//uc1} marches toward the opposing crew.
+				[message] $> ${performer.name//uc1} marches toward the opposing crew.
 
-		#[message] $> ready time: ${subject.adhoc.fight.alertness}
-		#[message] $> prepare time: ${subject.actual-usages.melee-fighting.compound.prepare-time}
-		#[message] $> release time: ${subject.actual-usages.melee-fighting.compound.release-time}
-		#[message] $> recover time: ${subject.actual-usages.melee-fighting.compound.recover-time}
+		#[message] $> ready time: ${performer.adhoc.fight.alertness}
+		#[message] $> prepare time: ${performer.actual-usages.melee-fighting.compound.prepare-time}
+		#[message] $> release time: ${performer.actual-usages.melee-fighting.compound.release-time}
+		#[message] $> recover time: ${performer.actual-usages.melee-fighting.compound.recover-time}
 		
 		[schedule-action $fight.scheduler]
-			subject: $subject
+			performer: $performer
 			action: melee-fighting
 			action-data:
-				subject: $subject
+				performer: $performer
 				target: $target
-			ready-time: $subject.adhoc.fight.alertness
-			prepare-time: $= $subject.actual-usages.melee-fighting.compound.prepare-time
-			release-time: $= $subject.actual-usages.melee-fighting.compound.release-time
-			recover-time: $= $subject.actual-usages.melee-fighting.compound.recover-time
+			ready-time: $performer.adhoc.fight.alertness
+			prepare-time: $= $performer.actual-usages.melee-fighting.compound.prepare-time
+			release-time: $= $performer.actual-usages.melee-fighting.compound.release-time
+			recover-time: $= $performer.actual-usages.melee-fighting.compound.recover-time
 		
 	
 	
 	[fn melee-fighting-prepared]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
-		[set $item] $subject.primary.melee-fighting
+		[set $item] $performer.primary.melee-fighting
 	
 		# Still out of reach
 		[if $fight.distance > 0]
@@ -585,44 +585,44 @@
 	
 	
 	[fn melee-fighting-released]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
-		[set $item] $subject.primary.melee-fighting
+		[set $item] $performer.primary.melee-fighting
 		
 		# Still out of reach
 		[if $fight.distance > 0]
 			[return]
 		
-		[set $subject.adhoc.fight.press-target] $target
-		[set $subject.adhoc.fight.press-value] $= $subject.adhoc.fight.offensiveness ??? 3 4 6
+		[set $performer.adhoc.fight.press-target] $target
+		[set $performer.adhoc.fight.press-value] $= $performer.adhoc.fight.offensiveness ??? 3 4 6
 
-		[call pressure] $subject
+		[call pressure] $performer
 		[call pressure] $target
 
-		[if $subject.actual-usages.melee-fighting.params.spell-level is-set?]
+		[if $performer.actual-usages.melee-fighting.params.spell-level is-set?]
 			[call rpg:spellcasting/cast => $local.casted]
-				subject: $subject
+				performer: $performer
 				item: $item
-				usage: $subject.actual-usages.melee-fighting
-				bonus-factor: $= $const.low-pressure ^ $subject.adhoc.fight.pressure
+				usage: $performer.actual-usages.melee-fighting
+				bonus-factor: $= $const.low-pressure ^ $performer.adhoc.fight.pressure
 			[if ! $local.casted]
 				[return]
 
-		[set $local.attack-score] $subject.actual-usages.melee-fighting.compound.attack
+		[set $local.attack-score] $performer.actual-usages.melee-fighting.compound.attack
 		[set $local.defense-score] $target.actual-usages.melee-fighting.compound.defense
 
-		#[message] $> Pressure -- ${subject.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
+		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attack-score} vs ${local.defense-score}
 
-		[if $subject.adhoc.fight.offensiveness > 0]
+		[if $performer.adhoc.fight.offensiveness > 0]
 			[mul $local.attack-score] $const.offensiveness-bonus
 			# Less sensible to the pressure when attacking
-			[mul $local.attack-score] $= $const.low-pressure ^ $subject.adhoc.fight.pressure
-		[elseif $subject.adhoc.fight.offensiveness < 0]
+			[mul $local.attack-score] $= $const.low-pressure ^ $performer.adhoc.fight.pressure
+		[elseif $performer.adhoc.fight.offensiveness < 0]
 			[mul $local.attack-score] $const.offensiveness-malus
-			[mul $local.attack-score] $= $const.pressure ^ $subject.adhoc.fight.pressure
+			[mul $local.attack-score] $= $const.pressure ^ $performer.adhoc.fight.pressure
 		[else]
-			[mul $local.attack-score] $= $const.pressure ^ $subject.adhoc.fight.pressure
+			[mul $local.attack-score] $= $const.pressure ^ $performer.adhoc.fight.pressure
 
 		[if $target.adhoc.fight.offensiveness > 0]
 			[mul $local.defense-score] $const.offensiveness-malus
@@ -642,74 +642,74 @@
 			[call deal-damages]
 
 			[call effects]
-				subject: $subject
+				performer: $performer
 				target: $target
 				position: $target.adhoc.fight.position
-				actual-usage: $subject.actual-usages.ranged-fighting
+				actual-usage: $performer.actual-usages.ranged-fighting
 
 		[else]
 			[fortune]
-				- $> ${subject.name//uc1} misses ${target.name}.
-				- $> ${target.name//uc1} blocks ${subject.name}.
-				- $> ${target.name//uc1} avoids ${subject.name}.
+				- $> ${performer.name//uc1} misses ${target.name}.
+				- $> ${target.name//uc1} blocks ${performer.name}.
+				- $> ${target.name//uc1} avoids ${performer.name}.
 
 
 
 	[fn charge]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
 	
-		[set $subject.adhoc.fight.speed] $subject.actual.stats.quickness
-		[set $subject.adhoc.fight.offensiveness] 1
+		[set $performer.adhoc.fight.speed] $performer.actual.stats.quickness
+		[set $performer.adhoc.fight.offensiveness] 1
 
 		[if $fight.distance > 0]
-			[set $subject.adhoc.fight.press-target] null
-			[set $subject.adhoc.fight.press-value] 0
-			[message] $> ${subject.name//uc1} charges toward the opposing crew.
+			[set $performer.adhoc.fight.press-target] null
+			[set $performer.adhoc.fight.press-value] 0
+			[message] $> ${performer.name//uc1} charges toward the opposing crew.
 		
 		[schedule-action $fight.scheduler]
-			subject: $subject
+			performer: $performer
 			action: charge
 			action-data:
-				subject: $subject
+				performer: $performer
 				target: $target
-			ready-time: $subject.adhoc.fight.alertness
-			prepare-time: $subject.actual-usages.melee-fighting.compound.prepare-time
-			release-time: $subject.actual-usages.melee-fighting.compound.release-time
-			recover-time: $subject.actual-usages.melee-fighting.compound.recover-time
+			ready-time: $performer.adhoc.fight.alertness
+			prepare-time: $performer.actual-usages.melee-fighting.compound.prepare-time
+			release-time: $performer.actual-usages.melee-fighting.compound.release-time
+			recover-time: $performer.actual-usages.melee-fighting.compound.recover-time
 		
 	
 	
 	[fn charge-prepared]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
 
 	
 	
 	[fn charge-released]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
 
 		# Still out of reach
 		[if $fight.distance > 0]
 			[return]
 
-		[set $local.attack-score] $subject.actual-usages.melee-fighting.compound.attack
+		[set $local.attack-score] $performer.actual-usages.melee-fighting.compound.attack
 		[set $local.defense-score] $target.actual-usages.melee-fighting.compound.defense
 
-		[set $subject.adhoc.fight.press-target] $target
-		[set $subject.adhoc.fight.press-value] 6
+		[set $performer.adhoc.fight.press-target] $target
+		[set $performer.adhoc.fight.press-value] 6
 
-		[call pressure] $subject
+		[call pressure] $performer
 		[call pressure] $target
 
-		#[message] $> Pressure -- ${subject.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
+		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> A: ${local.attack-score} vs ${local.defense-score}
 
 		# A charge is always offensive!
 		[mul $local.attack-score] $const.offensiveness-bonus
 		# Charge is less sensible to the pressure
-		[mul $local.attack-score] $= $const.low-pressure ^ $subject.adhoc.fight.pressure
+		[mul $local.attack-score] $= $const.low-pressure ^ $performer.adhoc.fight.pressure
 
 		[if $target.adhoc.fight.offensiveness > 0]
 			[mul $local.defense-score] $const.offensiveness-malus
@@ -723,7 +723,7 @@
 
 		#[message] $> Charge: ${local.attack-score} vs ${local.defense-score}
 
-		[message] $> ${subject.name//uc1} charges ${target.name}!
+		[message] $> ${performer.name//uc1} charges ${target.name}!
 
 		[inc $target.adhoc.fight.goneThrough]
 		
@@ -734,43 +734,43 @@
 				[call deadly-push]
 		[else]
 			[fortune]
-				- $> ${subject.name//uc1} misses ${target.name}.
-				- $> ${target.name//uc1} blocks ${subject.name}.
-				- $> ${target.name//uc1} avoids ${subject.name}.
+				- $> ${performer.name//uc1} misses ${target.name}.
+				- $> ${target.name//uc1} blocks ${performer.name}.
+				- $> ${target.name//uc1} avoids ${performer.name}.
 
 
 
 	[fn ranged-fighting]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
 		
-		[set $subject.adhoc.fight.speed] 0
-		[set $subject.adhoc.fight.offensiveness] -1
+		[set $performer.adhoc.fight.speed] 0
+		[set $performer.adhoc.fight.offensiveness] -1
 		
 		[schedule-action $fight.scheduler]
-			subject: $subject
+			performer: $performer
 			action: ranged-fighting
 			action-data:
-				subject: $subject
+				performer: $performer
 				target: $target
-			ready-time: $subject.adhoc.fight.alertness
-			prepare-time: $= $subject.actual-usages.ranged-fighting.compound.prepare-time
-			release-time: $= $subject.actual-usages.ranged-fighting.compound.release-time
-			recover-time: $= $subject.actual-usages.ranged-fighting.compound.recover-time
+			ready-time: $performer.adhoc.fight.alertness
+			prepare-time: $= $performer.actual-usages.ranged-fighting.compound.prepare-time
+			release-time: $= $performer.actual-usages.ranged-fighting.compound.release-time
+			recover-time: $= $performer.actual-usages.ranged-fighting.compound.recover-time
 	
 	
 	
 	[fn ranged-fighting-prepared]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
-		[set $item] $subject.primary.ranged-fighting
+		[set $item] $performer.primary.ranged-fighting
 	
 	
 	
 	[fn ranged-fighting-released]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
-		[set $item] $subject.primary.ranged-fighting
+		[set $item] $performer.primary.ranged-fighting
 
 		[if $item.usages.ranged-fighting.primary.params.projectile-name]
 			[set $projectile.name] $item.usages.ranged-fighting.primary.params.projectile-name
@@ -780,18 +780,18 @@
 		#[debug info] $projectile
 		#[debug info] $item.usages.ranged-fighting.primary.params.projectile-name
 
-		[set $subject.adhoc.fight.press-target] $target
-		[set $subject.adhoc.fight.press-value] 4
+		[set $performer.adhoc.fight.press-target] $target
+		[set $performer.adhoc.fight.press-value] 4
 
-		[call pressure] $subject
+		[call pressure] $performer
 		[call pressure] $target
 
-		[if $subject.actual-usages.ranged-fighting.params.spell-level is-set?]
+		[if $performer.actual-usages.ranged-fighting.params.spell-level is-set?]
 			[call rpg:spellcasting/cast => $local.casted]
-				subject: $subject
+				performer: $performer
 				item: $item
-				usage: $subject.actual-usages.ranged-fighting
-				bonus-factor: $= $const.low-pressure ^ $subject.adhoc.fight.pressure
+				usage: $performer.actual-usages.ranged-fighting
+				bonus-factor: $= $const.low-pressure ^ $performer.adhoc.fight.pressure
 			[if ! $local.casted]
 				[return]
 
@@ -801,13 +801,13 @@
 		# against the anti-ranged stat
 		[if $fight.distance = 0]
 			
-			[set $local.attack-score] $subject.actual-usages.ranged-fighting.compound.close-ranged
+			[set $local.attack-score] $performer.actual-usages.ranged-fighting.compound.close-ranged
 			[set $local.defense-score] $target.actual-usages.melee-fighting.compound.anti-ranged
 
 			#[message] $> Close range A: ${local.attack-score} vs ${local.defense-score}
-			#[message] $> Pressure: ${subject.adhoc.fight.pressure}
+			#[message] $> Pressure: ${performer.adhoc.fight.pressure}
 
-			[mul $local.attack-score] $= $const.pressure ^ $subject.adhoc.fight.pressure
+			[mul $local.attack-score] $= $const.pressure ^ $performer.adhoc.fight.pressure
 
 			[if $target.adhoc.fight.offensiveness > 0]
 				[mul $local.defense-score] $const.offensiveness-malus
@@ -822,16 +822,16 @@
 			#[message] $> Close range: ${local.attack-score} vs ${local.defense-score}
 
 			[if ! ( success-roll( $local.attack-score , $local.defense-score , ... $const.melee-attack-roll ) )]
-				[message] $> ${target.name//uc1} prevents ${subject.name} from attacking from afar.
+				[message] $> ${target.name//uc1} prevents ${performer.name} from attacking from afar.
 				[return]
 
-		[set $local.aiming-score] $subject.actual-usages.ranged-fighting.compound.aiming
+		[set $local.aiming-score] $performer.actual-usages.ranged-fighting.compound.aiming
 		[set $local.anti-aiming-score] $= $const.anti-aiming-base + ( $const.anti-aiming-factor * ( $fight.distance + ( ( abs $target.adhoc.fight.speed ) / 2 ) ) )
 		
 		#[message] $> Aiming A: ${local.aiming-score} vs ${local.guard-score}
-		#[message] $> Pressure: ${subject.adhoc.fight.pressure}
+		#[message] $> Pressure: ${performer.adhoc.fight.pressure}
 
-		[mul $local.aiming-score] $= $const.pressure ^ $subject.adhoc.fight.pressure
+		[mul $local.aiming-score] $= $const.pressure ^ $performer.adhoc.fight.pressure
 		
 		[set $local.guard-score] $target.actual-usages.ranged-fighting.compound.guard
 		
@@ -840,7 +840,7 @@
 		#[message] $> Aiming: ${local.aiming-score} vs ${local.anti-aiming-score} / ${local.guard-score} => ${local.aiming[0]} / ${local.aiming[1]}
 		
 		[if ! $local.aiming[0]]
-			[message] $> ${subject.name//uc1} misses ${target.name}.
+			[message] $> ${performer.name//uc1} misses ${target.name}.
 			[return]
 
 		[if ! $local.aiming[1]]
@@ -848,16 +848,16 @@
 				[apply $target.actual-usages.ranged-fighting.params.guard-flavor => $local.flavor] $
 				[message] $local.flavor
 			[else]
-				[message] $> ${subject.name//uc1} misses ${target.name}.
+				[message] $> ${performer.name//uc1} misses ${target.name}.
 			[return]
 
-		[set $local.attack-score] $subject.actual-usages.ranged-fighting.compound.attack
+		[set $local.attack-score] $performer.actual-usages.ranged-fighting.compound.attack
 		[set $local.defense-score] $target.actual-usages.ranged-fighting.compound.defense
 
 		# /!\ FIXME?
 		[add $local.defense-score] $= $fight.distance / 5
 
-		#[message] $> Pressure -- ${subject.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
+		#[message] $> Pressure -- ${performer.adhoc.fight.pressure} / ${target.adhoc.fight.pressure}
 		#[message] $> Ranged: ${local.attack-score} vs ${local.defense-score}
 
 		# Attack score of ranged-fighting do not depend much on the character but on the weapon
@@ -876,29 +876,29 @@
 
 		[if success-roll( $local.attack-score , $local.defense-score , ... $const.ranged-attack-roll )]
 			[call deal-damages]
-				usage: $subject.actual-usages.ranged-fighting
+				usage: $performer.actual-usages.ranged-fighting
 
 			[call effects]
-				subject: $subject
+				performer: $performer
 				target: $target
 				position: $target.adhoc.fight.position
-				usage: $subject.actual-usages.ranged-fighting
+				usage: $performer.actual-usages.ranged-fighting
 
 		[else]
 			[fortune]
-				- $> ${target.name//uc1} blocks ${subject.name}'s ${projectile.name}.
-				- $> ${target.name//uc1} avoids ${subject.name}'s ${projectile.name}.
+				- $> ${target.name//uc1} blocks ${performer.name}'s ${projectile.name}.
+				- $> ${target.name//uc1} avoids ${performer.name}'s ${projectile.name}.
 
 
 
 	[fn battle-ability]
-		[set $subject] $args.subject
-		[set $target] $subject
-		[set $local.usage] $subject.actual-usages.battle-ability
-		[set $item] $subject.primary.battle-ability
+		[set $performer] $args.performer
+		[set $target] $performer
+		[set $local.usage] $performer.actual-usages.battle-ability
+		[set $item] $performer.primary.battle-ability
 
 		[if $local.usage.params.targeting]
-			[if $subject.npc]
+			[if $performer.npc]
 				[call npc-targeting]
 					target-allies: $local.usage.params.target-allies
 			[else]
@@ -910,57 +910,57 @@
 
 		# Check if the ability has its own speed and offensiveness value
 		[if $item.params.speed is-number?]
-			[set $subject.adhoc.fight.speed] $item.params.speed
+			[set $performer.adhoc.fight.speed] $item.params.speed
 		[if $item.params.offensiveness is-number?]
-			[set $subject.adhoc.fight.offensiveness] $item.params.offensiveness
+			[set $performer.adhoc.fight.offensiveness] $item.params.offensiveness
 
 		[schedule-action $fight.scheduler]
-			subject: $subject
+			performer: $performer
 			action: battle-ability
 			action-data:
-				subject: $subject
+				performer: $performer
 				target: $target
 				position: $local.position
-			ready-time: $subject.adhoc.fight.alertness
-			prepare-time: $subject.actual-usages.battle-ability.compound.prepare-time
-			release-time: $subject.actual-usages.battle-ability.compound.release-time
-			recover-time: $subject.actual-usages.battle-ability.compound.recover-time
+			ready-time: $performer.adhoc.fight.alertness
+			prepare-time: $performer.actual-usages.battle-ability.compound.prepare-time
+			release-time: $performer.actual-usages.battle-ability.compound.release-time
+			recover-time: $performer.actual-usages.battle-ability.compound.recover-time
 
 	
 	
 	[fn battle-ability-prepared]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
-		[set $local.usage] $subject.actual-usages.battle-ability
-		[set $item] $subject.primary.battle-ability
+		[set $local.usage] $performer.actual-usages.battle-ability
+		[set $item] $performer.primary.battle-ability
 	
 	
 	
 	[fn battle-ability-released]
-		[set $subject] $args.subject
+		[set $performer] $args.performer
 		[set $target] $args.target
-		[set $local.usage] $subject.actual-usages.battle-ability
-		[set $item] $subject.primary.battle-ability
+		[set $local.usage] $performer.actual-usages.battle-ability
+		[set $item] $performer.primary.battle-ability
 
 		# Position MUST be set on release time
 		[set $local.position] $target.adhoc.fight.position
 		
-		[call pressure] $subject
+		[call pressure] $performer
 
 		[if $local.usage.params.spell-level is-set?]
 			[call rpg:spellcasting/cast => $local.casted]
-				subject: $subject
+				performer: $performer
 				item: $item
 				usage: $local.usage
-				bonus-factor: $= $const.low-pressure ^ $subject.adhoc.fight.pressure
+				bonus-factor: $= $const.low-pressure ^ $performer.adhoc.fight.pressure
 			[if ! $local.casted]
 				[return]
 
-		[if $target != $subject]
+		[if $target != $performer]
 			[inc $target.adhoc.fight.goneThrough]
 		
 		[call effects]
-			subject: $subject
+			performer: $performer
 			target: $target
 			position: $local.position
 			usage: $local.usage
@@ -984,7 +984,7 @@
 			[set $target] $args.target
 
 		[if ! $args.usage]
-			[set $args.usage] $subject.actual-usages.melee-fighting
+			[set $args.usage] $performer.actual-usages.melee-fighting
 
 		#[message] $> Critical factor: ${args.usage.compound.critical-factor}
 		
@@ -996,9 +996,9 @@
 			
 			[if $args.usage.compound.offensiveness-damage-mod]
 				# Attacker offensiveness is used only when not using fixed damage base
-				[if $subject.adhoc.fight.offensiveness > 0]
+				[if $performer.adhoc.fight.offensiveness > 0]
 					[mul $local.attack-score] $const.offensiveness-bonus
-				[elseif $subject.adhoc.fight.offensiveness < 0]
+				[elseif $performer.adhoc.fight.offensiveness < 0]
 					[mul $local.attack-score] $const.offensiveness-malus
 
 		[if $args.bonus-factor is-real?]
@@ -1044,7 +1044,7 @@
 			[elseif $args.usage.params.hit-flavor is-set?]
 				[apply $args.usage.params.hit-flavor => $local.flavor] $
 			[else]
-				[set $local.flavor] $> ^r${subject.name//uc1} deadly hits ${target.name} for ${damages} hp.
+				[set $local.flavor] $> ^r${performer.name//uc1} deadly hits ${target.name} for ${damages} hp.
 		[elseif $damages >= 25]
 			[if $args.critical-hit-flavor is-set?]
 				[apply $args.critical-hit-flavor => $local.flavor] $
@@ -1055,28 +1055,28 @@
 			[elseif $args.usage.params.hit-flavor is-set?]
 				[apply $args.usage.params.hit-flavor => $local.flavor] $
 			[else]
-				[set $local.flavor] $> ^r${subject.name//uc1} critically hits ${target.name} for ${damages} hp.
+				[set $local.flavor] $> ^r${performer.name//uc1} critically hits ${target.name} for ${damages} hp.
 		[else]
 			[if $args.hit-flavor is-set?]
 				[apply $args.hit-flavor => $local.flavor] $
 			[elseif $args.usage.params.hit-flavor is-set?]
 				[apply $args.usage.params.hit-flavor => $local.flavor] $
 			[else]
-				[set $local.flavor] $> ^r${subject.name//uc1} hits ${target.name} for ${damages} hp.
+				[set $local.flavor] $> ^r${performer.name//uc1} hits ${target.name} for ${damages} hp.
 
 		[message] $local.flavor
 
 
 
 	[fn manage-death]
-		[set $subject] $args
-		#[message] $> manage death! ${subject.name} ${subject.status.health} ${subject.status.alive}
-		[if ( $subject.status.health > 0 ) || ( ! $subject.status.alive )]
+		[set $performer] $args
+		#[message] $> manage death! ${performer.name} ${performer.status.health} ${performer.status.alive}
+		[if ( $performer.status.health > 0 ) || ( ! $performer.status.alive )]
 			[return]
 		
-		[set $subject.status.alive] false
-		[message] $> ^R^+${subject.name//uc1} is dead.
-		[remove-from-scheduler $fight.scheduler] $subject
+		[set $performer.status.alive] false
+		[message] $> ^R^+${performer.name//uc1} is dead.
+		[remove-from-scheduler $fight.scheduler] $performer
 	
 	
 	
@@ -1085,7 +1085,7 @@
 			[set $target] $args.target
 
 		[if ! $args.usage]
-			[set $args.usage] $subject.actual-usages.battle-ability
+			[set $args.usage] $performer.actual-usages.battle-ability
 
 		#[message] $> ^Khealing -- checking: ${target.name}
 
@@ -1127,7 +1127,7 @@
 		[elseif $args.usage.params.flavor is-set?]
 			[apply $args.usage.params.flavor => $local.flavor] $
 		[else]
-			[set $local.flavor] $> ^r${subject.name//uc1} heals ${target.name} for ${healing} hp.
+			[set $local.flavor] $> ^r${performer.name//uc1} heals ${target.name} for ${healing} hp.
 
 		[message] $local.flavor
 
@@ -1142,7 +1142,7 @@
 			[set $local.exclude] <Array>
 
 			[if $local.effect.filter.exclude-self]
-				[append $local.exclude] $args.subject
+				[append $local.exclude] $args.performer
 
 			[if $local.effect.filter.exclude-target]
 				[append $local.exclude] $args.target
@@ -1164,7 +1164,7 @@
 
 			[if $local.effect.type = "attack"]
 				[call attack-effect]
-					subject: $args.subject
+					performer: $args.performer
 					entities: $local.entities
 					attack: $local.effect-compound.attack
 					damages: $local.effect-compound.damages
@@ -1175,7 +1175,7 @@
 					fatal-hit-flavor: $local.effect.fatal-hit-flavor
 			[elseif $local.effect.type = "healing"]
 				[call healing-effect]
-					subject: $args.subject
+					performer: $args.performer
 					entities: $local.entities
 					healing: $local.effect-compound.healing
 					flavor: $local.effect.flavor
@@ -1235,7 +1235,7 @@
 			
 			#[message] $> Attack-effect: ${local.attack-score} vs ${local.defense-score}
 			
-			[if $target != $args.subject]
+			[if $target != $args.performer]
 				[inc $target.adhoc.fight.goneThrough]
 			
 			[if success-roll( $local.attack-score , $local.defense-score , ... $const.melee-attack-roll )]
@@ -1255,7 +1255,7 @@
 
 	[fn healing-effect]
 		[foreach $args.entities => $target]
-			[if $target != $args.subject]
+			[if $target != $args.performer]
 				[inc $target.adhoc.fight.goneThrough]
 			
 			[call heal-damages]
@@ -1267,17 +1267,17 @@
 
 	[fn deadly-push]
 		[set $local.attack-score]
-			$= ( max( $subject.actual.stats.strength , $subject.actual.stats.fighting - 3 ) )
+			$= ( max( $performer.actual.stats.strength , $performer.actual.stats.fighting - 3 ) )
 			$= * $fight.deadly-push.bonus-factor
 		[set $local.defense-score] $= $target.actual.stats.strength
 		
-		[mul $local.attack-score] $= $const.low-pressure ^ $subject.adhoc.fight.pressure
+		[mul $local.attack-score] $= $const.low-pressure ^ $performer.adhoc.fight.pressure
 		[mul $local.defense-score] $= $const.low-pressure ^ $target.adhoc.fight.pressure
 
-		#[message] $> Attacker ${subject.name} offensiveness: ${subject.adhoc.fight.offensiveness}
-		[if $subject.adhoc.fight.offensiveness > 0]
+		#[message] $> Attacker ${performer.name} offensiveness: ${performer.adhoc.fight.offensiveness}
+		[if $performer.adhoc.fight.offensiveness > 0]
 			[mul $local.attack-score] $const.offensiveness-bonus
-		[elseif $subject.adhoc.fight.offensiveness < 0]
+		[elseif $performer.adhoc.fight.offensiveness < 0]
 			[mul $local.attack-score] $const.offensiveness-malus
 
 		#[message] $> Defender ${target.name} offensiveness: ${target.adhoc.fight.offensiveness}
@@ -1303,7 +1303,7 @@
 				[gosub rpg:inventory/drop-grab]
 					[alt]
 					[args]
-						subject: $args.subject
+						performer: $args.performer
 						stack: $local.stack
 		[next] $> No
 

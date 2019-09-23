@@ -22,7 +22,7 @@
 		ranged-fighting:
 			support:
 				params:
-					guard-flavor: $$> ${target.name//uc1}'s shield prevents him from ${subject.name}'s ${projectile.name}.
+					guard-flavor: $$> ${target.name//uc1}'s shield prevents him from ${performer.name}'s ${projectile.name}.
 				compound:
 					defense: (*) 2.3
 					guard: (*) 10

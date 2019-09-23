@@ -168,7 +168,7 @@
 					target-allies: yes
 					effects:
 						-	type: healing
-							flavor: $$> ^g${subject.name//uc1} heals ${target.name} for ${healing} hp.^:
+							flavor: $$> ^g${performer.name//uc1} heals ${target.name} for ${healing} hp.^:
 				compound-variation: spell
 				compound:
 					healing: (*) 2

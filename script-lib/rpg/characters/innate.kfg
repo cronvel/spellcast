@@ -11,8 +11,8 @@
 			primary:
 				params:
 					menu-label: punch
-					critical-hit-flavor: $$> ^r${subject.name//uc1} punches ${target.name} for ${damages} hp.
-					fatal-hit-flavor: $$> ^r${subject.name//uc1} thumps ${target.name} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${performer.name//uc1} punches ${target.name} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.name//uc1} thumps ${target.name} for ${damages} hp.
 				# No bonus, this is the default/standard/normal attack
 
 [item-model fangs]
@@ -24,8 +24,8 @@
 		melee-fighting:
 			primary:
 				params:
-					critical-hit-flavor: $$> ^r${subject.name//uc1} bites ${target.name} for ${damages} hp.
-					fatal-hit-flavor: $$> ^r${subject.name//uc1} shreds ${target.name} for ${damages} hp.
+					critical-hit-flavor: $$> ^r${performer.name//uc1} bites ${target.name} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.name//uc1} shreds ${target.name} for ${damages} hp.
 				compound:
 					damages: (+) 4
 

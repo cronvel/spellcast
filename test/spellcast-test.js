@@ -1476,7 +1476,7 @@ describe( "API" , () => {
 		] ) ;
 	} ) ;
 
-	it( "Event [success] and [failure] in conjunction with [on-success] and [on-failure] tags" , async () => {
+	it( "Event [success]/[failure]/[maybe-success]/[maybe-failure]/[cancel] in conjunction with [on-success] and [on-failure] tags" , async () => {
 		var messages = [] ;
 
 		await runBook( __dirname + '/books/event-on-success-failure.kfg' , { type: 'cast' , target: 'event' } ,
@@ -1493,7 +1493,21 @@ describe( "API" , () => {
 			[ 'Blasted Giant Midge!' ] ,
 			[ 'Roasted Giant Midge!' ] ,
 			[ '4: Success!' ] ,
-			[ '5: Success!' ]
+			[ '5: Success!' ] ,
+			[ 'Blasted Manticore!' ] ,
+			[ 'Roasted Manticore!' ] ,
+			[ '6: Failure!' ] ,
+			[ 'Blasted Killer Bee!' ] ,
+			[ 'Roasted Killer Bee!' ] ,
+			[ '7: Success!' ] ,
+			[ 'Blasted Orc!' ] ,
+			[ '8: Success!' ] ,
+			[ 'Blasted Goblin!' ] ,
+			[ 'Roasted Goblin!' ] ,
+			[ '9: Failure!' ] ,
+			[ 'Blasted Ogre!' ] ,
+			[ 'Roasted Ogre!' ] ,
+			[ '10: Success!' ]
 		] ) ;
 	} ) ;
 

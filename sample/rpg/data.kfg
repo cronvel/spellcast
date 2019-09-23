@@ -80,8 +80,8 @@
 			primary:
 				params:
 					menu-label: $> use the Sacred Sword Excalibur
-					critical-hit-flavor: $$> ^r${subject.name//uc1} slashes ${target.name} for ${damages} hp.
-					fatal-hit-flavor: $$> ^r${subject.name//uc1} cut ${target.name} in half for ${damages} hp.
+					critical-hit-flavor: $$> ^r${performer.name//uc1} slashes ${target.name} for ${damages} hp.
+					fatal-hit-flavor: $$> ^r${performer.name//uc1} cut ${target.name} in half for ${damages} hp.
 				compound:
 					attack: (*) 1.75
 					defense: (*) 1.75

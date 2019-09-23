@@ -21,6 +21,7 @@
 	[on-failure]
 		[message] $> 1: Failure!
 
+
 	[on blast2]
 		[global]
 		[off]
@@ -39,6 +40,7 @@
 		[message] $> 2: Success!
 	[on-failure]
 		[message] $> 2: Failure!
+
 
 	[on blast3]
 		[global]
@@ -84,4 +86,107 @@
 		[message] $> 5: Success!
 	[on-failure]
 		[message] $> 5: Failure!
+
+
+	[on blast6]
+		[global]
+		[off]
+		[maybe-failure]
+		[message]
+			$> Blasted ${args}!
+
+	[on blast6]
+		[global]
+		[off]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast6] Manticore
+	[on-success]
+		[message] $> 6: Success!
+	[on-failure]
+		[message] $> 6: Failure!
+
+
+	[on blast7]
+		[global]
+		[off]
+		[maybe-success]
+		[message]
+			$> Blasted ${args}!
+
+	[on blast7]
+		[global]
+		[off]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast7] Killer Bee
+	[on-success]
+		[message] $> 7: Success!
+	[on-failure]
+		[message] $> 7: Failure!
+
+
+	[on blast8]
+		[global]
+		[off]
+		[maybe-success]
+		[message]
+			$> Blasted ${args}!
+		[cancel]
+
+	[on blast8]
+		[global]
+		[off]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast8] Orc
+	[on-success]
+		[message] $> 8: Success!
+	[on-failure]
+		[message] $> 8: Failure!
+
+
+	[on blast9]
+		[global]
+		[off]
+		[maybe-success]
+		[message]
+			$> Blasted ${args}!
+
+	[on blast9]
+		[global]
+		[off]
+		[maybe-failure]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast9] Goblin
+	[on-success]
+		[message] $> 9: Success!
+	[on-failure]
+		[message] $> 9: Failure!
+
+
+	[on blast10]
+		[global]
+		[off]
+		[maybe-failure]
+		[message]
+			$> Blasted ${args}!
+
+	[on blast10]
+		[global]
+		[off]
+		[maybe-success]
+		[message]
+			$> Roasted ${args}!
+
+	[emit blast10] Ogre
+	[on-success]
+		[message] $> 10: Success!
+	[on-failure]
+		[message] $> 10: Failure!
 
