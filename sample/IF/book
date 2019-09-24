@@ -150,32 +150,29 @@
 
 			[check persuasion]
 				[message] $> Persuasion check #1
-				[failure-report reset]
-					[message] $> ^YNobody should tell ${args.performer.name//uc1} when to drink.
 				#[maybe-success]
 
 			[check]
 				[message] $> Check #1
-			[check]
-				[message] $> Check #2
-			[check <low>]
-				[message] $> Check #3
+				[if $args.object.status.quantity <= 0]
+					[failure-report prevent-default]
+						[message] $> ^YThere is no ${args.object.name} anymore...
+					[failure]
+				[maybe-success]
 			
 			[effect]
 				[dec $args.object.status.quantity]
 				[message] $> ^geffect tag
 			
+			[persuasion-failure-report]
+				[message] $> ^YNobody should tell ${args.performer.name} when to drink.
+			[persuasion-success-report]
+				[message] $> ^B${args.performer.name//uc1} nods.
 			[success-report]
 				[message] $> ^B${args.performer.name//uc1} drinks ${args.object.name}.
 			[failure-report]
 				[message] $> ^Y${args.object.name//uc1} is not drinkable!
 		
-		[on action:drink]
-			[if $args.object.status.quantity <= 0]
-				[message] $> ^YHey ${args.performer.name}! There is no more ${args.object.name}!
-				[failure]
-			[maybe-success]
-
 		[on <low> action:drink]
 			[message] $> action:drink
 		
@@ -188,6 +185,12 @@
 		[on $sofia persuasion:drink:performer]
 			[message] $> persuasion:drink:performer sofia
 			#[maybe-success]
+		
+		[on $sofia persuasion:*:performer]
+			[message] $> persuasion:*:performer sofia
+			[persuasion-failure-report reset-default]
+				[message] $> ^Y${args.performer.name//uc1} is a liberated woman, she refuses to be commanded.
+			#[failure]
 		
 		[on $player action:drink:performer]
 			[message] $> action:drink:performer player
