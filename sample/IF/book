@@ -150,6 +150,8 @@
 
 			[check persuasion]
 				[message] $> Persuasion check #1
+				[failure-report reset]
+					[message] $> ^YNobody should tell ${args.performer.name//uc1} when to drink.
 				#[maybe-success]
 
 			[check]
@@ -161,12 +163,12 @@
 			
 			[effect]
 				[dec $args.object.status.quantity]
-				[message] $> ^B${args.performer.name//uc1} drinks ${args.object.name}.
+				[message] $> ^geffect tag
 			
 			[success-report]
 				[message] $> ^B${args.performer.name//uc1} drinks ${args.object.name}.
 			[failure-report]
-				[message] $> ^Y${args.object.name} is not drinkable!
+				[message] $> ^Y${args.object.name//uc1} is not drinkable!
 		
 		[on action:drink]
 			[if $args.object.status.quantity <= 0]
