@@ -77,7 +77,7 @@
 				door:
 					name: wood door
 	
-	[place chapel]
+	[place chapel] <Object>
 		# no need to define ways, there is only one way out: to the garden,
 		# and a bi-directional passage through a wood door was created by the garden itself
 	
@@ -174,7 +174,13 @@
 				[message] $> ^Y${args.object.name//uc1} is not drinkable!
 		
 		[on <low> action:drink]
+			[message] $> action:drink <low>
+		
+		[on action:drink]
 			[message] $> action:drink
+		
+		[on $player persuasion:*:commander]
+			[message] $> persuasion:*:commander player
 		
 		[on $player persuasion:drink:commander]
 			[message] $> persuasion:drink:commander player
@@ -194,6 +200,9 @@
 		
 		[on $player action:drink:performer]
 			[message] $> action:drink:performer player
+		
+		[on $player action:*:performer]
+			[message] $> action:*:performer player
 		
 		[on $item action:drink:object]
 			[message] $> action:drink:object item
