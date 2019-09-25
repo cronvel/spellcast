@@ -150,7 +150,7 @@
 
 			[check persuasion]
 				[message] $> Persuasion check #1
-				#[maybe-success]
+				[maybe-success]
 
 			[check]
 				[message] $> Check #1
@@ -173,12 +173,6 @@
 			[failure-report]
 				[message] $> ^Y${args.object.name//uc1} is not drinkable!
 		
-		[on <low> action:drink]
-			[message] $> action:drink <low>
-		
-		[on action:drink]
-			[message] $> action:drink
-		
 		[on $player persuasion:*:commander]
 			[message] $> persuasion:*:commander player
 		
@@ -196,7 +190,14 @@
 			[message] $> persuasion:*:performer sofia
 			[persuasion-failure-report reset-default]
 				[message] $> ^Y${args.performer.name//uc1} is a liberated woman, she refuses to be commanded.
+			[maybe-failure]
 			#[failure]
+		
+		[on <low> action:drink]
+			[message] $> action:drink <low>
+		
+		[on action:drink]
+			[message] $> action:drink
 		
 		[on $player action:drink:performer]
 			[message] $> action:drink:performer player
