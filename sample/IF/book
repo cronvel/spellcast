@@ -150,7 +150,7 @@
 
 			[check persuasion]
 				[message] $> Persuasion check #1
-				[maybe-success]
+				#[maybe-success]
 
 			[check]
 				[message] $> Check #1
@@ -188,6 +188,7 @@
 		
 		[on $sofia persuasion:*:performer]
 			[message] $> persuasion:*:performer sofia
+			#[persuasion-failure-report]
 			[persuasion-failure-report reset-default]
 				[message] $> ^Y${args.performer.name//uc1} is a liberated woman, she refuses to be commanded.
 			[maybe-failure]
