@@ -134,8 +134,7 @@
 		[goto simple]
 
 	[starting-scene advanced]
-		[define $state]
-			input: ""
+		[define $state] <Object>
 		[input $state.input]
 		[request bot => $reply] $state
 		[message] $> ${reply}

@@ -201,7 +201,7 @@
 
 [chapter test]
 
-	[starting-scene test]
+	[scene test]
 
 		[perform drink]
 			commander: $player
@@ -223,4 +223,18 @@
 			commander: $player
 			performer: $player
 			object: $item
+
+	[starting-scene test2]
+
+		[define $state] <Object>
+		[input $state.input]
+		[request command-interpreter => $reply] $state
+		
+		[set $reply.commander] $player
+		[if ! $reply.performer]
+			[set $reply.performer] $player
+		
+		[debug hdebug] $reply
+		
+		[perform] $reply
 

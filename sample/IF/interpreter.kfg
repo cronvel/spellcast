@@ -15,15 +15,21 @@
 		[pattern] > go *
 		[pattern] > go to *
 		[reply]
-			command: go
+			action: go
 			target: $args.stars.input[0]
 		
 	[query]
 		[pattern] > attack *
 		[pattern] > hit *
 		[reply]
-			command: attack
+			action: attack
 			target: $args.stars.input[0]
+		
+	[query]
+		[pattern] > drink *
+		[reply]
+			action: drink
+			object: $args.stars.input[0]
 		
 	# Catchall
 	#[query]

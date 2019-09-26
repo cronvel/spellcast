@@ -93,10 +93,10 @@ describe( "Interpreter" , () => {
 
 		it( "Splitting sentence with punctuation into tokens" , () => {
 			testTokenize( 'One, two,three' , [ 'One' , 'two' , 'three' ] ) ;
-			testTokenize( 'One, two,three' , { punctuation: true } , [ 'One' , ',' , 'two' , ',' , 'three' ] ) ;
+			testTokenize( 'One, two,three' , { punctuations: true } , [ 'One' , ',' , 'two' , ',' , 'three' ] ) ;
 
 			testTokenize( 'One, two... three!!!' , [ 'One' , 'two' , 'three' ] ) ;
-			testTokenize( 'One, two... three!!!' , { punctuation: true } , [ 'One' , ',' , 'two' , '...' , 'three' , '!!!' ] ) ;
+			testTokenize( 'One, two... three!!!' , { punctuations: true } , [ 'One' , ',' , 'two' , '...' , 'three' , '!!!' ] ) ;
 
 			testTokenize( 'a=b' , [ 'a' , 'b' ] ) ;
 			testTokenize( 'a=b' , { symbols: true } , [ 'a' , '=' , 'b' ] ) ;
