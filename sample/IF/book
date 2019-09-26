@@ -117,6 +117,10 @@
 
 
 
+[create-place room]
+	name: room
+	items:
+		- water
 
 [item-model water]
 	class: object
@@ -124,7 +128,7 @@
 	status:
 		quantity: 2
 
-[create-item $item] water
+#[create-item $item] water
 
 [create-entity $sofia]
 	model: human
@@ -202,7 +206,6 @@
 [chapter test]
 
 	[scene test]
-
 		[perform drink]
 			commander: $player
 			performer: $sofia
@@ -224,8 +227,7 @@
 			performer: $player
 			object: $item
 
-	[starting-scene test2]
-
+	[scene test2]
 		[define $state] <Object>
 		[input $state.input]
 		[request command-interpreter => $reply] $state
@@ -237,4 +239,8 @@
 		[debug hdebug] $reply
 		
 		[perform] $reply
+
+	[starting-scene test3]
+		[place room]
+		[debug hdebug] $place
 
