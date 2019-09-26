@@ -30,11 +30,11 @@
 
 
 
-var string = require( 'string-kit' ) ;
-var chatBot = require( '../lib/chatBot.js' ) ;
+const string = require( 'string-kit' ) ;
+const InputInterpreter = require( '../lib/InputInterpreter.js' ) ;
 
-var Logfella = require( 'logfella' ) ;
-var log = Logfella.global.use( 'unit-tests' ) ;
+const Logfella = require( 'logfella' ) ;
+const log = Logfella.global.use( 'unit-tests' ) ;
 
 
 
@@ -56,7 +56,7 @@ function testTokenize( source , options , expected ) {
 
 	var tokens = [] ;
 	var simplifiedTokens = [] ;
-	chatBot.tokenize( source , options , tokens , simplifiedTokens ) ;
+	InputInterpreter.tokenize( source , options , tokens , simplifiedTokens ) ;
 	expect( tokens ).to.equal( expected ) ;
 }
 
@@ -103,10 +103,10 @@ describe( "Interpreter" , () => {
 		} ) ;
 
 		it( "Simplify tokens" , () => {
-			expect( chatBot.simplifyTokens( [ 'One' , 'two' , 'three' ] ) ).to.equal( [ 'one' , 'two' , 'three' ] ) ;
-			expect( chatBot.simplifyTokens( [ 'Éâï' , 'ôùæÆ' , 'ÆØç' ] ) ).to.equal( [ 'eai' , 'ouaeae' , 'aeoc' ] ) ;
+			expect( InputInterpreter.simplifyTokens( [ 'One' , 'two' , 'three' ] ) ).to.equal( [ 'one' , 'two' , 'three' ] ) ;
+			expect( InputInterpreter.simplifyTokens( [ 'Éâï' , 'ôùæÆ' , 'ÆØç' ] ) ).to.equal( [ 'eai' , 'ouaeae' , 'aeoc' ] ) ;
 
-			expect( chatBot.simplifyTokens( [ '!' , '!!' , '!!!' , '.' , '...' , '!...' , '?!' ] ) ).to.equal( [ '!' , '!' , '!' , '.' , '.' , '!' , '?' ] ) ;
+			expect( InputInterpreter.simplifyTokens( [ '!' , '!!' , '!!!' , '.' , '...' , '!...' , '?!' ] ) ).to.equal( [ '!' , '!' , '!' , '.' , '.' , '!' , '?' ] ) ;
 		} ) ;
 	} ) ;
 } ) ;

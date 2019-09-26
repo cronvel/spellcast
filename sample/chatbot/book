@@ -6,7 +6,7 @@
 
 [interpreter bot]
 	
-	#[punctuation] true
+	#[punctuations] true
 	[symbols] true
 	
 	[substitutions]
