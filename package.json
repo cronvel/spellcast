@@ -30,7 +30,7 @@
     "semver": "^6.3.0",
     "server-kit": "^0.9.16",
     "seventh": "^0.7.28",
-    "string-kit": "^0.10.0",
+    "string-kit": "^0.10.1",
     "svg-kit": "^0.1.21",
     "terminal-kit": "^1.31.3",
     "tree-kit": "^0.6.1",

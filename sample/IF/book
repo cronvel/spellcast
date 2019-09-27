@@ -128,7 +128,7 @@
 	status:
 		quantity: 2
 
-[create-item $item] water
+#[create-item $item] water
 
 [create-entity $sofia]
 	model: human
@@ -201,11 +201,13 @@
 [on $item action:drink:object]
 	[message] $> action:drink:object item
 
+[on command:id-not-found]
+	[message] $> Never heard of "${args.id}" before...
 
 
 [chapter test]
 
-	[starting-scene test]
+	[scene test]
 		[perform drink]
 			commander: $player
 			performer: $sofia
@@ -227,7 +229,10 @@
 			performer: $player
 			object: $item
 
-	[scene test2]
+	[starting-scene test2]
+		[place room]
+			items: water
+		
 		[define $state] <Object>
 		[input $state.input]
 		[request command-interpreter => $reply] $state
@@ -236,9 +241,12 @@
 		[if ! $reply.performer]
 			[set $reply.performer] $player
 		
-		[debug hdebug] $reply
+		#[debug hdebug] $reply
 		
-		[perform] $reply
+		[perform-command] $reply
+		
+		[goto test2]
+		#[next test2]
 
 	[scene test3]
 		[place room]
