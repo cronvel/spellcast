@@ -128,7 +128,7 @@
 	status:
 		quantity: 2
 
-#[create-item $item] water
+[create-item $item] water
 
 [create-entity $sofia]
 	model: human
@@ -205,7 +205,7 @@
 
 [chapter test]
 
-	[scene test]
+	[starting-scene test]
 		[perform drink]
 			commander: $player
 			performer: $sofia
@@ -240,7 +240,7 @@
 		
 		[perform] $reply
 
-	[starting-scene test3]
+	[scene test3]
 		[place room]
 		[debug hdebug] $place
 
