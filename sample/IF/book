@@ -202,7 +202,7 @@
 	[message] $> action:drink:object item
 
 [on command:id-not-found]
-	[message] $> Never heard of "${args.id}" before...
+	[message] $> There is no "${args.id}" here...
 
 
 [chapter test]
@@ -231,7 +231,6 @@
 
 	[starting-scene test2]
 		[place room]
-			items: water
 		
 		[define $state] <Object>
 		[input $state.input]
