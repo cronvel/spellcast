@@ -117,16 +117,16 @@
 
 
 
-[create-place room]
-	name: room
-	items:
-		- water
-
 [item-model water]
 	class: object
 	name: water
 	status:
 		quantity: 2
+
+[create-place room]
+	name: room
+	items:
+		- water
 
 #[create-item $item] water
 
@@ -231,6 +231,7 @@
 
 	[starting-scene test2]
 		[place room]
+		#[debug hdebug] $place
 		
 		[define $state] <Object>
 		[input $state.input]

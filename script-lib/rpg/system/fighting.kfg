@@ -1316,6 +1316,6 @@
 			[drop $local.entity]
 				all: true
 				unequip: true
-				stack: $local.stack
+				into: $local.stack
 
 		[return] $local.stack

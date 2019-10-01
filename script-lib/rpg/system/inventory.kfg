@@ -114,7 +114,7 @@
 								item: $item
 							[drop $performer]
 								item: $item
-								stack: $stack
+								into: $stack
 		[else]
 			[message]
 				$> ^_${item.name//uc1}^ (inventory)
@@ -132,7 +132,7 @@
 						[on-success]
 							[drop $performer]
 								item: $item
-								stack: $stack
+								into: $stack
 		
 		[message]
 			$>
@@ -204,7 +204,7 @@
 			[on-trigger]
 				[grab $performer]
 					item: $item
-					stack: $stack
+					from: $stack
 		
 	
 	
@@ -477,7 +477,7 @@
 						[sub $args.performer.goods.cash] $args.price
 						[grab $args.performer]
 							item: $args.item
-							stack: $args.stack
+							from: $args.stack
 					[else]
 						[message] $> Not enough cash!
 		
@@ -509,6 +509,6 @@
 					[add $args.performer.goods.cash] $args.price
 					[drop $args.performer]
 						item: $args.item
-						stack: $args.stack
+						into: $args.stack
 		
 
