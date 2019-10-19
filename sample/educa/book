@@ -1,0 +1,109 @@
+[[doctype spellcast/book]]
+
+[chapter menu]
+	[theme] > /themes/educa
+	[starting-scene menu]
+		[set $session]
+			exo: 0
+			score: 0
+			max-score: 0
+			score-percent: 0
+		[goto menu]
+
+	[scene menu]
+		[if $session.exo]
+			[message] $> Score: ${session.score}/${session.max-score} (${session.score-percent}%)
+		[message] $> Choisis ton programme.
+		[next table-additions/simple]
+			[label] $> Table d'additions simples
+		[next table-additions/complete]
+			[label] $> Table d'additions complètes
+
+	[scene end]
+		[inc $session.exo]
+		[set $session.score] $= $session.score + $exo.score
+		[set $session.max-score] $= $session.max-score + $exo.max-score
+		[set $session.score-percent] $= round ( 100 * ( $session.score / $session.max-score ) )
+		[message] $> Exercice fini.
+		[next menu]
+
+[chapter table-additions]
+	[theme] > /themes/educa
+	
+	[scene simple]
+		[set $exo]
+			score: 0
+			max-score: 10
+			iteration: 0
+			max-iteration: 10
+			min: 0
+			max: 5
+		[goto loop]
+
+	[scene complete]
+		[set $exo]
+			score: 0
+			max-score: 10
+			iteration: 0
+			max-iteration: 10
+			min: 1
+			max: 10
+		[goto loop]
+
+	[scene loop]
+		[if $exo.iteration < $exo.max-iteration]
+			[call addition]
+			[inc $exo.iteration]
+			[next loop]
+		[else]
+			[message] $> Ton score est de ${exo.score}/${exo.max-score}.
+			[next menu/end]
+		
+
+	[fn addition]
+		[set $local.a] $= random $exo.min $exo.max
+		[set $local.b] $= random $exo.min $exo.max
+		[set $local.eq] $= $local.a + $local.b
+		
+		[message] $> Combien font:
+		[message] $> ${local.a} + ${local.b} = ...
+		
+		[input $local.input]
+		[set $local.input] $= int $local.input
+		
+		[if $local.input = $local.eq]
+			[message] $> Bien joué !
+			[call ambiance/success]
+			[inc $exo.score]
+		[else]
+			[message] $> Non... La bonne réponse est :
+			[message] $> ${local.a} + ${local.b} = ${local.eq}
+			[call ambiance/fail]
+
+[system ambiance]
+	[fn success]
+		[sound] /sounds/success.mp3
+		[show-sprite dino]
+			url: /sprites/pteranodon.svg
+			class: dino
+			style:
+				height: 30%
+				left: 0%
+				top: 20%
+				transition: 0.05s
+		
+		[pause] 0.2
+		[update-sprite dino]
+			style:
+				height: 50%
+				left: 30%
+				top: 0%
+				transition: 1s
+		[pause] 3
+		[clear-sprite dino]
+		[pause] 0.1
+
+	[fn fail]
+		[sound] /sounds/fail.mp3
+
+

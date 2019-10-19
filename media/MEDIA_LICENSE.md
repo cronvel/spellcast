@@ -35,3 +35,11 @@ textures/card-back.png:
 CC0
 Found at [Pixabay](https://pixabay.com/)
 
+sounds/success.mp3:
+by ZapSlat (“Sound effects obtained from https://www.zapsplat.com”)
+[Standard ZapSlat license](https://www.zapsplat.com/license-type/standard-license/)
+
+sounds/fail.mp3:
+by ZapSlat (“Sound effects obtained from https://www.zapsplat.com”)
+[Standard ZapSlat license](https://www.zapsplat.com/license-type/standard-license/)
+

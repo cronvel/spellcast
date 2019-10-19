@@ -10,7 +10,7 @@
 
 spellcast {
 	font-family: "Open Sans", sans-serif;
-	font-size: 16px;
+	font-size: 28px;
 	color: #333;
 }
 
@@ -50,14 +50,19 @@ spellcast {
 }
 
 main {
+	display: block;
+	position: absolute;
+	height: 50vh;
+	width: 100vw;
+	bottom: 0px;
 	opacity: 1;
 	transition: opacity 0.5s;
 }
 
 #main-buffer {
 	position: relative;
-	height: 100vh;
-	width: 50%;
+	height: 50vh;
+	width: 100%;
 	z-index: 1;
 	padding-top: 1em;	/* it seems to bug with 0 */
 	padding-bottom: 1em;
@@ -163,12 +168,11 @@ spellcast[data-image-position="left"] #alt-buffer {
 }
 
 .history-wrapper {
-	margin: 0 1.5em 1.5em 1.5em;
-	overflow: hidden;
+	display: none;
 }
 
 .buffer .messages.active {
-	margin: 1.5em;
+	margin: 1.5em 4em;
 }
 
 #alt-buffer .messages.active {
@@ -318,17 +322,10 @@ spellcast.continue .messages.active segment:last-child p.text.continue:last-chil
 	float: right;
 	margin-left: 1em;
 	animation: blink-animation 2s linear infinite;
-	
 }
 
 p.chosen {
-	margin: 0.2em 0em 0.2em 1em;
-	color: #29b0b0;
-	font-weight: 700;
-}
-
-p.chosen:before {
-	content: "> ";
+	display: none;
 }
 
 

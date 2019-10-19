@@ -28,7 +28,9 @@
 
 const DemographicGroup = require( '../../lib/objects/DemographicGroup.js' ) ;
 
-// This test the DemographicGroup class
+/*
+	Reproduce the demographic data necessary for a game-system similar to King of the Dragon pass.
+*/
 
 const demo = new DemographicGroup( 1000 )
 	.split( 'caste' , {
@@ -37,9 +39,10 @@ const demo = new DemographicGroup( 1000 )
 		miner: 2 ,		// also lumberjacks, anything resource collectors
 		craftman: 2 ,	// artisans, black-smiths
 		merchant: 1 ,
-		banker: 0 ,
+		//banker: 0 ,
 		guard: 1 ,
 		warrior: 1 ,
+		eliteWarrior: 0.1 ,	// the strongest warriors with the best equipment
 		hunter: 3 ,
 		noble: 1 ,		// leaders
 		artist: 1 ,		// bards, poets, musicians
@@ -84,7 +87,6 @@ const demo = new DemographicGroup( 1000 )
 			if ( unit.data.age === 'child' ) {
 				return {
 					active: 0 ,
-					activeElite: 0 ,
 					house: 1 ,
 					pregnant: 0
 				} ;
@@ -93,7 +95,6 @@ const demo = new DemographicGroup( 1000 )
 			if ( unit.data.age === 'old' ) {
 				return {
 					active: 1 ,
-					activeElite: 0.1 ,
 					house: 1 ,
 					pregnant: 0
 				} ;
@@ -102,7 +103,6 @@ const demo = new DemographicGroup( 1000 )
 			// young and middle-aged
 			return {
 				active: 1 ,
-				activeElite: 0.1 ,
 				house: 0 ,
 				pregnant: 0
 			} ;
@@ -113,7 +113,6 @@ const demo = new DemographicGroup( 1000 )
 		if ( unit.data.age === 'child' ) {
 			return {
 				active: 0 ,
-				activeElite: 0 ,
 				house: 1 ,
 				pregnant: 0
 			} ;
@@ -123,7 +122,6 @@ const demo = new DemographicGroup( 1000 )
 			if ( unit.data.age === 'young' ) {
 				return {
 					active: 1 ,
-					activeElite: 0.1 ,
 					house: 3 ,
 					pregnant: 1
 				} ;
@@ -132,7 +130,6 @@ const demo = new DemographicGroup( 1000 )
 			if ( unit.data.age === 'middle' ) {
 				return {
 					active: 0.5 ,
-					activeElite: 0.05 ,
 					house: 4 ,
 					pregnant: 0.2
 				} ;
@@ -141,7 +138,6 @@ const demo = new DemographicGroup( 1000 )
 			// old
 			return {
 				active: 0.2 ,
-				activeElite: 0.02 ,
 				house: 4 ,
 				pregnant: 0
 			} ;
@@ -152,7 +148,6 @@ const demo = new DemographicGroup( 1000 )
 		if ( unit.data.age === 'old' ) {
 			return {
 				active: 1 ,
-				activeElite: 0.1 ,
 				house: 2 ,
 				pregnant: 0
 			} ;
@@ -161,20 +156,15 @@ const demo = new DemographicGroup( 1000 )
 		// yound and middle-aged
 		return {
 			active: 2 ,
-			activeElite: 0.2 ,
 			house: 1 ,
 			pregnant: 0
 		} ;
 	} )
-	.split( 'condition' , {
-		inShape: 100 ,
-		wounded: 0.3 ,
-		badlyWounded: 0.01	// Can be lethal
-	} )
 	.split( 'health' , {
 		healthy: 10 ,
+		wounded: 0.3 ,
 		sick: 0.2 ,
-		badlySick: 0.01		// Can be lethal
+		critical: 0.01		// Either badly wounded, badly sick, or a mix of the two, it can be lethal, restore
 	} )
 	// Clan mood, attitude toward the clan, clan-mate and especially cland leaders
 	.split( 'mood' , {
