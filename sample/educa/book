@@ -26,6 +26,7 @@
 		[set $session.score-percent] $= round ( 100 * ( $session.score / $session.max-score ) )
 		[message] $> Exercice fini.
 		[next menu]
+			[label] $> Suivant
 
 [chapter table-additions]
 	[theme] > /themes/educa
@@ -55,9 +56,11 @@
 			[call addition]
 			[inc $exo.iteration]
 			[next loop]
+				[label] $> Suivant
 		[else]
 			[message] $> Ton score est de ${exo.score}/${exo.max-score}.
 			[next menu/end]
+				[label] $> Suivant
 		
 
 	[fn addition]
