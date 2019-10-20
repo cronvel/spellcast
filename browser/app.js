@@ -2,7 +2,7 @@
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+	Copyright (c) 2014 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -29,10 +29,11 @@
 
 
 
-var Ngev = require( 'nextgen-events/lib/browser.js' ) ;
-var domKit = require( 'dom-kit' ) ;
-var svgKit = require( 'svg-kit' ) ;
-var commonUtils = require( '../../commonUtils.js' ) ;
+const Ngev = require( 'nextgen-events/lib/browser.js' ) ;
+const Promise = require( 'seventh' ) ;
+const domKit = require( 'dom-kit' ) ;
+const svgKit = require( 'svg-kit' ) ;
+const commonUtils = require( '../../commonUtils.js' ) ;
 
 
 
@@ -96,20 +97,20 @@ Dom.prototype.constructor = Dom ;
 
 
 
-Dom.prototype.cleanUrl = function cleanUrl( url ) {
+Dom.prototype.cleanUrl = function( url ) {
 	if ( url[ 0 ] === '/' ) { return window.location.pathname + url.slice( 1 ) ; }
 	return window.location.pathname + 'script/' + url ;
 } ;
 
 
 
-Dom.prototype.setTheme = function setTheme( theme ) {
+Dom.prototype.setTheme = function( theme ) {
 	this.$theme.setAttribute( 'href' , this.cleanUrl( theme.url ) ) ;
 } ;
 
 
 
-Dom.prototype.preload = function preload() {
+Dom.prototype.preload = function() {
 	domKit.preload( [
 		'icons/plugged.svg' ,
 		'icons/plugging.svg' ,
@@ -120,7 +121,7 @@ Dom.prototype.preload = function preload() {
 
 
 
-Dom.prototype.initEvents = function initEvents() {
+Dom.prototype.initEvents = function() {
 	this.$main.addEventListener( 'click' , () => this.emit( 'continue' ) , false ) ;
 
 	this.$gfx.addEventListener( 'click' , event => {
@@ -140,14 +141,14 @@ Dom.prototype.initEvents = function initEvents() {
 
 
 
-Dom.prototype.toggleSceneImage = function toggleSceneImage() {
+Dom.prototype.toggleSceneImage = function() {
 	if ( this.$gfx.classList.contains( 'toggled' ) ) { this.sceneImageOff() ; }
 	else { this.sceneImageOn() ; }
 } ;
 
 
 
-Dom.prototype.sceneImageOn = function sceneImageOn() {
+Dom.prototype.sceneImageOn = function() {
 	if ( this.sceneImageOnTimer !== null ) { clearTimeout( this.sceneImageOnTimer ) ; this.sceneImageOnTimer = null ; }
 
 	this.$gfx.classList.add( 'toggled' ) ;
@@ -157,7 +158,7 @@ Dom.prototype.sceneImageOn = function sceneImageOn() {
 
 
 
-Dom.prototype.sceneImageOff = function sceneImageOff() {
+Dom.prototype.sceneImageOff = function() {
 	if ( this.sceneImageOnTimer !== null ) { clearTimeout( this.sceneImageOnTimer ) ; this.sceneImageOnTimer = null ; }
 
 	this.$gfx.classList.remove( 'toggled' ) ;
@@ -167,7 +168,7 @@ Dom.prototype.sceneImageOff = function sceneImageOff() {
 
 
 // return true if switched
-Dom.prototype.toMainBuffer = function toMainBuffer() {
+Dom.prototype.toMainBuffer = function() {
 	if ( this.$activeBuffer === this.$mainBuffer ) { return ; }
 
 	if ( this.$activeBuffer ) {
@@ -192,7 +193,7 @@ Dom.prototype.toMainBuffer = function toMainBuffer() {
 
 
 // return true if switched
-Dom.prototype.toAltBuffer = function toAltBuffer() {
+Dom.prototype.toAltBuffer = function() {
 	if ( this.$activeBuffer === this.$altBuffer ) { return ; }
 
 	this.$activeBuffer = this.$altBuffer ;
@@ -209,7 +210,7 @@ Dom.prototype.toAltBuffer = function toAltBuffer() {
 
 
 // Get elements after a buffer switch
-Dom.prototype.getSwitchedElements = function getSwitchedElements() {
+Dom.prototype.getSwitchedElements = function() {
 	this.$history = this.$activeBuffer.querySelector( '.messages.history' ) ;
 	this.$activeMessages = this.$activeBuffer.querySelector( '.messages.active' ) ;
 	this.$choices = this.$activeBuffer.querySelector( '.choices' ) ;
@@ -225,7 +226,7 @@ Dom.prototype.getSwitchedElements = function getSwitchedElements() {
 
 
 
-Dom.prototype.clientStatus = function clientStatus( status ) {
+Dom.prototype.clientStatus = function( status ) {
 	this.$clientStatus.setAttribute( 'data-status' , status ) ;
 	//this.$clientStatus.setAttribute( 'alt' , status ) ;
 	this.$clientStatus.setAttribute( 'title' , status ) ;
@@ -233,7 +234,7 @@ Dom.prototype.clientStatus = function clientStatus( status ) {
 
 
 
-Dom.prototype.setMultiplayer = function setMultiplayer( value , callback ) {
+Dom.prototype.setMultiplayer = function( value , callback ) {
 	callback = callback || noop ;
 
 	if ( value || value === undefined ) {
@@ -248,7 +249,7 @@ Dom.prototype.setMultiplayer = function setMultiplayer( value , callback ) {
 
 
 
-Dom.prototype.clear = function clear( callback ) {
+Dom.prototype.clear = function( callback ) {
 	callback = callback || noop ;
 	domKit.empty( this.$hint ) ;
 	domKit.empty( this.$dialogWrapper ) ;
@@ -259,7 +260,7 @@ Dom.prototype.clear = function clear( callback ) {
 
 
 
-Dom.prototype.clearMessages = function clearMessages( callback ) {
+Dom.prototype.clearMessages = function( callback ) {
 	callback = callback || noop ;
 	domKit.empty( this.$activeMessages ) ;
 	callback() ;
@@ -267,7 +268,7 @@ Dom.prototype.clearMessages = function clearMessages( callback ) {
 
 
 
-Dom.prototype.clearHistory = function clearHistory( callback ) {
+Dom.prototype.clearHistory = function( callback ) {
 	callback = callback || noop ;
 	domKit.empty( this.$history ) ;
 	callback() ;
@@ -275,7 +276,7 @@ Dom.prototype.clearHistory = function clearHistory( callback ) {
 
 
 
-Dom.prototype.newSegment = function newSegment( type ) {
+Dom.prototype.newSegment = function( type ) {
 	var $segment ,
 		isInterSegment = type === 'inter-segment' ;
 
@@ -306,7 +307,7 @@ Dom.prototype.newSegment = function newSegment( type ) {
 
 
 
-Dom.prototype.moveToHistory = function moveToHistory() {
+Dom.prototype.moveToHistory = function() {
 	var i , iMax ;
 
 	var children = Array.from( this.$activeMessages.children ) ;
@@ -330,14 +331,14 @@ Dom.prototype.moveToHistory = function moveToHistory() {
 
 
 // Postpone new segment creation until new content
-Dom.prototype.newSegmentOnContent = function newSegmentOnContent( type ) {
+Dom.prototype.newSegmentOnContent = function( type ) {
 	type = type || 'segment' ;
 	this.newSegmentNeeded = type ;
 } ;
 
 
 
-Dom.prototype.addSelectedChoice = function addSelectedChoice( text ) {
+Dom.prototype.addSelectedChoice = function( text ) {
 	var $text = document.createElement( 'p' ) ;
 	$text.classList.add( 'chosen' ) ;
 	$text.textContent = text ;
@@ -349,7 +350,7 @@ Dom.prototype.addSelectedChoice = function addSelectedChoice( text ) {
 
 
 
-Dom.prototype.addMessage = function addMessage( text , options , callback ) {
+Dom.prototype.addMessage = function( text , options , callback ) {
 	var triggered = false ;
 
 	callback = callback || noop ;
@@ -402,7 +403,7 @@ Dom.prototype.addMessage = function addMessage( text , options , callback ) {
 
 
 
-Dom.prototype.messageNext = function messageNext( value , callback ) {
+Dom.prototype.messageNext = function( value , callback ) {
 	var triggered = false ;
 
 	var triggerCallback = () => {
@@ -423,7 +424,7 @@ Dom.prototype.messageNext = function messageNext( value , callback ) {
 
 
 
-Dom.prototype.addIndicators = function addIndicators( indicators , isStatus , callback ) {
+Dom.prototype.addIndicators = function( indicators , isStatus , callback ) {
 	callback = callback || noop ;
 
 	if ( isStatus ) {
@@ -531,7 +532,7 @@ Dom.prototype.addIndicators = function addIndicators( indicators , isStatus , ca
 
 
 
-Dom.prototype.createChoiceEventHandlers = function createChoiceEventHandlers( onSelect ) {
+Dom.prototype.createChoiceEventHandlers = function( onSelect ) {
 	this.onSelect = ( event ) => {
 		var $element = event.currentTarget ;
 		var index = $element.getAttribute( 'data-select-index' ) ;
@@ -556,7 +557,7 @@ Dom.prototype.createChoiceEventHandlers = function createChoiceEventHandlers( on
 
 
 
-Dom.prototype.addPanel = function addPanel( panel , clear , callback ) {
+Dom.prototype.addPanel = function( panel , clear , callback ) {
 	callback = callback || noop ;
 
 
@@ -638,7 +639,7 @@ Dom.prototype.addPanel = function addPanel( panel , clear , callback ) {
 
 
 
-Dom.prototype.clearChoices = function clearChoices( callback ) {
+Dom.prototype.clearChoices = function( callback ) {
 	var $uiButton ;
 
 	callback = callback || noop ;
@@ -674,7 +675,7 @@ Dom.prototype.clearChoices = function clearChoices( callback ) {
 
 
 
-Dom.prototype.addChoices = function addChoices( choices , onSelect , callback ) {
+Dom.prototype.addChoices = function( choices , onSelect , callback ) {
 	if ( this.uiLoadingCount ) {
 		this.once( 'uiLoaded' , this.addChoices.bind( this , choices , onSelect , callback ) ) ;
 		return ;
@@ -780,7 +781,7 @@ Dom.prototype.addChoices = function addChoices( choices , onSelect , callback ) 
 
 
 
-Dom.prototype.getChoiceColumnsCount = function getChoiceColumnsCount( choices ) {
+Dom.prototype.getChoiceColumnsCount = function( choices ) {
 	var count = 0 , maxCount = 0 ;
 
 	choices.forEach( ( choice ) => {
@@ -799,7 +800,7 @@ Dom.prototype.getChoiceColumnsCount = function getChoiceColumnsCount( choices ) 
 
 
 // This is used when new choices replaces the previous scene choices
-Dom.prototype.setChoices = function setChoices( choices , undecidedNames , onSelect , options , callback ) {
+Dom.prototype.setChoices = function( choices , undecidedNames , onSelect , options , callback ) {
 	options = options || {} ;
 	callback = callback || noop ;
 
@@ -842,7 +843,7 @@ Dom.prototype.updateChoices = Dom.prototype.setChoices ;
 
 
 
-Dom.prototype.choiceTimeout = function choiceTimeout( timeout ) {
+Dom.prototype.choiceTimeout = function( timeout ) {
 	var startTime = Date.now() , $timer , timer ;
 
 	$timer = document.createElement( 'p' ) ;
@@ -861,7 +862,7 @@ Dom.prototype.choiceTimeout = function choiceTimeout( timeout ) {
 
 
 
-Dom.prototype.textInputDisabled = function textInputDisabled( options ) {
+Dom.prototype.textInputDisabled = function( options ) {
 	var $form = document.createElement( 'form' ) ,
 		$label = document.createElement( 'label' ) ,
 		$input = document.createElement( 'input' ) ;
@@ -882,7 +883,7 @@ Dom.prototype.textInputDisabled = function textInputDisabled( options ) {
 
 
 
-Dom.prototype.textInput = function textInput( options , callback ) {
+Dom.prototype.textInput = function( options , callback ) {
 	var $form = document.createElement( 'form' ) ,
 		$label = document.createElement( 'label' ) ,
 		$input = document.createElement( 'input' ) ;
@@ -902,7 +903,7 @@ Dom.prototype.textInput = function textInput( options , callback ) {
 
 	$input.focus() ;
 
-	var finalize = function finalize( event ) {
+	var finalize = function( event ) {
 		event.preventDefault() ;
 
 		$form.removeEventListener( 'submit' , finalize ) ;
@@ -915,7 +916,7 @@ Dom.prototype.textInput = function textInput( options , callback ) {
 
 
 
-Dom.prototype.enableChat = function enableChat( callback ) {
+Dom.prototype.enableChat = function( callback ) {
 	if ( ! this.onChatSubmit ) {
 		this.onChatSubmit = ( event ) => {
 			event.preventDefault() ;
@@ -932,7 +933,7 @@ Dom.prototype.enableChat = function enableChat( callback ) {
 
 
 
-Dom.prototype.disableChat = function disableChat() {
+Dom.prototype.disableChat = function() {
 	this.$chatForm.removeEventListener( 'submit' , this.onChatSubmit ) ;
 	this.onChatSubmit = null ;
 
@@ -942,7 +943,7 @@ Dom.prototype.disableChat = function disableChat() {
 
 
 
-Dom.prototype.clearHint = function clearHint() {
+Dom.prototype.clearHint = function() {
 	if ( this.hintTimer !== null ) { clearTimeout( this.hintTimer ) ; this.hintTimer = null ; }
 
 	//domKit.empty( this.$hint ) ;
@@ -955,7 +956,7 @@ Dom.prototype.clearHint = function clearHint() {
 
 
 
-Dom.prototype.setHint = function setHint( text , classes ) {
+Dom.prototype.setHint = function( text , classes ) {
 	if ( this.hintTimer !== null ) { clearTimeout( this.hintTimer ) ; this.hintTimer = null ; }
 
 	//this.clearHint() ;
@@ -984,7 +985,7 @@ Dom.prototype.setHint = function setHint( text , classes ) {
 
 
 // /!\ DEPRECATED??? /!\
-Dom.prototype.setBigHint = function setBigHint( text , classes ) {
+Dom.prototype.setBigHint = function( text , classes ) {
 	var $hint = document.createElement( 'h2' ) ;
 	$hint.textContent = text ;
 	if ( classes ) { domKit.class( $hint , classes ) ; }
@@ -994,7 +995,7 @@ Dom.prototype.setBigHint = function setBigHint( text , classes ) {
 
 
 
-Dom.prototype.clearDialog = function clearDialog() {
+Dom.prototype.clearDialog = function() {
 	this.$dialogWrapper.classList.add( 'empty' ) ;
 	this.$dialogWrapper.classList.remove( 'modal' ) ;
 
@@ -1035,7 +1036,7 @@ Dom.prototype.clearDialog = function clearDialog() {
 	* fun: use a fun font
 	* alert: dialog for alerts, critical stuffs...
 */
-Dom.prototype.setDialog = function setDialog( text , options , callback ) {
+Dom.prototype.setDialog = function( text , options , callback ) {
 	options = options || {} ;
 	callback = callback || noop ;
 
@@ -1093,7 +1094,7 @@ Dom.prototype.setDialog = function setDialog( text , options , callback ) {
 
 
 
-Dom.prototype.setSceneImage = function setSceneImage( data ) {
+Dom.prototype.setSceneImage = function( data ) {
 	var cleaned = false ;
 
 	var $oldSceneImage = this.$sceneImage ;
@@ -1141,7 +1142,7 @@ Dom.prototype.setSceneImage = function setSceneImage( data ) {
 
 
 
-Dom.prototype.clearSprite = function clearSprite( id ) {
+Dom.prototype.clearSprite = function( id ) {
 	if ( ! this.sprites[ id ] ) {
 		console.warn( 'Unknown sprite id: ' , id ) ;
 		return ;
@@ -1154,7 +1155,7 @@ Dom.prototype.clearSprite = function clearSprite( id ) {
 
 
 
-Dom.prototype.clearUi = function clearUi( id ) {
+Dom.prototype.clearUi = function( id ) {
 	if ( ! this.uis[ id ] ) {
 		console.warn( 'Unknown UI id: ' , id ) ;
 		return ;
@@ -1167,7 +1168,7 @@ Dom.prototype.clearUi = function clearUi( id ) {
 
 
 
-Dom.prototype.clearMarker = function clearMarker( id ) {
+Dom.prototype.clearMarker = function( id ) {
 	if ( ! this.markers[ id ] ) {
 		console.warn( 'Unknown Marker id: ' , id ) ;
 		return ;
@@ -1180,7 +1181,7 @@ Dom.prototype.clearMarker = function clearMarker( id ) {
 
 
 
-Dom.prototype.clearCard = function clearCard( id ) {
+Dom.prototype.clearCard = function( id ) {
 	if ( ! this.cards[ id ] ) {
 		console.warn( 'Unknown Card id: ' , id ) ;
 		return ;
@@ -1193,7 +1194,7 @@ Dom.prototype.clearCard = function clearCard( id ) {
 
 
 
-Dom.prototype.showSprite = function showSprite( id , data ) {
+Dom.prototype.showSprite = function( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
 	if ( this.sprites[ id ] ) { this.clearGItem( this.sprites[ id ] ) ; }
@@ -1213,7 +1214,7 @@ Dom.prototype.showSprite = function showSprite( id , data ) {
 
 
 
-Dom.prototype.showUi = function showUi( id , data ) {
+Dom.prototype.showUi = function( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
 	if ( this.uis[ id ] ) { this.clearGItem( this.uis[ id ] ) ; }
@@ -1233,7 +1234,7 @@ Dom.prototype.showUi = function showUi( id , data ) {
 
 
 
-Dom.prototype.showMarker = function showMarker( id , data ) {
+Dom.prototype.showMarker = function( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
 	if ( this.markers[ id ] ) { this.clearGItem( this.markers[ id ] ) ; }
@@ -1256,7 +1257,7 @@ Dom.prototype.showMarker = function showMarker( id , data ) {
 
 var cardAutoIncrement = 0 ;
 
-Dom.prototype.showCard = function showCard( id , data ) {
+Dom.prototype.showCard = function( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
 	if ( this.cards[ id ] ) { this.clearGItem( this.cards[ id ] ) ; }
@@ -1283,7 +1284,7 @@ Dom.prototype.showCard = function showCard( id , data ) {
 
 
 
-Dom.prototype.updateSprite = function updateSprite( id , data ) {
+Dom.prototype.updateSprite = function( id , data ) {
 	if ( ! this.sprites[ id ] ) {
 		console.warn( 'Unknown sprite id: ' , id ) ;
 		return ;
@@ -1294,7 +1295,7 @@ Dom.prototype.updateSprite = function updateSprite( id , data ) {
 
 
 
-Dom.prototype.updateUi = function updateUi( id , data ) {
+Dom.prototype.updateUi = function( id , data ) {
 	if ( ! this.uis[ id ] ) {
 		console.warn( 'Unknown UI id: ' , id ) ;
 		return ;
@@ -1305,7 +1306,7 @@ Dom.prototype.updateUi = function updateUi( id , data ) {
 
 
 
-Dom.prototype.updateMarker = function updateMarker( id , data ) {
+Dom.prototype.updateMarker = function( id , data ) {
 	if ( ! this.markers[ id ] ) {
 		console.warn( 'Unknown marker id: ' , id ) ;
 		return ;
@@ -1316,7 +1317,7 @@ Dom.prototype.updateMarker = function updateMarker( id , data ) {
 
 
 
-Dom.prototype.updateCard = function updateCard( id , data ) {
+Dom.prototype.updateCard = function( id , data ) {
 	if ( ! this.cards[ id ] ) {
 		console.warn( 'Unknown card id: ' , id ) ;
 		return ;
@@ -1327,7 +1328,7 @@ Dom.prototype.updateCard = function updateCard( id , data ) {
 
 
 
-Dom.prototype.animateSprite = function animateSprite( spriteId , animationId ) {
+Dom.prototype.animateSprite = function( spriteId , animationId ) {
 	if ( ! this.sprites[ spriteId ] ) {
 		console.warn( 'Unknown sprite id: ' , spriteId ) ;
 		return ;
@@ -1343,7 +1344,7 @@ Dom.prototype.animateSprite = function animateSprite( spriteId , animationId ) {
 
 
 
-Dom.prototype.animateUi = function animateUi( uiId , animationId ) {
+Dom.prototype.animateUi = function( uiId , animationId ) {
 	if ( ! this.uis[ uiId ] ) {
 		console.warn( 'Unknown UI id: ' , uiId ) ;
 		return ;
@@ -1359,7 +1360,7 @@ Dom.prototype.animateUi = function animateUi( uiId , animationId ) {
 
 
 
-Dom.prototype.animateMarker = function animateMarker( markerId , animationId ) {
+Dom.prototype.animateMarker = function( markerId , animationId ) {
 	if ( ! this.markers[ markerId ] ) {
 		console.warn( 'Unknown marker id: ' , markerId ) ;
 		return ;
@@ -1375,7 +1376,7 @@ Dom.prototype.animateMarker = function animateMarker( markerId , animationId ) {
 
 
 
-Dom.prototype.animateCard = function animateCard( cardId , animationId ) {
+Dom.prototype.animateCard = function( cardId , animationId ) {
 	if ( ! this.cards[ cardId ] ) {
 		console.warn( 'Unknown card id: ' , cardId ) ;
 		return ;
@@ -1391,7 +1392,8 @@ Dom.prototype.animateCard = function animateCard( cardId , animationId ) {
 
 
 
-Dom.prototype.createGItem = function createGItem( data ) {
+// /!\ A GItem class must be created /!\
+Dom.prototype.createGItem = function( data ) {
 	var gItem = new Ngev() ;
 
 	if ( data.type !== 'marker' ) {
@@ -1399,6 +1401,9 @@ Dom.prototype.createGItem = function createGItem( data ) {
 		gItem.$wrapper.classList.add( 'g-item-wrapper' , data.type + '-wrapper' ) ;
 		this.$gfx.append( gItem.$wrapper ) ;
 	}
+	
+	gItem.transform = {} ;
+	gItem.updateTransform = false ;
 
 	Object.assign( gItem , data ) ;
 	gItem.defineStates( 'loaded' , 'loading' ) ;
@@ -1408,7 +1413,7 @@ Dom.prototype.createGItem = function createGItem( data ) {
 
 
 
-Dom.prototype.clearGItem = function clearGItem( gItem ) {
+Dom.prototype.clearGItem = function( gItem ) {
 	if ( gItem.$locationSlot ) { gItem.$locationSlot.remove() ; }
 	gItem.$wrapper.remove() ;
 	/*
@@ -1422,11 +1427,11 @@ Dom.prototype.clearGItem = function clearGItem( gItem ) {
 /*
 	Execute only DOM and critical stuff first.
 */
-Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
+Dom.prototype.updateGItem = async function( gItem , data ) {
 	// The order matters
-	if ( data.url ) { this.updateGItemImage( gItem , data ) ; }
-	if ( data.backUrl ) { this.updateGItemBackImage( gItem , data ) ; }
-	if ( data.maskUrl ) { this.updateGItemMask( gItem , data ) ; }
+	if ( data.url ) { await this.updateGItemImage( gItem , data ) ; }
+	if ( data.backUrl ) { await this.updateGItemBackImage( gItem , data ) ; }
+	if ( data.maskUrl ) { await this.updateGItemMask( gItem , data ) ; }
 	if ( data.content ) { this.updateGItemContent( gItem , data ) ; }
 
 	if ( data.button !== undefined ) { this.updateGItemButton( gItem , data ) ; }
@@ -1440,7 +1445,7 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 		this.updateMarkerLocation( gItem , data.ui , data.location ) ;
 	}
 
-	// For some unknown reasons, that timeout removes animation glitch
+	// For some unknown reasons, that timeout removes animation glitches
 	setTimeout( () => this.updateGItemCosmetics( gItem , data ) , 10 ) ;
 	//this.updateGItemCosmetics( gItem , data ) ;
 } ;
@@ -1450,7 +1455,7 @@ Dom.prototype.updateGItem = function updateGItem( gItem , data ) {
 /*
 	Execute less important things, like things triggering animations
 */
-Dom.prototype.updateGItemCosmetics = function updateGItemCosmetics( gItem , data ) {
+Dom.prototype.updateGItemCosmetics = function( gItem , data ) {
 	// The order matters
 	if ( data.location !== undefined && gItem.type !== 'marker' ) {
 		// Should be triggered first, or pose/style would conflict with it
@@ -1490,6 +1495,11 @@ Dom.prototype.updateGItemCosmetics = function updateGItemCosmetics( gItem , data
 		domKit.css( gItem.$mask , data.maskStyle ) ;
 	}
 
+	// “framework” styles and positioning
+	if ( data.size ) { this.updateGItemSize( gItem , data.size ) ; }
+	if ( data.position ) { this.updateGItemPosition( gItem , data.position ) ; }
+	if ( gItem.updateTransform ) { this.updateGItemTransform( gItem ) ; }
+
 	if ( data.class ) {
 		data.class = commonUtils.toClassObject( data.class ) ;
 		Object.assign( gItem.class , data.class ) ;
@@ -1500,13 +1510,16 @@ Dom.prototype.updateGItemCosmetics = function updateGItemCosmetics( gItem , data
 
 
 // Load/replace the gItem image (data.url)
-Dom.prototype.updateGItemImage = function updateGItemImage( gItem , data ) {
-	var imageUrl = data.url ;
+Dom.prototype.updateGItemImage = function( gItem , data ) {
+	var promise = new Promise() ,
+		imageUrl = data.url ;
+	
 	delete data.url ;
 
 	if ( gItem.type === 'card' ) {
 		gItem.$image.style.backgroundImage = 'url("' + this.cleanUrl( imageUrl ) + '")' ;
-		return ;
+		promise.resolve() ;
+		return promise ;
 	}
 
 	if ( imageUrl.endsWith( '.svg' ) ) {
@@ -1552,7 +1565,6 @@ Dom.prototype.updateGItemImage = function updateGItemImage( gItem , data ) {
 			//removeDefaultStyles: true ,
 			as: gItem.$image
 		} , () => {
-
 			if ( gItem.type === 'ui' ) {
 				this.setUiButtons( gItem.$image ) ;
 				this.setUiPassiveHints( gItem.$image ) ;
@@ -1561,6 +1573,7 @@ Dom.prototype.updateGItemImage = function updateGItemImage( gItem , data ) {
 			}
 			else {
 				gItem.emit( 'loaded' ) ;
+				promise.resolve() ;
 			}
 		} ) ;
 
@@ -1577,29 +1590,38 @@ Dom.prototype.updateGItemImage = function updateGItemImage( gItem , data ) {
 		}
 
 		gItem.$image.setAttribute( 'src' , this.cleanUrl( imageUrl ) ) ;
+		gItem.$image.onload = () => promise.resolve() ;
 	}
 
 	if ( gItem.type !== 'marker' ) {
 		gItem.$wrapper.append( gItem.$image ) ;
 	}
+	
+	return promise ;
 } ;
 
 
 
 // Load/replace the gItem backImage (data.backUrl)
-Dom.prototype.updateGItemBackImage = function updateGItemBackImage( gItem , data ) {
+// /!\ Not async ATM: how to get a "load" event on a background-image???
+Dom.prototype.updateGItemBackImage = function( gItem , data ) {
 	var imageUrl = data.backUrl ;
 	delete data.backUrl ;
 
 	if ( gItem.type === 'card' ) {
 		gItem.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( imageUrl ) + '")' ;
+		//gItem.$image.onload = () => promise.resolve() ;
 	}
+	
+	return Promise.resolved ;
 } ;
 
 
 
 // Load/replace the gItem mask (data.maskUrl)
-Dom.prototype.updateGItemMask = function updateGItemMask( gItem , data ) {
+Dom.prototype.updateGItemMask = function( gItem , data ) {
+	var promise = new Promise() ;
+	
 	if ( data.maskUrl.endsWith( '.svg' ) && gItem.type === 'sprite' ) {
 		console.warn( 'has mask!' ) ;
 
@@ -1617,7 +1639,7 @@ Dom.prototype.updateGItemMask = function updateGItemMask( gItem , data ) {
 			removeExoticNamespaces: true ,
 			//removeDefaultStyles: true ,
 			as: gItem.$mask
-		} ) ;
+		} , () => promise.resolve() ) ;
 
 		gItem.$wrapper.append( gItem.$mask ) ;
 		gItem.$wrapper.classList.add( 'has-mask' ) ;
@@ -1625,15 +1647,104 @@ Dom.prototype.updateGItemMask = function updateGItemMask( gItem , data ) {
 	else if ( gItem.$mask ) {
 		gItem.$mask.remove() ;
 		gItem.$wrapper.classList.remove( 'has-mask' ) ;
+		promise.resolve() ;
 	}
 
 	delete data.maskUrl ;
+	
+	return promise ;
+} ;
+
+
+
+// Update “framework” size
+Dom.prototype.updateGItemSize = function( gItem , sizeData ) {
+	// For instance, marker are excluded
+	if ( ! gItem.$wrapper || ! gItem.$image ) { return ; }
+	
+	/*
+	var containerRefSize , imageRefSize ;
+	// Reference size: one use max and the other min
+	containerRefSize = Math.min( this.$gfx.offsetWidth , this.$gfx.offsetHeight ) ;
+	imageRefSize = Math.max( gItem.$image.offsetWidth , gItem.$image.offsetHeight ) ;
+	*/
+	
+	if ( sizeData.relative ) {
+		gItem.transform.scale = sizeData.relative ;
+		gItem.updateTransform = true ;
+		console.log( "transform after .updateGItemSize()" , gItem.transform ) ;
+	}
+} ;
+
+
+
+// Update “framework” position
+// /!\ SCALING should comes first for this to work!
+Dom.prototype.updateGItemPosition = function( gItem , positionData ) {
+	var wrapperAspect , imageAspect , imageWidth , imageHeight ,
+		xMinOffset , yMinOffset , xFactor , yFactor ;
+	
+	// For instance, marker are excluded
+	if ( ! gItem.$wrapper || ! gItem.$image ) { return ; }
+	
+	if ( gItem.$image.tagName.toLowerCase() === 'svg' ) {
+		// The SVG element is not a DOM HTML element, it does not have offsetWidth/offsetHeight,
+		// hence it' a little bit trickier to get its real boxmodel size
+		
+		wrapperAspect = gItem.$wrapper.offsetWidth / gItem.$wrapper.offsetHeight ;
+		imageAspect = gItem.$image.width.baseVal.value / gItem.$image.height.baseVal.value ;
+		
+		if ( imageAspect > wrapperAspect ) {
+			imageWidth = gItem.$wrapper.offsetWidth ;
+			imageHeight = imageWidth / imageAspect ;
+		}
+		else {
+			imageHeight = gItem.$wrapper.offsetHeight ;
+			imageWidth = imageHeight * imageAspect ;
+		}
+		console.log( "dbg svg:" , { wrapperAspect , imageAspect , imageWidth , imageHeight } ) ;
+	}
+	else {
+		imageWidth = gItem.$image.offsetWidth ;
+		imageHeight = gItem.$image.offsetHeight ;
+	}
+	
+	if ( positionData.relative ) {
+		xMinOffset = yMinOffset = 0 ;
+		xFactor = this.$gfx.offsetWidth - imageWidth ;
+		yFactor = this.$gfx.offsetHeight - imageHeight ;
+		
+		if ( gItem.transform.scale !== undefined ) {
+			xMinOffset = - 0.5 * imageWidth * ( 1 - gItem.transform.scale ) ;
+			yMinOffset = - 0.5 * imageHeight * ( 1 - gItem.transform.scale ) ;
+			xFactor += imageWidth * ( 1 - gItem.transform.scale ) ;
+			yFactor += imageHeight * ( 1 - gItem.transform.scale ) ;
+		}
+		
+		console.log( "dbg:" , { xMinOffset , xFactor , yFactor } ) ;
+		gItem.transform.translateX = xMinOffset + positionData.relative.x * xFactor ;
+		gItem.transform.translateY = yMinOffset + positionData.relative.y * yFactor ;
+		
+		gItem.updateTransform = true ;
+		console.log( "transform after .updateGItemPosition()" , gItem.transform ) ;
+	}
+} ;
+
+
+
+// Transform has been updated
+Dom.prototype.updateGItemTransform = function( gItem ) {
+	// For instance, marker are excluded
+	if ( ! gItem.updateTransform || ! gItem.$wrapper ) { return ; }
+	
+	domKit.transform( gItem.$wrapper , gItem.transform ) ;
+	gItem.updateTransform = false ;
 } ;
 
 
 
 // Update content (data.content), card-only
-Dom.prototype.updateGItemContent = function updateGItemContent( gItem , data ) {
+Dom.prototype.updateGItemContent = function( gItem , data ) {
 	var content , $content ;
 
 	if ( gItem.type !== 'card' ) { return ; }
@@ -1658,7 +1769,7 @@ Dom.prototype.updateGItemContent = function updateGItemContent( gItem , data ) {
 
 
 // Update pose (data.pose)
-Dom.prototype.updateGItemPose = function updateGItemPose( gItem , data ) {
+Dom.prototype.updateGItemPose = function( gItem , data ) {
 	if ( typeof data.pose === 'string' ) {
 		gItem.$wrapper.setAttribute( 'pose' , data.pose ) ;
 		gItem.pose = data.pose ;
@@ -1674,7 +1785,7 @@ Dom.prototype.updateGItemPose = function updateGItemPose( gItem , data ) {
 
 
 // Update status (data.status)
-Dom.prototype.updateGItemStatus = function updateGItemStatus( gItem , data ) {
+Dom.prototype.updateGItemStatus = function( gItem , data ) {
 	var status , statusName ;
 
 	for ( statusName in data.status ) {
@@ -1702,7 +1813,7 @@ Dom.prototype.updateGItemStatus = function updateGItemStatus( gItem , data ) {
 
 
 // Button ID (data.button)
-Dom.prototype.updateGItemButton = function updateGItemButton( gItem , data ) {
+Dom.prototype.updateGItemButton = function( gItem , data ) {
 	var $element = gItem.$mask || gItem.$wrapper ;
 
 	var buttonId = data.button ;
@@ -1718,7 +1829,7 @@ Dom.prototype.updateGItemButton = function updateGItemButton( gItem , data ) {
 
 // /!\ DEPRECATED /!\
 // Click action (data.action)
-Dom.prototype.updateGItemAction = function updateGItemAction( gItem , data ) {
+Dom.prototype.updateGItemAction = function( gItem , data ) {
 	var $element = gItem.$mask || gItem.$image ;
 
 	if ( data.action && ! gItem.action ) {
@@ -1743,7 +1854,7 @@ Dom.prototype.updateGItemAction = function updateGItemAction( gItem , data ) {
 
 
 // Move to a location and perform a FLIP (First Last Invert Play)
-Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data , callback ) {
+Dom.prototype.moveGItemToLocation = function( gItem , data , callback ) {
 	var locationName = data.location ;
 	delete data.location ;
 
@@ -1917,7 +2028,7 @@ Dom.prototype.moveGItemToLocation = function moveGItemToLocation( gItem , data ,
 
 
 
-Dom.prototype.updateUiArea = function updateUiArea( ui , areaData ) {
+Dom.prototype.updateUiArea = function( ui , areaData ) {
 	var area ;
 
 	if ( ui.type !== 'ui' ) { return ; }
@@ -1964,7 +2075,7 @@ Dom.prototype.updateUiArea = function updateUiArea( ui , areaData ) {
 
 
 
-Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiId , areaId ) {
+Dom.prototype.updateMarkerLocation = function( marker , uiId , areaId ) {
 	var ui , $area , areaBBox , markerViewBox , width , height , originX , originY , posX , posY ;
 
 
@@ -2042,7 +2153,7 @@ Dom.prototype.updateMarkerLocation = function updateMarkerLocation( marker , uiI
 
 
 
-Dom.prototype.createGItemLocation = function createGItemLocation( locationName ) {
+Dom.prototype.createGItemLocation = function( locationName ) {
 	var $location ;
 
 	if ( this.gItemLocations[ locationName ] ) { return ; }
@@ -2055,7 +2166,7 @@ Dom.prototype.createGItemLocation = function createGItemLocation( locationName )
 
 
 
-Dom.prototype.createCardMarkup = function createCardMarkup( card ) {
+Dom.prototype.createCardMarkup = function( card ) {
 	// .$wrapper is the placeholder, hover effects happen on it
 	card.$card = document.createElement( 'div' ) ;
 	card.$card.classList.add( 'card' ) ;
@@ -2080,7 +2191,7 @@ Dom.prototype.createCardMarkup = function createCardMarkup( card ) {
 
 
 
-Dom.prototype.animateGItem = function animateGItem( gItem , animation ) {
+Dom.prototype.animateGItem = function( gItem , animation ) {
 	var frame , frameIndex = 0 ;
 
 	gItem.animation = animation.id ;
@@ -2113,14 +2224,14 @@ Dom.prototype.animateGItem = function animateGItem( gItem , animation ) {
 
 
 
-Dom.prototype.defineAnimation = function defineAnimation( id , data ) {
+Dom.prototype.defineAnimation = function( id , data ) {
 	data.id = id ;
 	this.animations[ id ] = data ;
 } ;
 
 
 
-Dom.prototype.setUiButtons = function setUiButtons( $svg ) {
+Dom.prototype.setUiButtons = function( $svg ) {
 	Array.from( $svg.querySelectorAll( '[button]' ) ).forEach( ( $element ) => {
 		var buttonId = $element.getAttribute( 'button' ) ;
 
@@ -2138,7 +2249,7 @@ Dom.prototype.setUiButtons = function setUiButtons( $svg ) {
 
 
 
-Dom.prototype.setUiPassiveHints = function setUiPassiveHints( $svg ) {
+Dom.prototype.setUiPassiveHints = function( $svg ) {
 	Array.from( $svg.querySelectorAll( '[hint]' ) ).forEach( ( $element ) => {
 		var hint = $element.getAttribute( 'hint' ) ;
 
@@ -2167,19 +2278,18 @@ Dom.prototype.setUiPassiveHints = function setUiPassiveHints( $svg ) {
 
 
 // maybe callback?
-Dom.prototype.sound = function sound( data ) {
-	var element = this[ '$sound' + this.nextSoundChannel ] ;
-	console.warn( '$sound' + this.nextSoundChannel , data , element ) ;
+Dom.prototype.sound = function( data ) {
+	var $element = this[ '$sound' + this.nextSoundChannel ] ;
+	console.warn( '$sound' + this.nextSoundChannel , data , $element ) ;
 	this.nextSoundChannel = ( this.nextSoundChannel + 1 ) % 4 ;
 
-	element.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
-
-	element.play() ;
+	$element.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
+	$element.play() ;
 } ;
 
 
 
-Dom.prototype.music = function music( data ) {
+Dom.prototype.music = function( data ) {
 	var oldSrc = this.$music.getAttribute( 'src' ) ;
 
 	if ( data.url ) {
@@ -2220,38 +2330,38 @@ var SOUND_FADE_VALUE = 0.01 ;
 
 
 
-function soundFadeIn( element , callback ) {
-	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
+function soundFadeIn( $element , callback ) {
+	if ( $element.__fadeTimer ) { clearTimeout( $element.__fadeTimer ) ; $element.__fadeTimer = null ; }
 
-	if ( element.volume >= 1 ) {
+	if ( $element.volume >= 1 ) {
 		if ( callback ) { callback() ; }
 		return ;
 	}
 
-	element.volume = Math.min( 1 , element.volume + SOUND_FADE_VALUE ) ;
-	element.__fadeTimer = setTimeout( soundFadeIn.bind( undefined , element , callback ) , SOUND_FADE_TIMEOUT ) ;
+	$element.volume = Math.min( 1 , $element.volume + SOUND_FADE_VALUE ) ;
+	$element.__fadeTimer = setTimeout( soundFadeIn.bind( undefined , $element , callback ) , SOUND_FADE_TIMEOUT ) ;
 }
 
 
 
-function soundFadeOut( element , callback ) {
-	if ( element.__fadeTimer ) { clearTimeout( element.__fadeTimer ) ; element.__fadeTimer = null ; }
+function soundFadeOut( $element , callback ) {
+	if ( $element.__fadeTimer ) { clearTimeout( $element.__fadeTimer ) ; $element.__fadeTimer = null ; }
 
-	if ( element.volume <= 0 ) {
+	if ( $element.volume <= 0 ) {
 		if ( callback ) { callback() ; }
 		return ;
 	}
 
-	element.volume = Math.max( 0 , element.volume - SOUND_FADE_VALUE ) ;
-	element.__fadeTimer = setTimeout( soundFadeOut.bind( undefined , element , callback ) , SOUND_FADE_TIMEOUT ) ;
+	$element.volume = Math.max( 0 , $element.volume - SOUND_FADE_VALUE ) ;
+	$element.__fadeTimer = setTimeout( soundFadeOut.bind( undefined , $element , callback ) , SOUND_FADE_TIMEOUT ) ;
 }
 
 
-},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"svg-kit":22}],2:[function(require,module,exports){
+},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":32}],2:[function(require,module,exports){
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+	Copyright (c) 2014 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -2280,9 +2390,9 @@ function soundFadeOut( element , callback ) {
 
 
 
-var Ngev = require( 'nextgen-events/lib/browser.js' ) ;
-var dom = require( 'dom-kit' ) ;
-var url = require( 'url' ) ;
+const Ngev = require( 'nextgen-events/lib/browser.js' ) ;
+const dom = require( 'dom-kit' ) ;
+const url = require( 'url' ) ;
 
 
 
@@ -2303,13 +2413,13 @@ SpellcastClient.prototype.constructor = SpellcastClient ;
 
 
 
-var uiList = {
+const uiList = {
 	classic: require( './ui/classic.js' )
 } ;
 
 
 
-SpellcastClient.autoCreate = function autoCreate() {
+SpellcastClient.autoCreate = function() {
 	var options = {
 		port: window.location.port ,
 		domain: window.location.hostname ,
@@ -2331,7 +2441,7 @@ SpellcastClient.autoCreate = function autoCreate() {
 
 
 
-SpellcastClient.prototype.run = function run( callback ) {
+SpellcastClient.prototype.run = function( callback ) {
 	var isOpen = false ;
 
 	this.proxy = new Ngev.Proxy() ;
@@ -2440,12 +2550,11 @@ dom.ready( () => {
 } ) ;
 
 
-
-},{"./ui/classic.js":4,"dom-kit":7,"nextgen-events/lib/browser.js":11,"url":24}],3:[function(require,module,exports){
+},{"./ui/classic.js":4,"dom-kit":7,"nextgen-events/lib/browser.js":11,"url":35}],3:[function(require,module,exports){
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+	Copyright (c) 2014 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -2472,17 +2581,17 @@ dom.ready( () => {
 
 
 
-var toolkit = {} ;
+const toolkit = {} ;
 module.exports = toolkit ;
 
 
 
-var markupMethod = require( 'string-kit/lib/format.js' ).markupMethod ;
-var escapeHtml = require( 'string-kit/lib/escape.js' ).html ;
+const markupMethod = require( 'string-kit/lib/format.js' ).markupMethod ;
+const escapeHtml = require( 'string-kit/lib/escape.js' ).html ;
 
 
 
-var markupConfig = {
+const markupConfig = {
 	endingMarkupReset: true ,
 	markupReset: function( markupStack ) {
 		var str = '</span>'.repeat( markupStack.length ) ;
@@ -2534,11 +2643,11 @@ toolkit.markup = function( ... args ) {
 } ;
 
 
-},{"string-kit/lib/escape.js":19,"string-kit/lib/format.js":20}],4:[function(require,module,exports){
+},{"string-kit/lib/escape.js":28,"string-kit/lib/format.js":29}],4:[function(require,module,exports){
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+	Copyright (c) 2014 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -3268,7 +3377,7 @@ UI.exit = function exit( error , timeout , callback ) {
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+	Copyright (c) 2014 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -3360,8 +3469,6 @@ exports.toClassObject = function toClassObject( data ) {
 
 
 
-// Load modules
-
 var domParser , xmlSerializer ;
 
 if ( process.browser ) {
@@ -3382,7 +3489,7 @@ module.exports = domKit ;
 
 
 // Like jQuery's $(document).ready()
-domKit.ready = function ready( callback ) {
+domKit.ready = function( callback ) {
 	document.addEventListener( 'DOMContentLoaded' , function internalCallback() {
 		document.removeEventListener( 'DOMContentLoaded' , internalCallback , false ) ;
 		callback() ;
@@ -3391,20 +3498,20 @@ domKit.ready = function ready( callback ) {
 
 
 
-domKit.fromXml = function fromXml( xml ) {
+domKit.fromXml = function( xml ) {
 	return domParser.parseFromString( xml , 'application/xml' ) ;
 } ;
 
 
 
-domKit.toXml = function fromXml( $doc ) {
+domKit.toXml = function( $doc ) {
 	return xmlSerializer.serializeToString( $doc ) ;
 } ;
 
 
 
 // Return a fragment from html code
-domKit.fromHtml = function fromHtml( html ) {
+domKit.fromHtml = function( html ) {
 	var i , $doc , $fragment ;
 
 	// Fragment allow us to return a collection that... well... is not a collection,
@@ -3426,8 +3533,16 @@ domKit.fromHtml = function fromHtml( html ) {
 
 
 
+domKit.appendJs = function( url ) {
+	var $script = document.createElement( 'script' ) ;
+	$script.setAttribute( 'src' , url ) ;
+	document.body.appendChild( $script ) ;
+} ;
+
+
+
 // Batch processing, like array, HTMLCollection, and so on...
-domKit.batch = function batch( method , elements , ... args ) {
+domKit.batch = function( method , elements , ... args ) {
 	var i ;
 
 	if ( elements instanceof Element ) {
@@ -3448,7 +3563,7 @@ domKit.batch = function batch( method , elements , ... args ) {
 
 
 // Set a bunch of css properties given as an object
-domKit.css = function css( $element , object ) {
+domKit.css = function( $element , object ) {
 	var key ;
 
 	for ( key in object ) {
@@ -3459,7 +3574,7 @@ domKit.css = function css( $element , object ) {
 
 
 // Set a bunch of attributes given as an object
-domKit.attr = function attr( $element , object , prefix ) {
+domKit.attr = function( $element , object , prefix ) {
 	var key ;
 
 	prefix = prefix || '' ;
@@ -3473,7 +3588,7 @@ domKit.attr = function attr( $element , object , prefix ) {
 
 
 // Set/unset a bunch of classes given as an object
-domKit.class = function class_( $element , object , prefix ) {
+domKit.class = function( $element , object , prefix ) {
 	var key ;
 
 	prefix = prefix || '' ;
@@ -3487,12 +3602,12 @@ domKit.class = function class_( $element , object , prefix ) {
 
 
 // Remove an element. A little shortcut that ease life...
-domKit.remove = function remove( $element ) { $element.parentNode.removeChild( $element ) ; } ;
+domKit.remove = function( $element ) { $element.parentNode.removeChild( $element ) ; } ;
 
 
 
 // Remove all children of an element
-domKit.empty = function empty( $element ) {
+domKit.empty = function( $element ) {
 	// $element.innerHTML = '' ;	// <-- According to jsPerf, this is 96% slower
 	while ( $element.firstChild ) { $element.removeChild( $element.firstChild ) ; }
 } ;
@@ -3500,7 +3615,7 @@ domKit.empty = function empty( $element ) {
 
 
 // Clone a source DOM tree and replace children of the destination
-domKit.cloneInto = function cloneInto( $source , $destination ) {
+domKit.cloneInto = function( $source , $destination ) {
 	domKit.empty( $destination ) ;
 	$destination.appendChild( $source.cloneNode( true ) ) ;
 } ;
@@ -3508,7 +3623,7 @@ domKit.cloneInto = function cloneInto( $source , $destination ) {
 
 
 // Same than cloneInto() without cloning anything
-domKit.insertInto = function insertInto( $source , $destination ) {
+domKit.insertInto = function( $source , $destination ) {
 	domKit.empty( $destination ) ;
 	$destination.appendChild( $source ) ;
 } ;
@@ -3516,7 +3631,7 @@ domKit.insertInto = function insertInto( $source , $destination ) {
 
 
 // Move all children of a node into another, after removing existing target's children
-domKit.moveChildrenInto = function moveChildrenInto( $source , $destination ) {
+domKit.moveChildrenInto = function( $source , $destination ) {
 	domKit.empty( $destination ) ;
 	while ( $source.firstChild ) { $destination.appendChild( $source.firstChild ) ; }
 } ;
@@ -3524,7 +3639,7 @@ domKit.moveChildrenInto = function moveChildrenInto( $source , $destination ) {
 
 
 // Move all attributes of an element into the destination
-domKit.moveAttributes = function moveAttributes( $source , $destination ) {
+domKit.moveAttributes = function( $source , $destination ) {
 	Array.from( $source.attributes ).forEach( ( attr ) => {
 		var name = attr.name ;
 		var value = attr.value ;
@@ -3542,7 +3657,7 @@ domKit.moveAttributes = function moveAttributes( $source , $destination ) {
 
 
 
-domKit.styleToAttribute = function styleToAttribute( $element , property , blacklistedValues ) {
+domKit.styleToAttribute = function( $element , property , blacklistedValues ) {
 	if ( $element.style[ property ] && ( ! blacklistedValues || blacklistedValues.indexOf( $element.style[ property ] ) === -1 ) ) {
 		$element.setAttribute( property , $element.style[ property ] ) ;
 		$element.style[ property ] = null ;
@@ -3552,7 +3667,7 @@ domKit.styleToAttribute = function styleToAttribute( $element , property , black
 
 
 // Children of this element get all their ID prefixed, any url(#id) references are patched accordingly
-domKit.prefixIds = function prefixIds( $element , prefix ) {
+domKit.prefixIds = function( $element , prefix ) {
 	var elements , replacement = {} ;
 
 	elements = $element.querySelectorAll( '*' ) ;
@@ -3561,19 +3676,24 @@ domKit.prefixIds = function prefixIds( $element , prefix ) {
 	domKit.batch( domKit.prefixIds.otherAttributesPass , elements , replacement ) ;
 } ;
 
+
+
 // Callbacks for domKit.prefixIds(), cleanly hidden behind its prefix
 
-domKit.prefixIds.idAttributePass = function idAttributePass( $element , prefix , replacement ) {
+domKit.prefixIds.idAttributePass = function( $element , prefix , replacement ) {
 	replacement[ $element.id ] = prefix + '.' + $element.id ;
 	$element.id = replacement[ $element.id ] ;
 } ;
 
-domKit.prefixIds.otherAttributesPass = function otherAttributesPass( $element , replacement ) {
+
+
+domKit.prefixIds.otherAttributesPass = function( $element , replacement ) {
 	domKit.batch( domKit.prefixIds.oneAttributeSubPass , $element.attributes , replacement ) ;
 } ;
 
-domKit.prefixIds.oneAttributeSubPass = function oneAttributeSubPass( attr , replacement ) {
 
+
+domKit.prefixIds.oneAttributeSubPass = function( attr , replacement ) {
 	// We have to search all url(#id) like substring in the current attribute's value
 	attr.value = attr.value.replace( /url\(#([^)]+)\)/g , ( match , id ) => {
 
@@ -3587,7 +3707,7 @@ domKit.prefixIds.oneAttributeSubPass = function oneAttributeSubPass( attr , repl
 
 
 
-domKit.removeAllTags = function removeAllTags( $container , tagName , onlyIfEmpty ) {
+domKit.removeAllTags = function( $container , tagName , onlyIfEmpty ) {
 	Array.from( $container.getElementsByTagName( tagName ) ).forEach( ( $element ) => {
 		if ( ! onlyIfEmpty || ! $element.firstChild ) { $element.parentNode.removeChild( $element ) ; }
 	} ) ;
@@ -3595,7 +3715,7 @@ domKit.removeAllTags = function removeAllTags( $container , tagName , onlyIfEmpt
 
 
 
-domKit.removeAllAttributes = function removeAllAttributes( $container , attrName ) {
+domKit.removeAllAttributes = function( $container , attrName ) {
 	// Don't forget to remove the ID of the container itself
 	$container.removeAttribute( attrName ) ;
 
@@ -3606,7 +3726,7 @@ domKit.removeAllAttributes = function removeAllAttributes( $container , attrName
 
 
 
-domKit.preload = function preload( urls ) {
+domKit.preload = function( urls ) {
 	if ( ! Array.isArray( urls ) ) { urls = [ urls ] ; }
 
 	urls.forEach( ( url ) => {
@@ -3628,7 +3748,7 @@ domKit.preload.preloaded = {} ;
 		* whitelist `array` of `string` namespace to elements/attributes to keep
 		* primary `string` keep those elements but remove the namespace
 */
-domKit.filterByNamespace = function filterByNamespace( $container , options ) {
+domKit.filterByNamespace = function( $container , options ) {
 	var i , $child , namespace , tagName , split ;
 
 	// Nothing to do? return now...
@@ -3679,7 +3799,7 @@ domKit.filterByNamespace = function filterByNamespace( $container , options ) {
 
 
 // Filter attributes by namespace
-domKit.filterAttributesByNamespace = function filterAttributesByNamespace( $container , options ) {
+domKit.filterAttributesByNamespace = function( $container , options ) {
 	var i , attr , namespace , attrName , value , split ;
 
 	// Nothing to do? return now...
@@ -3715,7 +3835,7 @@ domKit.filterAttributesByNamespace = function filterAttributesByNamespace( $cont
 
 
 // Remove comments
-domKit.removeComments = function removeComments( $container ) {
+domKit.removeComments = function( $container ) {
 	var i , $child ;
 
 	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- ) {
@@ -3733,7 +3853,7 @@ domKit.removeComments = function removeComments( $container ) {
 
 
 // Remove white-space-only text-node
-domKit.removeWhiteSpaces = function removeWhiteSpaces( $container , onlyWhiteLines ) {
+domKit.removeWhiteSpaces = function( $container , onlyWhiteLines ) {
 	var i , $child , $lastTextNode = null ;
 
 	for ( i = $container.childNodes.length - 1 ; i >= 0 ; i -- ) {
@@ -3772,7 +3892,7 @@ domKit.removeWhiteSpaces = function removeWhiteSpaces( $container , onlyWhiteLin
 
 // Transform-related method
 
-domKit.parseMatrix = function parseMatrix( str ) {
+domKit.parseMatrix = function( str ) {
 	var matches = str.match( /(matrix|matrix3d)\(([0-9., -]+)\)/ ) ;
 
 	if ( ! matches ) { return null ; }
@@ -3784,7 +3904,7 @@ domKit.parseMatrix = function parseMatrix( str ) {
 
 
 
-domKit.decomposeMatrix = function decomposeMatrix( mat ) {
+domKit.decomposeMatrix = function( mat ) {
 	if ( mat.length === 6 ) { return domKit.decomposeMatrix2d( mat ) ; }
 	if ( mat.length === 16 ) { return domKit.decomposeMatrix3d( mat ) ; }
 	return null ;
@@ -3793,7 +3913,7 @@ domKit.decomposeMatrix = function decomposeMatrix( mat ) {
 
 
 // From: https://stackoverflow.com/questions/16359246/how-to-extract-position-rotation-and-scale-from-matrix-svg
-domKit.decomposeMatrix2d = function decomposeMatrix2d( mat ) {
+domKit.decomposeMatrix2d = function( mat ) {
 	var angle = Math.atan2( mat[1] , mat[0] ) ,
 		denom = mat[0] * mat[0] + mat[1] * mat[1] ,
 		scaleX = Math.sqrt( denom ) ,
@@ -3815,7 +3935,7 @@ domKit.decomposeMatrix2d = function decomposeMatrix2d( mat ) {
 
 // https://stackoverflow.com/questions/15024828/transforming-3d-matrix-into-readable-format
 // supports only scale*rotate*translate matrix
-domKit.decomposeMatrix3d = function decomposeMatrix3d( mat ) {
+domKit.decomposeMatrix3d = function( mat ) {
 	var radians = Math.PI / 180 ;
 
 	var sX = Math.sqrt( mat[0] * mat[0] + mat[1] * mat[1] + mat[2] * mat[2] ) ,
@@ -3851,23 +3971,39 @@ domKit.decomposeMatrix3d = function decomposeMatrix3d( mat ) {
 
 
 
-domKit.stringifyTransform = function stringifyTransform( object ) {
+domKit.stringifyTransform = function( object ) {
 	var str = [] ;
 
 	if ( object.translateX ) { str.push( 'translateX(' + object.translateX + 'px)' ) ; }
 	if ( object.translateY ) { str.push( 'translateY(' + object.translateY + 'px)' ) ; }
 	if ( object.translateZ ) { str.push( 'translateZ(' + object.translateZ + 'px)' ) ; }
-	if ( object.rotate ) { str.push( 'rotate(' + object.rotate + 'deg)' ) ; }
-	if ( object.rotateX ) { str.push( 'rotateX(' + object.rotateX + 'deg)' ) ; }
-	if ( object.rotateY ) { str.push( 'rotateY(' + object.rotateY + 'deg)' ) ; }
-	if ( object.rotateZ ) { str.push( 'rotateZ(' + object.rotateZ + 'deg)' ) ; }
-	if ( object.scaleX ) { str.push( 'scaleX(' + object.scaleX + ')' ) ; }
-	if ( object.scaleY ) { str.push( 'scaleY(' + object.scaleY + ')' ) ; }
-	if ( object.scaleZ ) { str.push( 'scaleZ(' + object.scaleZ + ')' ) ; }
+
+	if ( object.rotate ) {
+		str.push( 'rotate(' + object.rotate + 'deg)' ) ;
+	}
+	else {
+		if ( object.rotateX ) { str.push( 'rotateX(' + object.rotateX + 'deg)' ) ; }
+		if ( object.rotateY ) { str.push( 'rotateY(' + object.rotateY + 'deg)' ) ; }
+		if ( object.rotateZ ) { str.push( 'rotateZ(' + object.rotateZ + 'deg)' ) ; }
+	}
+
+	if ( object.scale ) {
+		str.push( 'scale(' + object.scale + ')' ) ;
+	}
+	else {
+		if ( object.scaleX ) { str.push( 'scaleX(' + object.scaleX + ')' ) ; }
+		if ( object.scaleY ) { str.push( 'scaleY(' + object.scaleY + ')' ) ; }
+		if ( object.scaleZ ) { str.push( 'scaleZ(' + object.scaleZ + ')' ) ; }
+	}
+
 	if ( object.skewX ) { str.push( 'skewX(' + object.skewX + 'deg)' ) ; }
 	if ( object.skewY ) { str.push( 'skewY(' + object.skewY + 'deg)' ) ; }
 
 	return str.join( ' ' ) ;
+} ;
+
+domKit.transform = function( $element , transformObject ) {
+	$element.style.transform = domKit.stringifyTransform( transformObject ) ;
 } ;
 
 
@@ -3878,13 +4014,13 @@ domKit.stringifyTransform = function stringifyTransform( object ) {
 /* ... to avoid defining again and again the same callback function */
 
 // Change id
-domKit.id = function id_( $element , id ) { $element.id = id ; } ;
+domKit.id = function( $element , id ) { $element.id = id ; } ;
 
 // Like jQuery .text().
-domKit.text = function text_( $element , text ) { $element.textContent = text ; } ;
+domKit.text = function( $element , text ) { $element.textContent = text ; } ;
 
 // Like jQuery .html().
-domKit.html = function html_( $element , html ) { $element.innerHTML = html ; } ;
+domKit.html = function( $element , html ) { $element.innerHTML = html ; } ;
 
 
 
@@ -3913,11 +4049,11 @@ function isSlowBuffer (obj) {
 }
 
 },{}],9:[function(require,module,exports){
-(function (process,global){
+(function (process,global,setImmediate){
 /*
 	Next-Gen Events
 
-	Copyright (c) 2015 - 2018 Cédric Ronvel
+	Copyright (c) 2015 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -3979,7 +4115,7 @@ NextGenEvents.defaultMaxListeners = Infinity ;
 
 // Not part of the prototype, because it should not pollute userland's prototype.
 // It has an eventEmitter as 'this' anyway (always called using call()).
-NextGenEvents.init = function init() {
+NextGenEvents.init = function() {
 	Object.defineProperty( this , '__ngev' , {
 		configurable: true ,
 		value: new NextGenEvents.Internal()
@@ -3988,7 +4124,7 @@ NextGenEvents.init = function init() {
 
 
 
-NextGenEvents.Internal = function Internal( from ) {
+NextGenEvents.Internal = function( from ) {
 	this.nice = NextGenEvents.SYNC ;
 	this.interruptible = false ;
 	this.contexts = {} ;
@@ -4010,6 +4146,7 @@ NextGenEvents.Internal = function Internal( from ) {
 		removeListener: []
 	} ;
 
+	this.hasListenerPriority = false ;
 	this.maxListeners = NextGenEvents.defaultMaxListeners ;
 
 	if ( from ) {
@@ -4038,7 +4175,7 @@ NextGenEvents.Internal = function Internal( from ) {
 
 
 
-NextGenEvents.initFrom = function initFrom( from ) {
+NextGenEvents.initFrom = function( from ) {
 	if ( ! from.__ngev ) { NextGenEvents.init.call( from ) ; }
 
 	Object.defineProperty( this , '__ngev' , {
@@ -4056,7 +4193,7 @@ NextGenEvents.initFrom = function initFrom( from ) {
 
 	Not sure if it will ever go public, it was a very specific use-case (Spellcast).
 */
-NextGenEvents.mergeListeners = function mergeListeners( foreigners ) {
+NextGenEvents.mergeListeners = function( foreigners ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 
 	// Backup the current listeners...
@@ -4119,29 +4256,38 @@ NextGenEvents.filterOutCallback = function( what , currentElement ) { return wha
 
 
 // .addListener( eventName , [fn] , [options] )
-NextGenEvents.prototype.addListener = function addListener( eventName , fn , options ) {
-	var listener = {} , newListenerListeners ;
+NextGenEvents.prototype.addListener = function( eventName , fn , options ) {
+	var listener , newListenerListeners ;
 
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	if ( ! this.__ngev.listeners[ eventName ] ) { this.__ngev.listeners[ eventName ] = [] ; }
 
+	// Argument management
 	if ( ! eventName || typeof eventName !== 'string' ) {
 		throw new TypeError( ".addListener(): argument #0 should be a non-empty string" ) ;
 	}
 
-	if ( typeof fn !== 'function' ) {
-		if ( options === true && fn && typeof fn === 'object' ) {
-			// We want to use the current object as the listener object (used by Spellcast's serializer)
-			options = listener = fn ;
-			fn = undefined ;
+	if ( typeof fn === 'function' ) {
+		listener = {} ;
+
+		if ( ! options || typeof options !== 'object' ) { options = {} ; }
+	}
+	else if ( options === true && fn && typeof fn === 'object' ) {
+		// We want to use the current object as the listener object (used by Spellcast's serializer)
+		options = listener = fn ;
+		fn = undefined ;
+	}
+	else {
+		options = fn ;
+
+		if ( ! options || typeof options !== 'object' ) {
+			throw new TypeError( ".addListener(): a function or an object with a 'fn' property which value is a function should be provided" ) ;
 		}
-		else {
-			options = fn ;
-			fn = undefined ;
-		}
+
+		fn = undefined ;
+		listener = {} ;
 	}
 
-	if ( ! options || typeof options !== 'object' ) { options = {} ; }
 
 	listener.fn = fn || options.fn ;
 	listener.id = options.id !== undefined ? options.id : listener.fn ;
@@ -4149,15 +4295,16 @@ NextGenEvents.prototype.addListener = function addListener( eventName , fn , opt
 	listener.async = !! options.async ;
 	listener.eventObject = !! options.eventObject ;
 	listener.nice = options.nice !== undefined ? Math.floor( options.nice ) : NextGenEvents.SYNC ;
-	listener.context = typeof options.context === 'string' ? options.context : null ;
+	listener.priority = + options.priority || 0 ;
+	listener.context = options.context && ( typeof options.context === 'string' || typeof options.context === 'object' ) ? options.context : null ;
 
 	if ( typeof listener.fn !== 'function' ) {
 		throw new TypeError( ".addListener(): a function or an object with a 'fn' property which value is a function should be provided" ) ;
 	}
 
 	// Implicit context creation
-	if ( listener.context && typeof listener.context === 'string' && ! this.__ngev.contexts[ listener.context ] ) {
-		this.addListenerContext( listener.context ) ;
+	if ( typeof listener.context === 'string' ) {
+		listener.context = this.__ngev.contexts[ listener.context ] || this.addListenerContext( listener.context ) ;
 	}
 
 	// Note: 'newListener' and 'removeListener' event return an array of listener, but not the event name.
@@ -4188,6 +4335,11 @@ NextGenEvents.prototype.addListener = function addListener( eventName , fn , opt
 
 	this.__ngev.listeners[ eventName ].push( listener ) ;
 
+	if ( this.__ngev.hasListenerPriority ) {
+		// order higher priority first
+		this.__ngev.listeners[ eventName ].sort( ( a , b ) => b.priority - a.priority ) ;
+	}
+
 	if ( this.__ngev.listeners[ eventName ].length === this.__ngev.maxListeners + 1 ) {
 		process.emitWarning(
 			"Possible NextGenEvents memory leak detected. " + this.__ngev.listeners[ eventName ].length + ' ' +
@@ -4207,7 +4359,7 @@ NextGenEvents.prototype.on = NextGenEvents.prototype.addListener ;
 
 // Short-hand
 // .once( eventName , [fn] , [options] )
-NextGenEvents.prototype.once = function once( eventName , fn , options ) {
+NextGenEvents.prototype.once = function( eventName , fn , options ) {
 	if ( fn && typeof fn === 'object' ) { fn.once = true ; }
 	else if ( options && typeof options === 'object' ) { options.once = true ; }
 	else { options = { once: true } ; }
@@ -4219,7 +4371,7 @@ NextGenEvents.prototype.once = function once( eventName , fn , options ) {
 
 // .waitFor( eventName )
 // A Promise-returning .once() variant, only the first arg is returned
-NextGenEvents.prototype.waitFor = function waitFor( eventName ) {
+NextGenEvents.prototype.waitFor = function( eventName ) {
 	return new Promise( resolve => {
 		this.addListener( eventName , ( firstArg ) => resolve( firstArg ) , { once: true } ) ;
 	} ) ;
@@ -4229,7 +4381,7 @@ NextGenEvents.prototype.waitFor = function waitFor( eventName ) {
 
 // .waitForAll( eventName )
 // A Promise-returning .once() variant, all args are returned as an array
-NextGenEvents.prototype.waitForAll = function waitForAll( eventName ) {
+NextGenEvents.prototype.waitForAll = function( eventName ) {
 	return new Promise( resolve => {
 		this.addListener( eventName , ( ... args ) => resolve( args ) , { once: true } ) ;
 	} ) ;
@@ -4237,7 +4389,7 @@ NextGenEvents.prototype.waitForAll = function waitForAll( eventName ) {
 
 
 
-NextGenEvents.prototype.removeListener = function removeListener( eventName , id ) {
+NextGenEvents.prototype.removeListener = function( eventName , id ) {
 	var i , length , newListeners = [] , removedListeners = [] ;
 
 	if ( ! eventName || typeof eventName !== 'string' ) { throw new TypeError( ".removeListener(): argument #0 should be a non-empty string" ) ; }
@@ -4270,7 +4422,7 @@ NextGenEvents.prototype.off = NextGenEvents.prototype.removeListener ;
 
 
 
-NextGenEvents.prototype.removeAllListeners = function removeAllListeners( eventName ) {
+NextGenEvents.prototype.removeAllListeners = function( eventName ) {
 	var removedListeners ;
 
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
@@ -4306,56 +4458,80 @@ NextGenEvents.prototype.removeAllListeners = function removeAllListeners( eventN
 
 
 
-NextGenEvents.listenerWrapper = function listenerWrapper( listener , event , contextScope , serial ) {
-	var returnValue , listenerCallback ;
+NextGenEvents.listenerWrapper = function( listener , event , contextScope , serial , nice ) {
+	var returnValue , listenerCallback ,
+		eventMaster = event.master || event ,
+		interruptible = !! event.master || event.emitter.__ngev.interruptible ;
 
-	if ( event.interrupt ) { return ; }
+	if ( eventMaster.interrupt ) { return ; }
 
 	if ( listener.async ) {
 		if ( contextScope ) {
 			contextScope.ready = ! serial ;
 		}
 
+		if ( nice < 0 ) {
+			if ( globalData.recursions >= -nice ) {
+				event.emitter.__ngev.desync( NextGenEvents.listenerWrapper.bind( undefined , listener , event , contextScope , serial , NextGenEvents.SYNC ) ) ;
+				return ;
+			}
+		}
+		else {
+			setTimeout( NextGenEvents.listenerWrapper.bind( undefined , listener , event , contextScope , serial , NextGenEvents.SYNC ) , nice ) ;
+			return ;
+		}
+
 		listenerCallback = ( arg ) => {
 
-			event.listenersDone ++ ;
+			eventMaster.listenersDone ++ ;
 
 			// Async interrupt
-			if ( arg && event.emitter.__ngev.interruptible && ! event.interrupt && event.name !== 'interrupt' ) {
-				event.interrupt = arg ;
+			if ( arg && interruptible && ! eventMaster.interrupt && event.name !== 'interrupt' ) {
+				eventMaster.interrupt = arg ;
 
-				if ( event.callback ) { NextGenEvents.emitCallback( event ) ; }
+				if ( eventMaster.callback ) { NextGenEvents.emitCallback( event ) ; }
 
-				event.emitter.emit( 'interrupt' , event.interrupt ) ;
+				event.emitter.emit( 'interrupt' , eventMaster.interrupt ) ;
 			}
-			else if ( event.listenersDone >= event.listeners.length && event.callback ) {
+			else if ( eventMaster.listenersDone >= eventMaster.listeners.length && eventMaster.callback ) {
 				NextGenEvents.emitCallback( event ) ;
 			}
 
 			// Process the queue if serialized
-			if ( serial ) { NextGenEvents.processScopeQueue( event.emitter , contextScope , true , true ) ; }
+			if ( serial ) { NextGenEvents.processScopeQueue( contextScope , true , true ) ; }
 		} ;
 
 		if ( listener.eventObject ) { listener.fn( event , listenerCallback ) ; }
-		else { returnValue = listener.fn.apply( undefined , event.args.concat( listenerCallback ) ) ; }
+		else { returnValue = listener.fn( ... event.args , listenerCallback ) ; }
 	}
 	else {
-		if ( listener.eventObject ) { listener.fn( event ) ; }
-		else { returnValue = listener.fn.apply( undefined , event.args ) ; }
+		if ( nice < 0 ) {
+			if ( globalData.recursions >= -nice ) {
+				event.emitter.__ngev.desync( NextGenEvents.listenerWrapper.bind( undefined , listener , event , contextScope , serial , NextGenEvents.SYNC ) ) ;
+				return ;
+			}
+		}
+		else {
+			setTimeout( NextGenEvents.listenerWrapper.bind( undefined , listener , event , contextScope , serial , NextGenEvents.SYNC ) , nice ) ;
+			return ;
+		}
 
-		event.listenersDone ++ ;
+		if ( listener.eventObject ) { listener.fn( event ) ; }
+		else { returnValue = listener.fn( ... event.args ) ; }
+
+		eventMaster.listenersDone ++ ;
 	}
 
 	// Interrupt if non-falsy return value, if the emitter is interruptible, not already interrupted (emit once),
 	// and not within an 'interrupt' event.
-	if ( returnValue && event.emitter.__ngev.interruptible && ! event.interrupt && event.name !== 'interrupt' ) {
-		event.interrupt = returnValue ;
+	if ( returnValue && interruptible && ! eventMaster.interrupt && event.name !== 'interrupt' ) {
+		eventMaster.interrupt = returnValue ;
 
-		if ( event.callback ) { NextGenEvents.emitCallback( event ) ; }
+		if ( eventMaster.callback ) { NextGenEvents.emitCallback( event ) ; }
 
-		event.emitter.emit( 'interrupt' , event.interrupt ) ;
+		event.emitter.emit( 'interrupt' , eventMaster.interrupt ) ;
 	}
-	else if ( event.listenersDone >= event.listeners.length && event.callback ) {
+	else if ( eventMaster.listenersDone >= eventMaster.listeners.length && eventMaster.callback ) {
 		NextGenEvents.emitCallback( event ) ;
 	}
 } ;
@@ -4370,12 +4546,27 @@ var nextEventId = 0 ;
 /*
 	emit( [nice] , eventName , [arg1] , [arg2] , [...] , [emitCallback] )
 */
-NextGenEvents.prototype.emit = function emit( ... args ) {
-	var event ;
+NextGenEvents.prototype.emit = function( ... args ) {
+	var event = NextGenEvents.createEvent( this , ... args ) ;
+	return NextGenEvents.emitEvent( event ) ;
+} ;
 
-	event = {
-		emitter: this ,
+
+
+NextGenEvents.prototype.waitForEmit = function( ... args ) {
+	return new Promise( resolve => {
+		this.emit( ... args , ( interrupt ) => resolve( interrupt ) ) ;
+	} ) ;
+} ;
+
+
+
+// Create an event object
+NextGenEvents.createEvent = function( emitter , ... args ) {
+	var event = {
+		emitter: emitter ,
 		interrupt: null ,
+		master: null ,	// For grouped-correlated events
 		sync: true
 	} ;
 
@@ -4397,7 +4588,7 @@ NextGenEvents.prototype.emit = function emit( ... args ) {
 		}
 	}
 	else {
-		//event.nice = this.__ngev.nice ;
+		//event.nice = emitter.__ngev.nice ;
 		event.name = args[ 0 ] ;
 
 		if ( ! event.name || typeof event.name !== 'string' ) {
@@ -4413,15 +4604,7 @@ NextGenEvents.prototype.emit = function emit( ... args ) {
 		}
 	}
 
-	return NextGenEvents.emitEvent( event ) ;
-} ;
-
-
-
-NextGenEvents.prototype.waitForEmit = function waitForEmit( ... args ) {
-	return new Promise( resolve => {
-		this.emit( ... args , ( interrupt ) => resolve( interrupt ) ) ;
-	} ) ;
+	return event ;
 } ;
 
 
@@ -4435,7 +4618,8 @@ NextGenEvents.prototype.waitForEmit = function waitForEmit( ... args ) {
 		* callback: (optional) a callback for emit
 		* listeners: (optional) override the listeners array stored in __ngev
 */
-NextGenEvents.emitEvent = function emitEvent( event ) {
+NextGenEvents.emitEvent = function( event ) {
+	// /!\ Any change here *MUST* be reflected to NextGenEvents.emitIntricatedEvents() /!\
 	var self = event.emitter ,
 		i , iMax , count = 0 , state , removedListeners ;
 
@@ -4463,7 +4647,6 @@ NextGenEvents.emitEvent = function emitEvent( event ) {
 
 	event.id = nextEventId ++ ;
 	event.listenersDone = 0 ;
-	event.once = !! event.once ;
 
 	if ( event.nice === undefined || event.nice === null ) { event.nice = self.__ngev.nice ; }
 
@@ -4476,10 +4659,18 @@ NextGenEvents.emitEvent = function emitEvent( event ) {
 	event.depth = self.__ngev.depth ++ ;
 	removedListeners = [] ;
 
-	// Emit the event to all listeners!
-	for ( i = 0 , iMax = event.listeners.length ; i < iMax ; i ++ ) {
-		count ++ ;
-		NextGenEvents.emitToOneListener( event , event.listeners[ i ] , removedListeners ) ;
+	try {
+		// Emit the event to all listeners!
+		for ( i = 0 , iMax = event.listeners.length ; i < iMax ; i ++ ) {
+			count ++ ;
+			NextGenEvents.emitToOneListener( event , event.listeners[ i ] , removedListeners ) ;
+		}
+	}
+	catch ( error ) {
+		// Catch error, just to decrement globalData.recursions, re-throw after that...
+		globalData.recursions -- ;
+		self.__ngev.depth -- ;
+		throw error ;
 	}
 
 	// Decrement globalData.recursions
@@ -4510,25 +4701,106 @@ NextGenEvents.emitEvent = function emitEvent( event ) {
 
 
 
+/*
+	Spellcast-specific:
+	Send interruptible events with listener-priority across multiple emitters.
+	If an event is interrupted, all event are interrupted too.
+	It has limited feature-support: no state-event, no builtin-event (not even 'error').
+*/
+NextGenEvents.emitIntricatedEvents = function( array , callback ) {
+	var i , iMax , count = 0 , removedListeners ;
+
+	if ( ! Array.isArray( array ) ) {
+		throw new TypeError( '.emitCorrelatedEvents() argument should be an array' ) ;
+	}
+
+	var listenerEventRows = [] ,
+		context = {
+			nice: NextGenEvents.DESYNC ,
+			ready: true ,
+			status: NextGenEvents.CONTEXT_ENABLED ,
+			serial: true ,
+			scopes: {}
+		} ,
+		master = {
+			sync: false ,
+			nice: NextGenEvents.DESYNC ,
+			context ,
+			interrupt: null ,
+			listeners: listenerEventRows ,	// because we need eventMaster.listeners.length
+			listenersDone: 0 ,
+			depth: 0 ,
+			callback
+		} ;
+
+	array.forEach( eventParams => {
+		var event = NextGenEvents.createEvent( ... eventParams ) ;
+		event.master = master ;
+
+		if ( ! event.emitter.__ngev ) { NextGenEvents.init.call( event.emitter ) ; }
+
+		if ( ! event.emitter.__ngev.listeners[ event.name ] ) { event.emitter.__ngev.listeners[ event.name ] = [] ; }
+		event.listeners = event.emitter.__ngev.listeners[ event.name ].slice() ;
+
+		event.id = nextEventId ++ ;
+		//event.listenersDone = 0 ;
+		//event.nice = master.nice ;
+
+		event.listeners.forEach( listener => listenerEventRows.push( { event , listener } ) ) ;
+	} ) ;
+
+
+	// Sort listeners
+	listenerEventRows.sort( ( a , b ) => b.listener.priority - a.listener.priority ) ;
+
+	// Increment globalData.recursions
+	globalData.recursions ++ ;
+
+	removedListeners = [] ;
+
+	try {
+		// Emit the event to all listeners!
+		for ( i = 0 , iMax = listenerEventRows.length ; i < iMax ; i ++ ) {
+			count ++ ;
+			NextGenEvents.emitToOneListener( listenerEventRows[ i ].event , listenerEventRows[ i ].listener , removedListeners ) ;
+		}
+	}
+	catch ( error ) {
+		// Catch error, just to decrement globalData.recursions, re-throw after that...
+		globalData.recursions -- ;
+		throw error ;
+	}
+
+	// Decrement globalData.recursions
+	globalData.recursions -- ;
+
+	if ( ! count && master.callback ) { NextGenEvents.emitCallback( event ) ; }
+
+	// Leaving sync mode
+	master.sync = false ;
+} ;
+
+
+
 // If removedListeners is not given, then one-time listener emit the 'removeListener' event,
 // if given: that's the caller business to do it
-NextGenEvents.emitToOneListener = function emitToOneListener( event , listener , removedListeners ) {
+NextGenEvents.emitToOneListener = function( event , listener , removedListeners ) {
 	var self = event.emitter ,
-		context , contextScope , serial , currentNice , emitRemoveListener = false ;
+		eventMaster = event.master || event ,
+		context = event.master ? event.master.context : listener.context ,
+		contextScope , serial , currentNice , emitRemoveListener = false ;
 
-	context = listener.context && self.__ngev.contexts[ listener.context ] ;
-
-	// If the listener context is disabled...
-	if ( context && context.status === NextGenEvents.CONTEXT_DISABLED ) { return ; }
-
-	// The nice value for this listener...
 	if ( context ) {
-		currentNice = Math.max( event.nice , listener.nice , context.nice ) ;
+		// If the listener context is disabled...
+		if ( context.status === NextGenEvents.CONTEXT_DISABLED ) { return ; }
+
+		// The nice value for this listener...
+		currentNice = Math.max( eventMaster.nice , listener.nice , context.nice ) ;
 		serial = context.serial ;
-		contextScope = NextGenEvents.getContextScope( context , event.depth ) ;
+		contextScope = NextGenEvents.getContextScope( context , eventMaster.depth ) ;
 	}
 	else {
-		currentNice = Math.max( event.nice , listener.nice ) ;
+		currentNice = Math.max( eventMaster.nice , listener.nice ) ;
 	}
 
 
@@ -4548,24 +4820,7 @@ NextGenEvents.emitToOneListener = function emitToOneListener( event , listener ,
 		contextScope.queue.push( { event: event , listener: listener , nice: currentNice } ) ;
 	}
 	else {
-		try {
-			if ( currentNice < 0 ) {
-				if ( globalData.recursions >= -currentNice ) {
-					self.__ngev.desync( NextGenEvents.listenerWrapper.bind( self , listener , event , contextScope , serial ) ) ;
-				}
-				else {
-					NextGenEvents.listenerWrapper.call( self , listener , event , contextScope , serial ) ;
-				}
-			}
-			else {
-				setTimeout( NextGenEvents.listenerWrapper.bind( self , listener , event , contextScope , serial ) , currentNice ) ;
-			}
-		}
-		catch ( error ) {
-			// Catch error, just to decrement globalData.recursions, re-throw after that...
-			globalData.recursions -- ;
-			throw error ;
-		}
+		NextGenEvents.listenerWrapper( listener , event , contextScope , serial , currentNice ) ;
 	}
 
 	// Emit 'removeListener' after calling the listener
@@ -4576,8 +4831,24 @@ NextGenEvents.emitToOneListener = function emitToOneListener( event , listener ,
 
 
 
-NextGenEvents.emitCallback = function emitCallback( event ) {
-	var callback = event.callback ;
+NextGenEvents.emitCallback = function( event ) {
+	var callback ;
+
+	if ( event.master ) {
+		callback = event.master.callback ;
+		delete event.master.callback ;
+
+		if ( event.master.sync ) {
+			nextTick( () => callback( event.master.interrupt , event ) ) ;
+		}
+		else {
+			callback( event.master.interrupt , event ) ;
+		}
+
+		return ;
+	}
+
+	callback = event.callback ;
 	delete event.callback ;
 
 	if ( event.sync && event.emitter.__ngev.nice !== NextGenEvents.SYNC ) {
@@ -4595,7 +4866,7 @@ NextGenEvents.emitCallback = function emitCallback( event ) {
 
 
 
-NextGenEvents.prototype.listeners = function listeners( eventName ) {
+NextGenEvents.prototype.listeners = function( eventName ) {
 	if ( ! eventName || typeof eventName !== 'string' ) { throw new TypeError( ".listeners(): argument #0 should be a non-empty string" ) ; }
 
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
@@ -4625,29 +4896,30 @@ NextGenEvents.prototype.listenerCount = function( eventName ) {
 
 
 
-NextGenEvents.prototype.setNice = function setNice( nice ) {
+NextGenEvents.prototype.setNice = function( nice ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
-	//if ( typeof nice !== 'number' ) { throw new TypeError( ".setNice(): argument #0 should be a number" ) ; }
-
 	this.__ngev.nice = Math.floor( + nice || 0 ) ;
 } ;
 
 
 
-NextGenEvents.prototype.desyncUseNextTick = function desyncUseNextTick( useNextTick ) {
+NextGenEvents.prototype.desyncUseNextTick = function( useNextTick ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
-	//if ( typeof nice !== 'number' ) { throw new TypeError( ".setNice(): argument #0 should be a number" ) ; }
-
 	this.__ngev.desync = useNextTick ? nextTick : setImmediate ;
 } ;
 
 
 
-NextGenEvents.prototype.setInterruptible = function setInterruptible( isInterruptible ) {
+NextGenEvents.prototype.setInterruptible = function( isInterruptible ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
-	//if ( typeof nice !== 'number' ) { throw new TypeError( ".setNice(): argument #0 should be a number" ) ; }
-
 	this.__ngev.interruptible = !! isInterruptible ;
+} ;
+
+
+
+NextGenEvents.prototype.setListenerPriority = function( hasListenerPriority ) {
+	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
+	this.__ngev.hasListenerPriority = !! hasListenerPriority ;
 } ;
 
 
@@ -4668,7 +4940,7 @@ NextGenEvents.share = function( source , target ) {
 
 
 
-NextGenEvents.reset = function reset( emitter ) {
+NextGenEvents.reset = function( emitter ) {
 	Object.defineProperty( emitter , '__ngev' , {
 		configurable: true ,
 		value: null
@@ -4693,7 +4965,7 @@ NextGenEvents.prototype.setMaxListeners = function( n ) {
 
 
 // Sometime useful as a no-op callback...
-NextGenEvents.noop = function() {} ;
+NextGenEvents.noop = () => undefined ;
 
 
 
@@ -4704,7 +4976,7 @@ NextGenEvents.noop = function() {} ;
 
 
 // .defineStates( exclusiveState1 , [exclusiveState2] , [exclusiveState3] , ... )
-NextGenEvents.prototype.defineStates = function defineStates( ... states ) {
+NextGenEvents.prototype.defineStates = function( ... states ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 
 	states.forEach( ( state ) => {
@@ -4715,14 +4987,14 @@ NextGenEvents.prototype.defineStates = function defineStates( ... states ) {
 
 
 
-NextGenEvents.prototype.hasState = function hasState( state ) {
+NextGenEvents.prototype.hasState = function( state ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	return !! this.__ngev.states[ state ] ;
 } ;
 
 
 
-NextGenEvents.prototype.getAllStates = function getAllStates() {
+NextGenEvents.prototype.getAllStates = function() {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	return Object.keys( this.__ngev.states ).filter( e => this.__ngev.states[ e ] ) ;
 } ;
@@ -4735,7 +5007,7 @@ NextGenEvents.prototype.getAllStates = function getAllStates() {
 
 
 
-NextGenEvents.groupAddListener = function groupAddListener( emitters , eventName , fn , options ) {
+NextGenEvents.groupAddListener = function( emitters , eventName , fn , options ) {
 	// Manage arguments
 	if ( typeof fn !== 'function' ) { options = fn ; fn = undefined ; }
 	if ( ! options || typeof options !== 'object' ) { options = {} ; }
@@ -4756,7 +5028,7 @@ NextGenEvents.groupOn = NextGenEvents.groupAddListener ;
 
 
 // Once per emitter
-NextGenEvents.groupOnce = function groupOnce( emitters , eventName , fn , options ) {
+NextGenEvents.groupOnce = function( emitters , eventName , fn , options ) {
 	if ( fn && typeof fn === 'object' ) { fn.once = true ; }
 	else if ( options && typeof options === 'object' ) { options.once = true ; }
 	else { options = { once: true } ; }
@@ -4767,21 +5039,21 @@ NextGenEvents.groupOnce = function groupOnce( emitters , eventName , fn , option
 
 
 // A Promise-returning .groupOnce() variant, it returns an array with only the first arg for each emitter's event
-NextGenEvents.groupWaitFor = function groupWaitFor( emitters , eventName ) {
+NextGenEvents.groupWaitFor = function( emitters , eventName ) {
 	return Promise.all( emitters.map( emitter => emitter.waitFor( eventName ) ) ) ;
 } ;
 
 
 
 // A Promise-returning .groupOnce() variant, it returns an array of array for each emitter's event
-NextGenEvents.groupWaitForAll = function groupWaitForAll( emitters , eventName ) {
+NextGenEvents.groupWaitForAll = function( emitters , eventName ) {
 	return Promise.all( emitters.map( emitter => emitter.waitForAll( eventName ) ) ) ;
 } ;
 
 
 
 // Globally once, only one event could be emitted, by the first emitter to emit
-NextGenEvents.groupOnceFirst = function groupOnceFirst( emitters , eventName , fn , options ) {
+NextGenEvents.groupOnceFirst = function( emitters , eventName , fn , options ) {
 	var fnWrapper , triggered = false ;
 
 	// Manage arguments
@@ -4809,7 +5081,7 @@ NextGenEvents.groupOnceFirst = function groupOnceFirst( emitters , eventName , f
 
 
 // A Promise-returning .groupOnceFirst() variant, only the first arg is returned
-NextGenEvents.groupWaitForFirst = function groupWaitForFirst( emitters , eventName ) {
+NextGenEvents.groupWaitForFirst = function( emitters , eventName ) {
 	return new Promise( resolve => {
 		NextGenEvents.groupOnceFirst( emitters , eventName , ( firstArg ) => resolve( firstArg ) ) ;
 	} ) ;
@@ -4818,7 +5090,7 @@ NextGenEvents.groupWaitForFirst = function groupWaitForFirst( emitters , eventNa
 
 
 // A Promise-returning .groupOnceFirst() variant, all args are returned as an array
-NextGenEvents.groupWaitForFirstAll = function groupWaitForFirstAll( emitters , eventName ) {
+NextGenEvents.groupWaitForFirstAll = function( emitters , eventName ) {
 	return new Promise( resolve => {
 		NextGenEvents.groupOnceFirst( emitters , eventName , ( ... args ) => resolve( args ) ) ;
 	} ) ;
@@ -4827,7 +5099,7 @@ NextGenEvents.groupWaitForFirstAll = function groupWaitForFirstAll( emitters , e
 
 
 // Globally once, only one event could be emitted, by the last emitter to emit
-NextGenEvents.groupOnceLast = function groupOnceLast( emitters , eventName , fn , options ) {
+NextGenEvents.groupOnceLast = function( emitters , eventName , fn , options ) {
 	var fnWrapper , triggered = false , count = emitters.length ;
 
 	// Manage arguments
@@ -4860,7 +5132,7 @@ NextGenEvents.groupOnceLast = function groupOnceLast( emitters , eventName , fn 
 
 
 // A Promise-returning .groupGlobalWaitFor() variant, only the first arg is returned
-NextGenEvents.groupWaitForLast = function groupWaitForLast( emitters , eventName ) {
+NextGenEvents.groupWaitForLast = function( emitters , eventName ) {
 	return new Promise( resolve => {
 		NextGenEvents.groupOnceLast( emitters , eventName , ( firstArg ) => resolve( firstArg ) ) ;
 	} ) ;
@@ -4869,7 +5141,7 @@ NextGenEvents.groupWaitForLast = function groupWaitForLast( emitters , eventName
 
 
 // A Promise-returning .groupGlobalWaitFor() variant, all args are returned as an array
-NextGenEvents.groupWaitForLastAll = function groupWaitForLastAll( emitters , eventName ) {
+NextGenEvents.groupWaitForLastAll = function( emitters , eventName ) {
 	return new Promise( resolve => {
 		NextGenEvents.groupOnceLast( emitters , eventName , ( ... args ) => resolve( args ) ) ;
 	} ) ;
@@ -4877,7 +5149,7 @@ NextGenEvents.groupWaitForLastAll = function groupWaitForLastAll( emitters , eve
 
 
 
-NextGenEvents.groupRemoveListener = function groupRemoveListener( emitters , eventName , id ) {
+NextGenEvents.groupRemoveListener = function( emitters , eventName , id ) {
 	emitters.forEach( ( emitter ) => {
 		emitter.removeListener( eventName , id ) ;
 	} ) ;
@@ -4887,7 +5159,7 @@ NextGenEvents.groupOff = NextGenEvents.groupRemoveListener ;
 
 
 
-NextGenEvents.groupRemoveAllListeners = function groupRemoveAllListeners( emitters , eventName ) {
+NextGenEvents.groupRemoveAllListeners = function( emitters , eventName ) {
 	emitters.forEach( ( emitter ) => {
 		emitter.removeAllListeners( eventName ) ;
 	} ) ;
@@ -4895,7 +5167,7 @@ NextGenEvents.groupRemoveAllListeners = function groupRemoveAllListeners( emitte
 
 
 
-NextGenEvents.groupEmit = function groupEmit( emitters , ... args ) {
+NextGenEvents.groupEmit = function( emitters , ... args ) {
 	var eventName , nice , argStart = 1 , argEnd , count = emitters.length ,
 		callback , callbackWrapper , callbackTriggered = false ;
 
@@ -4938,7 +5210,7 @@ NextGenEvents.groupEmit = function groupEmit( emitters , ... args ) {
 
 
 
-NextGenEvents.groupWaitForEmit = function groupWaitForEmit( emitters , ... args ) {
+NextGenEvents.groupWaitForEmit = function( emitters , ... args ) {
 	return new Promise( resolve => {
 		NextGenEvents.groupEmit( emitters , ... args , ( interrupt ) => resolve( interrupt ) ) ;
 	} ) ;
@@ -4946,7 +5218,7 @@ NextGenEvents.groupWaitForEmit = function groupWaitForEmit( emitters , ... args 
 
 
 
-NextGenEvents.groupDefineStates = function groupDefineStates( emitters , ... args ) {
+NextGenEvents.groupDefineStates = function( emitters , ... args ) {
 	emitters.forEach( ( emitter ) => {
 		emitter.defineStates( ... args ) ;
 	} ) ;
@@ -4973,7 +5245,7 @@ NextGenEvents.CONTEXT_QUEUED = 2 ;
 
 
 
-NextGenEvents.prototype.addListenerContext = function addListenerContext( contextName , options ) {
+NextGenEvents.prototype.addListenerContext = function( contextName , options ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 
 	if ( ! contextName || typeof contextName !== 'string' ) { throw new TypeError( ".addListenerContext(): argument #0 should be a non-empty string" ) ; }
@@ -4995,12 +5267,18 @@ NextGenEvents.prototype.addListenerContext = function addListenerContext( contex
 	if ( options.status !== undefined ) { context.status = options.status ; }
 	if ( options.serial !== undefined ) { context.serial = !! options.serial ; }
 
-	return this ;
+	return context ;
 } ;
 
 
 
-NextGenEvents.getContextScope = function getContextScope( context , scopeName ) {
+NextGenEvents.prototype.getListenerContext = function( contextName ) {
+	return this.__ngev.contexts[ contextName ] ;
+} ;
+
+
+
+NextGenEvents.getContextScope = function( context , scopeName ) {
 	var scope = context.scopes[ scopeName ] ;
 
 	if ( ! scope ) {
@@ -5015,7 +5293,7 @@ NextGenEvents.getContextScope = function getContextScope( context , scopeName ) 
 
 
 
-NextGenEvents.prototype.disableListenerContext = function disableListenerContext( contextName ) {
+NextGenEvents.prototype.disableListenerContext = function( contextName ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	if ( ! contextName || typeof contextName !== 'string' ) { throw new TypeError( ".disableListenerContext(): argument #0 should be a non-empty string" ) ; }
 	if ( ! this.__ngev.contexts[ contextName ] ) { this.addListenerContext( contextName ) ; }
@@ -5027,7 +5305,7 @@ NextGenEvents.prototype.disableListenerContext = function disableListenerContext
 
 
 
-NextGenEvents.prototype.enableListenerContext = function enableListenerContext( contextName ) {
+NextGenEvents.prototype.enableListenerContext = function( contextName ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	if ( ! contextName || typeof contextName !== 'string' ) { throw new TypeError( ".enableListenerContext(): argument #0 should be a non-empty string" ) ; }
 	if ( ! this.__ngev.contexts[ contextName ] ) { this.addListenerContext( contextName ) ; }
@@ -5037,7 +5315,7 @@ NextGenEvents.prototype.enableListenerContext = function enableListenerContext( 
 	context.status = NextGenEvents.CONTEXT_ENABLED ;
 
 	Object.values( context.scopes ).forEach( contextScope => {
-		if ( contextScope.queue.length > 0 ) { NextGenEvents.processScopeQueue( this , contextScope , context.serial ) ; }
+		if ( contextScope.queue.length > 0 ) { NextGenEvents.processScopeQueue( contextScope , context.serial ) ; }
 	} ) ;
 
 	return this ;
@@ -5045,7 +5323,7 @@ NextGenEvents.prototype.enableListenerContext = function enableListenerContext( 
 
 
 
-NextGenEvents.prototype.queueListenerContext = function queueListenerContext( contextName ) {
+NextGenEvents.prototype.queueListenerContext = function( contextName ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	if ( ! contextName || typeof contextName !== 'string' ) { throw new TypeError( ".queueListenerContext(): argument #0 should be a non-empty string" ) ; }
 	if ( ! this.__ngev.contexts[ contextName ] ) { this.addListenerContext( contextName ) ; }
@@ -5057,7 +5335,7 @@ NextGenEvents.prototype.queueListenerContext = function queueListenerContext( co
 
 
 
-NextGenEvents.prototype.serializeListenerContext = function serializeListenerContext( contextName , value ) {
+NextGenEvents.prototype.serializeListenerContext = function( contextName , value ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	if ( ! contextName || typeof contextName !== 'string' ) { throw new TypeError( ".serializeListenerContext(): argument #0 should be a non-empty string" ) ; }
 	if ( ! this.__ngev.contexts[ contextName ] ) { this.addListenerContext( contextName ) ; }
@@ -5069,7 +5347,7 @@ NextGenEvents.prototype.serializeListenerContext = function serializeListenerCon
 
 
 
-NextGenEvents.prototype.setListenerContextNice = function setListenerContextNice( contextName , nice ) {
+NextGenEvents.prototype.setListenerContextNice = function( contextName , nice ) {
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 	if ( ! contextName || typeof contextName !== 'string' ) { throw new TypeError( ".setListenerContextNice(): argument #0 should be a non-empty string" ) ; }
 	if ( ! this.__ngev.contexts[ contextName ] ) { this.addListenerContext( contextName ) ; }
@@ -5081,21 +5359,22 @@ NextGenEvents.prototype.setListenerContextNice = function setListenerContextNice
 
 
 
-NextGenEvents.prototype.destroyListenerContext = function destroyListenerContext( contextName ) {
-	var i , length , eventName , newListeners , removedListeners = [] ;
+NextGenEvents.prototype.destroyListenerContext = function( contextName ) {
+	var i , length , context , eventName , newListeners , removedListeners = [] ;
 
 	if ( ! contextName || typeof contextName !== 'string' ) { throw new TypeError( ".disableListenerContext(): argument #0 should be a non-empty string" ) ; }
 
 	if ( ! this.__ngev ) { NextGenEvents.init.call( this ) ; }
 
-	// We don't care if a context actually exists, all listeners tied to that contextName will be removed
+	context = this.__ngev.contexts[ contextName ] ;
+	if ( ! context ) { return ; }
 
 	for ( eventName in this.__ngev.listeners ) {
 		newListeners = null ;
 		length = this.__ngev.listeners[ eventName ].length ;
 
 		for ( i = 0 ; i < length ; i ++ ) {
-			if ( this.__ngev.listeners[ eventName ][ i ].context === contextName ) {
+			if ( this.__ngev.listeners[ eventName ][ i ].context === context ) {
 				newListeners = [] ;
 				removedListeners.push( this.__ngev.listeners[ eventName ][ i ] ) ;
 			}
@@ -5107,7 +5386,7 @@ NextGenEvents.prototype.destroyListenerContext = function destroyListenerContext
 		if ( newListeners ) { this.__ngev.listeners[ eventName ] = newListeners ; }
 	}
 
-	if ( this.__ngev.contexts[ contextName ] ) { delete this.__ngev.contexts[ contextName ] ; }
+	delete this.__ngev.contexts[ contextName ] ;
 
 	if ( removedListeners.length && this.__ngev.listeners.removeListener.length ) {
 		this.emit( 'removeListener' , removedListeners ) ;
@@ -5118,8 +5397,8 @@ NextGenEvents.prototype.destroyListenerContext = function destroyListenerContext
 
 
 
-NextGenEvents.processScopeQueue = function processScopeQueue( self , contextScope , serial , isCompletionCallback ) {
-	var job ;
+NextGenEvents.processScopeQueue = function( contextScope , serial , isCompletionCallback ) {
+	var job , event , eventMaster , emitter ;
 
 	if ( isCompletionCallback ) { contextScope.ready = true ; }
 
@@ -5128,28 +5407,14 @@ NextGenEvents.processScopeQueue = function processScopeQueue( self , contextScop
 
 	while ( contextScope.ready && contextScope.queue.length ) {
 		job = contextScope.queue.shift() ;
+		event = job.event ;
+		eventMaster = event.master || event ;
+		emitter = event.emitter ;
 
 		// This event has been interrupted, drop it now!
-		if ( job.event.interrupt ) { continue ; }
+		if ( eventMaster.interrupt ) { continue ; }
 
-		try {
-			if ( job.nice < 0 ) {
-				if ( globalData.recursions >= -job.nice ) {
-					self.__ngev.desync( NextGenEvents.listenerWrapper.bind( self , job.listener , job.event , contextScope , serial ) ) ;
-				}
-				else {
-					NextGenEvents.listenerWrapper.call( self , job.listener , job.event , contextScope , serial ) ;
-				}
-			}
-			else {
-				setTimeout( NextGenEvents.listenerWrapper.bind( self , job.listener , job.event , contextScope , serial ) , job.nice ) ;
-			}
-		}
-		catch ( error ) {
-			// Catch error, just to decrement globalData.recursions, re-throw after that...
-			globalData.recursions -- ;
-			throw error ;
-		}
+		NextGenEvents.listenerWrapper( job.listener , event , contextScope , serial , job.nice ) ;
 	}
 
 	// Decrement recursion
@@ -5180,12 +5445,12 @@ if ( global.AsyncTryCatch ) {
 NextGenEvents.Proxy = require( './Proxy.js' ) ;
 
 
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../package.json":12,"./Proxy.js":10,"_process":13}],10:[function(require,module,exports){
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
+},{"../package.json":12,"./Proxy.js":10,"_process":13,"timers":34}],10:[function(require,module,exports){
 /*
 	Next-Gen Events
 
-	Copyright (c) 2015 - 2018 Cédric Ronvel
+	Copyright (c) 2015 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -5233,7 +5498,7 @@ Proxy.create = ( ... args ) => new Proxy( ... args ) ;
 
 
 // Add a local service accessible remotely
-Proxy.prototype.addLocalService = function addLocalService( id , emitter , options ) {
+Proxy.prototype.addLocalService = function( id , emitter , options ) {
 	this.localServices[ id ] = LocalService.create( this , id , emitter , options ) ;
 	return this.localServices[ id ] ;
 } ;
@@ -5241,7 +5506,7 @@ Proxy.prototype.addLocalService = function addLocalService( id , emitter , optio
 
 
 // Add a remote service accessible locally
-Proxy.prototype.addRemoteService = function addRemoteService( id ) {
+Proxy.prototype.addRemoteService = function( id ) {
 	this.remoteServices[ id ] = RemoteService.create( this , id ) ;
 	return this.remoteServices[ id ] ;
 } ;
@@ -5249,7 +5514,7 @@ Proxy.prototype.addRemoteService = function addRemoteService( id ) {
 
 
 // Destroy the proxy
-Proxy.prototype.destroy = function destroy() {
+Proxy.prototype.destroy = function() {
 	Object.keys( this.localServices ).forEach( ( id ) => {
 		this.localServices[ id ].destroy() ;
 		delete this.localServices[ id ] ;
@@ -5266,7 +5531,7 @@ Proxy.prototype.destroy = function destroy() {
 
 
 // Push an event message.
-Proxy.prototype.push = function push( message ) {
+Proxy.prototype.push = function( message ) {
 	if (
 		message.__type !== MESSAGE_TYPE ||
 		! message.service || typeof message.service !== 'string' ||
@@ -5302,7 +5567,7 @@ Proxy.prototype.push = function push( message ) {
 
 // This is the method to receive and decode data from the other side of the communication channel, most of time another proxy.
 // In most case, this should be overwritten.
-Proxy.prototype.receive = function receive( raw ) {
+Proxy.prototype.receive = function( raw ) {
 	this.push( raw ) ;
 } ;
 
@@ -5310,7 +5575,7 @@ Proxy.prototype.receive = function receive( raw ) {
 
 // This is the method used to send data to the other side of the communication channel, most of time another proxy.
 // This MUST be overwritten in any case.
-Proxy.prototype.send = function send() {
+Proxy.prototype.send = function() {
 	throw new Error( 'The send() method of the Proxy MUST be extended/overwritten' ) ;
 } ;
 
@@ -5325,7 +5590,7 @@ Proxy.LocalService = LocalService ;
 
 
 
-LocalService.create = function create( proxy , id , emitter , options ) {
+LocalService.create = function( proxy , id , emitter , options ) {
 	var self = Object.create( LocalService.prototype , {
 		proxy: { value: proxy , enumerable: true } ,
 		id: { value: id , enumerable: true } ,
@@ -5345,7 +5610,7 @@ LocalService.create = function create( proxy , id , emitter , options ) {
 
 
 // Destroy a service
-LocalService.prototype.destroy = function destroy() {
+LocalService.prototype.destroy = function() {
 	Object.keys( this.events ).forEach( ( eventName ) => {
 		this.emitter.off( eventName , this.events[ eventName ] ) ;
 		delete this.events[ eventName ] ;
@@ -5358,7 +5623,7 @@ LocalService.prototype.destroy = function destroy() {
 
 
 // Remote want to emit on the local service
-LocalService.prototype.receiveEmit = function receiveEmit( message ) {
+LocalService.prototype.receiveEmit = function( message ) {
 	if ( this.destroyed || ! this.canEmit || ( message.ack && ! this.canAck ) ) { return ; }
 
 	var event = {
@@ -5387,7 +5652,7 @@ LocalService.prototype.receiveEmit = function receiveEmit( message ) {
 
 
 // Remote want to listen to an event of the local service
-LocalService.prototype.receiveListen = function receiveListen( message ) {
+LocalService.prototype.receiveListen = function( message ) {
 	if ( this.destroyed || ! this.canListen || ( message.ack && ! this.canAck ) ) { return ; }
 
 	if ( message.ack ) {
@@ -5420,7 +5685,7 @@ LocalService.prototype.receiveListen = function receiveListen( message ) {
 
 
 // Remote do not want to listen to that event of the local service anymore
-LocalService.prototype.receiveIgnore = function receiveIgnore( message ) {
+LocalService.prototype.receiveIgnore = function( message ) {
 	if ( this.destroyed || ! this.canListen ) { return ; }
 
 	if ( ! this.events[ message.event ] ) { return ; }
@@ -5432,7 +5697,7 @@ LocalService.prototype.receiveIgnore = function receiveIgnore( message ) {
 
 
 //
-LocalService.prototype.receiveAckEvent = function receiveAckEvent( message ) {
+LocalService.prototype.receiveAckEvent = function( message ) {
 	if (
 		this.destroyed || ! this.canListen || ! this.canAck || ! message.ack ||
 		! this.events[ message.event ] || ! this.events[ message.event ].ack
@@ -5446,7 +5711,7 @@ LocalService.prototype.receiveAckEvent = function receiveAckEvent( message ) {
 
 
 // Send an event from the local service to remote
-LocalService.forward = function forward( event ) {
+LocalService.forward = function( event ) {
 	if ( this.destroyed ) { return ; }
 
 	this.proxy.send( {
@@ -5463,7 +5728,7 @@ LocalService.forward.ack = false ;
 
 
 // Send an event from the local service to remote, with ACK
-LocalService.forwardWithAck = function forwardWithAck( event , callback ) {
+LocalService.forwardWithAck = function( event , callback ) {
 	if ( this.destroyed ) { return ; }
 
 	if ( ! event.callback ) {
@@ -5523,7 +5788,7 @@ var EVENT_ACK = 2 ;
 
 
 
-RemoteService.create = function create( proxy , id ) {
+RemoteService.create = function( proxy , id ) {
 	var self = Object.create( RemoteService.prototype , {
 		proxy: { value: proxy , enumerable: true } ,
 		id: { value: id , enumerable: true } ,
@@ -5547,7 +5812,7 @@ RemoteService.create = function create( proxy , id ) {
 
 
 // Destroy a service
-RemoteService.prototype.destroy = function destroy() {
+RemoteService.prototype.destroy = function() {
 	this.emitter.removeAllListeners() ;
 	this.emitter = null ;
 	Object.keys( this.events ).forEach( ( eventName ) => { delete this.events[ eventName ] ; } ) ;
@@ -5557,7 +5822,7 @@ RemoteService.prototype.destroy = function destroy() {
 
 
 // Local code want to emit to remote service
-RemoteService.prototype.emit = function emit( eventName , ... args ) {
+RemoteService.prototype.emit = function( eventName , ... args ) {
 	if ( this.destroyed ) { return ; }
 
 	var callback , ackId , triggered ;
@@ -5603,7 +5868,7 @@ RemoteService.prototype.emit = function emit( eventName , ... args ) {
 
 
 // Local code want to listen to an event of remote service
-RemoteService.prototype.addListener = function addListener( eventName , fn , options ) {
+RemoteService.prototype.addListener = function( eventName , fn , options ) {
 	if ( this.destroyed ) { return ; }
 
 	// Manage arguments the same way NextGenEvents#addListener() does
@@ -5650,7 +5915,7 @@ RemoteService.prototype.once = NextGenEvents.prototype.once ;
 
 
 // Local code want to ignore an event of remote service
-RemoteService.prototype.removeListener = function removeListener( eventName , id ) {
+RemoteService.prototype.removeListener = function( eventName , id ) {
 	if ( this.destroyed ) { return ; }
 
 	this.emitter.removeListener( eventName , id ) ;
@@ -5676,7 +5941,7 @@ RemoteService.prototype.off = RemoteService.prototype.removeListener ;
 
 
 // A remote service sent an event we are listening to, emit on the service representing the remote
-RemoteService.prototype.receiveEvent = function receiveEvent( message ) {
+RemoteService.prototype.receiveEvent = function( message ) {
 	if ( this.destroyed || ! this.events[ message.event ] ) { return ; }
 
 	var event = {
@@ -5719,7 +5984,7 @@ RemoteService.prototype.receiveEvent = function receiveEvent( message ) {
 
 
 //
-RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message ) {
+RemoteService.prototype.receiveAckEmit = function( message ) {
 	if ( this.destroyed || ! message.ack || this.events[ message.event ] !== EVENT_ACK ) {
 		return ;
 	}
@@ -5728,13 +5993,12 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message ) {
 } ;
 
 
-
 },{"./NextGenEvents.js":9}],11:[function(require,module,exports){
 (function (process){
 /*
 	Next-Gen Events
 
-	Copyright (c) 2015 - 2018 Cédric Ronvel
+	Copyright (c) 2015 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -5762,46 +6026,46 @@ RemoteService.prototype.receiveAckEmit = function receiveAckEmit( message ) {
 
 
 if ( typeof window.setImmediate !== 'function' ) {
-	window.setImmediate = function setImmediate( fn ) {
-		setTimeout( fn , 0 ) ;
-	} ;
+	window.setImmediate = fn => setTimeout( fn , 0 ) ;
 }
 
 if ( ! process.emitWarning ) {
 	// Looks like browserify don't have this
-	process.emitWarning = function() {} ;
+	process.emitWarning = () => undefined ;
 }
 
 module.exports = require( './NextGenEvents.js' ) ;
 module.exports.isBrowser = true ;
 
+
 }).call(this,require('_process'))
 },{"./NextGenEvents.js":9,"_process":13}],12:[function(require,module,exports){
 module.exports={
-  "_from": "nextgen-events@1.1",
-  "_id": "nextgen-events@1.1.0",
+  "_from": "nextgen-events@^1.2.1",
+  "_id": "nextgen-events@1.3.0",
   "_inBundle": false,
-  "_integrity": "sha512-Emz5rh584fygInd3gtwP+xGyJhEnyxQa0/Xbmw8sbpXVGV/luqDnVPq1cQopYR7qg6KUlPfwWVhxrhZri1wDAw==",
+  "_integrity": "sha512-eBz5mrO4Hw2eenPVm0AVPHuAzg/RZetAWMI547RH8O9+a0UYhCysiZ3KoNWslnWNlHetb9kzowEshsKsmFo2YQ==",
   "_location": "/nextgen-events",
   "_phantomChildren": {},
   "_requested": {
     "type": "range",
     "registry": true,
-    "raw": "nextgen-events@1.1",
+    "raw": "nextgen-events@^1.2.1",
     "name": "nextgen-events",
     "escapedName": "nextgen-events",
-    "rawSpec": "1.1",
+    "rawSpec": "^1.2.1",
     "saveSpec": null,
-    "fetchSpec": "1.1"
+    "fetchSpec": "^1.2.1"
   },
   "_requiredBy": [
     "#USER",
     "/",
+    "/server-kit",
     "/terminal-kit"
   ],
-  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-1.1.0.tgz",
-  "_shasum": "a37dd6244eb222745c57a8fcc596fd78ef429a46",
-  "_spec": "nextgen-events@1.1",
+  "_resolved": "https://registry.npmjs.org/nextgen-events/-/nextgen-events-1.3.0.tgz",
+  "_shasum": "a32665d1ab6f026448b19d75c4603ec20292fa22",
+  "_spec": "nextgen-events@^1.2.1",
   "_where": "/home/cedric/inside/github/spellcast",
   "author": {
     "name": "Cédric Ronvel"
@@ -5821,7 +6085,7 @@ module.exports={
     "title": "Next-Gen Events",
     "years": [
       2015,
-      2018
+      2019
     ],
     "owner": "Cédric Ronvel"
   },
@@ -5862,7 +6126,7 @@ module.exports={
   "scripts": {
     "test": "tea-time -R dot"
   },
-  "version": "1.1.0"
+  "version": "1.3.0"
 }
 
 },{}],13:[function(require,module,exports){
@@ -6768,10 +7032,2477 @@ exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
 },{"./decode":15,"./encode":16}],18:[function(require,module,exports){
+(function (process,global){
+(function (global, undefined) {
+    "use strict";
+
+    if (global.setImmediate) {
+        return;
+    }
+
+    var nextHandle = 1; // Spec says greater than zero
+    var tasksByHandle = {};
+    var currentlyRunningATask = false;
+    var doc = global.document;
+    var registerImmediate;
+
+    function setImmediate(callback) {
+      // Callback can either be a function or a string
+      if (typeof callback !== "function") {
+        callback = new Function("" + callback);
+      }
+      // Copy function arguments
+      var args = new Array(arguments.length - 1);
+      for (var i = 0; i < args.length; i++) {
+          args[i] = arguments[i + 1];
+      }
+      // Store and register the task
+      var task = { callback: callback, args: args };
+      tasksByHandle[nextHandle] = task;
+      registerImmediate(nextHandle);
+      return nextHandle++;
+    }
+
+    function clearImmediate(handle) {
+        delete tasksByHandle[handle];
+    }
+
+    function run(task) {
+        var callback = task.callback;
+        var args = task.args;
+        switch (args.length) {
+        case 0:
+            callback();
+            break;
+        case 1:
+            callback(args[0]);
+            break;
+        case 2:
+            callback(args[0], args[1]);
+            break;
+        case 3:
+            callback(args[0], args[1], args[2]);
+            break;
+        default:
+            callback.apply(undefined, args);
+            break;
+        }
+    }
+
+    function runIfPresent(handle) {
+        // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
+        // So if we're currently running a task, we'll need to delay this invocation.
+        if (currentlyRunningATask) {
+            // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
+            // "too much recursion" error.
+            setTimeout(runIfPresent, 0, handle);
+        } else {
+            var task = tasksByHandle[handle];
+            if (task) {
+                currentlyRunningATask = true;
+                try {
+                    run(task);
+                } finally {
+                    clearImmediate(handle);
+                    currentlyRunningATask = false;
+                }
+            }
+        }
+    }
+
+    function installNextTickImplementation() {
+        registerImmediate = function(handle) {
+            process.nextTick(function () { runIfPresent(handle); });
+        };
+    }
+
+    function canUsePostMessage() {
+        // The test against `importScripts` prevents this implementation from being installed inside a web worker,
+        // where `global.postMessage` means something completely different and can't be used for this purpose.
+        if (global.postMessage && !global.importScripts) {
+            var postMessageIsAsynchronous = true;
+            var oldOnMessage = global.onmessage;
+            global.onmessage = function() {
+                postMessageIsAsynchronous = false;
+            };
+            global.postMessage("", "*");
+            global.onmessage = oldOnMessage;
+            return postMessageIsAsynchronous;
+        }
+    }
+
+    function installPostMessageImplementation() {
+        // Installs an event handler on `global` for the `message` event: see
+        // * https://developer.mozilla.org/en/DOM/window.postMessage
+        // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
+
+        var messagePrefix = "setImmediate$" + Math.random() + "$";
+        var onGlobalMessage = function(event) {
+            if (event.source === global &&
+                typeof event.data === "string" &&
+                event.data.indexOf(messagePrefix) === 0) {
+                runIfPresent(+event.data.slice(messagePrefix.length));
+            }
+        };
+
+        if (global.addEventListener) {
+            global.addEventListener("message", onGlobalMessage, false);
+        } else {
+            global.attachEvent("onmessage", onGlobalMessage);
+        }
+
+        registerImmediate = function(handle) {
+            global.postMessage(messagePrefix + handle, "*");
+        };
+    }
+
+    function installMessageChannelImplementation() {
+        var channel = new MessageChannel();
+        channel.port1.onmessage = function(event) {
+            var handle = event.data;
+            runIfPresent(handle);
+        };
+
+        registerImmediate = function(handle) {
+            channel.port2.postMessage(handle);
+        };
+    }
+
+    function installReadyStateChangeImplementation() {
+        var html = doc.documentElement;
+        registerImmediate = function(handle) {
+            // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
+            // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
+            var script = doc.createElement("script");
+            script.onreadystatechange = function () {
+                runIfPresent(handle);
+                script.onreadystatechange = null;
+                html.removeChild(script);
+                script = null;
+            };
+            html.appendChild(script);
+        };
+    }
+
+    function installSetTimeoutImplementation() {
+        registerImmediate = function(handle) {
+            setTimeout(runIfPresent, 0, handle);
+        };
+    }
+
+    // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
+    var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
+    attachTo = attachTo && attachTo.setTimeout ? attachTo : global;
+
+    // Don't get fooled by e.g. browserify environments.
+    if ({}.toString.call(global.process) === "[object process]") {
+        // For Node.js before 0.9
+        installNextTickImplementation();
+
+    } else if (canUsePostMessage()) {
+        // For non-IE10 modern browsers
+        installPostMessageImplementation();
+
+    } else if (global.MessageChannel) {
+        // For web workers, where supported
+        installMessageChannelImplementation();
+
+    } else if (doc && "onreadystatechange" in doc.createElement("script")) {
+        // For IE 6–8
+        installReadyStateChangeImplementation();
+
+    } else {
+        // For older browsers
+        installSetTimeoutImplementation();
+    }
+
+    attachTo.setImmediate = setImmediate;
+    attachTo.clearImmediate = clearImmediate;
+}(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
+
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"_process":13}],19:[function(require,module,exports){
+/*
+	Seventh
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+var Promise = require( './seventh.js' ) ;
+
+
+
+Promise.promisifyNodeApi = ( api , suffix , multiSuffix , filter , anything ) => {
+	var keys ;
+
+	suffix = suffix || 'Async' ;
+	multiSuffix = multiSuffix || 'AsyncAll' ;
+	filter = filter || ( key => key[ 0 ] !== '_' && ! key.endsWith( 'Sync' ) ) ;
+
+	if ( anything ) {
+		keys = [] ;
+
+		for ( let key in api ) {
+			if ( typeof api[ key ] === 'function' ) { keys.push( key ) ; }
+		}
+	}
+	else {
+		keys = Object.keys( api ) ;
+	}
+
+	keys.filter( key => {
+		if ( typeof api[ key ] !== 'function' ) { return false ; }
+
+		// If it has any enumerable properties on its prototype, it's a constructor
+		for ( let trash in api[ key ].prototype ) { return false ; }
+
+		return filter( key , api ) ;
+	} )
+		.forEach( key => {
+			const targetKey = key + suffix ;
+			const multiTargetKey = key + multiSuffix ;
+
+			// Do nothing if it already exists
+			if ( ! api[ targetKey ] ) {
+				api[ targetKey ] = Promise.promisify( api[ key ] , api ) ;
+			}
+
+			if ( ! api[ multiTargetKey ] ) {
+				api[ multiTargetKey ] = Promise.promisifyAll( api[ key ] , api ) ;
+			}
+		} ) ;
+} ;
+
+
+
+Promise.promisifyAnyNodeApi = ( api , suffix , multiSuffix , filter ) => {
+	Promise.promisifyNodeApi( api , suffix , multiSuffix , filter , true ) ;
+} ;
+
+
+
+},{"./seventh.js":25}],20:[function(require,module,exports){
+/*
+	Seventh
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+var Promise = require( './seventh.js' ) ;
+
+
+
+// This object is used as a special unique value for array hole (see Promise.filter())
+const HOLE = {} ;
+
+function noop() {}
+
+
+
+Promise.all = ( iterable ) => {
+	var index = -1 , settled = false ,
+		count = 0 , length = Infinity ,
+		value , values = [] ,
+		allPromise = new Promise() ;
+
+	for ( value of iterable ) {
+		if ( settled ) { break ; }
+
+		index ++ ;
+
+		// Create a scope to keep track of the promise's own index
+		( () => {
+			const promiseIndex = index ;
+
+			Promise.resolve( value )
+				.then(
+					value_ => {
+						if ( settled ) { return ; }
+
+						values[ promiseIndex ] = value_ ;
+						count ++ ;
+
+						if ( count >= length ) {
+							settled = true ;
+							allPromise._resolveValue( values ) ;
+						}
+					} ,
+					error => {
+						if ( settled ) { return ; }
+						settled = true ;
+						allPromise.reject( error ) ;
+					}
+				) ;
+		} )() ;
+	}
+
+	length = index + 1 ;
+
+	if ( ! length ) {
+		allPromise._resolveValue( values ) ;
+	}
+
+	return allPromise ;
+} ;
+
+
+
+// Maybe faster, but can't find any reasonable grounds for that ATM
+//Promise.all =
+Promise._allArray = ( iterable ) => {
+	var length = iterable.length ;
+
+	if ( ! length ) { Promise._resolveValue( [] ) ; }
+
+	var index ,
+		runtime = {
+			settled: false ,
+			count: 0 ,
+			length: length ,
+			values: [] ,
+			allPromise: new Promise()
+		} ;
+
+	for ( index = 0 ; ! runtime.settled && index < length ; index ++ ) {
+		Promise._allArrayOne( iterable[ index ] , index , runtime ) ;
+	}
+
+	return runtime.allPromise ;
+} ;
+
+
+
+// internal for allArray
+Promise._allArrayOne = ( value , index , runtime ) => {
+	Promise._bareThen( value ,
+		value_ => {
+			if ( runtime.settled ) { return ; }
+
+			runtime.values[ index ] = value_ ;
+			runtime.count ++ ;
+
+			if ( runtime.count >= runtime.length ) {
+				runtime.settled = true ;
+				runtime.allPromise._resolveValue( runtime.values ) ;
+			}
+		} ,
+		error => {
+			if ( runtime.settled ) { return ; }
+			runtime.settled = true ;
+			runtime.allPromise.reject( error ) ;
+		}
+	) ;
+} ;
+
+
+// Promise.all() with an iterator
+Promise.every =
+Promise.map = ( iterable , iterator ) => {
+	var index = -1 , settled = false ,
+		count = 0 , length = Infinity ,
+		value , values = [] ,
+		allPromise = new Promise() ;
+
+	for ( value of iterable ) {
+		if ( settled ) { break ; }
+
+		index ++ ;
+
+		// Create a scope to keep track of the promise's own index
+		( () => {
+			const promiseIndex = index ;
+
+			Promise.resolve( value )
+				.then( value_ => {
+					if ( settled ) { return ; }
+					return iterator( value_ , promiseIndex ) ;
+				} )
+				.then(
+					value_ => {
+						if ( settled ) { return ; }
+
+						values[ promiseIndex ] = value_ ;
+						count ++ ;
+
+						if ( count >= length ) {
+							settled = true ;
+							allPromise._resolveValue( values ) ;
+						}
+					} ,
+					error => {
+						if ( settled ) { return ; }
+						settled = true ;
+						allPromise.reject( error ) ;
+					}
+				) ;
+		} )() ;
+	}
+
+	length = index + 1 ;
+
+	if ( ! length ) {
+		allPromise._resolveValue( values ) ;
+	}
+
+	return allPromise ;
+} ;
+
+
+
+/*
+	It works symmetrically with Promise.all(), the resolve and reject logic are switched.
+	Therefore, it resolves to the first resolving promise OR reject if all promises are rejected
+	with, as a reason, the array of all promise rejection reasons.
+*/
+Promise.any = ( iterable ) => {
+	var index = -1 , settled = false ,
+		count = 0 , length = Infinity ,
+		value ,
+		errors = [] ,
+		anyPromise = new Promise() ;
+
+	for ( value of iterable ) {
+		if ( settled ) { break ; }
+
+		index ++ ;
+
+		// Create a scope to keep track of the promise's own index
+		( () => {
+			const promiseIndex = index ;
+
+			Promise.resolve( value )
+				.then(
+					value_ => {
+						if ( settled ) { return ; }
+
+						settled = true ;
+						anyPromise._resolveValue( value_ ) ;
+					} ,
+					error => {
+						if ( settled ) { return ; }
+
+						errors[ promiseIndex ] = error ;
+						count ++ ;
+
+						if ( count >= length ) {
+							settled = true ;
+							anyPromise.reject( errors ) ;
+						}
+					}
+				) ;
+		} )() ;
+	}
+
+	length = index + 1 ;
+
+	if ( ! length ) {
+		anyPromise.reject( new RangeError( 'Promise.any(): empty array' ) ) ;
+	}
+
+	return anyPromise ;
+} ;
+
+
+
+// Like Promise.any() but with an iterator
+Promise.some = ( iterable , iterator ) => {
+	var index = -1 , settled = false ,
+		count = 0 , length = Infinity ,
+		value ,
+		errors = [] ,
+		anyPromise = new Promise() ;
+
+	for ( value of iterable ) {
+		if ( settled ) { break ; }
+
+		index ++ ;
+
+		// Create a scope to keep track of the promise's own index
+		( () => {
+			const promiseIndex = index ;
+
+			Promise.resolve( value )
+				.then( value_ => {
+					if ( settled ) { return ; }
+					return iterator( value_ , promiseIndex ) ;
+				} )
+				.then(
+					value_ => {
+						if ( settled ) { return ; }
+
+						settled = true ;
+						anyPromise._resolveValue( value_ ) ;
+					} ,
+					error => {
+						if ( settled ) { return ; }
+
+						errors[ promiseIndex ] = error ;
+						count ++ ;
+
+						if ( count >= length ) {
+							settled = true ;
+							anyPromise.reject( errors ) ;
+						}
+					}
+				) ;
+		} )() ;
+	}
+
+	length = index + 1 ;
+
+	if ( ! length ) {
+		anyPromise.reject( new RangeError( 'Promise.any(): empty array' ) ) ;
+	}
+
+	return anyPromise ;
+} ;
+
+
+
+/*
+	More closed to Array#filter().
+	The iterator should return truthy if the array element should be kept,
+	or falsy if the element should be filtered out.
+	Any rejection reject the whole promise.
+*/
+Promise.filter = ( iterable , iterator ) => {
+	var index = -1 , settled = false ,
+		count = 0 , length = Infinity ,
+		value , values = [] ,
+		filterPromise = new Promise() ;
+
+	for ( value of iterable ) {
+		if ( settled ) { break ; }
+
+		index ++ ;
+
+		// Create a scope to keep track of the promise's own index
+		( () => {
+			const promiseIndex = index ;
+
+			Promise.resolve( value )
+				.then( value_ => {
+					if ( settled ) { return ; }
+					values[ promiseIndex ] = value_ ;
+					return iterator( value_ , promiseIndex ) ;
+				} )
+				.then(
+					iteratorValue => {
+						if ( settled ) { return ; }
+
+						count ++ ;
+
+						if ( ! iteratorValue ) { values[ promiseIndex ] = HOLE ; }
+
+						if ( count >= length ) {
+							settled = true ;
+							values = values.filter( e => e !== HOLE ) ;
+							filterPromise._resolveValue( values ) ;
+						}
+					} ,
+					error => {
+						if ( settled ) { return ; }
+						settled = true ;
+						filterPromise.reject( error ) ;
+					}
+				) ;
+		} )() ;
+	}
+
+	length = index + 1 ;
+
+	if ( ! length ) {
+		filterPromise._resolveValue( values ) ;
+	}
+	else if ( count >= length ) {
+		settled = true ;
+		values = values.filter( e => e !== HOLE ) ;
+		filterPromise._resolveValue( values ) ;
+	}
+
+	return filterPromise ;
+} ;
+
+
+
+// forEach performs reduce as well, if a third argument is supplied
+// Force a function statement because we are using arguments.length, so we can support accumulator equals to undefined
+Promise.foreach =
+Promise.forEach = function( iterable , iterator , accumulator ) {
+	var index = -1 ,
+		isReduce = arguments.length >= 3 ,
+		it = iterable[Symbol.iterator]() ,
+		forEachPromise = new Promise() ,
+		lastPromise = Promise.resolve( accumulator ) ;
+
+	// The array-like may contains promises that could be rejected before being handled
+	if ( Promise.warnUnhandledRejection ) { Promise._handleAll( iterable ) ; }
+
+	var nextElement = () => {
+		lastPromise.then(
+			accumulator_ => {
+				let { value , done } = it.next() ;
+				index ++ ;
+
+				if ( done ) {
+					forEachPromise.resolve( accumulator_ ) ;
+				}
+				else {
+					lastPromise = Promise.resolve( value ).then(
+						isReduce ?
+							value_ => iterator( accumulator_ , value_ , index ) :
+							value_ => iterator( value_ , index )
+					) ;
+
+					nextElement() ;
+				}
+			} ,
+			error => {
+				forEachPromise.reject( error ) ;
+
+				// We have to eat all remaining promise errors
+				for ( ;; ) {
+					let { value , done } = it.next() ;
+					if ( done ) { break ; }
+
+					//if ( ( value instanceof Promise ) || ( value instanceof NativePromise ) )
+					if ( Promise.isThenable( value ) ) {
+						value.then( noop , noop ) ;
+					}
+				}
+			}
+		) ;
+	} ;
+
+	nextElement() ;
+
+	return forEachPromise ;
+} ;
+
+
+
+Promise.reduce = ( iterable , iterator , accumulator ) => {
+	// Force 3 arguments
+	return Promise.forEach( iterable , iterator , accumulator ) ;
+} ;
+
+
+
+/*
+	Same than map, but iterate over an object and produce an object.
+	Think of it as a kind of Object#map() (which of course does not exist).
+*/
+Promise.mapObject = ( inputObject , iterator ) => {
+	var settled = false ,
+		count = 0 ,
+		i , key , keys = Object.keys( inputObject ) ,
+		length = keys.length ,
+		value , outputObject = {} ,
+		mapPromise = new Promise() ;
+
+	for ( i = 0 ; ! settled && i < length ; i ++ ) {
+		key = keys[ i ] ;
+		value = inputObject[ key ] ;
+
+		// Create a scope to keep track of the promise's own key
+		( () => {
+			const promiseKey = key ;
+
+			Promise.resolve( value )
+				.then( value_ => {
+					if ( settled ) { return ; }
+					return iterator( value_ , promiseKey ) ;
+				} )
+				.then(
+					value_ => {
+						if ( settled ) { return ; }
+
+						outputObject[ promiseKey ] = value_ ;
+						count ++ ;
+
+						if ( count >= length ) {
+							settled = true ;
+							mapPromise._resolveValue( outputObject ) ;
+						}
+					} ,
+					error => {
+						if ( settled ) { return ; }
+						settled = true ;
+						mapPromise.reject( error ) ;
+					}
+				) ;
+		} )() ;
+	}
+
+	if ( ! length ) {
+		mapPromise._resolveValue( outputObject ) ;
+	}
+
+	return mapPromise ;
+} ;
+
+
+
+// Like map, but with a concurrency limit
+Promise.concurrent = ( limit , iterable , iterator ) => {
+	var index = -1 , settled = false ,
+		running = 0 ,
+		count = 0 , length = Infinity ,
+		value , done = false ,
+		values = [] ,
+		it = iterable[Symbol.iterator]() ,
+		concurrentPromise = new Promise() ;
+
+	// The array-like may contains promises that could be rejected before being handled
+	if ( Promise.warnUnhandledRejection ) { Promise._handleAll( iterable ) ; }
+
+	limit = limit || 1 ;
+
+	const runBatch = () => {
+		while ( ! done && running < limit ) {
+
+			//console.log( "Pre" , index ) ;
+			( { value , done } = it.next() ) ;
+
+			if ( done ) {
+				length = index + 1 ;
+
+				if ( count >= length ) {
+					settled = true ;
+					concurrentPromise._resolveValue( values ) ;
+					return ;
+				}
+				break ;
+			}
+
+			if ( settled ) { break ; }
+
+			index ++ ;
+
+			// Create a scope to keep track of the promise's own index
+			( () => {
+				const promiseIndex = index ;
+
+				running ++ ;
+				//console.log( "Launch" , promiseIndex ) ;
+
+				Promise.resolve( value )
+					.then( value_ => {
+						if ( settled ) { return ; }
+						return iterator( value_ , promiseIndex ) ;
+					} )
+					.then(
+						value_ => {
+						//console.log( "Done" , promiseIndex , value_ ) ;
+							if ( settled ) { return ; }
+
+							values[ promiseIndex ] = value_ ;
+							count ++ ;
+							running -- ;
+
+							//console.log( "count/length" , count , length ) ;
+							if ( count >= length ) {
+								settled = true ;
+								concurrentPromise._resolveValue( values ) ;
+								return ;
+							}
+
+							if ( running < limit ) {
+								runBatch() ;
+								return ;
+							}
+						} ,
+						error => {
+							if ( settled ) { return ; }
+							settled = true ;
+							concurrentPromise.reject( error ) ;
+						}
+					) ;
+			} )() ;
+		}
+	} ;
+
+	runBatch() ;
+
+	if ( index < 0 ) {
+		concurrentPromise._resolveValue( values ) ;
+	}
+
+	return concurrentPromise ;
+} ;
+
+
+
+/*
+	Like native Promise.race(), it is hanging forever if the array is empty.
+	It resolves or rejects to the first resolved/rejected promise.
+*/
+Promise.race = ( iterable ) => {
+	var settled = false ,
+		value ,
+		racePromise = new Promise() ;
+
+	for ( value of iterable ) {
+		if ( settled ) { break ; }
+
+		Promise.resolve( value )
+			.then(
+				value_ => {
+					if ( settled ) { return ; }
+
+					settled = true ;
+					racePromise._resolveValue( value_ ) ;
+				} ,
+				error => {
+					if ( settled ) { return ; }
+
+					settled = true ;
+					racePromise.reject( error ) ;
+				}
+			) ;
+	}
+
+	return racePromise ;
+} ;
+
+
+},{"./seventh.js":25}],21:[function(require,module,exports){
+(function (process,global,setImmediate){
+/*
+	Seventh
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+/*
+	Prerequisite.
+*/
+
+
+
+const NativePromise = global.Promise ;
+
+// Cross-platform next tick function
+var nextTick ;
+
+if ( ! process.browser ) {
+	nextTick = process.nextTick ;
+}
+else {
+	// Browsers suck, they don't have setImmediate() except IE/Edge.
+	// A module is needed to emulate it.
+	require( 'setimmediate' ) ;
+	nextTick = setImmediate ;
+}
+
+
+
+/*
+	Constructor.
+*/
+
+
+
+function Promise( fn ) {
+	this.fn = fn ;
+	this._then = Promise._dormantThen ;
+	this.value = null ;
+	this.thenHandlers = null ;
+	this.handledRejection = null ;
+
+	if ( this.fn ) {
+		this._exec() ;
+	}
+}
+
+module.exports = Promise ;
+
+
+
+Promise.Native = NativePromise ;
+Promise.warnUnhandledRejection = true ;
+
+
+
+Promise.prototype._exec = function() {
+	this._then = Promise._pendingThen ;
+
+	try {
+		this.fn(
+			// Don't return anything, it would create nasty bugs! E.g.:
+			// bad: error => this.reject( error_ )
+			// good: error_ => { this.reject( error_ ) ; }
+			result_ => { this.resolve( result_ ) ; } ,
+			error_ => { this.reject( error_ ) ; }
+		) ;
+	}
+	catch ( error ) {
+		this.reject( error ) ;
+	}
+} ;
+
+
+
+/*
+	Resolve/reject and then-handlers management.
+*/
+
+
+
+Promise.prototype.resolve = Promise.prototype.fulfill = function( value ) {
+	// Throw an error?
+	if ( this._then.settled ) { return this ; }
+
+	if ( Promise.isThenable( value ) ) {
+		this._execThenPromise( value ) ;
+		return this ;
+	}
+
+	return this._resolveValue( value ) ;
+} ;
+
+
+
+Promise.prototype._resolveValue = function( value ) {
+	this._then = Promise._fulfilledThen ;
+	this.value = value ;
+	if ( this.thenHandlers && this.thenHandlers.length ) { this._execFulfillHandlers() ; }
+
+	return this ;
+} ;
+
+
+
+// Faster on node v8.x
+Promise.prototype._execThenPromise = function( thenPromise ) {
+	try {
+		thenPromise.then(
+			result_ => { this.resolve( result_ ) ; } ,
+			error_ => { this.reject( error_ ) ; }
+		) ;
+	}
+	catch ( error ) {
+		this.reject( error ) ;
+	}
+} ;
+
+
+
+Promise.prototype.reject = function( error ) {
+	// Throw an error?
+	if ( this._then.settled ) { return this ; }
+
+	this._then = Promise._rejectedThen ;
+	this.value = error ;
+
+	if ( this.thenHandlers && this.thenHandlers.length ) {
+		this._execRejectionHandlers() ;
+	}
+	else if ( Promise.warnUnhandledRejection && ! this.handledRejection ) {
+		this._unhandledRejection() ;
+	}
+
+	return this ;
+} ;
+
+
+
+Promise.prototype._execFulfillHandlers = function() {
+	var i ,
+		length = this.thenHandlers.length ;
+
+	// Do cache the length, if a handler is synchronously added, it will be called on next tick
+	for ( i = 0 ; i < length ; i += 3 ) {
+		if ( this.thenHandlers[ i + 1 ] ) {
+			this._execOneFulfillHandler( this.thenHandlers[ i ] , this.thenHandlers[ i + 1 ] ) ;
+		}
+		else {
+			this.thenHandlers[ i ].resolve( this.value ) ;
+		}
+	}
+} ;
+
+
+
+// Faster on node v8.x?
+//*
+Promise.prototype._execOneFulfillHandler = function( promise , onFulfill ) {
+	try {
+		promise.resolve( onFulfill( this.value ) ) ;
+	}
+	catch ( error_ ) {
+		promise.reject( error_ ) ;
+	}
+} ;
+//*/
+
+
+
+Promise.prototype._execRejectionHandlers = function() {
+	var i ,
+		length = this.thenHandlers.length ;
+
+	// Do cache the length, if a handler is synchronously added, it will be called on next tick
+	for ( i = 0 ; i < length ; i += 3 ) {
+		if ( this.thenHandlers[ i + 2 ] ) {
+			this._execOneRejectHandler( this.thenHandlers[ i ] , this.thenHandlers[ i + 2 ] ) ;
+		}
+		else {
+			this.thenHandlers[ i ].reject( this.value ) ;
+		}
+	}
+} ;
+
+
+
+// Faster on node v8.x?
+//*
+Promise.prototype._execOneRejectHandler = function( promise , onReject ) {
+	try {
+		promise.resolve( onReject( this.value ) ) ;
+	}
+	catch ( error_ ) {
+		promise.reject( error_ ) ;
+	}
+} ;
+//*/
+
+
+
+Promise.prototype.resolveTimeout = Promise.prototype.fulfillTimeout = function( time , result ) {
+	setTimeout( () => this.resolve( result ) , time ) ;
+} ;
+
+
+
+Promise.prototype.rejectTimeout = function( time , error ) {
+	setTimeout( () => this.reject( error ) , time ) ;
+} ;
+
+
+
+/*
+	.then() variants depending on the state
+*/
+
+
+
+// .then() variant when the promise is dormant
+Promise._dormantThen = function( onFulfill , onReject ) {
+	if ( this.fn ) {
+		// If this is a dormant promise, wake it up now!
+		this._exec() ;
+
+		// Return now, some sync stuff can change the status
+		return this._then( onFulfill , onReject ) ;
+	}
+
+	var promise = new Promise() ;
+
+	if ( ! this.thenHandlers ) {
+		this.thenHandlers = [ promise , onFulfill , onReject ] ;
+	}
+	else {
+		//this.thenHandlers.push( onFulfill ) ;
+		this.thenHandlers[ this.thenHandlers.length ] = promise ;
+		this.thenHandlers[ this.thenHandlers.length ] = onFulfill ;
+		this.thenHandlers[ this.thenHandlers.length ] = onReject ;
+	}
+
+	return promise ;
+} ;
+
+Promise._dormantThen.settled = false ;
+
+
+
+// .then() variant when the promise is pending
+Promise._pendingThen = function( onFulfill , onReject ) {
+	var promise = new Promise() ;
+
+	if ( ! this.thenHandlers ) {
+		this.thenHandlers = [ promise , onFulfill , onReject ] ;
+	}
+	else {
+		//this.thenHandlers.push( onFulfill ) ;
+		this.thenHandlers[ this.thenHandlers.length ] = promise ;
+		this.thenHandlers[ this.thenHandlers.length ] = onFulfill ;
+		this.thenHandlers[ this.thenHandlers.length ] = onReject ;
+	}
+
+	return promise ;
+} ;
+
+Promise._pendingThen.settled = false ;
+
+
+
+// .then() variant when the promise is fulfilled
+Promise._fulfilledThen = function( onFulfill ) {
+	if ( ! onFulfill ) { return this ; }
+
+	var promise = new Promise() ;
+
+	// This handler should not fire in this code sync flow
+	nextTick( () => {
+		try {
+			promise.resolve( onFulfill( this.value ) ) ;
+		}
+		catch ( error ) {
+			promise.reject( error ) ;
+		}
+	} ) ;
+
+	return promise ;
+} ;
+
+Promise._fulfilledThen.settled = true ;
+
+
+
+// .then() variant when the promise is rejected
+Promise._rejectedThen = function( onFulfill , onReject ) {
+	if ( ! onReject ) { return this ; }
+
+	this.handledRejection = true ;
+	var promise = new Promise() ;
+
+	// This handler should not fire in this code sync flow
+	nextTick( () => {
+		try {
+			promise.resolve( onReject( this.value ) ) ;
+		}
+		catch ( error ) {
+			promise.reject( error ) ;
+		}
+	} ) ;
+
+	return promise ;
+} ;
+
+Promise._rejectedThen.settled = true ;
+
+
+
+/*
+	.then() and short-hands.
+*/
+
+
+
+Promise.prototype.then = function( onFulfill , onReject ) {
+	return this._then( onFulfill , onReject ) ;
+} ;
+
+
+
+Promise.prototype.catch = function( onReject = () => undefined ) {
+	return this._then( undefined , onReject ) ;
+} ;
+
+
+
+Promise.prototype.finally = function( onSettled ) {
+	return this._then( onSettled , onSettled ) ;
+} ;
+
+
+
+Promise.prototype.tap = Promise.prototype.tapThen = function( onFulfill ) {
+	this._then( onFulfill , undefined ) ;
+	return this ;
+} ;
+
+
+
+Promise.prototype.tapCatch = function( onReject ) {
+	this._then( undefined , onReject ) ;
+	return this ;
+} ;
+
+
+
+Promise.prototype.tapFinally = function( onSettled ) {
+	this._then( onSettled , onSettled ) ;
+	return this ;
+} ;
+
+
+
+// Any unhandled error throw ASAP
+Promise.prototype.fatal = function() {
+	this._then( undefined , error => {
+		// Throw async, otherwise it would be catched by .then()
+		nextTick( () => { throw error ; } ) ;
+	} ) ;
+} ;
+
+
+
+Promise.prototype.done = function( onFulfill , onReject ) {
+	this._then( onFulfill , onReject ).fatal() ;
+	return this ;
+} ;
+
+
+
+Promise.prototype.callback = function( cb ) {
+	this._then(
+		value => { cb( undefined , value ) ; } ,
+		error => { cb( error ) ; }
+	).fatal() ;
+
+	return this ;
+} ;
+
+
+
+Promise.prototype.callbackAll = function( cb ) {
+	this._then(
+		values => {
+			if ( Array.isArray( values ) ) { cb( undefined , ... values ) ; }
+			else { cb( undefined , values ) ; }
+		} ,
+		error => { cb( error ) ; }
+	).fatal() ;
+
+	return this ;
+} ;
+
+
+
+/*
+	The reverse of .callback(), it calls the function with a callback argument and return a promise that resolve or reject depending on that callback invocation.
+	Usage:
+		await Promise.callback( callback => myFunctionRelyingOnCallback( [arg1] , [arg2] , [...] , callback ) ;
+*/
+Promise.callback = function( fn ) {
+	return new Promise( ( resolve , reject ) => {
+		fn( ( error , arg ) => {
+			if ( error ) { reject( error ) ; }
+			else { resolve( arg ) ; }
+		} ) ;
+	} ) ;
+} ;
+
+
+
+Promise.callbackAll = function( fn ) {
+	return new Promise( ( resolve , reject ) => {
+		fn( ( error , ... args ) => {
+			if ( error ) { reject( error ) ; }
+			else { resolve( args ) ; }
+		} ) ;
+	} ) ;
+} ;
+
+
+
+Promise.prototype.toPromise =	// <-- DEPRECATED, use .propagate
+Promise.prototype.propagate = function( promise ) {
+	this._then(
+		value => { promise.resolve( value ) ; } ,
+		error => { promise.reject( error ) ; }
+	) ;
+
+	return this ;
+} ;
+
+
+
+
+
+/*
+	Foreign promises facilities
+*/
+
+
+
+Promise.propagate = function( foreignPromise , promise ) {
+	foreignPromise.then(
+		value => { promise.resolve( value ) ; } ,
+		error => { promise.reject( error ) ; }
+	) ;
+
+	return foreignPromise ;
+} ;
+
+
+
+Promise.finally = function( foreignPromise , onSettled ) {
+	return foreignPromise.then( onSettled , onSettled ) ;
+} ;
+
+
+
+
+
+/*
+	Static factories.
+*/
+
+
+
+Promise.resolve = Promise.fulfill = function( value ) {
+	if ( Promise.isThenable( value ) ) { return Promise.fromThenable( value ) ; }
+	return Promise._resolveValue( value ) ;
+} ;
+
+
+
+Promise._resolveValue = function( value ) {
+	var promise = new Promise() ;
+	promise._then = Promise._fulfilledThen ;
+	promise.value = value ;
+	return promise ;
+} ;
+
+
+
+Promise.reject = function( error ) {
+	//return new Promise().reject( error ) ;
+	var promise = new Promise() ;
+	promise._then = Promise._rejectedThen ;
+	promise.value = error ;
+	return promise ;
+} ;
+
+
+
+Promise.resolveTimeout = Promise.fulfillTimeout = function( timeout , value ) {
+	return new Promise( resolve => setTimeout( () => resolve( value ) , timeout ) ) ;
+} ;
+
+
+
+Promise.rejectTimeout = function( timeout , error ) {
+	return new Promise( ( resolve , reject ) => setTimeout( () => reject( error ) , timeout ) ) ;
+} ;
+
+
+
+Promise.resolveNextTick = Promise.fulfillNextTick = function( value ) {
+	return new Promise( resolve => nextTick( () => resolve( value ) ) ) ;
+} ;
+
+
+
+Promise.rejectNextTick = function( error ) {
+	return new Promise( ( resolve , reject ) => nextTick( () => reject( error ) ) ) ;
+} ;
+
+
+
+// A dormant promise is activated the first time a then handler is assigned
+Promise.dormant = function( fn ) {
+	var promise = new Promise() ;
+	promise.fn = fn ;
+	return promise ;
+} ;
+
+
+
+// Try-catched Promise.resolve( fn() )
+Promise.try = function( fn ) {
+	try {
+		return Promise.resolve( fn() ) ;
+	}
+	catch ( error ) {
+		return Promise.reject( error ) ;
+	}
+} ;
+
+
+
+/*
+	Thenables.
+*/
+
+
+
+Promise.isThenable = function( value ) {
+	return value && typeof value === 'object' && typeof value.then === 'function' ;
+} ;
+
+
+
+// We assume a thenable object here
+Promise.fromThenable = function( thenable ) {
+	if ( thenable instanceof Promise ) { return thenable ; }
+
+	return new Promise( ( resolve , reject ) => {
+		thenable.then(
+			value => { resolve( value ) ; } ,
+			error => { reject( error ) ; }
+		) ;
+	} ) ;
+} ;
+
+
+
+// When you just want a fast then() function out of anything, without any desync and unchainable
+Promise._bareThen = function( value , onFulfill , onReject ) {
+	//if ( Promise.isThenable( value ) )
+	if( value && typeof value === 'object' ) {
+		if ( value instanceof Promise ) {
+			if ( value._then === Promise._fulfilledThen ) { onFulfill( value.value ) ; }
+			else if ( value._then === Promise._rejectedThen ) { onReject( value.value ) ; }
+			else { value._then( onFulfill , onReject ) ; }
+		}
+		else if ( typeof value.then === 'function' ) {
+			value.then( onFulfill , onReject ) ;
+		}
+		else {
+			onFulfill( value ) ;
+		}
+	}
+	else {
+		onFulfill( value ) ;
+	}
+} ;
+
+
+
+/*
+	Misc.
+*/
+
+
+
+// Internal usage, mark all promises as handled ahead of time, useful for series,
+// because a warning would be displayed for unhandled rejection for promises that are not yet processed.
+Promise._handleAll = function( iterable ) {
+	var value ;
+
+	for ( value of iterable ) {
+		//if ( ( value instanceof Promise ) || ( value instanceof NativePromise ) )
+		if ( Promise.isThenable( value ) ) {
+			value.handledRejection = true ;
+		}
+	}
+} ;
+
+
+
+Promise.prototype._unhandledRejection = function() {
+	// This promise is currently unhandled
+	// If still unhandled at the end of the synchronous block of code,
+	// output an error message.
+
+	this.handledRejection = false ;
+
+	// Don't know what is the correct way to inform node.js about that.
+	// There is no doc about that, and emitting unhandledRejection,
+	// does not produce what is expected.
+
+	//process.emit( 'unhandledRejection' , this.value , this ) ;
+
+	/*
+	nextTick( () => {
+		if ( this.handledRejection === false )
+		{
+			process.emit( 'unhandledRejection' , this.value , this ) ;
+		}
+	} ) ;
+	*/
+
+	// It looks like 'await' inside a 'try-catch' does not handle the promise soon enough -_-'
+	//const nextTick_ = nextTick ;
+	const nextTick_ = cb => setTimeout( cb , 0 ) ;
+
+	//*
+	if ( this.value instanceof Error ) {
+		nextTick_( () => {
+			if ( this.handledRejection === false ) {
+				this.value.message = 'Unhandled promise rejection: ' + this.value.message ;
+				console.error( this.value ) ;
+			}
+		} ) ;
+	}
+	else {
+		// Avoid starting the stack trace in the nextTick()...
+		let error_ = new Error( 'Unhandled promise rejection' ) ;
+		nextTick_( () => {
+			if ( this.handledRejection === false ) {
+				console.error( error_ ) ;
+				console.error( 'Rejection reason:' , this.value ) ;
+			}
+		} ) ;
+	}
+	//*/
+} ;
+
+
+
+Promise.prototype.getStatus = function() {
+	switch ( this._then ) {
+		case Promise._dormantThen :
+			return 'dormant' ;
+		case Promise._pendingThen :
+			return 'pending' ;
+		case Promise._fulfilledThen :
+			return 'fulfilled' ;
+		case Promise._rejectedThen :
+			return 'rejected' ;
+	}
+} ;
+
+
+
+Promise.prototype.inspect = function() {
+	switch ( this._then ) {
+		case Promise._dormantThen :
+			return 'Promise { <DORMANT> }' ;
+		case Promise._pendingThen :
+			return 'Promise { <PENDING> }' ;
+		case Promise._fulfilledThen :
+			return 'Promise { <FULFILLED> ' + this.value + ' }' ;
+		case Promise._rejectedThen :
+			return 'Promise { <REJECTED> ' + this.value + ' }' ;
+	}
+} ;
+
+
+
+// A shared dummy promise, when you just want to return an immediately thenable
+Promise.resolved = Promise.dummy = Promise.resolve() ;
+
+
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
+},{"_process":13,"setimmediate":18,"timers":34}],22:[function(require,module,exports){
+/*
+	Seventh
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+var Promise = require( './seventh.js' ) ;
+
+
+
+Promise.promisifyAll = ( nodeAsyncFn , thisBinding ) => {
+	// Little optimization here to have a promisified function as fast as possible
+	if ( thisBinding ) {
+		return ( ... args ) => {
+			return new Promise( ( resolve , reject ) => {
+				nodeAsyncFn.call( thisBinding , ... args , ( error , ... cbArgs ) => {
+					if ( error ) {
+						if ( cbArgs.length && error instanceof Error ) { error.args = cbArgs ; }
+						reject( error ) ;
+					}
+					else {
+						resolve( cbArgs ) ;
+					}
+				} ) ;
+			} ) ;
+		} ;
+	}
+
+	return function( ... args ) {
+		return new Promise( ( resolve , reject ) => {
+			nodeAsyncFn.call( this , ... args , ( error , ... cbArgs ) => {
+				if ( error ) {
+					if ( cbArgs.length && error instanceof Error ) { error.args = cbArgs ; }
+					reject( error ) ;
+				}
+				else {
+					resolve( cbArgs ) ;
+				}
+			} ) ;
+		} ) ;
+	} ;
+
+} ;
+
+
+
+// Same than .promisifyAll() but only return the callback args #1 instead of an array of args from #1 to #n
+Promise.promisify = ( nodeAsyncFn , thisBinding ) => {
+	// Little optimization here to have a promisified function as fast as possible
+	if ( thisBinding ) {
+		return ( ... args ) => {
+			return new Promise( ( resolve , reject ) => {
+				nodeAsyncFn.call( thisBinding , ... args , ( error , cbArg ) => {
+					if ( error ) {
+						if ( cbArg !== undefined && error instanceof Error ) { error.arg = cbArg ; }
+						reject( error ) ;
+					}
+					else {
+						resolve( cbArg ) ;
+					}
+				} ) ;
+			} ) ;
+		} ;
+	}
+
+	return function( ... args ) {
+		return new Promise( ( resolve , reject ) => {
+			nodeAsyncFn.call( this , ... args , ( error , cbArg ) => {
+				if ( error ) {
+					if ( cbArg !== undefined && error instanceof Error ) { error.arg = cbArg ; }
+					reject( error ) ;
+				}
+				else {
+					resolve( cbArg ) ;
+				}
+			} ) ;
+		} ) ;
+	} ;
+} ;
+
+
+
+/*
+	Pass a function that will be called every time the decoratee return something.
+*/
+Promise.returnValueInterceptor = ( interceptor , asyncFn , thisBinding ) => {
+	return function( ... args ) {
+		var returnVal = asyncFn.call( thisBinding || this , ... args ) ;
+		interceptor( returnVal ) ;
+		return returnVal ;
+	} ;
+} ;
+
+
+
+/*
+	Run only once, return always the same promise.
+*/
+Promise.once = ( asyncFn , thisBinding ) => {
+	var triggered = false ;
+	var result ;
+
+	return function( ... args ) {
+		if ( ! triggered ) {
+			triggered = true ;
+			result = asyncFn.call( thisBinding || this , ... args ) ;
+		}
+
+		return result ;
+	} ;
+} ;
+
+
+
+/*
+	The decoratee execution does not overlap, multiple calls are serialized.
+*/
+Promise.serialize = ( asyncFn , thisBinding ) => {
+	var lastPromise = new Promise.resolve() ;
+
+	return function( ... args ) {
+		var promise = new Promise() ;
+
+		lastPromise.finally( () => {
+			Promise.propagate( asyncFn.call( thisBinding || this , ... args ) , promise ) ;
+		} ) ;
+
+		lastPromise = promise ;
+
+		return promise ;
+	} ;
+} ;
+
+
+
+/*
+	It does nothing if the decoratee is still in progress, but return the promise of the action in progress.
+*/
+Promise.debounce = ( asyncFn , thisBinding ) => {
+	var inProgress = null ;
+
+	const outWrapper = () => {
+		inProgress = null ;
+	} ;
+
+	return function( ... args ) {
+		if ( inProgress ) { return inProgress ; }
+
+		inProgress = asyncFn.call( thisBinding || this , ... args ) ;
+		Promise.finally( inProgress , outWrapper ) ;
+		return inProgress ;
+	} ;
+} ;
+
+
+
+/*
+	It does nothing if the decoratee is still in progress.
+	Instead, the decoratee is called when finished once and only once, if it was tried one or more time during its progress.
+	In case of multiple calls, the arguments of the last call will be used.
+	The use case is .update()/.refresh()/.redraw() functions.
+*/
+Promise.debounceUpdate = ( asyncFn , thisBinding ) => {
+	var inProgress = null ;
+	var nextUpdateWith = null ;
+	var nextUpdatePromise = null ;
+
+	const outWrapper = () => {
+		var args , sharedPromise ;
+
+		inProgress = null ;
+
+		if ( nextUpdateWith ) {
+			args = nextUpdateWith ;
+			nextUpdateWith = null ;
+			sharedPromise = nextUpdatePromise ;
+			nextUpdatePromise = null ;
+
+			// Call the asyncFn again
+			inProgress = asyncFn.call( ... args ) ;
+
+			// Forward the result to the pending promise
+			Promise.propagate( inProgress , sharedPromise ) ;
+
+			// BTW, trigger again the outWrapper
+			Promise.finally( inProgress , outWrapper ) ;
+
+			return inProgress ;
+		}
+	} ;
+
+	return function( ... args ) {
+		var localThis = thisBinding || this ;
+
+		if ( inProgress ) {
+			if ( ! nextUpdatePromise ) { nextUpdatePromise = new Promise() ; }
+			nextUpdateWith = [ localThis , ... args ] ;
+			return nextUpdatePromise ;
+		}
+
+		inProgress = asyncFn.call( localThis , ... args ) ;
+		Promise.finally( inProgress , outWrapper ) ;
+		return inProgress ;
+	} ;
+} ;
+
+
+
+/*
+	Debounce for synchronization algorithm.
+	Get two functions, one for getting from upstream, one for a full sync with upstream (getting AND updating).
+	No operation overlap for a given resourceId.
+	Depending on the configuration, it is either like .debounce() or like .debounceUpdate().
+
+	*Params:
+		fn: the function
+		thisBinding: the this binding, if any
+		delay: the minimum delay between to call
+			for get: nothing is done is the delay is not met, simply return the last promise
+			for update/fullSync, it waits for that delay before synchronizing again
+*/
+Promise.debounceSync = ( getParams , fullSyncParams ) => {
+	var perResourceData = new Map() ;
+
+	const getResourceData = resourceId => {
+		var resourceData = perResourceData.get( resourceId ) ;
+
+		if ( ! resourceData ) {
+			resourceData = {
+				inProgress: null ,
+				inProgressIsFull: null ,
+				last: null ,				// Get or full sync promise
+				lastTime: null ,			// Get or full sync time
+				lastFullSync: null ,		// last full sync promise
+				lastFullSyncTime: null ,	// last full sync time
+				nextFullSyncPromise: null ,	// the promise for the next fullSync iteration
+				nextFullSyncWith: null 	// the 'this' and arguments for the next fullSync iteration
+			} ;
+
+			perResourceData.set( resourceId , resourceData ) ;
+		}
+
+		return resourceData ;
+	} ;
+
+
+	const outWrapper = ( resourceData , level ) => {
+		// level 2: fullSync, 1: get, 0: nothing but a delay
+		var delta , args , sharedPromise , now = new Date() ;
+		//lastTime = resourceData.lastTime , lastFullSyncTime = resourceData.lastFullSyncTime ;
+
+		resourceData.inProgress = null ;
+
+		if ( level >= 2 ) { resourceData.lastFullSyncTime = resourceData.lastTime = now ; }
+		else if ( level >= 1 ) { resourceData.lastTime = now ; }
+
+		if ( resourceData.nextFullSyncWith ) {
+			if ( fullSyncParams.delay && resourceData.lastFullSyncTime && ( delta = now - resourceData.lastFullSyncTime - fullSyncParams.delay ) < 0 ) {
+				resourceData.inProgress = Promise.resolveTimeout( -delta + 1 ) ;	// Strangely, sometime it is trigerred 1ms too soon
+				resourceData.inProgress.finally( () => outWrapper( resourceData , 0 ) ) ;
+				return resourceData.nextFullSyncPromise ;
+			}
+
+			args = resourceData.nextFullSyncWith ;
+			resourceData.nextFullSyncWith = null ;
+			sharedPromise = resourceData.nextFullSyncPromise ;
+			resourceData.nextFullSyncPromise = null ;
+
+			// Call the fullSyncParams.fn again
+			resourceData.lastFullSync = resourceData.last = resourceData.inProgress = fullSyncParams.fn.call( ... args ) ;
+
+			// Forward the result to the pending promise
+			Promise.propagate( resourceData.inProgress , sharedPromise ) ;
+
+			// BTW, trigger again the outWrapper
+			Promise.finally( resourceData.inProgress , () => outWrapper( resourceData , 2 ) ) ;
+
+			return resourceData.inProgress ;
+		}
+	} ;
+
+	const getInWrapper = function( resourceId , ... args ) {
+		var localThis = getParams.thisBinding || this ,
+			resourceData = getResourceData( resourceId ) ;
+
+		if ( resourceData.inProgress ) { return resourceData.inProgress ; }
+		if ( getParams.delay && resourceData.lastTime && new Date() - resourceData.lastTime < getParams.delay ) { return resourceData.last ; }
+
+		resourceData.last = resourceData.inProgress = getParams.fn.call( localThis , resourceId , ... args ) ;
+		resourceData.inProgressIsFull = false ;
+		Promise.finally( resourceData.inProgress , () => outWrapper( resourceData , 1 ) ) ;
+		return resourceData.inProgress ;
+	} ;
+
+	const fullSyncInWrapper = function( resourceId , ... args ) {
+		var delta ,
+			localThis = fullSyncParams.thisBinding || this ,
+			resourceData = getResourceData( resourceId ) ;
+
+		if ( ! resourceData.inProgress && fullSyncParams.delay && resourceData.lastFullSyncTime && ( delta = new Date() - resourceData.lastFullSyncTime - fullSyncParams.delay ) < 0 ) {
+			resourceData.inProgress = Promise.resolveTimeout( -delta + 1 ) ;	// Strangely, sometime it is trigerred 1ms too soon
+			Promise.finally( resourceData.inProgress , () => outWrapper( resourceData , 0 ) ) ;
+		}
+
+		if ( resourceData.inProgress ) {
+			// No difference between in-progress is 'get' or 'fullSync'
+			if ( ! resourceData.nextFullSyncPromise ) { resourceData.nextFullSyncPromise = new Promise() ; }
+			resourceData.nextFullSyncWith = [ localThis , resourceId , ... args ] ;
+			return resourceData.nextFullSyncPromise ;
+		}
+
+		resourceData.lastFullSync = resourceData.last = resourceData.inProgress = fullSyncParams.fn.call( localThis , resourceId , ... args ) ;
+		Promise.finally( resourceData.inProgress , () => outWrapper( resourceData , 2 ) ) ;
+		return resourceData.inProgress ;
+	} ;
+
+	return [ getInWrapper , fullSyncInWrapper ] ;
+} ;
+
+
+
+Promise.timeout = ( timeout , asyncFn , thisBinding ) => {
+	return function( ... args ) {
+		var promise = asyncFn.call( thisBinding || this , ... args ) ;
+		// Careful: not my promise, so cannot retrieve its status
+		setTimeout( () => promise.reject( new Error( 'Timeout' ) ) , timeout ) ;
+		return promise ;
+	} ;
+
+} ;
+
+
+
+// Like .timeout(), but here the timeout value is not passed at creation, but as the first arg of each call
+Promise.variableTimeout = ( asyncFn , thisBinding ) => {
+	return function( timeout , ... args ) {
+		var promise = asyncFn.call( thisBinding || this , ... args ) ;
+		// Careful: not my promise, so cannot retrieve its status
+		setTimeout( () => promise.reject( new Error( 'Timeout' ) ) , timeout ) ;
+		return promise ;
+	} ;
+
+} ;
+
+
+
+/*
+Promise.retry = ( retryCount , retryTimeout , timeoutMultiplier , asyncFn , thisBinding ) => {
+
+	return ( ... args ) => {
+
+		var lastError ,
+			count = retryCount ,
+			timeout = retryTimeout ,
+			globalPromise = new Promise() ;
+
+		const callAgain = () => {
+			if ( count -- < 0 ) {
+				globalPromise.reject( lastError ) ;
+				return ;
+			}
+
+			var promise = asyncFn.call( thisBinding , ... args ) ;
+
+			promise.then(
+				//( value ) => globalPromise.resolve( value ) ,
+				( value ) => {
+					globalPromise.resolve( value ) ;
+				} ,
+				( error ) => {
+					lastError = error ;
+					setTimeout( callAgain , timeout ) ;
+					timeout *= timeoutMultiplier ;
+				}
+			) ;
+		} ;
+
+		callAgain() ;
+
+		return globalPromise ;
+	} ;
+} ;
+
+
+
+Promise.variableRetry = ( asyncFn , thisBinding ) => {
+
+	return ( retryCount , retryTimeout , timeoutMultiplier , ... args ) => {
+
+		var lastError ,
+			count = retryCount ,
+			timeout = retryTimeout ,
+			globalPromise = new Promise() ;
+
+		const callAgain = () => {
+			if ( count -- < 0 ) {
+				globalPromise.reject( lastError ) ;
+				return ;
+			}
+
+			var promise = asyncFn.call( thisBinding , ... args ) ;
+
+			promise.then(
+				( value ) => globalPromise.resolve( value ) ,
+				( error ) => {
+					lastError = error ;
+					setTimeout( callAgain , timeout ) ;
+					timeout *= timeoutMultiplier ;
+				}
+			) ;
+		} ;
+
+		callAgain() ;
+
+		return globalPromise ;
+	} ;
+} ;
+*/
+
+
+},{"./seventh.js":25}],23:[function(require,module,exports){
+(function (process){
+/*
+	Seventh
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+var Promise = require( './seventh.js' ) ;
+
+
+
+/*
+	Asynchronously exit.
+
+	Wait for all listeners of the 'asyncExit' event (on the 'process' object) to have called their callback.
+	The listeners receive the exit code about to be produced and a completion callback.
+*/
+
+var exitInProgress = false ;
+
+Promise.asyncExit = function( exitCode , timeout ) {
+	// Already exiting? no need to call it twice!
+	if ( exitInProgress ) { return ; }
+
+	exitInProgress = true ;
+
+	var listeners = process.listeners( 'asyncExit' ) ;
+
+	if ( ! listeners.length ) { process.exit( exitCode ) ; return ; }
+
+	if ( timeout === undefined ) { timeout = 1000 ; }
+
+	const callListener = listener => {
+
+		if ( listener.length < 3 ) {
+			// This listener does not have a callback, it is interested in the event but does not need to perform critical stuff.
+			// E.g. a server will not accept connection or data anymore, but doesn't need cleanup.
+			listener( exitCode , timeout ) ;
+			return Promise.dummy ;
+		}
+
+		// This listener have a callback, it probably has critical stuff to perform before exiting.
+		// E.g. a server that needs to gracefully exit will not accept connection or data anymore,
+		// but still want to deliver request in progress.
+		return new Promise( resolve => {
+			listener( exitCode , timeout , () => { resolve() ; } ) ;
+		} ) ;
+
+	} ;
+
+	// We don't care about errors here... We are exiting!
+	Promise.map( listeners , callListener )
+		.finally( () => process.exit( exitCode ) ) ;
+
+	// Quit anyway if it's too long
+	setTimeout( () => process.exit( exitCode ) , timeout ) ;
+} ;
+
+
+
+// A timeout that ensure a task get the time to perform its action (when there are CPU-bound tasks)
+Promise.resolveSafeTimeout = function( timeout , value ) {
+	return new Promise( resolve => {
+		setTimeout( () => {
+			setTimeout( () => {
+				setTimeout( () => {
+					setTimeout( () => resolve( value ) , 0 ) ;
+				} , timeout / 2 ) ;
+			} , timeout / 2 ) ;
+		} , 0 ) ;
+	} ) ;
+} ;
+
+
+}).call(this,require('_process'))
+},{"./seventh.js":25,"_process":13}],24:[function(require,module,exports){
+/*
+	Seventh
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+var Promise = require( './seventh.js' ) ;
+
+
+
+/*
+	This parasite the native promise, bringing some of seventh features into them.
+*/
+
+Promise.parasite = () => {
+
+	var compatibleProtoFn = [
+		'tap' , 'tapCatch' , 'finally' ,
+		'fatal' , 'done' ,
+		'callback' , 'callbackAll'
+	] ;
+
+	compatibleProtoFn.forEach( fn => Promise.Native.prototype[ fn ] = Promise.prototype[ fn ] ) ;
+	Promise.Native.prototype._then = Promise.Native.prototype.then ;
+} ;
+
+
+},{"./seventh.js":25}],25:[function(require,module,exports){
+/*
+	Seventh
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const seventh = require( './core.js' ) ;
+module.exports = seventh ;
+
+// The order matters
+require( './batch.js' ) ;
+require( './wrapper.js' ) ;
+require( './decorators.js' ) ;
+require( './api.js' ) ;
+require( './parasite.js' ) ;
+require( './misc.js' ) ;
+
+
+},{"./api.js":19,"./batch.js":20,"./core.js":21,"./decorators.js":22,"./misc.js":23,"./parasite.js":24,"./wrapper.js":26}],26:[function(require,module,exports){
+/*
+	Seventh
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+var Promise = require( './seventh.js' ) ;
+
+
+
+Promise.timeLimit = ( timeout , asyncFnOrPromise ) => {
+	return new Promise( ( resolve , reject ) => {
+		if ( typeof asyncFnOrPromise === 'function' ) { asyncFnOrPromise = asyncFnOrPromise() ; }
+		Promise.resolve( asyncFnOrPromise ).then( resolve , reject ) ;
+		setTimeout( () => reject( new Error( "Timeout" ) ) , timeout ) ;
+	} ) ;
+} ;
+
+
+
+/*
+	options:
+		retries: number of retry
+		coolDown: time before retrying
+		raiseFactor: time multiplier for each successive cool down
+		maxCoolDown: maximum cool-down, the raising time is capped to this value
+		timeout: time before assuming it has failed, 0 = no time limit
+		catch: `function` (optional) if absent, the function is always retried until it reaches the limit,
+			if present, that catch-function is used like a normal promise catch block, the function is retry
+			only if the catch-function does not throw or return a rejecting promise
+*/
+Promise.retry = ( options , asyncFn ) => {
+	var count = options.retries || 1 ,
+		coolDown = options.coolDown || 0 ,
+		raiseFactor = options.raiseFactor || 1 ,
+		maxCoolDown = options.maxCoolDown || Infinity ,
+		timeout = options.timeout || 0 ,
+		catchFn = options.catch || null ;
+
+	const oneTry = () => {
+		return ( timeout ? Promise.timeLimit( timeout , asyncFn ) : asyncFn() ).catch( error => {
+			if ( ! count -- ) { throw error ; }
+
+			var currentCoolDown = coolDown ;
+			coolDown = Math.min( coolDown * raiseFactor , maxCoolDown ) ;
+
+			if ( catchFn ) {
+				// Call the custom catch function
+				// Let it crash, if it throw we are already in a .catch() block
+				return Promise.resolve( catchFn( error ) ).then( () => Promise.resolveTimeout( currentCoolDown ).then( oneTry ) ) ;
+			}
+
+			return Promise.resolveTimeout( currentCoolDown ).then( oneTry ) ;
+		} ) ;
+	} ;
+
+	return oneTry() ;
+} ;
+
+
+
+// Resolve once an event is fired
+Promise.onceEvent = ( emitter , eventName ) => {
+	return new Promise( resolve => emitter.once( eventName , resolve ) ) ;
+} ;
+
+
+
+// Resolve once an event is fired, resolve with an array of arguments
+Promise.onceEventAll = ( emitter , eventName ) => {
+	return new Promise( resolve => emitter.once( eventName , ( ... args ) => resolve( args ) ) ) ;
+} ;
+
+
+
+// Resolve once an event is fired, or reject on error
+Promise.onceEventOrError = ( emitter , eventName , excludeEvents ) => {
+	return new Promise( ( resolve , reject ) => {
+		var altRejects ;
+
+		// We care about removing listener, especially 'error', because if an error kick in after, it should throw because there is no listener
+		var resolve_ = arg => {
+			emitter.removeListener( 'error' , reject_ ) ;
+
+			if ( altRejects ) {
+				for ( let event in altRejects ) {
+					emitter.removeListener( event , altRejects[ event ] ) ;
+				}
+			}
+
+			resolve( arg ) ;
+		} ;
+
+		var reject_ = arg => {
+			emitter.removeListener( eventName , resolve_ ) ;
+
+			if ( altRejects ) {
+				for ( let event in altRejects ) {
+					emitter.removeListener( event , altRejects[ event ] ) ;
+				}
+			}
+
+			reject( arg ) ;
+		} ;
+
+		emitter.once( eventName , resolve_ ) ;
+		emitter.once( 'error' , reject_ ) ;
+
+		if ( excludeEvents ) {
+			if ( ! Array.isArray( excludeEvents ) ) { excludeEvents = [ excludeEvents ] ; }
+
+			altRejects = {} ;
+
+			excludeEvents.forEach( event => {
+				var altReject = ( ... args ) => {
+					emitter.removeListener( 'error' , reject_ ) ;
+					emitter.removeListener( eventName , resolve_ ) ;
+
+					var error = new Error( "Received an excluded event: " + event ) ;
+					error.event = event ;
+					error.eventArgs = args ;
+					reject( error ) ;
+				} ;
+
+				emitter.once( event , altReject ) ;
+
+				altRejects[ event ] = altReject ;
+			} ) ;
+		}
+	} ) ;
+} ;
+
+
+
+// Resolve once an event is fired, or reject on error, resolve with an array of arguments, reject with the first argument
+Promise.onceEventAllOrError = ( emitter , eventName , excludeEvents ) => {
+	return new Promise( ( resolve , reject ) => {
+		var altRejects ;
+
+		// We care about removing listener, especially 'error', because if an error kick in after, it should throw because there is no listener
+		var resolve_ = ( ... args ) => {
+			emitter.removeListener( 'error' , reject_ ) ;
+
+			if ( altRejects ) {
+				for ( let event in altRejects ) {
+					emitter.removeListener( event , altRejects[ event ] ) ;
+				}
+			}
+
+			resolve( args ) ;
+		} ;
+
+		var reject_ = arg => {
+			emitter.removeListener( eventName , resolve_ ) ;
+
+			if ( altRejects ) {
+				for ( let event in altRejects ) {
+					emitter.removeListener( event , altRejects[ event ] ) ;
+				}
+			}
+
+			reject( arg ) ;
+		} ;
+
+		emitter.once( eventName , resolve_ ) ;
+		emitter.once( 'error' , reject_ ) ;
+
+		if ( excludeEvents ) {
+			if ( ! Array.isArray( excludeEvents ) ) { excludeEvents = [ excludeEvents ] ; }
+
+			altRejects = {} ;
+
+			excludeEvents.forEach( event => {
+				var altReject = ( ... args ) => {
+					emitter.removeListener( 'error' , reject_ ) ;
+					emitter.removeListener( eventName , resolve_ ) ;
+
+					var error = new Error( "Received an excluded event: " + event ) ;
+					error.event = event ;
+					error.eventArgs = args ;
+					reject( error ) ;
+				} ;
+
+				emitter.once( event , altReject ) ;
+
+				altRejects[ event ] = altReject ;
+			} ) ;
+		}
+	} ) ;
+} ;
+
+
+},{"./seventh.js":25}],27:[function(require,module,exports){
 /*
 	String Kit
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+	Copyright (c) 2014 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -6816,6 +9547,8 @@ module.exports = {
 	magenta: '\x1b[35m' ,
 	cyan: '\x1b[36m' ,
 	white: '\x1b[37m' ,
+	grey: '\x1b[90m' ,
+	gray: '\x1b[90m' ,
 	brightBlack: '\x1b[90m' ,
 	brightRed: '\x1b[91m' ,
 	brightGreen: '\x1b[92m' ,
@@ -6834,6 +9567,8 @@ module.exports = {
 	bgMagenta: '\x1b[45m' ,
 	bgCyan: '\x1b[46m' ,
 	bgWhite: '\x1b[47m' ,
+	bgGrey: '\x1b[100m' ,
+	bgGray: '\x1b[100m' ,
 	bgBrightBlack: '\x1b[100m' ,
 	bgBrightRed: '\x1b[101m' ,
 	bgBrightGreen: '\x1b[102m' ,
@@ -6845,12 +9580,11 @@ module.exports = {
 } ;
 
 
-
-},{}],19:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /*
 	String Kit
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+	Copyright (c) 2014 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -6885,35 +9619,19 @@ module.exports = {
 
 // From Mozilla Developper Network
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
-exports.regExp = exports.regExpPattern = function escapeRegExpPattern( str ) {
-	return str.replace( /([.*+?^${}()|[\]/\\])/g , '\\$1' ) ;
-} ;
+exports.regExp = exports.regExpPattern = str => str.replace( /([.*+?^${}()|[\]/\\])/g , '\\$1' ) ;
 
-exports.regExpReplacement = function escapeRegExpReplacement( str ) {
-	return str.replace( /\$/g , '$$$$' ) ;	// This replace any single $ by a double $$
-} ;
+// This replace any single $ by a double $$
+exports.regExpReplacement = str => str.replace( /\$/g , '$$$$' ) ;
 
+// Escape for string.format()
+// This replace any single % by a double %%
+exports.format = str => str.replace( /%/g , '%%' ) ;
 
+exports.jsSingleQuote = str => exports.control( str ).replace( /'/g , "\\'" ) ;
+exports.jsDoubleQuote = str => exports.control( str ).replace( /"/g , '\\"' ) ;
 
-exports.format = function escapeFormat( str ) {
-	return str.replace( /%/g , '%%' ) ;	// This replace any single % by a double %%
-} ;
-
-
-
-exports.jsSingleQuote = function escapeJsSingleQuote( str ) {
-	return exports.control( str ).replace( /'/g , "\\'" ) ;
-} ;
-
-exports.jsDoubleQuote = function escapeJsDoubleQuote( str ) {
-	return exports.control( str ).replace( /"/g , '\\"' ) ;
-} ;
-
-
-
-exports.shellArg = function escapeShellArg( str ) {
-	return '\'' + str.replace( /'/g , "'\\''" ) + '\'' ;
-} ;
+exports.shellArg = str => '\'' + str.replace( /'/g , "'\\''" ) + '\'' ;
 
 
 
@@ -6925,15 +9643,13 @@ var escapeControlMap = {
 } ;
 
 // Escape \r \n \t so they become readable again, escape all ASCII control character as well, using \x syntaxe
-exports.control = function escapeControl( str , keepNewLineAndTab = false ) {
-	return str.replace( /[\x00-\x1f\x7f]/g , ( match ) => {
-		if ( keepNewLineAndTab && ( match === '\n' || match === '\t' ) ) { return match ; }
-		if ( escapeControlMap[ match ] !== undefined ) { return escapeControlMap[ match ] ; }
-		var hex = match.charCodeAt( 0 ).toString( 16 ) ;
-		if ( hex.length % 2 ) { hex = '0' + hex ; }
-		return '\\x' + hex ;
-	} ) ;
-} ;
+exports.control = ( str , keepNewLineAndTab = false ) => str.replace( /[\x00-\x1f\x7f]/g , match => {
+	if ( keepNewLineAndTab && ( match === '\n' || match === '\t' ) ) { return match ; }
+	if ( escapeControlMap[ match ] !== undefined ) { return escapeControlMap[ match ] ; }
+	var hex = match.charCodeAt( 0 ).toString( 16 ) ;
+	if ( hex.length % 2 ) { hex = '0' + hex ; }
+	return '\\x' + hex ;
+} ) ;
 
 
 
@@ -6946,27 +9662,35 @@ var escapeHtmlMap = {
 } ;
 
 // Only escape & < > so this is suited for content outside tags
-exports.html = function escapeHtml( str ) {
-	return str.replace( /[&<>]/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
-} ;
+exports.html = str => str.replace( /[&<>]/g , match => escapeHtmlMap[ match ] ) ;
 
 // Escape & < > " so this is suited for content inside a double-quoted attribute
-exports.htmlAttr = function escapeHtmlAttr( str ) {
-	return str.replace( /[&<>"]/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
-} ;
+exports.htmlAttr = str => str.replace( /[&<>"]/g , match => escapeHtmlMap[ match ] ) ;
 
 // Escape all html special characters & < > " '
-exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
-	return str.replace( /[&<>"']/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
-} ;
+exports.htmlSpecialChars = str => str.replace( /[&<>"']/g , match => escapeHtmlMap[ match ] ) ;
+
+// Percent-encode all control chars and codepoint greater than 255 using percent encoding
+exports.unicodePercentEncode = str => str.replace( /[\x00-\x1f\u0100-\uffff\x7f%]/g , match => {
+	try {
+		return encodeURI( match ) ;
+	}
+	catch ( error ) {
+		// encodeURI can throw on bad surrogate pairs, but we just strip those characters
+		return '' ;
+	}
+} ) ;
+
+// Encode HTTP header value
+exports.httpHeaderValue = str => exports.unicodePercentEncode( str ) ;
 
 
-},{}],20:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 (function (Buffer){
 /*
 	String Kit
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+	Copyright (c) 2014 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -6999,7 +9723,6 @@ exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
 
 
 
-// Load modules
 var inspect = require( './inspect.js' ).inspect ;
 var inspectError = require( './inspect.js' ).inspectError ;
 var escape = require( './escape.js' ) ;
@@ -7010,11 +9733,15 @@ var ansi = require( './ansi.js' ) ;
 /*
 	%%		a single %
 	%s		string
+	%S		string, interpret ^ formatting
 	%r		raw string: without sanitizer
 	%f		float
+	%e		for scientific notation
 	%d	%i	integer
 	%u		unsigned integer
 	%U		unsigned positive integer (>0)
+	%k		metric system
+	%t		time duration, convert ms into H:min:s
 	%h		hexadecimal
 	%x		hexadecimal, force pair of symbols (e.g. 'f' -> '0f')
 	%o		octal
@@ -7034,7 +9761,6 @@ var ansi = require( './ansi.js' ) ;
 	%c		for char? (can receive a string or an integer translated into an UTF8 chars)
 	%C		for currency formating?
 	%B		for Buffer objects?
-	%e		for scientific notation?
 */
 
 exports.formatMethod = function format( ... args ) {
@@ -7216,27 +9942,109 @@ modes.r.noSanitize = true ;
 
 
 
+// string, interpret ^ formatting
+modes.S = ( arg , modeArg , options ) => {
+	// We do the sanitizing part on our own
+	var interpret = str => exports.markupMethod.call( options , options.argumentSanitizer ? options.argumentSanitizer( str ) : str ) ;
+
+	if ( typeof arg === 'string' ) { return interpret( arg ) ; }
+	if ( arg === null || arg === undefined || arg === true || arg === false ) { return '(' + arg + ')' ; }
+	if ( typeof arg === 'number' ) { return '' + arg ; }
+	if ( typeof arg.toString === 'function' ) { return interpret( arg.toString() ) ; }
+	return interpret( '(' + arg + ')' ) ;
+} ;
+
+modes.S.noSanitize = true ;
+
+
+
+const NUMBER_FORMAT_REGEX = /([a-zA-Z]?)(.[^a-zA-Z]*)/g ;
+
+
+
 // float
 modes.f = ( arg , modeArg ) => {
-	var n ;
+	var match , k , v , lv , n ,
+		step = 0 , toFixed , toFixedIfDecimal , padding ;
 
 	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-	if ( typeof arg !== 'number' ) { return '0' ; }
-	if ( modeArg !== undefined ) {
-		// Use jQuery number format?
-		switch ( modeArg[ 0 ] ) {
-			case 'p' :
-				n = parseInt( modeArg.slice( 1 ) , 10 ) ;
-				if ( n >= 1 ) { arg = arg.toPrecision( n ) ; }
-				break ;
-			case 'f' :
-				n = parseInt( modeArg.slice( 1 ) , 10 ) ;
-				arg = arg.toFixed( n ) ;
-				break ;
+	if ( typeof arg !== 'number' ) { arg = 0 ; }
+
+	if ( modeArg ) {
+		NUMBER_FORMAT_REGEX.index = 0 ;
+
+		while ( ( match = NUMBER_FORMAT_REGEX.exec( modeArg ) ) ) {
+			[ , k , v ] = match ;
+
+			if ( k === 'p' ) {
+				padding = + v ;
+			}
+			else if ( v[ 0 ] === '.' ) {
+				lv = v[ v.length - 1 ] ;
+
+				if ( lv === '!' ) {
+					n = parseInt( v.slice( 1 , -1 ) , 10 ) ;
+					step = 10 ** ( -n ) ;
+					toFixed = n ;
+				}
+				else if ( lv === '?' ) {
+					n = parseInt( v.slice( 1 , -1 ) , 10 ) ;
+					step = 10 ** ( -n ) ;
+					toFixed = n ;
+					toFixedIfDecimal = true ;
+				}
+				else {
+					n = parseInt( v.slice( 1 ) , 10 ) ;
+					step = 10 ** ( -n ) ;
+				}
+			}
+			else if ( v[ v.length - 1 ] === '.' ) {
+				n = parseInt( v.slice( 0 , -1 ) , 10 ) ;
+				step = 10 ** n ;
+			}
+			else {
+				n = parseInt( v , 10 ) ;
+				step = 10 ** ( Math.ceil( Math.log10( arg + Number.EPSILON ) + Number.EPSILON ) - n ) ;
+			}
 		}
 	}
-	return '' + arg ;
+
+	if ( step ) { arg = round( arg , step ) ; }
+
+	if ( toFixed !== undefined && ( ! toFixedIfDecimal || arg !== Math.trunc( arg ) ) ) {
+		arg = arg.toFixed( toFixed ) ;
+	}
+	else {
+		arg = '' + arg ;
+	}
+
+	if ( padding ) {
+		n = arg.indexOf( '.' ) ;
+		if ( n === -1 ) { n = arg.length ; }
+		if ( n < padding ) { arg = '0'.repeat( padding - n ) + arg ; }
+	}
+
+	return arg ;
 } ;
+
+modes.f.noSanitize = true ;
+
+
+
+// integer
+modes.e = ( arg , modeArg ) => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg !== 'number' ) { arg = 0 ; }
+
+	if ( modeArg ) {
+		return '' + arg.toExponential( parseInt( modeArg , 10 ) - 1 ) ;
+	}
+
+	return '' + arg.toExponential() ;
+
+} ;
+
+modes.e.noSanitize = true ;
 
 
 
@@ -7247,14 +10055,7 @@ modes.d = modes.i = arg => {
 	return '0' ;
 } ;
 
-
-
-// metric system
-modes.k = arg => {
-	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-	if ( typeof arg !== 'number' ) { return '0' ; }
-	return metricPrefix( arg ) ;
-} ;
+modes.i.noSanitize = true ;
 
 
 
@@ -7265,6 +10066,8 @@ modes.u = arg => {
 	return '0' ;
 } ;
 
+modes.u.noSanitize = true ;
+
 
 
 // unsigned positive integer
@@ -7273,6 +10076,61 @@ modes.U = arg => {
 	if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 1 ) ; }
 	return '1' ;
 } ;
+
+modes.U.noSanitize = true ;
+
+
+
+// metric system
+modes.k = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg !== 'number' ) { return '0' ; }
+	return metricPrefix( arg ) ;
+} ;
+
+modes.k.noSanitize = true ;
+
+
+
+// time duration, transform ms into H:min:s
+// Later it should format Date as well: number=duration, date object=date
+// Note that it would not replace moment.js, but it could uses it.
+modes.t = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg !== 'number' ) { return '(NaN)' ; }
+
+	var s = Math.floor( arg / 1000 ) ;
+	if ( s < 60 ) { return s + 's' ; }
+
+	var min = Math.floor( s / 60 ) ;
+	s = s % 60 ;
+	if ( min < 60 ) { return min + 'min' + zeroPadding( s ) + 's' ; }
+
+	var h = Math.floor( min / 60 ) ;
+	min = min % 60 ;
+	//if ( h < 24 ) { return h + 'h' + zeroPadding( min ) +'min' + zeroPadding( s ) + 's' ; }
+
+	return h + 'h' + zeroPadding( min ) + 'min' + zeroPadding( s ) + 's' ;
+} ;
+
+modes.t.noSanitize = true ;
+
+// Transform a number to a string, pad zero to the left if necessary
+function zeroPadding( n , width = 2 ) {
+	n = '' + n ;
+	if ( n.length < width ) { n = '0'.repeat( width - n.length ) + n ; }
+	return n ;
+}
+
+
+// unsigned hexadecimal
+modes.h = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ; }
+	return '0' ;
+} ;
+
+modes.h.noSanitize = true ;
 
 
 
@@ -7287,14 +10145,7 @@ modes.x = arg => {
 	return value ;
 } ;
 
-
-
-// unsigned hexadecimal
-modes.h = arg => {
-	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-	if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ; }
-	return '0' ;
-} ;
+modes.x.noSanitize = true ;
 
 
 
@@ -7305,6 +10156,8 @@ modes.o = arg => {
 	return '0' ;
 } ;
 
+modes.o.noSanitize = true ;
+
 
 
 // unsigned binary
@@ -7313,6 +10166,8 @@ modes.b = arg => {
 	if ( typeof arg === 'number' ) { return '' + Math.max( Math.floor( arg ) , 0 ).toString( 2 ) ; }
 	return '0' ;
 } ;
+
+modes.b.noSanitize = true ;
 
 
 
@@ -7329,7 +10184,9 @@ modes.z = arg => {
 modes.Z = arg => {
 	if ( typeof arg === 'string' ) { arg = Buffer.from( arg ) ; }
 	else if ( ! Buffer.isBuffer( arg ) ) { return '' ; }
-	return arg.toString( 'base64' ).replace( /\+/g , '-' ).replace( /\//g , '_' ).replace( /[=]{1,2}$/g , '' ) ;
+	return arg.toString( 'base64' ).replace( /\+/g , '-' )
+		.replace( /\//g , '_' )
+		.replace( /[=]{1,2}$/g , '' ) ;
 } ;
 
 
@@ -7371,10 +10228,11 @@ modes.E = ( arg , modeArg , options ) => inspectError( { style: ( options && opt
 modes.E.noSanitize = true ;
 
 // json
-modes.J = arg => JSON.stringify( arg ) ;
+modes.J = arg => arg === undefined ? 'null' : JSON.stringify( arg ) ;
 
 // drop
 modes.D = () => '' ;
+modes.D.noSanitize = true ;
 
 
 
@@ -7569,10 +10427,28 @@ exports.format.hasFormatting = function hasFormatting( str ) {
 
 
 
+// From math-kit module
+const EPSILON = 0.0000000001 ;
+const INVERSE_EPSILON = Math.round( 1 / EPSILON ) ;
+
+function epsilonRound( v ) {
+	return Math.round( v * INVERSE_EPSILON ) / INVERSE_EPSILON ;
+}
+
+// Round with precision
+function round( v , step ) {
+	// use: v * ( 1 / step )
+	// not: v / step
+	// reason: epsilon rounding errors
+	return epsilonRound( step * Math.round( v * ( 1 / step ) ) ) ;
+}
+
+
+
 // Metric prefix
-var mulPrefix = [ '' , 'k' , 'M' , 'G' , 'T' , 'P' , 'E' , 'Z' , 'Y' ] ;
-var subMulPrefix = [ '' , 'm' , 'µ' , 'n' , 'p' , 'f' , 'a' , 'z' , 'y' ] ;
-var roundStep = [ 100 , 10 , 1 ] ;
+const MUL_PREFIX = [ '' , 'k' , 'M' , 'G' , 'T' , 'P' , 'E' , 'Z' , 'Y' ] ;
+const SUB_MUL_PREFIX = [ '' , 'm' , 'µ' , 'n' , 'p' , 'f' , 'a' , 'z' , 'y' ] ;
+const IROUND_STEP = [ 100 , 10 , 1 ] ;
 
 
 
@@ -7586,16 +10462,16 @@ function metricPrefix( n ) {
 		log = Math.floor( Math.log10( n ) ) ;
 		logDiv3 = Math.floor( log / 3 ) ;
 		logMod = log % 3 ;
-		base = round( n / ( 1000 ** logDiv3 ) , roundStep[ logMod ] ) ;
-		prefix = mulPrefix[ logDiv3 ] ;
+		base = iround( n / ( Math.pow( 1000 , logDiv3 ) ) , IROUND_STEP[ logMod ] ) ;
+		prefix = MUL_PREFIX[ logDiv3 ] ;
 	}
 	else {
 		log = Math.floor( Math.log10( n ) ) ;
 		logDiv3 = Math.floor( log / 3 ) ;
 		logMod = log % 3 ;
 		if ( logMod < 0 ) { logMod += 3 ; }
-		base = round( n / ( 1000 ** logDiv3 ) , roundStep[ logMod ] ) ;
-		prefix = subMulPrefix[ -logDiv3 ] ;
+		base = iround( n / ( Math.pow( 1000 , logDiv3 ) ) , IROUND_STEP[ logMod ] ) ;
+		prefix = SUB_MUL_PREFIX[ -logDiv3 ] ;
 	}
 
 	return '' + base + prefix ;
@@ -7603,18 +10479,18 @@ function metricPrefix( n ) {
 
 
 
-function round( v , step ) {
-	return Math.round( ( v + Number.EPSILON ) * step ) / step ;
+function iround( v , istep ) {
+	return Math.round( ( v + Number.EPSILON ) * istep ) / istep ;
 }
 
 
 }).call(this,require("buffer").Buffer)
-},{"./ansi.js":18,"./escape.js":19,"./inspect.js":21,"buffer":6}],21:[function(require,module,exports){
+},{"./ansi.js":27,"./escape.js":28,"./inspect.js":30,"buffer":6}],30:[function(require,module,exports){
 (function (Buffer,process){
 /*
 	String Kit
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+	Copyright (c) 2014 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -7647,8 +10523,10 @@ function round( v , step ) {
 
 
 
-var escape = require( './escape.js' ) ;
-var ansi = require( './ansi.js' ) ;
+const escape = require( './escape.js' ) ;
+const ansi = require( './ansi.js' ) ;
+
+const EMPTY = {} ;
 
 
 
@@ -7688,7 +10566,8 @@ function inspect( options , variable ) {
 
 	if ( ! options.style ) { options.style = inspectStyle.none ; }
 	else if ( typeof options.style === 'string' ) { options.style = inspectStyle[ options.style ] ; }
-	else { options.style = Object.assign( {} , inspectStyle.none , options.style ) ; }
+	// Too slow:
+	//else { options.style = Object.assign( {} , inspectStyle.none , options.style ) ; }
 
 	if ( options.depth === undefined ) { options.depth = 3 ; }
 	if ( options.maxLength === undefined ) { options.maxLength = 250 ; }
@@ -7701,6 +10580,7 @@ function inspect( options , variable ) {
 		options.noFunc = true ;
 		options.noDescriptor = true ;
 		options.noType = true ;
+		options.noArrayProperty = true ;
 		options.enumOnly = true ;
 		options.funcDetails = false ;
 		options.proto = false ;
@@ -7709,7 +10589,7 @@ function inspect( options , variable ) {
 	var str = inspect_( runtime , options , variable ) ;
 
 	if ( str.length > options.outputMaxLength ) {
-		str = str.slice( 0 , options.outputMaxLength - 1 ) + '…' ;
+		str = options.style.truncate( str , options.outputMaxLength ) ;
 	}
 
 	return str ;
@@ -7768,6 +10648,9 @@ function inspect_( runtime , options , variable ) {
 
 	if ( variable === undefined ) {
 		str += pre + options.style.constant( 'undefined' ) + descriptorStr + options.style.newline ;
+	}
+	else if ( variable === EMPTY ) {
+		str += pre + options.style.constant( '[empty]' ) + descriptorStr + options.style.newline ;
 	}
 	else if ( variable === null ) {
 		str += pre + options.style.constant( 'null' ) + descriptorStr + options.style.newline ;
@@ -7833,10 +10716,11 @@ function inspect_( runtime , options , variable ) {
 			if ( ! isFunc || options.funcDetails ) { str += ' ' ; }	// if no funcDetails imply no space here
 		}
 
-		propertyList = Object.getOwnPropertyNames( variable ) ;
-
-		if ( options.noArrayProperty && Array.isArray( variable ) ) {
-			propertyList = propertyList.slice( 0 , variable.length ) ;
+		if ( isArray && options.noArrayProperty ) {
+			propertyList = [ ... Array( variable.length ).keys() ] ;
+		}
+		else {
+			propertyList = Object.getOwnPropertyNames( variable ) ;
 		}
 
 		if ( options.sort ) { propertyList.sort() ; }
@@ -7849,16 +10733,17 @@ function inspect_( runtime , options , variable ) {
 		}
 		else if ( specialObject !== undefined ) {
 			if ( typeof specialObject === 'string' ) {
-				str += '=> ' + specialObject ;
+				str += '=> ' + specialObject + options.style.newline ;
 			}
 			else {
-				str += '=> ' + inspect_( {
-					depth: runtime.depth ,
-					ancestors: runtime.ancestors ,
-					noPre: true
-				} ,
-				options ,
-				specialObject
+				str += '=> ' + inspect_(
+					{
+						depth: runtime.depth ,
+						ancestors: runtime.ancestors ,
+						noPre: true
+					} ,
+					options ,
+					specialObject
 				) ;
 			}
 		}
@@ -7875,7 +10760,7 @@ function inspect_( runtime , options , variable ) {
 			str += options.style.limit( '[circular]' ) + options.style.newline ;
 		}
 		else {
-			str += ( isArray && options.noType ? '[' : '{' ) + options.style.newline ;
+			str += ( isArray && options.noType && options.noArrayProperty ? '[' : '{' ) + options.style.newline ;
 
 			// Do not use .concat() here, it doesn't works as expected with arrays...
 			nextAncestors = runtime.ancestors.slice() ;
@@ -7887,68 +10772,85 @@ function inspect_( runtime , options , variable ) {
 					continue ;
 				}
 
-				try {
-					descriptor = Object.getOwnPropertyDescriptor( variable , propertyList[ i ] ) ;
-
-					if ( ! descriptor.enumerable && options.enumOnly ) { continue ; }
-
-					keyIsProperty = ! isArray || ! descriptor.enumerable || isNaN( propertyList[ i ] ) ;
-
-					if ( ! options.noDescriptor && ( descriptor.get || descriptor.set ) ) {
-						str += inspect_( {
+				if ( isArray && options.noArrayProperty && ! ( propertyList[ i ] in variable ) ) {
+					// Hole in the array (sparse array, item deleted, ...)
+					str += inspect_(
+						{
 							depth: runtime.depth + 1 ,
 							ancestors: nextAncestors ,
 							key: propertyList[ i ] ,
-							keyIsProperty: keyIsProperty ,
-							descriptor: descriptor ,
-							forceType: 'getter/setter'
+							keyIsProperty: false
 						} ,
 						options ,
-						{ get: descriptor.get , set: descriptor.set }
-						) ;
-					}
-					else {
-						str += inspect_( {
-							depth: runtime.depth + 1 ,
-							ancestors: nextAncestors ,
-							key: propertyList[ i ] ,
-							keyIsProperty: keyIsProperty ,
-							descriptor: options.noDescriptor ? undefined : descriptor
-						} ,
-						options ,
-						variable[ propertyList[ i ] ]
-						) ;
-					}
-				}
-				catch ( error ) {
-					str += inspect_( {
-						depth: runtime.depth + 1 ,
-						ancestors: nextAncestors ,
-						key: propertyList[ i ] ,
-						keyIsProperty: keyIsProperty ,
-						descriptor: options.noDescriptor ? undefined : descriptor
-					} ,
-					options ,
-					error
+						EMPTY
 					) ;
+				}
+				else {
+					try {
+						descriptor = Object.getOwnPropertyDescriptor( variable , propertyList[ i ] ) ;
+						if ( ! descriptor.enumerable && options.enumOnly ) { continue ; }
+						keyIsProperty = ! isArray || ! descriptor.enumerable || isNaN( propertyList[ i ] ) ;
+
+						if ( ! options.noDescriptor && descriptor && ( descriptor.get || descriptor.set ) ) {
+							str += inspect_(
+								{
+									depth: runtime.depth + 1 ,
+									ancestors: nextAncestors ,
+									key: propertyList[ i ] ,
+									keyIsProperty: keyIsProperty ,
+									descriptor: descriptor ,
+									forceType: 'getter/setter'
+								} ,
+								options ,
+								{ get: descriptor.get , set: descriptor.set }
+							) ;
+						}
+						else {
+							str += inspect_(
+								{
+									depth: runtime.depth + 1 ,
+									ancestors: nextAncestors ,
+									key: propertyList[ i ] ,
+									keyIsProperty: keyIsProperty ,
+									descriptor: options.noDescriptor ? undefined : descriptor
+								} ,
+								options ,
+								variable[ propertyList[ i ] ]
+							) ;
+						}
+					}
+					catch ( error ) {
+						str += inspect_(
+							{
+								depth: runtime.depth + 1 ,
+								ancestors: nextAncestors ,
+								key: propertyList[ i ] ,
+								keyIsProperty: keyIsProperty ,
+								descriptor: options.noDescriptor ? undefined : descriptor
+							} ,
+							options ,
+							error
+						) ;
+					}
 				}
 
 				if ( i < propertyList.length - 1 ) { str += options.style.comma ; }
 			}
 
 			if ( options.proto ) {
-				str += inspect_( {
-					depth: runtime.depth + 1 ,
-					ancestors: nextAncestors ,
-					key: '__proto__' ,
-					keyIsProperty: true
-				} ,
-				options ,
-				proto
+				str += inspect_(
+					{
+						depth: runtime.depth + 1 ,
+						ancestors: nextAncestors ,
+						key: '__proto__' ,
+						keyIsProperty: true
+					} ,
+					options ,
+					proto
 				) ;
 			}
 
-			str += indent + ( isArray && options.noType ? ']' : '}' ) ;
+			str += indent + ( isArray && options.noType && options.noArrayProperty ? ']' : '}' ) ;
 			str += options.style.newline ;
 		}
 	}
@@ -8081,7 +10983,7 @@ function inspectError( options , error ) {
 	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
 
 	if ( ! ( error instanceof Error ) ) {
-		return 'Not an error -- regular variable inspection: ' + inspect( options , error ) ;
+		return 'inspectError: not an error -- regular variable inspection: ' + inspect( options , error ) ;
 	}
 
 	if ( ! options.style ) { options.style = inspectStyle.none ; }
@@ -8097,6 +10999,10 @@ function inspectError( options , error ) {
 	str += options.style.errorMessage( error.message ) + '\n' ;
 
 	if ( stack ) { str += options.style.errorStack( stack ) + '\n' ; }
+
+	if ( error.from ) {
+		str += options.style.newline + options.style.errorFromMessage( 'Error created from:' ) + options.style.newline + inspectError( options , error.from ) ;
+	}
 
 	return str ;
 }
@@ -8117,19 +11023,19 @@ function inspectStack( options , stack ) {
 	if ( ( options.browser || process.browser ) && stack.indexOf( '@' ) !== -1 ) {
 		// Assume a Firefox-compatible stack-trace here...
 		stack = stack
-		.replace( /[</]*(?=@)/g , '' )	// Firefox output some WTF </</</</< stuff in its stack trace -- removing that
-		.replace(
-			/^\s*([^@]*)\s*@\s*([^\n]*)(?::([0-9]+):([0-9]+))?$/mg ,
-			( matches , method , file , line , column ) => {
-				return options.style.errorStack( '    at ' ) +
+			.replace( /[</]*(?=@)/g , '' )	// Firefox output some WTF </</</</< stuff in its stack trace -- removing that
+			.replace(
+				/^\s*([^@]*)\s*@\s*([^\n]*)(?::([0-9]+):([0-9]+))?$/mg ,
+				( matches , method , file , line , column ) => {
+					return options.style.errorStack( '    at ' ) +
 						( method ? options.style.errorStackMethod( method ) + ' ' : '' ) +
 						options.style.errorStack( '(' ) +
 						( file ? options.style.errorStackFile( file ) : options.style.errorStack( 'unknown' ) ) +
 						( line ? options.style.errorStack( ':' ) + options.style.errorStackLine( line ) : '' ) +
 						( column ? options.style.errorStack( ':' ) + options.style.errorStackColumn( column ) : '' ) +
 						options.style.errorStack( ')' ) ;
-			}
-		) ;
+				}
+			) ;
 	}
 	else {
 		stack = stack.replace( /^[^\n]*\n/ , '' ) ;
@@ -8186,7 +11092,9 @@ inspectStyle.none = {
 	errorStackMethodAs: inspectStyleNoop ,
 	errorStackFile: inspectStyleNoop ,
 	errorStackLine: inspectStyleNoop ,
-	errorStackColumn: inspectStyleNoop
+	errorStackColumn: inspectStyleNoop ,
+	errorFromMessage: inspectStyleNoop ,
+	truncate: ( str , maxLength ) => str.slice( 0 , maxLength - 1 ) + '…'
 } ;
 
 
@@ -8222,7 +11130,19 @@ inspectStyle.color = Object.assign( {} , inspectStyle.none , {
 	errorStackMethodAs: str => ansi.yellow + str + ansi.reset ,
 	errorStackFile: str => ansi.brightCyan + str + ansi.reset ,
 	errorStackLine: str => ansi.blue + str + ansi.reset ,
-	errorStackColumn: str => ansi.magenta + str + ansi.reset
+	errorStackColumn: str => ansi.magenta + str + ansi.reset ,
+	errorFromMessage: str => ansi.yellow + ansi.underline + str + ansi.reset ,
+	truncate: ( str , maxLength ) => {
+		var trail = ansi.gray + '…' + ansi.reset ;
+		str = str.slice( 0 , maxLength - trail.length ) ;
+
+		// Search for an ansi escape sequence at the end, that could be truncated.
+		// The longest one is '\x1b[107m': 6 characters.
+		var lastEscape = str.lastIndexOf( '\x1b' ) ;
+		if ( lastEscape >= str.length - 6 ) { str = str.slice( 0 , lastEscape ) ; }
+
+		return str + trail ;
+	}
 } ) ;
 
 
@@ -8248,31 +11168,30 @@ inspectStyle.html = Object.assign( {} , inspectStyle.none , {
 	errorStackMethodAs: str => '<span style="color:yellow">' + str + '</span>' ,
 	errorStackFile: str => '<span style="color:cyan">' + str + '</span>' ,
 	errorStackLine: str => '<span style="color:blue">' + str + '</span>' ,
-	errorStackColumn: str => '<span style="color:gray">' + str + '</span>'
+	errorStackColumn: str => '<span style="color:gray">' + str + '</span>' ,
+	errorFromMessage: str => '<span style="color:yellow">' + str + '</span>'
 } ) ;
 
 
-
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")},require('_process'))
-},{"../../is-buffer/index.js":8,"./ansi.js":18,"./escape.js":19,"_process":13}],22:[function(require,module,exports){
-(function (process){
+},{"../../is-buffer/index.js":8,"./ansi.js":27,"./escape.js":28,"_process":13}],31:[function(require,module,exports){
 /*
 	SVG Kit
-	
-	Copyright (c) 2017 Cédric Ronvel
-	
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
 	The MIT License (MIT)
-	
+
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-	
+
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
-	
+
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -8286,22 +11205,72 @@ inspectStyle.html = Object.assign( {} , inspectStyle.none , {
 
 
 
-// Load modules
-var fs = require( 'fs' ) ;
-var domKit = require( 'dom-kit' ) ;
-var escape = require( 'string-kit/lib/escape.js' ) ;
+const path = {} ;
+module.exports = path ;
+
+
+
+path.dFromPoints = ( points , invertY ) => {
+	var yMul = invertY ? -1 : 1 ,
+		str = 'M' ;
+
+	points.forEach( point => {
+		str += ' ' + point.x + ',' + ( point.y * yMul ) ;
+	} ) ;
+
+	return str ;
+} ;
+
+
+},{}],32:[function(require,module,exports){
+(function (process){
+/*
+	SVG Kit
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const fs = require( 'fs' ) ;
+const domKit = require( 'dom-kit' ) ;
+const escape = require( 'string-kit/lib/escape.js' ) ;
 
 function noop() {}
 
 
 
-var svgKit = {} ;
+const svgKit = {} ;
 module.exports = svgKit ;
+
+svgKit.path = require( './path.js' ) ;
 
 
 
 // List of svg tags that actually display things
-var drawingTags = [
+const drawingTags = [
 	'path' ,
 	'circle' ,
 	'ellipse' ,
@@ -8317,7 +11286,7 @@ var drawingTags = [
 
 /*
 	Fix few <svg> things in order to inject it in the dom
-	
+
 	* $svg: the svg element
 	* options: options object, where:
 		* into: `DOMElement` an element where the .svg file should be loaded into
@@ -8326,16 +11295,14 @@ var drawingTags = [
 		  and let the asynchronous loading works in the background
 		* all other options are passed to .patch()
 */
-svgKit.inject = function inject( $svg , options )
-{
+svgKit.inject = function( $svg , options ) {
 	svgKit.patch( $svg , options ) ;
-	
+
 	if ( options.into ) { options.into.appendChild( $svg ) ; }
-	
+
 	// Better to avoid to check the tag name:
 	// it's too defensive and it prevents from loading inside a <g> tag
-	if ( options.as ) //&& options.as.tagName.toLowerCase() === 'svg' )
-	{
+	if ( options.as ) { //&& options.as.tagName.toLowerCase() === 'svg' )
 		domKit.moveAttributes( $svg , options.as ) ;
 		domKit.moveChildrenInto( $svg , options.as ) ;
 	}
@@ -8345,7 +11312,7 @@ svgKit.inject = function inject( $svg , options )
 
 /*
 	Fix few <svg> things.
-	
+
 	* $svg: the svg element
 	* options: options object, where:
 		* id: `string` the id attribute of the <svg> tag (recommanded)
@@ -8367,91 +11334,83 @@ svgKit.inject = function inject( $svg , options )
 		* removeExoticNamespaces: `boolean` remove all tag and attributes that have a namespace different than svg,
 		  the svg namespace is stripped
 */
-svgKit.patch = function patch( $svg , options )
-{
+svgKit.patch = function( $svg , options ) {
 	var viewBox , width , height ;
-	
+
 	svgKit.lightCleanup( $svg ) ;
-	
+
 	// Fix id, if necessary
-	if ( options.id !== undefined )
-	{
+	if ( options.id !== undefined ) {
 		if ( typeof options.id === 'string' ) { $svg.setAttribute( 'id' , options.id ) ; }
 		else if ( ! options.id ) { $svg.removeAttribute( 'id' ) ; }
 	}
-	
-	if ( options.class )
-	{
+
+	if ( options.class ) {
 		if ( typeof options.class === 'string' ) { $svg.classList.add( options.class ) ; }
 		else if ( typeof options.class === 'object' ) { domKit.class( $svg , options.class ) ; }
 	}
-	
+
 	if ( options.hidden ) { $svg.style.visibility = 'hidden' ; }
-	
+
 	if ( options.prefixIds ) { domKit.prefixIds( $svg , options.prefixIds ) ; }
 	if ( options.removeIds ) { domKit.removeAllAttributes( $svg , 'id' ) ; }
-	
+
 	if ( options.removeSvgStyle ) { $svg.removeAttribute( 'style' ) ; }
 	if ( options.removeDefaultStyles ) { svgKit.removeDefaultStyles( $svg ) ; }
 	if ( options.removeComments ) { domKit.removeComments( $svg ) ; }
-	
-	if ( options.removeExoticNamespaces )
-	{
+
+	if ( options.removeExoticNamespaces ) {
 		domKit.filterByNamespace( $svg , { primary: 'svg' , whitelist: [] } ) ;
 	}
-	
-	if ( options.removeSize )
-	{
+
+	if ( options.removeSize ) {
 		// Save and remove the width and height attribute
 		width = $svg.getAttribute( 'width' ) || $svg.style.width ;
 		height = $svg.getAttribute( 'height' ) || $svg.style.height ;
-		
+
 		$svg.removeAttribute( 'height' ) ;
 		$svg.removeAttribute( 'width' ) ;
 		$svg.style.width = null ;
 		$svg.style.height = null ;
-		
+
 		// if the $svg don't have a viewBox attribute, set it now from the width and height (it works most of time)
-		if ( ! $svg.getAttribute( 'viewBox' ) && width && height )
-		{
+		if ( ! $svg.getAttribute( 'viewBox' ) && width && height ) {
 			viewBox = '0 0 ' + width + ' ' + height ;
 			//console.log( "viewBox:" , viewBox ) ;
 			$svg.setAttribute( 'viewBox' , viewBox ) ;
 		}
 	}
-	
+
 	if ( options.css ) { domKit.css( $svg , options.css ) ; }
-	
+
 	if ( options.colorClass ) { svgKit.colorClass( $svg ) ; }
-	
+
 	if ( options.removeWhiteSpaces ) { domKit.removeWhiteSpaces( $svg ) ; }
 	else if ( options.removeWhiteLines ) { domKit.removeWhiteSpaces( $svg , true ) ; }
 } ;
 
 
 
-svgKit.patchDocument = function patchDocument( $doc , options )
-{
+svgKit.patchDocument = function( $doc , options ) {
 	var removeWhiteSpaces = options.removeWhiteSpaces ,
 		removeWhiteLines = options.removeWhiteLines ,
 		removeComments = options.removeComments ;
-	
+
 	delete options.removeWhiteSpaces ;
 	delete options.removeWhiteLines ;
 	delete options.removeComments ;
-	
+
 	if ( removeComments ) { domKit.removeComments( $doc ) ; }
-	
+
 	svgKit.patch( $doc.documentElement , options ) ;
-	
+
 	if ( removeWhiteSpaces ) { domKit.removeWhiteSpaces( $doc ) ; }
 	else if ( removeWhiteLines ) { domKit.removeWhiteSpaces( $doc , true ) ; }
 } ;
 
 
 
-svgKit.lightCleanup = function lightCleanup( $svg )
-{
+svgKit.lightCleanup = function( $svg ) {
 	domKit.removeAllTags( $svg , 'metadata' ) ;
 	domKit.removeAllTags( $svg , 'script' ) ;
 	domKit.removeAllTags( $svg , 'defs' , true ) ;	// all empty defs
@@ -8459,16 +11418,14 @@ svgKit.lightCleanup = function lightCleanup( $svg )
 
 
 
-svgKit.colorClass = function colorClass( $svg )
-{
-	drawingTags.forEach( function( tagName ) {
-		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( function( $element ) {
+svgKit.colorClass = function( $svg ) {
+	drawingTags.forEach( ( tagName ) => {
+		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( ( $element ) => {
 			// Beware, $element.className does not work as expected for SVG
-			if ( ! $element.getAttribute( 'class' ) )
-			{
+			if ( ! $element.getAttribute( 'class' ) ) {
 				$element.classList.add( 'primary' ) ;
 			}
-			
+
 			// move style to attribute if they are not 'none'
 			domKit.styleToAttribute( $element , 'fill' , [ 'none' ] ) ;
 			domKit.styleToAttribute( $element , 'stroke' , [ 'none' ] ) ;
@@ -8531,26 +11488,25 @@ const defaultStyles = [
 	[ 'stroke-dasharray' , 'none' ] ,
 	[ 'stroke-dashoffset' , '0' ] ,
 	[ 'paint-order' , 'normal' ] ,
-	[ 'paint-order' , 'fill stroke markers' ] ,
+	[ 'paint-order' , 'fill stroke markers' ]
 ] ;
 
 // Remove styles set to a default/unused value
-svgKit.removeDefaultStyles = function removeDefaultStyles( $svg )
-{
-	drawingTags.forEach( function( tagName ) {
-		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( function( $element ) {
+svgKit.removeDefaultStyles = function( $svg ) {
+	drawingTags.forEach( ( tagName ) => {
+		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( ( $element ) => {
 			var styles = $element.getAttribute( 'style' ) ;
-			
+
 			defaultStyles.forEach( array => {
 				var k = array[ 0 ] ;
 				var v = array[ 1 ] ;
-				
+
 				styles = styles.replace(
 					new RegExp( '(^|;) *' + escape.regExp( k ) + ' *: *' + escape.regExp( v ) + ' *(?:;|$)' ) ,
 					( full , pre ) => pre
 				) ;
 			} ) ;
-			
+
 			$element.setAttribute( 'style' , styles ) ;
 		} ) ;
 	} ) ;
@@ -8560,7 +11516,7 @@ svgKit.removeDefaultStyles = function removeDefaultStyles( $svg )
 
 // Should remove all tags and attributes that have non-registered namespace,
 // e.g.: sodipodi, inkscape, etc...
-//svgKit.heavyCleanup = function heavyCleanup( svgElement ) {} ;
+//svgKit.heavyCleanup = function( svgElement ) {} ;
 
 
 
@@ -8572,7 +11528,7 @@ svgKit.removeDefaultStyles = function removeDefaultStyles( $svg )
 */
 /*
 	load( url , [options] , callback )
-	
+
 	* url: the URL of the .svg file
 	* $container: null or the DOM element where the <svg> tag will be put
 	* options: (optional) object of options, transmitted to .inject() and .patch()
@@ -8580,71 +11536,66 @@ svgKit.removeDefaultStyles = function removeDefaultStyles( $svg )
 		* error: truthy if an error happened
 		* svg: the svg dom document
 */
-svgKit.load = function load( url , options , callback )
-{
+svgKit.load = function( url , options , callback ) {
 	if ( typeof options === 'function' ) { callback = options ; options = {} ; }
 	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
-	
+
 	if ( typeof callback !== 'function' ) { callback = noop ; }
-	
-	if ( ! process.browser )
-	{
+
+	if ( ! process.browser ) {
 		// Use Node.js 'fs' module
-		
+
 		if ( url.substring( 0 , 7 ) === 'file://' ) { url = url.slice( 7 ) ; }
-		
-		fs.readFile( url , 'utf8' , function( error , content ) {
-			
+
+		fs.readFile( url , 'utf8' , ( error , content ) => {
+
 			if ( error ) { callback( error ) ; return ; }
-			
-			
+
+
 			//var parser = new DOMParser() ;
 			//var $svg = parser.parseFromString( content , 'application/xml' ).documentElement ;
 			var $doc = domKit.fromXml( content ) ;
-			
-			if ( options.removeComments )
-			{
+
+			if ( options.removeComments ) {
 				domKit.removeComments( $doc ) ;
 				delete options.removeComments ;
 			}
-			
+
 			var $svg = $doc.documentElement ;
-			
+
 			try {
 				svgKit.inject( $svg , options ) ;
 			}
-			catch ( error ) {
-				callback( error ) ;
+			catch ( error_ ) {
+				callback( error_ ) ;
 				return ;
 			}
-			
+
 			callback( undefined , $svg ) ;
 		} ) ;
 	}
-	else
-	{
+	else {
 		// Use an AJAX HTTP Request
-		
-		svgKit.ajax( url , function( error , $doc ) {
-			
+
+		svgKit.ajax( url , ( error , $doc ) => {
+
 			if ( error ) { callback( error ) ; return ; }
-			
-			if ( options.removeComments )
-			{
+
+			if ( options.removeComments ) {
 				domKit.removeComments( $doc ) ;
 				delete options.removeComments ;
 			}
-			
+
 			var $svg = $doc.documentElement ;
-			
+
 			try {
 				svgKit.inject( $svg , options ) ;
 			}
-			catch ( error ) {
-				callback( error ) ;
+			catch ( error_ ) {
+				callback( error_ ) ;
 				return ;
 			}
-			
+
 			callback( undefined , $svg ) ;
 		} ) ;
 	}
@@ -8652,41 +11603,33 @@ svgKit.load = function load( url , options , callback )
 
 
 
-svgKit.ajax = function ajax( url , callback )
-{
+svgKit.ajax = function( url , callback ) {
 	var xhr = new XMLHttpRequest() ;
-	
+
 	//console.warn( "ajax url:" , url ) ;
-	
+
 	xhr.responseType = 'document' ;
 	xhr.onreadystatechange = svgKit.ajax.ajaxStatus.bind( xhr , callback ) ;
-	xhr.open( 'GET', url ) ;
+	xhr.open( 'GET' , url ) ;
 	xhr.send() ;
 } ;
 
 
 
-svgKit.ajax.ajaxStatus = function ajaxStatus( callback )
-{
+svgKit.ajax.ajaxStatus = function( callback ) {
 	// From MDN: In the event of a communication error (such as the webserver going down),
-	// an exception will be thrown in the when attempting to access the 'status' property. 
-	
+	// an exception will be thrown in the when attempting to access the 'status' property.
+
 	try {
-		if ( this.readyState === 4 )
-		{
-			if ( this.status === 200 )
-			{
+		if ( this.readyState === 4 ) {
+			if ( this.status === 200 ) {
 				callback( undefined , this.responseXML ) ;
 			}
-			else if ( this.status === 0 && this.responseXML )	// Yay, loading with file:// does not provide any status...
-			{
+			else if ( this.status === 0 && this.responseXML ) {	// Yay, loading with file:// does not provide any status...
 				callback( undefined , this.responseXML ) ;
 			}
-			else
-			{
-				if ( this.status ) { callback( this.status ) ; }
-				else { callback( new Error( "[svg-kit] ajaxStatus(): Error with falsy status" ) ) ; }
-			}
+			else if ( this.status ) { callback( this.status ) ; }
+			else { callback( new Error( "[svg-kit] ajaxStatus(): Error with falsy status" ) ) ; }
 		}
 	}
 	catch ( error ) {
@@ -8696,14 +11639,13 @@ svgKit.ajax.ajaxStatus = function ajaxStatus( callback )
 
 
 
-svgKit.getViewBox = function getViewBox( $svg )
-{
+svgKit.getViewBox = function( $svg ) {
 	var raw = $svg.getAttribute( 'viewBox' ) ;
-	
+
 	if ( ! raw ) { return null ; }
-	
+
 	var array = raw.split( / +/ ) ;
-	
+
 	return {
 		x: parseFloat( array[ 0 ] , 10 ) ,
 		y: parseFloat( array[ 1 ] , 10 ) ,
@@ -8714,19 +11656,23 @@ svgKit.getViewBox = function getViewBox( $svg )
 
 
 
-svgKit.setViewBox = function setViewBox( $svg , viewBox )
-{
+svgKit.setViewBox = function( $svg , viewBox ) {
 	$svg.setAttribute( 'viewBox' , viewBox.x + ' ' + viewBox.y + ' ' + viewBox.width + ' ' + viewBox.height ) ;
 } ;
 
 
 
-// DEPRECATED?
-
-svgKit.toAreaArray = function toAreaArray( object )
-{
-	if ( object.xmin !== undefined && object.xmax !== undefined && object.ymin !== undefined && object.ymax !== undefined )
-	{
+svgKit.toAreaArray = function( object ) {
+	if ( object.min && object.max ) {
+		// Math Kit BoundingBox2D
+		return [
+			object.min.x ,
+			object.min.y ,
+			object.max.x - object.min.x ,
+			object.max.y - object.min.y
+		] ;
+	}
+	else if ( object.xmin !== undefined && object.xmax !== undefined && object.ymin !== undefined && object.ymax !== undefined ) {
 		return [
 			object.xmin ,
 			object.ymin ,
@@ -8734,8 +11680,7 @@ svgKit.toAreaArray = function toAreaArray( object )
 			object.ymax - object.ymin
 		] ;
 	}
-	else if ( object.x !== undefined && object.y !== undefined && object.width !== undefined && object.height !== undefined )
-	{
+	else if ( object.x !== undefined && object.y !== undefined && object.width !== undefined && object.height !== undefined ) {
 		return [
 			object.x ,
 			object.y ,
@@ -8743,144 +11688,115 @@ svgKit.toAreaArray = function toAreaArray( object )
 			object.height
 		] ;
 	}
-	else
-	{
-		return [ 0 , 0 , 100 , 100 ] ;
-	}
+
+	return [ 0 , 0 , 100 , 100 ] ;
+
 } ;
 
 
 
-svgKit.standalone = function standalone( content , viewBox )
-{
+svgKit.standalone = function( content , viewBox ) {
 	var output = '<?xml version="1.0" encoding="UTF-8"?>\n' ;
-	
+
 	if ( ! Array.isArray( viewBox ) ) { viewBox = svgKit.toAreaArray( viewBox ) ; }
-	
+
 	output += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + viewBox.join( ' ' ) + '">\n' ;
-	
+
 	// ?
-    // width="500"
-    // height="500"
-    
-    output += content ;
-    output += '\n</svg>\n' ;
-    
-    return output ;
+	// width="500"
+	// height="500"
+
+	output += content ;
+	output += '\n</svg>\n' ;
+
+	return output ;
 } ;
 
 
 
 }).call(this,require('_process'))
-},{"_process":13,"dom-kit":7,"fs":6,"string-kit/lib/escape.js":23}],23:[function(require,module,exports){
-/*
-	String Kit
+},{"./path.js":31,"_process":13,"dom-kit":7,"fs":6,"string-kit/lib/escape.js":33}],33:[function(require,module,exports){
+arguments[4][28][0].apply(exports,arguments)
+},{"dup":28}],34:[function(require,module,exports){
+(function (setImmediate,clearImmediate){
+var nextTick = require('process/browser.js').nextTick;
+var apply = Function.prototype.apply;
+var slice = Array.prototype.slice;
+var immediateIds = {};
+var nextImmediateId = 0;
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+// DOM APIs, for completeness
 
-	The MIT License (MIT)
+exports.setTimeout = function() {
+  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+};
+exports.setInterval = function() {
+  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+};
+exports.clearTimeout =
+exports.clearInterval = function(timeout) { timeout.close(); };
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+function Timeout(id, clearFn) {
+  this._id = id;
+  this._clearFn = clearFn;
+}
+Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+Timeout.prototype.close = function() {
+  this._clearFn.call(window, this._id);
+};
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+// Does not start the time, just sets up the members needed.
+exports.enroll = function(item, msecs) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = msecs;
+};
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
+exports.unenroll = function(item) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = -1;
+};
 
-/*
-	Escape collection.
-*/
+exports._unrefActive = exports.active = function(item) {
+  clearTimeout(item._idleTimeoutId);
 
+  var msecs = item._idleTimeout;
+  if (msecs >= 0) {
+    item._idleTimeoutId = setTimeout(function onTimeout() {
+      if (item._onTimeout)
+        item._onTimeout();
+    }, msecs);
+  }
+};
 
+// That's not how node.js implements it but the exposed api is the same.
+exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
+  var id = nextImmediateId++;
+  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
 
-"use strict" ;
+  immediateIds[id] = true;
 
+  nextTick(function onNextTick() {
+    if (immediateIds[id]) {
+      // fn.call() is faster so we optimize for the common use-case
+      // @see http://jsperf.com/call-apply-segu
+      if (args) {
+        fn.apply(null, args);
+      } else {
+        fn.call(null);
+      }
+      // Prevent ids from leaking
+      exports.clearImmediate(id);
+    }
+  });
 
+  return id;
+};
 
-// From Mozilla Developper Network
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
-exports.regExp = exports.regExpPattern = function escapeRegExpPattern( str ) {
-	return str.replace( /([.*+?^${}()|[\]/\\])/g , '\\$1' ) ;
-} ;
-
-exports.regExpReplacement = function escapeRegExpReplacement( str ) {
-	return str.replace( /\$/g , '$$$$' ) ;	// This replace any single $ by a double $$
-} ;
-
-
-
-exports.format = function escapeFormat( str ) {
-	return str.replace( /%/g , '%%' ) ;	// This replace any single % by a double %%
-} ;
-
-
-
-exports.jsSingleQuote = function escapeJsSingleQuote( str ) {
-	return exports.control( str ).replace( /'/g , "\\'" ) ;
-} ;
-
-exports.jsDoubleQuote = function escapeJsDoubleQuote( str ) {
-	return exports.control( str ).replace( /"/g , '\\"' ) ;
-} ;
-
-
-
-exports.shellArg = function escapeShellArg( str ) {
-	return '\'' + str.replace( /'/g , "'\\''" ) + '\'' ;
-} ;
-
-
-
-var escapeControlMap = {
-	'\r': '\\r' , '\n': '\\n' , '\t': '\\t' , '\x7f': '\\x7f'
-} ;
-
-// Escape \r \n \t so they become readable again, escape all ASCII control character as well, using \x syntaxe
-exports.control = function escapeControl( str ) {
-	return str.replace( /[\x00-\x1f\x7f]/g , ( match ) => {
-		if ( escapeControlMap[ match ] !== undefined ) { return escapeControlMap[ match ] ; }
-		var hex = match.charCodeAt( 0 ).toString( 16 ) ;
-		if ( hex.length % 2 ) { hex = '0' + hex ; }
-		return '\\x' + hex ;
-	} ) ;
-} ;
-
-
-
-var escapeHtmlMap = {
-	'&': '&amp;' , '<': '&lt;' , '>': '&gt;' , '"': '&quot;' , "'": '&#039;'
-} ;
-
-// Only escape & < > so this is suited for content outside tags
-exports.html = function escapeHtml( str ) {
-	return str.replace( /[&<>]/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
-} ;
-
-// Escape & < > " so this is suited for content inside a double-quoted attribute
-exports.htmlAttr = function escapeHtmlAttr( str ) {
-	return str.replace( /[&<>"]/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
-} ;
-
-// Escape all html special characters & < > " '
-exports.htmlSpecialChars = function escapeHtmlSpecialChars( str ) {
-	return str.replace( /[&<>"']/g , ( match ) => { return escapeHtmlMap[ match ] ; } ) ;
-} ;
-
-
-
-},{}],24:[function(require,module,exports){
+exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+  delete immediateIds[id];
+};
+}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+},{"process/browser.js":13,"timers":34}],35:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9614,7 +12530,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":25,"punycode":14,"querystring":17}],25:[function(require,module,exports){
+},{"./util":36,"punycode":14,"querystring":17}],36:[function(require,module,exports){
 'use strict';
 
 module.exports = {

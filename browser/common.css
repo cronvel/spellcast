@@ -98,7 +98,7 @@ body {
 
 .sprite-wrapper {
 	position: absolute;
-	height: 50%;
+	height: 100%;
 	z-index: 30;
 	transition: all 1s ;
 }
@@ -152,7 +152,7 @@ body {
 
 .ui-wrapper {
 	position: absolute;
-	height: 90%;
+	height: 100%;
 	z-index: 10;
 	transition: all 1s ;
 }

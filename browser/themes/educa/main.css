@@ -30,6 +30,10 @@ spellcast {
 
 
 
+#gfx {
+	height: 50vh;
+}
+
 .scene-image {
 	position: absolute;
 	z-index: 0;
@@ -57,6 +61,7 @@ main {
 	bottom: 0px;
 	opacity: 1;
 	transition: opacity 0.5s;
+	background-color: #e4fcff;
 }
 
 #main-buffer {
