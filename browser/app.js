@@ -1686,7 +1686,7 @@ Dom.prototype.updateGItemMask = function( gItem , data ) {
 // Update “framework” size/position
 Dom.prototype.updateGItemTransform = function( gItem , data ) {
 	var wrapperAspect , imageAspect , imageWidth , imageHeight ,
-		xMinOffset , yMinOffset , xFactor , yFactor ;
+		xMinOffset , yMinOffset , xRate , yRate , xFactor , yFactor ;
 	
 	// For instance, marker are excluded
 	if ( ! gItem.$wrapper || ! gItem.$image ) { return ; }
@@ -1742,10 +1742,14 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 	// Compute position
 	switch ( gItem.position.mode ) {
 		case 'areaInSpriteOut' :
-			// In this mode, the sprite is positioned relative to its container area 0,0 being top-left and 1,1 being bottom-right.
-			// Any value in [0,1] ensure the whole sprite is inside the area.
-			// For values <0 or >1 the extra are scaled using the sprite scale, e.g.:
-			// x=-0.5 means that the sprite is on the left, its left half being invisible (outside the container), its right half being visible (inside the container).
+			// In this mode, the sprite is positioned relative to its container area -1,-1 being top-left and 1,1 being bottom-right and 0,0 being the center
+			// Any value in [-1,1] ensure the whole sprite is inside the area.
+			// For values <-1 or >1 the extra are scaled using the sprite scale, e.g.:
+			// x=-1.5 means that the sprite is on the left, its left half being invisible (outside the container), its right half being visible (inside the container).
+			
+			// Rescale [-1,1] into [0,1]
+			xRate = 0.5 + gItem.position.x / 2 ;
+			yRate = 0.5 + gItem.position.y / 2 ;
 			
 			xMinOffset = yMinOffset = 0 ;
 			xFactor = this.$gfx.offsetWidth - imageWidth ;
@@ -1760,24 +1764,24 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 			
 			console.log( "dbg:" , { xMinOffset , xFactor , yFactor } ) ;
 			
-			if ( gItem.position.x < 0 ) {
-				gItem.transform.translateX = xMinOffset + gItem.position.x * imageWidth * gItem.transform.scale ;
+			if ( xRate < 0 ) {
+				gItem.transform.translateX = xMinOffset + xRate * imageWidth * gItem.transform.scale ;
 			}
-			else if ( gItem.position.x > 1 ) {
-				gItem.transform.translateX = xMinOffset + xFactor + ( gItem.position.x - 1 ) * imageWidth * gItem.transform.scale ;
+			else if ( xRate > 1 ) {
+				gItem.transform.translateX = xMinOffset + xFactor + ( xRate - 1 ) * imageWidth * gItem.transform.scale ;
 			}
 			else {
-				gItem.transform.translateX = xMinOffset + gItem.position.x * xFactor ;
+				gItem.transform.translateX = xMinOffset + xRate * xFactor ;
 			}
 			
-			if ( gItem.position.y < 0 ) {
-				gItem.transform.translateY = yMinOffset + gItem.position.y * imageHeight * gItem.transform.scale ;
+			if ( yRate < 0 ) {
+				gItem.transform.translateY = yMinOffset + yRate * imageHeight * gItem.transform.scale ;
 			}
-			else if ( gItem.position.y > 1 ) {
-				gItem.transform.translateY = yMinOffset + yFactor + ( gItem.position.y - 1 ) * imageHeight * gItem.transform.scale ;
+			else if ( yRate > 1 ) {
+				gItem.transform.translateY = yMinOffset + yFactor + ( yRate - 1 ) * imageHeight * gItem.transform.scale ;
 			}
 			else {
-				gItem.transform.translateY = yMinOffset + gItem.position.y * yFactor ;
+				gItem.transform.translateY = yMinOffset + yRate * yFactor ;
 			}
 			
 			console.log( "transform after .updateGItemPosition()" , gItem.transform ) ;
@@ -1789,6 +1793,10 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 			// Any value in [0,1] ensure the whole sprite is inside the area.
 			// Values <0 or >1 still use the same linear coordinate (so are scaled using the container size).
 			
+			// Rescale [-1,1] into [0,1]
+			xRate = 0.5 + gItem.position.x / 2 ;
+			yRate = 0.5 + gItem.position.y / 2 ;
+			
 			xMinOffset = yMinOffset = 0 ;
 			xFactor = this.$gfx.offsetWidth - imageWidth ;
 			yFactor = this.$gfx.offsetHeight - imageHeight ;
@@ -1801,8 +1809,8 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 			}
 			
 			console.log( "dbg:" , { xMinOffset , xFactor , yFactor } ) ;
-			gItem.transform.translateX = xMinOffset + gItem.position.x * xFactor ;
-			gItem.transform.translateY = yMinOffset + gItem.position.y * yFactor ;
+			gItem.transform.translateX = xMinOffset + xRate * xFactor ;
+			gItem.transform.translateY = yMinOffset + yRate * yFactor ;
 			
 			console.log( "transform after .updateGItemPosition()" , gItem.transform ) ;
 			break ;
