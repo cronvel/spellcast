@@ -82,7 +82,7 @@ function Dom() {
 
 	this.hintTimer = null ;
 	this.sceneImageOnTimer = null ;
-	this.onChatSubmit = null ;
+	this.onCommandSubmit = null ;
 
 	// The number of UI loading in progress
 	this.uiLoadingCount = 0 ;
@@ -916,15 +916,15 @@ Dom.prototype.textInput = function( options , callback ) {
 
 
 
-Dom.prototype.enableChat = function( callback ) {
-	if ( ! this.onChatSubmit ) {
-		this.onChatSubmit = ( event ) => {
+Dom.prototype.enableCommand = function( callback ) {
+	if ( ! this.onCommandSubmit ) {
+		this.onCommandSubmit = ( event ) => {
 			event.preventDefault() ;
 			callback( this.$chatInput.value ) ;
 			this.$chatInput.value = '' ;
 		} ;
 
-		this.$chatForm.addEventListener( 'submit' , this.onChatSubmit ) ;
+		this.$chatForm.addEventListener( 'submit' , this.onCommandSubmit ) ;
 
 		this.$chat.classList.remove( 'hidden' ) ;
 		this.$chatInput.removeAttribute( 'disabled' ) ;
@@ -933,9 +933,9 @@ Dom.prototype.enableChat = function( callback ) {
 
 
 
-Dom.prototype.disableChat = function() {
-	this.$chatForm.removeEventListener( 'submit' , this.onChatSubmit ) ;
-	this.onChatSubmit = null ;
+Dom.prototype.disableCommand = function() {
+	this.$chatForm.removeEventListener( 'submit' , this.onCommandSubmit ) ;
+	this.onCommandSubmit = null ;
 
 	this.$chat.classList.add( 'hidden' ) ;
 	this.$chatInput.setAttribute( 'disabled' , true ) ;
@@ -1686,7 +1686,7 @@ Dom.prototype.updateGItemMask = function( gItem , data ) {
 // Update “framework” size/position
 Dom.prototype.updateGItemTransform = function( gItem , data ) {
 	var wrapperAspect , imageAspect , imageWidth , imageHeight ,
-		xMinOffset , yMinOffset , xRate , yRate , xFactor , yFactor ;
+		xMinOffset , yMinOffset , xFactor , yFactor ;
 	
 	// For instance, marker are excluded
 	if ( ! gItem.$wrapper || ! gItem.$image ) { return ; }
@@ -1742,14 +1742,10 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 	// Compute position
 	switch ( gItem.position.mode ) {
 		case 'areaInSpriteOut' :
-			// In this mode, the sprite is positioned relative to its container area -1,-1 being top-left and 1,1 being bottom-right and 0,0 being the center
+			// In this mode, the sprite is positioned relative to its container area -1,-1 being bottom-left and 1,1 being top-right and 0,0 being the center
 			// Any value in [-1,1] ensure the whole sprite is inside the area.
 			// For values <-1 or >1 the extra are scaled using the sprite scale, e.g.:
 			// x=-1.5 means that the sprite is on the left, its left half being invisible (outside the container), its right half being visible (inside the container).
-			
-			// Rescale [-1,1] into [0,1]
-			xRate = 0.5 + gItem.position.x / 2 ;
-			yRate = 0.5 + gItem.position.y / 2 ;
 			
 			xMinOffset = yMinOffset = 0 ;
 			xFactor = this.$gfx.offsetWidth - imageWidth ;
@@ -1764,24 +1760,24 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 			
 			console.log( "dbg:" , { xMinOffset , xFactor , yFactor } ) ;
 			
-			if ( xRate < 0 ) {
-				gItem.transform.translateX = xMinOffset + xRate * imageWidth * gItem.transform.scale ;
+			if ( gItem.position.x < -1 ) {
+				gItem.transform.translateX = xMinOffset + ( gItem.position.x + 1 ) * imageWidth * gItem.transform.scale ;
 			}
-			else if ( xRate > 1 ) {
-				gItem.transform.translateX = xMinOffset + xFactor + ( xRate - 1 ) * imageWidth * gItem.transform.scale ;
+			else if ( gItem.position.x > 1 ) {
+				gItem.transform.translateX = xMinOffset + xFactor + ( gItem.position.x - 1 ) * imageWidth * gItem.transform.scale ;
 			}
 			else {
-				gItem.transform.translateX = xMinOffset + xRate * xFactor ;
+				gItem.transform.translateX = xMinOffset + ( 0.5 + gItem.position.x / 2 ) * xFactor ;
 			}
 			
-			if ( yRate < 0 ) {
-				gItem.transform.translateY = yMinOffset + yRate * imageHeight * gItem.transform.scale ;
+			if ( gItem.position.y < -1 ) {
+				gItem.transform.translateY = yMinOffset + yFactor - ( gItem.position.y + 1 ) * imageHeight * gItem.transform.scale ;
 			}
-			else if ( yRate > 1 ) {
-				gItem.transform.translateY = yMinOffset + yFactor + ( yRate - 1 ) * imageHeight * gItem.transform.scale ;
+			else if ( gItem.position.y > 1 ) {
+				gItem.transform.translateY = yMinOffset - ( gItem.position.y - 1 ) * imageHeight * gItem.transform.scale ;
 			}
 			else {
-				gItem.transform.translateY = yMinOffset + yRate * yFactor ;
+				gItem.transform.translateY = yMinOffset + ( 0.5 - gItem.position.y / 2 ) * yFactor ;
 			}
 			
 			console.log( "transform after .updateGItemPosition()" , gItem.transform ) ;
@@ -1789,13 +1785,9 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 		
 		case 'area' :
 		default:
-			// In this mode, the sprite is positioned relative to its container area 0,0 being top-left and 1,1 being bottom-right.
-			// Any value in [0,1] ensure the whole sprite is inside the area.
-			// Values <0 or >1 still use the same linear coordinate (so are scaled using the container size).
-			
-			// Rescale [-1,1] into [0,1]
-			xRate = 0.5 + gItem.position.x / 2 ;
-			yRate = 0.5 + gItem.position.y / 2 ;
+			// In this mode, the sprite is positioned relative to its container area -1,-1 being bottom-left and 1,1 being top-right and 0,0 being the center
+			// Any value in [-1,1] ensure the whole sprite is inside the area.
+			// Values <-1 or >1 still use the same linear coordinate (so are scaled using the container size).
 			
 			xMinOffset = yMinOffset = 0 ;
 			xFactor = this.$gfx.offsetWidth - imageWidth ;
@@ -1809,8 +1801,8 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 			}
 			
 			console.log( "dbg:" , { xMinOffset , xFactor , yFactor } ) ;
-			gItem.transform.translateX = xMinOffset + xRate * xFactor ;
-			gItem.transform.translateY = yMinOffset + yRate * yFactor ;
+			gItem.transform.translateX = xMinOffset + ( 0.5 + gItem.position.x / 2 ) * xFactor ;
+			gItem.transform.translateY = yMinOffset + ( 0.5 - gItem.position.y / 2 ) * yFactor ;
 			
 			console.log( "transform after .updateGItemPosition()" , gItem.transform ) ;
 			break ;
@@ -2771,10 +2763,7 @@ function UI( bus , client ) {
 	this.client.once( 'close' , UI.clientClose.bind( this ) ) ;
 	this.client.on( 'error' , UI.clientError.bind( this ) ) ;
 
-	this.dom.enableChat( ( message ) => {
-		console.log( 'inGame?' , this.inGame ) ;
-		this.bus.emit( this.inGame ? 'command' : 'chat' , message ) ;
-	} ) ;
+	this.commandConfig( { enabled: true } ) ;
 
 	this.dom.preload() ;
 }
@@ -2791,7 +2780,7 @@ function arrayGetById( id ) { return this.find( ( e ) => { return e.id === id ; 
 
 
 // 'open' event on client
-UI.prototype.initBus = function initBus() {
+UI.prototype.initBus = function() {
 	this.bus.on( 'clientConfig' , UI.clientConfig.bind( this ) ) ;
 	this.bus.on( 'user' , UI.user.bind( this ) ) ;
 	this.bus.on( 'userList' , UI.userList.bind( this ) ) ;
@@ -2840,6 +2829,7 @@ UI.prototype.initBus = function initBus() {
 	this.bus.on( 'nextTriggered' , UI.nextTriggered.bind( this ) ) ;
 
 	this.bus.on( 'textInput' , UI.textInput.bind( this ) ) ;
+	this.bus.on( 'commandConfig' , UI.prototype.commandConfig.bind( this ) ) ;
 
 	//this.bus.on( 'splitRoles' , UI.splitRoles.bind( this ) ) ;
 	this.bus.on( 'rejoinRoles' , UI.rejoinRoles.bind( this ) ) ;
@@ -2861,14 +2851,14 @@ UI.prototype.initBus = function initBus() {
 
 
 
-UI.clientConnecting = function clientConnecting() {
+UI.clientConnecting = function() {
 	console.log( 'Connecting!' ) ;
 	this.dom.clientStatus( 'connecting' ) ;
 } ;
 
 
 
-UI.clientOpen = function clientOpen() {
+UI.clientOpen = function() {
 	console.log( 'Connected!' ) ;
 	this.dom.clientStatus( 'connected' ) ;
 	this.initBus() ;
@@ -2883,14 +2873,14 @@ UI.clientOpen = function clientOpen() {
 
 
 
-UI.clientClose = function clientClose() {
+UI.clientClose = function() {
 	console.log( 'Closed!' ) ;
 	this.dom.clientStatus( 'closed' ) ;
 } ;
 
 
 
-UI.clientError = function clientError( code ) {
+UI.clientError = function( code ) {
 	switch ( code ) {
 		case 'unreachable' :
 			this.dom.clientStatus( 'unreachable' ) ;
@@ -2900,7 +2890,7 @@ UI.clientError = function clientError( code ) {
 
 
 
-UI.clientConfig = function clientConfig( config ) {
+UI.clientConfig = function( config ) {
 	console.warn( 'Client config received: ' , config ) ;
 	this.config = config ;
 
@@ -2911,14 +2901,14 @@ UI.clientConfig = function clientConfig( config ) {
 
 
 
-UI.user = function user( user_ ) {
+UI.user = function( user_ ) {
 	console.log( 'User received: ' , user_ ) ;
 	this.user = user_ ;
 } ;
 
 
 
-UI.userList = function userList( users ) {
+UI.userList = function( users ) {
 	console.log( 'User-list received: ' , users ) ;
 
 	// Add the get method to the array
@@ -2928,7 +2918,7 @@ UI.userList = function userList( users ) {
 
 
 
-UI.roleList = function roleList( roles , unassignedUsers , assigned ) {
+UI.roleList = function( roles , unassignedUsers , assigned ) {
 	var choices = [] , undecidedNames ;
 
 	// If there are many roles, this is a multiplayer game
@@ -3003,7 +2993,7 @@ UI.roleList = function roleList( roles , unassignedUsers , assigned ) {
 
 // Script [message], execution can be suspended if the listener is async, waiting for completion.
 // E.g.: possible use: wait for a user input before continuing processing.
-UI.message = function message( text , options , callback ) {
+UI.message = function( text , options , callback ) {
 	var triggered = false ;
 
 	this.hasNewContent = true ;
@@ -3017,26 +3007,26 @@ UI.message = function message( text , options , callback ) {
 
 
 
-UI.indicators = function indicators( data ) {
+UI.indicators = function( data ) {
 	this.dom.addIndicators( data ) ;
 } ;
 
 
 
-UI.status = function status( data ) {
+UI.status = function( data ) {
 	this.dom.addIndicators( data , true ) ;
 } ;
 
 
 
-UI.panel = function panel( data , reset ) {
+UI.panel = function( data , reset ) {
 	this.dom.addPanel( data , reset ) ;
 } ;
 
 
 
 // 'enterScene' event
-UI.enterScene = function enterScene( isGosub , toAltBuffer ) {
+UI.enterScene = function( isGosub , toAltBuffer ) {
 	var switchedToAltBuffer ;
 
 	this.inGame = true ;
@@ -3055,7 +3045,7 @@ UI.enterScene = function enterScene( isGosub , toAltBuffer ) {
 
 
 // 'leaveScene' event
-UI.leaveScene = function leaveScene( isReturn , backToMainBuffer ) {
+UI.leaveScene = function( isReturn , backToMainBuffer ) {
 	if ( backToMainBuffer ) { this.dom.toMainBuffer() ; }
 	//else { this.dom.newSegmentOnContent() ; }
 
@@ -3068,7 +3058,7 @@ UI.leaveScene = function leaveScene( isReturn , backToMainBuffer ) {
 
 
 // 'nextTriggered' event
-UI.nextTriggered = function nextTriggered( nextId ) {
+UI.nextTriggered = function( nextId ) {
 	var selected = this.nexts.find( e => e.id === nextId ) ;
 
 	this.dom.newSegmentOnContent( 'inter-segment' ) ;
@@ -3084,7 +3074,7 @@ UI.nextTriggered = function nextTriggered( nextId ) {
 
 
 
-UI.nextList = function nextList( nexts , undecidedRoleIds , options , isUpdate ) {
+UI.nextList = function( nexts , undecidedRoleIds , options , isUpdate ) {
 	var choices = [] , undecidedNames , charCount = 0 ;
 
 	this.nexts = nexts ;
@@ -3144,7 +3134,7 @@ UI.nextList = function nextList( nexts , undecidedRoleIds , options , isUpdate )
 
 
 // External raw output (e.g. shell command stdout)
-UI.extOutput = function extOutput( output ) {
+UI.extOutput = function( output ) {
 	alert( 'not coded ATM!' ) ;
 	//process.stdout.write( output ) ;
 } ;
@@ -3152,7 +3142,7 @@ UI.extOutput = function extOutput( output ) {
 
 
 // External raw error output (e.g. shell command stderr)
-UI.extErrorOutput = function extErrorOutput( output ) {
+UI.extErrorOutput = function( output ) {
 	alert( 'not coded ATM!' ) ;
 	//process.stderr.write( output ) ;
 } ;
@@ -3160,7 +3150,7 @@ UI.extErrorOutput = function extErrorOutput( output ) {
 
 
 // Text input field
-UI.textInput = function textInput( label , grantedRoleIds ) {
+UI.textInput = function( label , grantedRoleIds ) {
 	var options = {
 		label: label
 	} ;
@@ -3178,24 +3168,40 @@ UI.textInput = function textInput( label , grantedRoleIds ) {
 
 
 
-UI.pause = function pause( duration ) {
+UI.prototype.commandConfig = function( config ) {
+	console.warn( "Received command config:" , config ) ;
+	if ( config.enabled === true ) {
+		this.dom.enableCommand( ( message ) => {
+			console.log( 'inGame?' , this.inGame ) ;
+			this.bus.emit( this.inGame ? 'command' : 'chat' , message ) ;
+		} ) ;
+	}
+	else if ( config.enabled === false ) {
+		console.warn( "disabled!" ) ;
+		this.dom.disableCommand() ;
+	}
+} ;
+
+
+
+UI.pause = function( duration ) {
 	console.log( "Received a pause event for" , duration , "seconds" ) ;
 } ;
 
 
 
-UI.unpause = function unpause() {
+UI.unpause = function() {
 	console.log( "Received an unpause event" ) ;
 } ;
 
 
 
 // rejoinRoles event (probably better to listen to that event before using it in the 'wait' event)
-UI.rejoinRoles = function rejoinRoles() {} ;
+UI.rejoinRoles = function() {} ;
 
 
 
-UI.wait = function wait( what ) {
+UI.wait = function( what ) {
 	switch ( what ) {
 		case 'otherBranches' :
 			this.dom.setBigHint( "WAITING FOR OTHER BRANCHES TO FINISH..." , { wait: true , "pulse-animation": true } ) ;
@@ -3208,7 +3214,7 @@ UI.wait = function wait( what ) {
 
 
 
-UI.theme = function theme( data ) {
+UI.theme = function( data ) {
 	if ( ! data.url ) {
 		if ( this.config.theme ) { this.dom.setTheme( this.config.theme ) ; }
 		return ;
@@ -3219,19 +3225,19 @@ UI.theme = function theme( data ) {
 
 
 
-UI.image = function image( data ) {
+UI.image = function( data ) {
 	this.dom.setSceneImage( data ) ;
 } ;
 
 
 
-UI.defineAnimation = function defineAnimation( id , data ) {
+UI.defineAnimation = function( id , data ) {
 	this.dom.defineAnimation( id , data ) ;
 } ;
 
 
 
-UI.showSprite = function showSprite( id , data , callback ) {
+UI.showSprite = function( id , data , callback ) {
 	if ( ! data.url || typeof data.url !== 'string' ) {
 		callback() ;
 		return ;
@@ -3243,32 +3249,32 @@ UI.showSprite = function showSprite( id , data , callback ) {
 
 
 
-UI.spriteActionCallback = function spriteActionCallback( action ) {
+UI.spriteActionCallback = function( action ) {
 	console.warn( "Sprite action triggered: " , action ) ;
 	this.bus.emit( 'action' , action ) ;
 } ;
 
 
 
-UI.updateSprite = function updateSprite( id , data , callback ) {
+UI.updateSprite = function( id , data , callback ) {
 	this.dom.updateSprite( id , data ).then( callback ) ;
 } ;
 
 
 
-UI.animateSprite = function animateSprite( spriteId , animationId , callback ) {
+UI.animateSprite = function( spriteId , animationId , callback ) {
 	this.dom.animateSprite( spriteId , animationId ).then( callback ) ;
 } ;
 
 
 
-UI.clearSprite = function clearSprite( id ) {
+UI.clearSprite = function( id ) {
 	this.dom.clearSprite( id ) ;
 } ;
 
 
 
-UI.showUi = function showUi( id , data ) {
+UI.showUi = function( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
 	data.actionCallback = UI.uiActionCallback.bind( this ) ;
@@ -3278,32 +3284,32 @@ UI.showUi = function showUi( id , data ) {
 
 
 
-UI.uiActionCallback = function uiActionCallback( action ) {
+UI.uiActionCallback = function( action ) {
 	console.warn( "UI action triggered: " , action ) ;
 	this.bus.emit( 'action' , action ) ;
 } ;
 
 
 
-UI.updateUi = function updateUi( id , data ) {
+UI.updateUi = function( id , data ) {
 	this.dom.updateUi( id , data ) ;
 } ;
 
 
 
-UI.animateUi = function animateUi( uiId , animationId ) {
+UI.animateUi = function( uiId , animationId ) {
 	this.dom.animateUi( uiId , animationId ) ;
 } ;
 
 
 
-UI.clearUi = function clearUi( id ) {
+UI.clearUi = function( id ) {
 	this.dom.clearUi( id ) ;
 } ;
 
 
 
-UI.showMarker = function showMarker( id , data ) {
+UI.showMarker = function( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
 	data.actionCallback = UI.markerActionCallback.bind( this ) ;
@@ -3313,32 +3319,32 @@ UI.showMarker = function showMarker( id , data ) {
 
 
 
-UI.markerActionCallback = function markerActionCallback( action ) {
+UI.markerActionCallback = function( action ) {
 	console.warn( "Marker action triggered: " , action ) ;
 	this.bus.emit( 'action' , action ) ;
 } ;
 
 
 
-UI.updateMarker = function updateMarker( id , data ) {
+UI.updateMarker = function( id , data ) {
 	this.dom.updateMarker( id , data ) ;
 } ;
 
 
 
-UI.animateMarker = function animateMarker( markerId , animationId ) {
+UI.animateMarker = function( markerId , animationId ) {
 	this.dom.animateMarker( markerId , animationId ) ;
 } ;
 
 
 
-UI.clearMarker = function clearMarker( id ) {
+UI.clearMarker = function( id ) {
 	this.dom.clearMarker( id ) ;
 } ;
 
 
 
-UI.showCard = function showCard( id , data ) {
+UI.showCard = function( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
 	data.actionCallback = UI.cardActionCallback.bind( this ) ;
@@ -3348,46 +3354,46 @@ UI.showCard = function showCard( id , data ) {
 
 
 
-UI.cardActionCallback = function cardActionCallback( action ) {
+UI.cardActionCallback = function( action ) {
 	console.warn( "Card action triggered: " , action ) ;
 	this.bus.emit( 'action' , action ) ;
 } ;
 
 
 
-UI.updateCard = function updateCard( id , data ) {
+UI.updateCard = function( id , data ) {
 	this.dom.updateCard( id , data ) ;
 } ;
 
 
 
-UI.animateCard = function animateCard( cardId , animationId ) {
+UI.animateCard = function( cardId , animationId ) {
 	this.dom.animateCard( cardId , animationId ) ;
 } ;
 
 
 
-UI.clearCard = function clearCard( id ) {
+UI.clearCard = function( id ) {
 	this.dom.clearCard( id ) ;
 } ;
 
 
 
 // add a callback here?
-UI.sound = function sound( data ) {
+UI.sound = function( data ) {
 	this.dom.sound( data ) ;
 } ;
 
 
 
-UI.music = function music( data ) {
+UI.music = function( data ) {
 	this.dom.music( data ) ;
 } ;
 
 
 
 // End event
-UI.end = function end( result , data , callback ) {
+UI.end = function( result , data , callback ) {
 	// /!\ this.afterNext is not the good way to detect extra content...
 	var options = {
 		modal: true , big: true , fun: true , contentDelay: this.hasNewContent , slow: true
@@ -3420,14 +3426,14 @@ UI.end = function end( result , data , callback ) {
 
 
 // Custom event, not used in vanilla client
-UI.custom = function custom( event , data ) {
+UI.custom = function( event , data ) {
 	console.log( "Received a custom event" , event , data ) ;
 } ;
 
 
 
 // Exit event
-UI.exit = function exit( error , timeout , callback ) {
+UI.exit = function( error , timeout , callback ) {
 	console.log( 'exit cb' , callback ) ;
 	this.once( 'end' , () => {
 		// Add at least few ms, because DOM may be OK, but parallel image download are still in progress.
