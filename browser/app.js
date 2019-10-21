@@ -1195,7 +1195,7 @@ Dom.prototype.clearCard = function( id ) {
 
 
 Dom.prototype.showSprite = function( id , data ) {
-	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+	if ( ! data.url || typeof data.url !== 'string' ) { return Promise.resolved ; }
 
 	if ( this.sprites[ id ] ) { this.clearGItem( this.sprites[ id ] ) ; }
 
@@ -1209,13 +1209,13 @@ Dom.prototype.showSprite = function( id , data ) {
 		animation: null
 	} ) ;
 
-	this.updateGItem( sprite , data ) ;
+	return this.updateGItem( sprite , data , true ) ;
 } ;
 
 
 
 Dom.prototype.showUi = function( id , data ) {
-	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+	if ( ! data.url || typeof data.url !== 'string' ) { return Promise.resolved ; }
 
 	if ( this.uis[ id ] ) { this.clearGItem( this.uis[ id ] ) ; }
 
@@ -1229,13 +1229,13 @@ Dom.prototype.showUi = function( id , data ) {
 		animation: null
 	} ) ;
 
-	this.updateGItem( ui , data ) ;
+	return this.updateGItem( ui , data , true ) ;
 } ;
 
 
 
 Dom.prototype.showMarker = function( id , data ) {
-	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+	if ( ! data.url || typeof data.url !== 'string' ) { return Promise.resolved ; }
 
 	if ( this.markers[ id ] ) { this.clearGItem( this.markers[ id ] ) ; }
 
@@ -1250,7 +1250,7 @@ Dom.prototype.showMarker = function( id , data ) {
 		animation: null
 	} ) ;
 
-	this.updateGItem( marker , data ) ;
+	return this.updateGItem( marker , data , true ) ;
 } ;
 
 
@@ -1258,7 +1258,7 @@ Dom.prototype.showMarker = function( id , data ) {
 var cardAutoIncrement = 0 ;
 
 Dom.prototype.showCard = function( id , data ) {
-	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+	if ( ! data.url || typeof data.url !== 'string' ) { return Promise.resolved ; }
 
 	if ( this.cards[ id ] ) { this.clearGItem( this.cards[ id ] ) ; }
 
@@ -1279,7 +1279,7 @@ Dom.prototype.showCard = function( id , data ) {
 
 	this.createCardMarkup( card ) ;
 
-	this.updateGItem( card , data ) ;
+	return this.updateGItem( card , data , true ) ;
 } ;
 
 
@@ -1287,10 +1287,10 @@ Dom.prototype.showCard = function( id , data ) {
 Dom.prototype.updateSprite = function( id , data ) {
 	if ( ! this.sprites[ id ] ) {
 		console.warn( 'Unknown sprite id: ' , id ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
-	this.updateGItem( this.sprites[ id ] , data ) ;
+	return this.updateGItem( this.sprites[ id ] , data ) ;
 } ;
 
 
@@ -1298,10 +1298,10 @@ Dom.prototype.updateSprite = function( id , data ) {
 Dom.prototype.updateUi = function( id , data ) {
 	if ( ! this.uis[ id ] ) {
 		console.warn( 'Unknown UI id: ' , id ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
-	this.updateGItem( this.uis[ id ] , data ) ;
+	return this.updateGItem( this.uis[ id ] , data ) ;
 } ;
 
 
@@ -1309,10 +1309,10 @@ Dom.prototype.updateUi = function( id , data ) {
 Dom.prototype.updateMarker = function( id , data ) {
 	if ( ! this.markers[ id ] ) {
 		console.warn( 'Unknown marker id: ' , id ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
-	this.updateGItem( this.markers[ id ] , data ) ;
+	return this.updateGItem( this.markers[ id ] , data ) ;
 } ;
 
 
@@ -1320,10 +1320,10 @@ Dom.prototype.updateMarker = function( id , data ) {
 Dom.prototype.updateCard = function( id , data ) {
 	if ( ! this.cards[ id ] ) {
 		console.warn( 'Unknown card id: ' , id ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
-	this.updateGItem( this.cards[ id ] , data ) ;
+	return this.updateGItem( this.cards[ id ] , data ) ;
 } ;
 
 
@@ -1331,15 +1331,15 @@ Dom.prototype.updateCard = function( id , data ) {
 Dom.prototype.animateSprite = function( spriteId , animationId ) {
 	if ( ! this.sprites[ spriteId ] ) {
 		console.warn( 'Unknown sprite id: ' , spriteId ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
 	if ( ! this.animations[ animationId ] ) {
 		console.warn( 'Unknown animation id: ' , animationId ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
-	this.animateGItem( this.sprites[ spriteId ] , this.animations[ animationId ] ) ;
+	return this.animateGItem( this.sprites[ spriteId ] , this.animations[ animationId ] ) ;
 } ;
 
 
@@ -1347,15 +1347,15 @@ Dom.prototype.animateSprite = function( spriteId , animationId ) {
 Dom.prototype.animateUi = function( uiId , animationId ) {
 	if ( ! this.uis[ uiId ] ) {
 		console.warn( 'Unknown UI id: ' , uiId ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
 	if ( ! this.animations[ animationId ] ) {
 		console.warn( 'Unknown animation id: ' , animationId ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
-	this.animateGItem( this.uis[ uiId ] , this.animations[ animationId ] ) ;
+	return this.animateGItem( this.uis[ uiId ] , this.animations[ animationId ] ) ;
 } ;
 
 
@@ -1363,15 +1363,15 @@ Dom.prototype.animateUi = function( uiId , animationId ) {
 Dom.prototype.animateMarker = function( markerId , animationId ) {
 	if ( ! this.markers[ markerId ] ) {
 		console.warn( 'Unknown marker id: ' , markerId ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
 	if ( ! this.animations[ animationId ] ) {
 		console.warn( 'Unknown animation id: ' , animationId ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
-	this.animateGItem( this.markers[ markerId ] , this.animations[ animationId ] ) ;
+	return this.animateGItem( this.markers[ markerId ] , this.animations[ animationId ] ) ;
 } ;
 
 
@@ -1379,15 +1379,15 @@ Dom.prototype.animateMarker = function( markerId , animationId ) {
 Dom.prototype.animateCard = function( cardId , animationId ) {
 	if ( ! this.cards[ cardId ] ) {
 		console.warn( 'Unknown card id: ' , cardId ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
 	if ( ! this.animations[ animationId ] ) {
 		console.warn( 'Unknown animation id: ' , animationId ) ;
-		return ;
+		return Promise.resolved ;
 	}
 
-	this.animateGItem( this.cards[ cardId ] , this.animations[ animationId ] ) ;
+	return this.animateGItem( this.cards[ cardId ] , this.animations[ animationId ] ) ;
 } ;
 
 
@@ -1398,6 +1398,8 @@ Dom.prototype.createGItem = function( data ) {
 
 	if ( data.type !== 'marker' ) {
 		gItem.$wrapper = document.createElement( 'div' ) ;
+		// At creation, the visibility is turned off, the initial update will turn it on again
+		gItem.$wrapper.style.visibility = 'hidden' ;
 		gItem.$wrapper.classList.add( 'g-item-wrapper' , data.type + '-wrapper' ) ;
 		this.$gfx.append( gItem.$wrapper ) ;
 	}
@@ -1428,7 +1430,7 @@ Dom.prototype.clearGItem = function( gItem ) {
 /*
 	Execute only DOM and critical stuff first.
 */
-Dom.prototype.updateGItem = async function( gItem , data ) {
+Dom.prototype.updateGItem = async function( gItem , data , initial = false ) {
 	// The order matters
 	if ( data.url ) { await this.updateGItemImage( gItem , data ) ; }
 	if ( data.backUrl ) { await this.updateGItemBackImage( gItem , data ) ; }
@@ -1447,8 +1449,8 @@ Dom.prototype.updateGItem = async function( gItem , data ) {
 	}
 
 	// For some unknown reasons, that timeout removes animation glitches
-	setTimeout( () => this.updateGItemCosmetics( gItem , data ) , 10 ) ;
-	//this.updateGItemCosmetics( gItem , data ) ;
+	//await Promise.resolveTimeout( 5 ) ;
+	return this.updateGItemCosmetics( gItem , data , initial ) ;
 } ;
 
 
@@ -1456,16 +1458,26 @@ Dom.prototype.updateGItem = async function( gItem , data ) {
 /*
 	Execute less important things, like things triggering animations
 */
-Dom.prototype.updateGItemCosmetics = async function( gItem , data ) {
+Dom.prototype.updateGItemCosmetics = async function( gItem , data , initial = false ) {
 	// The order matters
-	if ( data.transition !== undefined ) {
-		if ( ! data.transition ) {
+	
+	// Should comes first: Transition,
+	// Either remove them (for initial value) or set them to the user value before changing anything
+	if ( initial ) {
+		gItem.$wrapper.style.transition = 'none' ;
+	}
+	else if ( data.transition !== undefined ) {
+		if ( data.transition === null ) {
+			gItem.$wrapper.style.transition = '' ;	// reset it to default stylesheet value
+		}
+		else if ( ! data.transition ) {
 			gItem.$wrapper.style.transition = 'none' ;
 		}
 		else {
 			gItem.$wrapper.style.transition = 'all ' + data.transition + 's' ;
 		}
 	}
+	
 	
 	if ( data.location !== undefined && gItem.type !== 'marker' ) {
 		// Should be triggered first, or pose/style would conflict with it
@@ -1507,24 +1519,41 @@ Dom.prototype.updateGItemCosmetics = async function( gItem , data ) {
 		Object.assign( gItem.class , data.class ) ;
 		domKit.class( gItem.$wrapper || gItem.$image , data.class , 's-' ) ;
 	}
+
+	// Should comes last: for initial update, restore the transition value and turn visibility on
+	if ( initial ) {
+		// At creation, the visibility is turned off, now we need to turn it on again
+		gItem.$wrapper.style.visibility = 'visible' ;
+		
+		// If it's done immediately, the transition can kick in nonetheless
+		//await Promise.resolveTimeout( 5 ) ;
+		await Promise.resolveAtAnimationFrame() ;
+
+		if ( data.transition === undefined || data.transition === null ) {
+			gItem.$wrapper.style.transition = '' ;	// reset it to default stylesheet value
+		}
+		else if ( ! data.transition ) {
+			gItem.$wrapper.style.transition = 'none' ;
+		}
+		else {
+			gItem.$wrapper.style.transition = 'all ' + data.transition + 's' ;
+		}
+	}
 } ;
 
 
 
 // Load/replace the gItem image (data.url)
 Dom.prototype.updateGItemImage = function( gItem , data ) {
-	var promise = new Promise() ,
-		imageUrl = data.url ;
-	
-	delete data.url ;
+	var promise = new Promise() ;
 
 	if ( gItem.type === 'card' ) {
-		gItem.$image.style.backgroundImage = 'url("' + this.cleanUrl( imageUrl ) + '")' ;
+		gItem.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
 		promise.resolve() ;
 		return promise ;
 	}
 
-	if ( imageUrl.endsWith( '.svg' ) ) {
+	if ( data.url.endsWith( '.svg' ) ) {
 		// Always wipe any existing $image element and pre-create the <svg> tag
 		if ( gItem.$image ) { gItem.$image.remove() ; }
 
@@ -1558,7 +1587,7 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 				break ;
 		}
 
-		svgKit.load( this.cleanUrl( imageUrl ) , {
+		svgKit.load( this.cleanUrl( data.url ) , {
 			removeSvgStyle: true ,
 			//removeSize: true ,
 			//removeIds: true ,
@@ -1591,7 +1620,7 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 			gItem.$image.classList.add( gItem.type ) ;
 		}
 
-		gItem.$image.setAttribute( 'src' , this.cleanUrl( imageUrl ) ) ;
+		gItem.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 		gItem.$image.onload = () => promise.resolve() ;
 	}
 
@@ -1607,11 +1636,8 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 // Load/replace the gItem backImage (data.backUrl)
 // /!\ Not async ATM: how to get a "load" event on a background-image???
 Dom.prototype.updateGItemBackImage = function( gItem , data ) {
-	var imageUrl = data.backUrl ;
-	delete data.backUrl ;
-
 	if ( gItem.type === 'card' ) {
-		gItem.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( imageUrl ) + '")' ;
+		gItem.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
 		//gItem.$image.onload = () => promise.resolve() ;
 	}
 	
@@ -1652,8 +1678,6 @@ Dom.prototype.updateGItemMask = function( gItem , data ) {
 		promise.resolve() ;
 	}
 
-	delete data.maskUrl ;
-	
 	return promise ;
 } ;
 
@@ -1705,8 +1729,10 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 	
 	// Compute scaling -- should comes first for this to work!
 	switch ( gItem.size.mode ) {
-		case 'relative' :
+		case 'area' :
+		case 'areaMin' :
 		default :
+			// In this mode, the sprite is scaled relative to its container area.
 			gItem.transform.scale = gItem.size.xy ;
 			console.log( "transform after .updateGItemSize()" , gItem.transform ) ;
 			break ;
@@ -1715,8 +1741,54 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 	
 	// Compute position
 	switch ( gItem.position.mode ) {
-		case 'relative' :
+		case 'areaInSpriteOut' :
+			// In this mode, the sprite is positioned relative to its container area 0,0 being top-left and 1,1 being bottom-right.
+			// Any value in [0,1] ensure the whole sprite is inside the area.
+			// For values <0 or >1 the extra are scaled using the sprite scale, e.g.:
+			// x=-0.5 means that the sprite is on the left, its left half being invisible (outside the container), its right half being visible (inside the container).
+			
+			xMinOffset = yMinOffset = 0 ;
+			xFactor = this.$gfx.offsetWidth - imageWidth ;
+			yFactor = this.$gfx.offsetHeight - imageHeight ;
+			
+			if ( gItem.transform.scale !== undefined ) {
+				xMinOffset = - 0.5 * imageWidth * ( 1 - gItem.transform.scale ) ;
+				yMinOffset = - 0.5 * imageHeight * ( 1 - gItem.transform.scale ) ;
+				xFactor += imageWidth * ( 1 - gItem.transform.scale ) ;
+				yFactor += imageHeight * ( 1 - gItem.transform.scale ) ;
+			}
+			
+			console.log( "dbg:" , { xMinOffset , xFactor , yFactor } ) ;
+			
+			if ( gItem.position.x < 0 ) {
+				gItem.transform.translateX = xMinOffset + gItem.position.x * imageWidth * gItem.transform.scale ;
+			}
+			else if ( gItem.position.x > 1 ) {
+				gItem.transform.translateX = xMinOffset + xFactor + ( gItem.position.x - 1 ) * imageWidth * gItem.transform.scale ;
+			}
+			else {
+				gItem.transform.translateX = xMinOffset + gItem.position.x * xFactor ;
+			}
+			
+			if ( gItem.position.y < 0 ) {
+				gItem.transform.translateY = yMinOffset + gItem.position.y * imageHeight * gItem.transform.scale ;
+			}
+			else if ( gItem.position.y > 1 ) {
+				gItem.transform.translateY = yMinOffset + yFactor + ( gItem.position.y - 1 ) * imageHeight * gItem.transform.scale ;
+			}
+			else {
+				gItem.transform.translateY = yMinOffset + gItem.position.y * yFactor ;
+			}
+			
+			console.log( "transform after .updateGItemPosition()" , gItem.transform ) ;
+			break ;
+		
+		case 'area' :
 		default:
+			// In this mode, the sprite is positioned relative to its container area 0,0 being top-left and 1,1 being bottom-right.
+			// Any value in [0,1] ensure the whole sprite is inside the area.
+			// Values <0 or >1 still use the same linear coordinate (so are scaled using the container size).
+			
 			xMinOffset = yMinOffset = 0 ;
 			xFactor = this.$gfx.offsetWidth - imageWidth ;
 			yFactor = this.$gfx.offsetHeight - imageHeight ;
@@ -1762,8 +1834,6 @@ Dom.prototype.updateGItemContent = function( gItem , data ) {
 		$content.textContent = content ;
 		$content.setAttribute( 'content' , content ) ;
 	}
-
-	delete data.content ;
 } ;
 
 
@@ -1778,8 +1848,6 @@ Dom.prototype.updateGItemPose = function( gItem , data ) {
 		gItem.$wrapper.removeAttribute( 'pose' ) ;
 		gItem.pose = null ;
 	}
-
-	delete data.pose ;
 } ;
 
 
@@ -1806,8 +1874,6 @@ Dom.prototype.updateGItemStatus = function( gItem , data ) {
 			}
 		}
 	}
-
-	delete data.status ;
 } ;
 
 
@@ -1821,8 +1887,6 @@ Dom.prototype.updateGItemButton = function( gItem , data ) {
 	$element.setAttribute( 'id' , 'button-' + buttonId ) ;
 	$element.classList.add( 'button' ) ;
 	$element.classList.add( 'disabled' ) ;
-
-	delete data.button ;
 } ;
 
 
@@ -1847,8 +1911,6 @@ Dom.prototype.updateGItemAction = function( gItem , data ) {
 	}
 
 	gItem.action = data.action || null ;
-
-	delete data.action ;
 } ;
 
 
@@ -2193,7 +2255,7 @@ Dom.prototype.createCardMarkup = function( card ) {
 
 
 
-Dom.prototype.animateGItem = function( gItem , animation ) {
+Dom.prototype.animateGItem = async function( gItem , animation ) {
 	var frame , frameIndex = 0 ;
 
 	gItem.animation = animation.id ;
@@ -2205,23 +2267,14 @@ Dom.prototype.animateGItem = function( gItem , animation ) {
 	// If there is no frames, quit now
 	if ( ! Array.isArray( animation.frames ) || ! animation.frames.length ) { return ; }
 
-	var nextFrame = () => {
-		frame = animation.frames[ frameIndex ] ;
-
+	for ( frame of animation.frames ) {
 		// Update the gItem
-		this.updateGItem( gItem , frame ) ;
+		await this.updateGItem( gItem , frame ) ;
+		await Promise.resolveTimeout( frame.duration * 1000 ) ;
+	}
 
-		if ( ++ frameIndex < animation.frames.length ) {
-			setTimeout( nextFrame , frame.duration * 1000 ) ;
-		}
-		else {
-			// This is the end of the animation...
-			// Restore something here?
-			gItem.animation = null ;
-		}
-	} ;
-
-	nextFrame() ;
+	// Restore something here?
+	gItem.animation = null ;
 } ;
 
 
@@ -2753,9 +2806,9 @@ UI.prototype.initBus = function initBus() {
 
 	this.bus.on( 'defineAnimation' , UI.defineAnimation.bind( this ) ) ;
 
-	this.bus.on( 'showSprite' , UI.showSprite.bind( this ) ) ;
-	this.bus.on( 'updateSprite' , UI.updateSprite.bind( this ) ) ;
-	this.bus.on( 'animateSprite' , UI.animateSprite.bind( this ) ) ;
+	this.bus.on( 'showSprite' , UI.showSprite.bind( this ) , { async: true } ) ;
+	this.bus.on( 'updateSprite' , UI.updateSprite.bind( this ) , { async: true } ) ;
+	this.bus.on( 'animateSprite' , UI.animateSprite.bind( this ) , { async: true } ) ;
 	this.bus.on( 'clearSprite' , UI.clearSprite.bind( this ) ) ;
 
 	this.bus.on( 'showUi' , UI.showUi.bind( this ) ) ;
@@ -3170,12 +3223,14 @@ UI.defineAnimation = function defineAnimation( id , data ) {
 
 
 
-UI.showSprite = function showSprite( id , data ) {
-	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+UI.showSprite = function showSprite( id , data , callback ) {
+	if ( ! data.url || typeof data.url !== 'string' ) {
+		callback() ;
+		return ;
+	}
 
 	data.actionCallback = UI.spriteActionCallback.bind( this ) ;
-
-	this.dom.showSprite( id , data ) ;
+	this.dom.showSprite( id , data ).then( callback ) ;
 } ;
 
 
@@ -3187,14 +3242,14 @@ UI.spriteActionCallback = function spriteActionCallback( action ) {
 
 
 
-UI.updateSprite = function updateSprite( id , data ) {
-	this.dom.updateSprite( id , data ) ;
+UI.updateSprite = function updateSprite( id , data , callback ) {
+	this.dom.updateSprite( id , data ).then( callback ) ;
 } ;
 
 
 
-UI.animateSprite = function animateSprite( spriteId , animationId ) {
-	this.dom.animateSprite( spriteId , animationId ) ;
+UI.animateSprite = function animateSprite( spriteId , animationId , callback ) {
+	this.dom.animateSprite( spriteId , animationId ).then( callback ) ;
 } ;
 
 
@@ -8640,6 +8695,34 @@ Promise.prototype.inspect = function() {
 
 // A shared dummy promise, when you just want to return an immediately thenable
 Promise.resolved = Promise.dummy = Promise.resolve() ;
+
+
+
+
+
+/*
+	Browser specific.
+*/
+
+
+
+if ( process.browser ) {
+	Promise.prototype.resolveAtAnimationFrame = function( value ) {
+		window.requestAnimationFrame( () => this.resolve( value ) ) ;
+	} ;
+
+	Promise.prototype.rejectAtAnimationFrame = function( error ) {
+		window.requestAnimationFrame( () => this.reject( error ) ) ;
+	} ;
+
+	Promise.resolveAtAnimationFrame = function( value ) {
+		return new Promise( resolve => window.requestAnimationFrame( () => resolve( value ) ) ) ;
+	} ;
+
+	Promise.rejectAtAnimationFrame = function( error ) {
+		return new Promise( ( resolve , reject ) => window.requestAnimationFrame( () => reject( error ) ) ) ;
+	} ;
+}
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
