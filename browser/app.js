@@ -74,7 +74,7 @@ function Dom() {
 	this.nextSoundChannel = 0 ;
 
 	this.sprites = {} ;
-	this.uis = {} ;
+	this.vgs = {} ;
 	this.markers = {} ;
 	this.cards = {} ;
 	this.gItemLocations = {} ;
@@ -1155,15 +1155,15 @@ Dom.prototype.clearSprite = function( id ) {
 
 
 
-Dom.prototype.clearUi = function( id ) {
-	if ( ! this.uis[ id ] ) {
-		console.warn( 'Unknown UI id: ' , id ) ;
+Dom.prototype.clearVg = function( id ) {
+	if ( ! this.vgs[ id ] ) {
+		console.warn( 'Unknown VG id: ' , id ) ;
 		return ;
 	}
 
-	this.clearGItem( this.uis[ id ] ) ;
+	this.clearGItem( this.vgs[ id ] ) ;
 
-	delete this.uis[ id ] ;
+	delete this.vgs[ id ] ;
 } ;
 
 
@@ -1214,22 +1214,22 @@ Dom.prototype.showSprite = function( id , data ) {
 
 
 
-Dom.prototype.showUi = function( id , data ) {
+Dom.prototype.showVg = function( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return Promise.resolved ; }
 
-	if ( this.uis[ id ] ) { this.clearGItem( this.uis[ id ] ) ; }
+	if ( this.vgs[ id ] ) { this.clearGItem( this.vgs[ id ] ) ; }
 
-	var ui = this.uis[ id ] = this.createGItem( {
+	var vg = this.vgs[ id ] = this.createGItem( {
 		actionCallback: data.actionCallback ,
 		action: null ,
-		type: 'ui' ,
+		type: 'vg' ,
 		class: data.class ,
 		style: {} ,
 		area: {} ,
 		animation: null
 	} ) ;
 
-	return this.updateGItem( ui , data , true ) ;
+	return this.updateGItem( vg , data , true ) ;
 } ;
 
 
@@ -1243,7 +1243,7 @@ Dom.prototype.showMarker = function( id , data ) {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'marker' ,
-		ui: null ,
+		vg: null ,
 		location: null ,
 		class: data.class ,
 		style: {} ,
@@ -1295,13 +1295,13 @@ Dom.prototype.updateSprite = function( id , data ) {
 
 
 
-Dom.prototype.updateUi = function( id , data ) {
-	if ( ! this.uis[ id ] ) {
-		console.warn( 'Unknown UI id: ' , id ) ;
+Dom.prototype.updateVg = function( id , data ) {
+	if ( ! this.vgs[ id ] ) {
+		console.warn( 'Unknown VG id: ' , id ) ;
 		return Promise.resolved ;
 	}
 
-	return this.updateGItem( this.uis[ id ] , data ) ;
+	return this.updateGItem( this.vgs[ id ] , data ) ;
 } ;
 
 
@@ -1344,9 +1344,9 @@ Dom.prototype.animateSprite = function( spriteId , animationId ) {
 
 
 
-Dom.prototype.animateUi = function( uiId , animationId ) {
-	if ( ! this.uis[ uiId ] ) {
-		console.warn( 'Unknown UI id: ' , uiId ) ;
+Dom.prototype.animateVg = function( gItemId , animationId ) {
+	if ( ! this.vgs[ gItemId ] ) {
+		console.warn( 'Unknown VG id: ' , gItemId ) ;
 		return Promise.resolved ;
 	}
 
@@ -1355,7 +1355,7 @@ Dom.prototype.animateUi = function( uiId , animationId ) {
 		return Promise.resolved ;
 	}
 
-	return this.animateGItem( this.uis[ uiId ] , this.animations[ animationId ] ) ;
+	return this.animateGItem( this.vgs[ gItemId ] , this.animations[ animationId ] ) ;
 } ;
 
 
@@ -1441,11 +1441,11 @@ Dom.prototype.updateGItem = async function( gItem , data , initial = false ) {
 	//if ( data.action !== undefined ) { this.updateGItemAction( gItem , data ) ; }
 
 	if ( data.area ) {
-		this.updateUiArea( gItem , data.area ) ;
+		this.updateVgArea( gItem , data.area ) ;
 	}
 
-	if ( gItem.type === 'marker' && ( data.ui || data.location ) ) {
-		this.updateMarkerLocation( gItem , data.ui , data.location ) ;
+	if ( gItem.type === 'marker' && ( data.vg || data.location ) ) {
+		this.updateMarkerLocation( gItem , data.vg , data.location ) ;
 	}
 
 	// For some unknown reasons, that timeout removes animation glitches
@@ -1560,7 +1560,7 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 		if ( gItem.$image ) { gItem.$image.remove() ; }
 
 		if ( gItem.type === 'marker' ) {
-			// If it's a marker, load it inside a <g> tag, that will be part of the main UI's <svg>
+			// If it's a marker, load it inside a <g> tag, that will be part of the main VG's <svg>
 			// <svg> inside <svg> are great, but Chrome sucks at it (it does not support CSS transform, etc)
 			gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'g' ) ;
 		}
@@ -1570,7 +1570,7 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 		}
 
 		switch ( gItem.type ) {
-			case 'ui' :
+			case 'vg' :
 				// Stop event propagation
 				gItem.onClick = ( event ) => {
 					//gItem.actionCallback( gItem.action ) ;
@@ -1578,7 +1578,7 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 				} ;
 
 				gItem.$image.addEventListener( 'click' , gItem.onClick ) ;
-				gItem.$image.classList.add( 'ui' ) ;
+				gItem.$image.classList.add( 'vg' ) ;
 				this.uiLoadingCount ++ ;
 				break ;
 			case 'sprite' :
@@ -1599,9 +1599,9 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 			as: gItem.$image
 		} ).then( () => {
 			console.warn( "loaded!" ) ;
-			if ( gItem.type === 'ui' ) {
-				this.setUiButtons( gItem.$image ) ;
-				this.setUiPassiveHints( gItem.$image ) ;
+			if ( gItem.type === 'vg' ) {
+				this.setVgButtons( gItem.$image ) ;
+				this.setVgPassiveHints( gItem.$image ) ;
 				gItem.emit( 'loaded' ) ;
 				if ( -- this.uiLoadingCount <= 0 ) { this.emit( 'uiLoaded' ) ; }
 			}
@@ -1621,7 +1621,7 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 
 			gItem.$image = document.createElement( 'img' ) ;
 
-			// /!\ support UI that are not SVG??? /!\
+			// /!\ support VG that are not SVG??? /!\
 			gItem.$image.classList.add( gItem.type ) ;
 		}
 
@@ -1968,7 +1968,7 @@ Dom.prototype.moveGItemToLocation = function( gItem , data ) {
 	}
 
 	// Before appending, save all rects of existing sibling slots
-	siblingGItems = [ ... Object.values( this.cards ) , ... Object.values( this.sprites ) , ... Object.values( this.uis ) ]
+	siblingGItems = [ ... Object.values( this.cards ) , ... Object.values( this.sprites ) , ... Object.values( this.vgs ) ]
 		.filter( e => e !== gItem && e.location && ( e.location === locationName || e.location === oldLocationName ) ) ;
 
 	siblingSlotRectsBefore = siblingGItems.map( e => e.$locationSlot.getBoundingClientRect() ) ;
@@ -2097,24 +2097,24 @@ Dom.prototype.moveGItemToLocation = function( gItem , data ) {
 
 
 
-Dom.prototype.updateUiArea = function( ui , areaData ) {
+Dom.prototype.updateVgArea = function( vg , areaData ) {
 	var area ;
 
-	if ( ui.type !== 'ui' ) { return ; }
+	if ( vg.type !== 'vg' ) { return ; }
 
-	if ( ! ui.hasState( 'loaded' ) ) {
-		ui.once( 'loaded' , this.updateUiArea.bind( this , ui , areaData ) ) ;
+	if ( ! vg.hasState( 'loaded' ) ) {
+		vg.once( 'loaded' , this.updateVgArea.bind( this , vg , areaData ) ) ;
 		return ;
 	}
 
 	for ( area in areaData ) {
-		if ( ! ui.area[ area ] ) { ui.area[ area ] = {} ; }
-		if ( ! ui.area[ area ].status ) { ui.area[ area ].status = {} ; }
+		if ( ! vg.area[ area ] ) { vg.area[ area ] = {} ; }
+		if ( ! vg.area[ area ].status ) { vg.area[ area ].status = {} ; }
 
-		if ( areaData[ area ].hint !== undefined ) { ui.area[ area ].hint = areaData[ area ].hint || null ; }
-		if ( areaData[ area ].status ) { Object.assign( ui.area[ area ].status , areaData[ area ].status ) ; }
+		if ( areaData[ area ].hint !== undefined ) { vg.area[ area ].hint = areaData[ area ].hint || null ; }
+		if ( areaData[ area ].status ) { Object.assign( vg.area[ area ].status , areaData[ area ].status ) ; }
 
-		Array.from( ui.$image.querySelectorAll( '[area=' + area + ']' ) ).forEach( ( $element ) => {
+		Array.from( vg.$image.querySelectorAll( '[area=' + area + ']' ) ).forEach( ( $element ) => {
 			var statusName ;
 
 			if ( areaData[ area ].hint !== undefined ) {
@@ -2144,41 +2144,41 @@ Dom.prototype.updateUiArea = function( ui , areaData ) {
 
 
 
-Dom.prototype.updateMarkerLocation = function( marker , uiId , areaId ) {
-	var ui , $area , areaBBox , markerViewBox , width , height , originX , originY , posX , posY ;
+Dom.prototype.updateMarkerLocation = function( marker , vgId , areaId ) {
+	var vg , $area , areaBBox , markerViewBox , width , height , originX , originY , posX , posY ;
 
 
 	// First, check that everything is ready and OK...
 	if ( ! marker.hasState( 'loaded' ) ) {
-		marker.once( 'loaded' , this.updateMarkerLocation.bind( this , marker , uiId , areaId ) ) ;
+		marker.once( 'loaded' , this.updateMarkerLocation.bind( this , marker , vgId , areaId ) ) ;
 		return ;
 	}
 
-	if ( ! uiId ) { uiId = marker.ui ; }
+	if ( ! vgId ) { vgId = marker.vg ; }
 	if ( ! areaId ) { areaId = marker.location ; }
 
-	if ( ! this.uis[ uiId ] ) {
-		console.warn( 'Unknown UI id: ' , uiId ) ;
+	if ( ! this.vgs[ vgId ] ) {
+		console.warn( 'Unknown VG id: ' , vgId ) ;
 		return ;
 	}
 
-	ui = this.uis[ uiId ] ;
+	vg = this.vgs[ vgId ] ;
 
-	if ( ! ui.hasState( 'loaded' ) ) {
-		ui.once( 'loaded' , this.updateMarkerLocation.bind( this , marker , uiId , areaId ) ) ;
+	if ( ! vg.hasState( 'loaded' ) ) {
+		vg.once( 'loaded' , this.updateMarkerLocation.bind( this , marker , vgId , areaId ) ) ;
 		return ;
 	}
 
-	$area = ui.$image.querySelector( '[area=' + areaId + ']' ) ;
+	$area = vg.$image.querySelector( '[area=' + areaId + ']' ) ;
 
 	if ( ! $area ) {
-		console.warn( 'UI ' + uiId + ': area not found' , areaId ) ;
+		console.warn( 'VG ' + vgId + ': area not found' , areaId ) ;
 		return ;
 	}
 
 
 	// Once everything is ok, update the marker
-	marker.ui = uiId ;
+	marker.vg = vgId ;
 	marker.location = areaId ;
 
 
@@ -2214,9 +2214,9 @@ Dom.prototype.updateMarkerLocation = function( marker , uiId , areaId ) {
 	) ;
 	//*/
 
-	// Append the <g> tag to the main UI's <svg> now, if needed
-	if ( marker.$image.ownerSVGElement !== ui.$image ) {
-		ui.$image.append( marker.$image ) ;
+	// Append the <g> tag to the main VG's <svg> now, if needed
+	if ( marker.$image.ownerSVGElement !== vg.$image ) {
+		vg.$image.append( marker.$image ) ;
 	}
 } ;
 
@@ -2291,7 +2291,7 @@ Dom.prototype.defineAnimation = function( id , data ) {
 
 
 
-Dom.prototype.setUiButtons = function( $svg ) {
+Dom.prototype.setVgButtons = function( $svg ) {
 	Array.from( $svg.querySelectorAll( '[button]' ) ).forEach( ( $element ) => {
 		var buttonId = $element.getAttribute( 'button' ) ;
 
@@ -2309,7 +2309,7 @@ Dom.prototype.setUiButtons = function( $svg ) {
 
 
 
-Dom.prototype.setUiPassiveHints = function( $svg ) {
+Dom.prototype.setVgPassiveHints = function( $svg ) {
 	Array.from( $svg.querySelectorAll( '[hint]' ) ).forEach( ( $element ) => {
 		var hint = $element.getAttribute( 'hint' ) ;
 
@@ -2736,11 +2736,11 @@ toolkit.markup = function( ... args ) {
 
 
 
-var Ngev = require( 'nextgen-events/lib/browser.js' ) ;
-var Dom = require( '../Dom.js' ) ;
-// var treeExtend = require( 'tree-kit/lib/extend.js' ) ;
-// var treeOps = require( 'kung-fig/lib/treeOps.js' ) ;
-var toolkit = require( '../toolkit.js' ) ;
+const Ngev = require( 'nextgen-events/lib/browser.js' ) ;
+const Dom = require( '../Dom.js' ) ;
+// const treeExtend = require( 'tree-kit/lib/extend.js' ) ;
+// const treeOps = require( 'kung-fig/lib/treeOps.js' ) ;
+const toolkit = require( '../toolkit.js' ) ;
 
 
 
@@ -2813,10 +2813,10 @@ UI.prototype.initBus = function() {
 	this.bus.on( 'animateSprite' , UI.animateSprite.bind( this ) , { async: true } ) ;
 	this.bus.on( 'clearSprite' , UI.clearSprite.bind( this ) ) ;
 
-	this.bus.on( 'showUi' , UI.showUi.bind( this ) ) ;
-	this.bus.on( 'updateUi' , UI.updateUi.bind( this ) ) ;
-	this.bus.on( 'animateUi' , UI.animateUi.bind( this ) ) ;
-	this.bus.on( 'clearUi' , UI.clearUi.bind( this ) ) ;
+	this.bus.on( 'showVg' , UI.showVg.bind( this ) ) ;
+	this.bus.on( 'updateVg' , UI.updateVg.bind( this ) ) ;
+	this.bus.on( 'animateVg' , UI.animateVg.bind( this ) ) ;
+	this.bus.on( 'clearVg' , UI.clearVg.bind( this ) ) ;
 
 	this.bus.on( 'showMarker' , UI.showMarker.bind( this ) ) ;
 	this.bus.on( 'updateMarker' , UI.updateMarker.bind( this ) ) ;
@@ -3278,37 +3278,37 @@ UI.clearSprite = function( id ) {
 
 
 
-UI.showUi = function( id , data ) {
+UI.showVg = function( id , data ) {
 	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
 
-	data.actionCallback = UI.uiActionCallback.bind( this ) ;
+	data.actionCallback = UI.vgActionCallback.bind( this ) ;
 
-	this.dom.showUi( id , data ) ;
+	this.dom.showVg( id , data ) ;
 } ;
 
 
 
-UI.uiActionCallback = function( action ) {
-	console.warn( "UI action triggered: " , action ) ;
+UI.vgActionCallback = function( action ) {
+	console.warn( "VG action triggered: " , action ) ;
 	this.bus.emit( 'action' , action ) ;
 } ;
 
 
 
-UI.updateUi = function( id , data ) {
-	this.dom.updateUi( id , data ) ;
+UI.updateVg = function( id , data ) {
+	this.dom.updateVg( id , data ) ;
 } ;
 
 
 
-UI.animateUi = function( uiId , animationId ) {
-	this.dom.animateUi( uiId , animationId ) ;
+UI.animateVg = function( gItemId , animationId ) {
+	this.dom.animateVg( gItemId , animationId ) ;
 } ;
 
 
 
-UI.clearUi = function( id ) {
-	this.dom.clearUi( id ) ;
+UI.clearVg = function( id ) {
+	this.dom.clearVg( id ) ;
 } ;
 
 
@@ -12209,12 +12209,12 @@ svgKit.path = require( './path.js' ) ;
 
 	* url: the URL of the .svg file
 	* options: (optional) object of options, transmitted to .inject() and .patch()
-	
+
 	Return a promise resolving to the SVG DOM document.
 */
 svgKit.load = async function( url , options = {} ) {
 	var content , $doc , $svg ;
-	
+
 	if ( ! process.browser ) {
 		// Use Node.js 'fs' module
 		if ( url.substring( 0 , 7 ) === 'file://' ) { url = url.slice( 7 ) ; }
@@ -12225,7 +12225,7 @@ svgKit.load = async function( url , options = {} ) {
 		// Use an AJAX HTTP Request
 		$doc = await svgKit.ajax( url ) ;
 	}
-	
+
 	if ( options.removeComments ) {
 		domKit.removeComments( $doc ) ;
 		delete options.removeComments ;
@@ -12243,7 +12243,7 @@ svgKit.ajax = function( url ) {
 		xhr = new XMLHttpRequest() ;
 
 	xhr.responseType = 'document' ;
-	
+
 	xhr.onreadystatechange = () => {
 		// From MDN: In the event of a communication error (such as the webserver going down),
 		// an exception will be thrown when attempting to access the 'status' property.
@@ -12264,10 +12264,10 @@ svgKit.ajax = function( url ) {
 			promise.reject( error ) ;
 		}
 	} ;
-	
+
 	xhr.open( 'GET' , url ) ;
 	xhr.send() ;
-	
+
 	return promise ;
 } ;
 

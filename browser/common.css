@@ -148,16 +148,16 @@ body {
 
 
 
-/* UI, board, etc... */
+/* VG, board, etc... */
 
-.ui-wrapper {
+.vg-wrapper {
 	position: absolute;
 	height: 100%;
 	z-index: 10;
 	transition: all 1s ;
 }
 
-.ui {
+.vg {
 	position: relative;
 	width: 100%;
 	height: 100%;
@@ -170,20 +170,20 @@ body {
 	pointer-events: none;
 }
 
-.ui .button:not(.disabled) {
+.vg .button:not(.disabled) {
 	cursor: pointer;
 	pointer-events: painted;
 }
 
-.ui .button , .ui [area] {
+.vg .button , .vg [area] {
 	pointer-events: painted;
 }
 
-/* .ui [button]:hover {} */
+/* .vg [button]:hover {} */
 
 
 
-/* UI marker, board piece, etc... */
+/* VG marker, board piece, etc... */
 
 .marker {
 	position: absolute;

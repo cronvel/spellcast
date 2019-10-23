@@ -13,7 +13,7 @@
 		[message]
 			$> In red, our saxon ennemies occupy the Iceni province and the Trinovantes province...
 		
-		[show-ui britain]
+		[show-vg britain]
 			url: /script/britain.svg
 			style:
 				width: 50%
@@ -41,7 +41,7 @@
 		
 		[show-marker here]
 			url: /icons/flag.svg
-			ui: britain
+			vg: britain
 			location: belgae
 		
 		[pause] 2
@@ -50,7 +50,7 @@
 			$> But we heard that they have landed 3 days ago in the Regnenses province with a small army.
 			$> Those lands have probably fallen already.
 		
-		[update-ui britain]
+		[update-vg britain]
 			area:
 				regnenses:
 					status:
@@ -107,7 +107,7 @@
 		[message]
 			$> As expected, the people of the Atrebates province have rallied us!
 		
-		[update-ui britain]
+		[update-vg britain]
 			area:
 				atrebates:
 					status:
@@ -125,7 +125,7 @@
 		[message]
 			$> As expected, the people of the Dobunni province have rallied us!
 		
-		[update-ui britain]
+		[update-vg britain]
 			area:
 				dobunni:
 					status:
@@ -144,7 +144,7 @@
 			$> That was a fierce battle, but we carried the day and the saxons abandoned the Regnenses province.
 			$> Those lands are now part of your kingdom!
 		
-		[update-ui britain]
+		[update-vg britain]
 			area:
 				regnenses:
 					status:
