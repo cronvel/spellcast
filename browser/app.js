@@ -1223,6 +1223,7 @@ Dom.prototype.showVg = function( id , data ) {
 		actionCallback: data.actionCallback ,
 		action: null ,
 		type: 'vg' ,
+		vgObject: null ,
 		class: data.class ,
 		style: {} ,
 		area: {} ,
@@ -1432,6 +1433,7 @@ Dom.prototype.clearGItem = function( gItem ) {
 */
 Dom.prototype.updateGItem = async function( gItem , data , initial = false ) {
 	// The order matters
+	if ( data.vgObject ) { await this.updateGItemVgObject( gItem , data ) ; }
 	if ( data.url ) { await this.updateGItemImage( gItem , data ) ; }
 	if ( data.backUrl ) { await this.updateGItemBackImage( gItem , data ) ; }
 	if ( data.maskUrl ) { await this.updateGItemMask( gItem , data ) ; }
@@ -1628,6 +1630,90 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 		gItem.$image.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 		gItem.$image.onload = () => promise.resolve() ;
 	}
+
+	if ( gItem.type !== 'marker' ) {
+		gItem.$wrapper.append( gItem.$image ) ;
+	}
+	
+	return promise ;
+} ;
+
+
+
+Dom.prototype.updateGItemVgObject = function( gItem , data ) {
+	var promise = new Promise() ;
+
+	// Always wipe any existing $image element and pre-create the <svg> tag
+	if ( gItem.$image ) { gItem.$image.remove() ; }
+
+	if ( gItem.type === 'marker' ) {
+		// If it's a marker, load it inside a <g> tag, that will be part of the main VG's <svg>
+		// <svg> inside <svg> are great, but Chrome sucks at it (it does not support CSS transform, etc)
+		gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'g' ) ;
+	}
+	else {
+		gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+		gItem.$image.classList.add( 'svg' ) ;
+	}
+	
+	var vgObject = data.vgObject ;
+	
+	if ( ! ( vgObject instanceof svgKit.VG ) ) {
+		vgObject = svgKit.objectToVG( vgObject ) ;
+	}
+	
+	vgObject.renderDom() ;
+	
+	return ;
+
+//--------------------------------------------------------------- HERE -------------------------------------------------------------------------------
+// Use VG#renderDom()
+
+	switch ( gItem.type ) {
+		case 'vg' :
+			// Stop event propagation
+			gItem.onClick = ( event ) => {
+				//gItem.actionCallback( gItem.action ) ;
+				event.stopPropagation() ;
+			} ;
+
+			gItem.$image.addEventListener( 'click' , gItem.onClick ) ;
+			gItem.$image.classList.add( 'vg' ) ;
+			this.uiLoadingCount ++ ;
+			break ;
+		case 'sprite' :
+			gItem.$image.classList.add( 'sprite' ) ;
+			break ;
+		case 'marker' :
+			gItem.$image.classList.add( 'marker' ) ;
+			break ;
+	}
+
+	svgKit.load( this.cleanUrl( data.url ) , {
+		removeSvgStyle: true ,
+		//removeSize: true ,
+		//removeIds: true ,
+		removeComments: true ,
+		removeExoticNamespaces: true ,
+		//removeDefaultStyles: true ,
+		as: gItem.$image
+	} ).then( () => {
+		console.warn( "loaded!" ) ;
+		if ( gItem.type === 'vg' ) {
+			this.setVgButtons( gItem.$image ) ;
+			this.setVgPassiveHints( gItem.$image ) ;
+			gItem.emit( 'loaded' ) ;
+			if ( -- this.uiLoadingCount <= 0 ) { this.emit( 'uiLoaded' ) ; }
+		}
+		else {
+			gItem.emit( 'loaded' ) ;
+		}
+		
+		promise.resolve() ;
+	} ) ;
+
+	console.warn( "Aft load" ) ;
+	gItem.emit( 'loading' ) ;
 
 	if ( gItem.type !== 'marker' ) {
 		gItem.$wrapper.append( gItem.$image ) ;
@@ -2417,7 +2503,7 @@ function soundFadeOut( $element , callback ) {
 }
 
 
-},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":35}],2:[function(require,module,exports){
+},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":39}],2:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12110,6 +12196,312 @@ module.exports = {
 
 },{}],34:[function(require,module,exports){
 /*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+/*
+	VG: Vector Graphics.
+	A portable structure describing some vector graphics.
+*/
+
+const svgKit = require( './svg-kit.js' ) ;
+const VGContainer = require( './VGContainer.js' ) ;
+
+var autoId = 0 ;
+
+
+
+function VG( options = {} ) {
+	VGContainer.call( this , options ) ;
+
+	this.id = options.id || 'vg_' + ( autoId ++ ) ;
+
+	this.viewBox = {
+		x: options.x || 0 ,
+		y: options.y || 0 ,
+		width: options.width || 100 ,
+		height: options.height || 100
+	} ;
+}
+
+module.exports = VG ;
+
+
+VG.prototype = Object.create( VGContainer.prototype ) ;
+VG.prototype.constructor = VG ;
+VG.prototype.__prototypeUID__ = 'svg-kit/VG' ;
+VG.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VG.prototype.svgTag = 'svg' ;
+
+VG.prototype.svgAttributes = function() {
+	var attr = {
+		xmlns: "http://www.w3.org/2000/svg" ,
+		viewBox: this.viewBox.x + ' ' + this.viewBox.y + ' ' + this.viewBox.width + ' ' + this.viewBox.height
+	} ;
+	
+	return attr ;
+} ;
+
+
+
+},{"../package.json":51,"./VGContainer.js":35,"./svg-kit.js":39}],35:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const svgKit = require( './svg-kit.js' ) ;
+const VGItem = require( './VGItem.js' ) ;
+
+
+
+function VGContainer( options = {} ) {
+	VGItem.call( this , options ) ;
+	this.items = [] ;
+	
+	if ( options.items && Array.isArray( options.items ) ) {
+		for ( let item of options.items ) {
+			this.items.push( svgKit.objectToVG( item ) ) ;
+		}
+	}
+}
+
+module.exports = VGContainer ;
+
+VGContainer.prototype = Object.create( VGItem.prototype ) ;
+VGContainer.prototype.constructor = VGContainer ;
+VGContainer.prototype.__prototypeUID__ = 'svg-kit/VGContainer' ;
+VGContainer.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGContainer.prototype.isContainer = true ;
+
+
+},{"../package.json":51,"./VGItem.js":36,"./svg-kit.js":39}],36:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+function VGItem( options = {} ) {
+	this.style = {} ;
+	if ( options.style ) { Object.assign( this.style , options.style ) ; }
+}
+
+module.exports = VGItem ;
+
+VGItem.prototype.__prototypeUID__ = 'svg-kit/VGItem' ;
+VGItem.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGItem.prototype.isContainer = false ;
+VGItem.prototype.svgTag = 'none' ;
+VGItem.prototype.svgAttributes = () => ( {} ) ;
+
+
+
+VGItem.prototype.toJSON = function() {
+	return Object.assign( { _type: this.__prototypeUID__ } , this ) ;
+} ;
+
+
+
+// Render the Vector Graphic as a text SVG
+VGItem.prototype.renderText = function() {
+	var key , str = '' , styleStr = '' ,
+		attr = this.svgAttributes() ;
+	
+	str += '<' + this.svgTag ;
+	
+	for ( key in attr ) {
+		str += ' ' + key + '="' + attr[ key ] + '"' ;
+	}
+
+	for ( key in this.style ) {
+		styleStr += key + ':' + this.style[ key ] + ';' ;
+	}
+	
+	if ( styleStr ) {
+		str += ' style="' + styleStr + '"' ;
+	}
+	
+	if ( ! this.isContainer ) {
+		str += ' />' ;
+		return str ;
+	}
+	
+	str += '>' ;
+	
+	// Inner content
+	for ( let item of this.items ) {
+		str += item.renderText() ;
+	}
+	
+	str += '</' + this.svgTag + '>' ;
+	return str ;
+} ;
+
+
+
+// Render the Vector Graphic inside a browser, as DOM SVG
+VGItem.prototype.renderDom = function() {
+} ;
+
+
+},{"../package.json":51}],37:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const VGItem = require( './VGItem.js' ) ;
+
+
+
+function VGRect( options = {} ) {
+	VGItem.call( this , options ) ;
+
+	this.x = options.x || 0 ;
+	this.y = options.y || 0 ;
+	this.width = options.width || 0 ;
+	this.height = options.height || 0 ;
+
+	// Round corner radius
+	this.rx = options.rx || options.r || 0 ;
+	this.ry = options.ry || options.r || 0 ;
+}
+
+module.exports = VGRect ;
+
+VGRect.prototype = Object.create( VGItem.prototype ) ;
+VGRect.prototype.constructor = VGRect ;
+VGRect.prototype.__prototypeUID__ = 'svg-kit/VGRect' ;
+VGRect.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGRect.prototype.svgTag = 'rect' ;
+
+VGRect.prototype.svgAttributes = function() {
+	var attr = {
+		x: this.x ,
+		y: this.y ,
+		width: this.width ,
+		height: this.height ,
+		rx: this.rx ,
+		ry: this.ry
+	} ;
+
+	return attr ;
+} ;
+
+
+},{"../package.json":51,"./VGItem.js":36}],38:[function(require,module,exports){
+/*
 	SVG Kit
 
 	Copyright (c) 2017 - 2019 Cédric Ronvel
@@ -12156,7 +12548,7 @@ path.dFromPoints = ( points , invertY ) => {
 } ;
 
 
-},{}],35:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 (function (process){
 /*
 	SVG Kit
@@ -12202,6 +12594,10 @@ module.exports = svgKit ;
 
 svgKit.path = require( './path.js' ) ;
 
+svgKit.VG = require( './VG.js' ) ;
+svgKit.VGItem = require( './VGItem.js' ) ;
+svgKit.VGRect = require( './VGRect.js' ) ;
+
 
 
 /*
@@ -12225,6 +12621,21 @@ svgKit.load = async function( url , options = {} ) {
 		// Use an AJAX HTTP Request
 		$doc = await svgKit.ajax( url ) ;
 	}
+
+	if ( options.removeComments ) {
+		domKit.removeComments( $doc ) ;
+		delete options.removeComments ;
+	}
+
+	$svg = $doc.documentElement ;
+	svgKit.inject( $svg , options ) ;
+	return $svg ;
+} ;
+
+
+
+svgKit.loadFromString = async function( content , options = {} ) {
+	$doc = domKit.fromXml( content ) ;
 
 	if ( options.removeComments ) {
 		domKit.removeComments( $doc ) ;
@@ -12577,7 +12988,6 @@ svgKit.toAreaArray = function( object ) {
 	}
 
 	return [ 0 , 0 , 100 , 100 ] ;
-
 } ;
 
 
@@ -12600,28 +13010,85 @@ svgKit.standalone = function( content , viewBox ) {
 } ;
 
 
+
+svgKit.unserializeVG = str => svgKit.objectToVG( JSON.parse( str ) ) ;
+
+svgKit.objectToVG = function( object ) {
+	if ( ! object._type || ! object._type.startsWith( 'svg-kit/' ) ) { return object ; }
+	var className = object._type.slice( 8 ) ;
+	if ( ! svgKit[ className ] ) { return object ; }
+	return new svgKit[ className ]( object ) ;
+} ;
+
+
 }).call(this,require('_process'))
-},{"./path.js":34,"_process":13,"dom-kit":36,"fs":6,"seventh":44,"string-kit/lib/escape.js":46}],36:[function(require,module,exports){
+},{"./VG.js":34,"./VGItem.js":36,"./VGRect.js":37,"./path.js":38,"_process":13,"dom-kit":40,"fs":6,"seventh":48,"string-kit/lib/escape.js":50}],40:[function(require,module,exports){
 arguments[4][7][0].apply(exports,arguments)
-},{"@cronvel/xmldom":6,"_process":13,"dup":7}],37:[function(require,module,exports){
+},{"@cronvel/xmldom":6,"_process":13,"dup":7}],41:[function(require,module,exports){
 arguments[4][18][0].apply(exports,arguments)
-},{"_process":13,"dup":18}],38:[function(require,module,exports){
+},{"_process":13,"dup":18}],42:[function(require,module,exports){
 arguments[4][19][0].apply(exports,arguments)
-},{"./seventh.js":44,"dup":19}],39:[function(require,module,exports){
+},{"./seventh.js":48,"dup":19}],43:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"./seventh.js":44,"dup":20}],40:[function(require,module,exports){
+},{"./seventh.js":48,"dup":20}],44:[function(require,module,exports){
 arguments[4][21][0].apply(exports,arguments)
-},{"_process":13,"dup":21,"setimmediate":37,"timers":31}],41:[function(require,module,exports){
+},{"_process":13,"dup":21,"setimmediate":41,"timers":31}],45:[function(require,module,exports){
 arguments[4][22][0].apply(exports,arguments)
-},{"./seventh.js":44,"dup":22}],42:[function(require,module,exports){
+},{"./seventh.js":48,"dup":22}],46:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"./seventh.js":44,"_process":13,"dup":23}],43:[function(require,module,exports){
+},{"./seventh.js":48,"_process":13,"dup":23}],47:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"./seventh.js":44,"dup":24}],44:[function(require,module,exports){
+},{"./seventh.js":48,"dup":24}],48:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./api.js":38,"./batch.js":39,"./core.js":40,"./decorators.js":41,"./misc.js":42,"./parasite.js":43,"./wrapper.js":45,"dup":25}],45:[function(require,module,exports){
+},{"./api.js":42,"./batch.js":43,"./core.js":44,"./decorators.js":45,"./misc.js":46,"./parasite.js":47,"./wrapper.js":49,"dup":25}],49:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"./seventh.js":44,"dup":26}],46:[function(require,module,exports){
+},{"./seventh.js":48,"dup":26}],50:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}]},{},[2])(2)
+},{"dup":28}],51:[function(require,module,exports){
+module.exports={
+  "name": "svg-kit",
+  "version": "0.2.0",
+  "description": "A small SVG toolkit.",
+  "main": "lib/svg-kit.js",
+  "directories": {
+    "test": "test"
+  },
+  "bin": {
+    "svgkit": "./bin/svgkit"
+  },
+  "dependencies": {
+    "@cronvel/xmldom": "^0.1.31",
+    "dom-kit": "^0.3.14",
+    "minimist": "^1.2.0",
+    "seventh": "^0.7.30",
+    "string-kit": "^0.10.1",
+    "terminal-kit": "^1.31.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "tea-time -R dot"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cronvel/svg-kit.git"
+  },
+  "keywords": [
+    "svg"
+  ],
+  "author": "Cédric Ronvel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cronvel/svg-kit/issues"
+  },
+  "copyright": {
+    "title": "SVG Kit",
+    "years": [
+      2017,
+      2019
+    ],
+    "owner": "Cédric Ronvel"
+  }
+}
+
+},{}]},{},[2])(2)
 });
