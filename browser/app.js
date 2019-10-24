@@ -1215,7 +1215,7 @@ Dom.prototype.showSprite = function( id , data ) {
 
 
 Dom.prototype.showVg = function( id , data ) {
-	if ( ! data.url || typeof data.url !== 'string' ) { return Promise.resolved ; }
+	if ( ( ! data.url || typeof data.url !== 'string' ) && ( ! data.vgObject || typeof data.vgObject !== 'object' ) ) { return Promise.resolved ; }
 
 	if ( this.vgs[ id ] ) { this.clearGItem( this.vgs[ id ] ) ; }
 
@@ -1433,7 +1433,7 @@ Dom.prototype.clearGItem = function( gItem ) {
 */
 Dom.prototype.updateGItem = async function( gItem , data , initial = false ) {
 	// The order matters
-	if ( data.vgObject ) { await this.updateGItemVgObject( gItem , data ) ; }
+	if ( data.vgObject ) { this.updateGItemVgObject( gItem , data ) ; }
 	if ( data.url ) { await this.updateGItemImage( gItem , data ) ; }
 	if ( data.backUrl ) { await this.updateGItemBackImage( gItem , data ) ; }
 	if ( data.maskUrl ) { await this.updateGItemMask( gItem , data ) ; }
@@ -1641,34 +1641,30 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 
 
 Dom.prototype.updateGItemVgObject = function( gItem , data ) {
-	var promise = new Promise() ;
-
+	var vgObject = data.vgObject ;
+	
+	if ( ! ( vgObject instanceof svgKit.VG ) ) {
+		vgObject = svgKit.objectToVG( vgObject ) ;
+		if ( ! ( vgObject instanceof svgKit.VG ) ) {
+			// Do nothing if it's not a VG object
+			return ;
+		}
+	}
+	
 	// Always wipe any existing $image element and pre-create the <svg> tag
 	if ( gItem.$image ) { gItem.$image.remove() ; }
 
 	if ( gItem.type === 'marker' ) {
 		// If it's a marker, load it inside a <g> tag, that will be part of the main VG's <svg>
 		// <svg> inside <svg> are great, but Chrome sucks at it (it does not support CSS transform, etc)
-		gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'g' ) ;
+		gItem.$image = vgObject.renderDom( { overrideTag: 'g' } ) ;
 	}
 	else {
-		gItem.$image = document.createElementNS( 'http://www.w3.org/2000/svg' , 'svg' ) ;
+		// Add a removeSvgStyle:true options?
+		gItem.$image = vgObject.renderDom() ;
 		gItem.$image.classList.add( 'svg' ) ;
 	}
 	
-	var vgObject = data.vgObject ;
-	
-	if ( ! ( vgObject instanceof svgKit.VG ) ) {
-		vgObject = svgKit.objectToVG( vgObject ) ;
-	}
-	
-	vgObject.renderDom() ;
-	
-	return ;
-
-//--------------------------------------------------------------- HERE -------------------------------------------------------------------------------
-// Use VG#renderDom()
-
 	switch ( gItem.type ) {
 		case 'vg' :
 			// Stop event propagation
@@ -1679,7 +1675,8 @@ Dom.prototype.updateGItemVgObject = function( gItem , data ) {
 
 			gItem.$image.addEventListener( 'click' , gItem.onClick ) ;
 			gItem.$image.classList.add( 'vg' ) ;
-			this.uiLoadingCount ++ ;
+			this.setVgButtons( gItem.$image ) ;
+			this.setVgPassiveHints( gItem.$image ) ;
 			break ;
 		case 'sprite' :
 			gItem.$image.classList.add( 'sprite' ) ;
@@ -1689,37 +1686,11 @@ Dom.prototype.updateGItemVgObject = function( gItem , data ) {
 			break ;
 	}
 
-	svgKit.load( this.cleanUrl( data.url ) , {
-		removeSvgStyle: true ,
-		//removeSize: true ,
-		//removeIds: true ,
-		removeComments: true ,
-		removeExoticNamespaces: true ,
-		//removeDefaultStyles: true ,
-		as: gItem.$image
-	} ).then( () => {
-		console.warn( "loaded!" ) ;
-		if ( gItem.type === 'vg' ) {
-			this.setVgButtons( gItem.$image ) ;
-			this.setVgPassiveHints( gItem.$image ) ;
-			gItem.emit( 'loaded' ) ;
-			if ( -- this.uiLoadingCount <= 0 ) { this.emit( 'uiLoaded' ) ; }
-		}
-		else {
-			gItem.emit( 'loaded' ) ;
-		}
-		
-		promise.resolve() ;
-	} ) ;
-
-	console.warn( "Aft load" ) ;
-	gItem.emit( 'loading' ) ;
-
 	if ( gItem.type !== 'marker' ) {
 		gItem.$wrapper.append( gItem.$image ) ;
 	}
 	
-	return promise ;
+	return ;
 } ;
 
 
@@ -3365,7 +3336,7 @@ UI.clearSprite = function( id ) {
 
 
 UI.showVg = function( id , data ) {
-	if ( ! data.url || typeof data.url !== 'string' ) { return ; }
+	if ( ( ! data.url || typeof data.url !== 'string' ) && ( ! data.vgObject || typeof data.vgObject !== 'object' ) ) { return ; }
 
 	data.actionCallback = UI.vgActionCallback.bind( this ) ;
 
@@ -12240,15 +12211,21 @@ function VG( options = {} ) {
 
 	this.id = options.id || 'vg_' + ( autoId ++ ) ;
 
-	this.viewBox = {
-		x: options.x || 0 ,
-		y: options.y || 0 ,
-		width: options.width || 100 ,
-		height: options.height || 100
-	} ;
+	if ( options.viewBox && typeof options.viewBox === 'object' ) {
+		this.viewBox = {
+			x: options.viewBox.x || 0 ,
+			y: options.viewBox.y || 0 ,
+			width: options.viewBox.width || 100 ,
+			height: options.viewBox.height || 100
+		} ;
+	}
+	else {
+		this.viewBox = { x: 0 , y: 0 , width: 100 , height: 100 } ;
+	}
 }
 
 module.exports = VG ;
+
 
 
 VG.prototype = Object.create( VGContainer.prototype ) ;
@@ -12268,7 +12245,6 @@ VG.prototype.svgAttributes = function() {
 	
 	return attr ;
 } ;
-
 
 
 },{"../package.json":51,"./VGContainer.js":35,"./svg-kit.js":39}],35:[function(require,module,exports){
@@ -12423,7 +12399,28 @@ VGItem.prototype.renderText = function() {
 
 
 // Render the Vector Graphic inside a browser, as DOM SVG
-VGItem.prototype.renderDom = function() {
+VGItem.prototype.renderDom = function( options = {} ) {
+	var key ,
+		$element = document.createElementNS( 'http://www.w3.org/2000/svg' , options.overrideTag || this.svgTag ) ,
+		attr = this.svgAttributes() ;
+
+	console.warn('attr:' , attr , "this:" , this ) ;
+	for ( key in attr ) {
+		$element.setAttribute( key , attr[ key ] ) ;
+	}
+
+	for ( key in this.style ) {
+		$element.style[ key ] = this.style[ key ] ;
+	}
+
+	if ( ! this.isContainer ) { return $element ; }
+
+	// Inner content
+	for ( let item of this.items ) {
+		$element.appendChild( item.renderDom() ) ;
+	}
+
+	return $element ;
 } ;
 
 
