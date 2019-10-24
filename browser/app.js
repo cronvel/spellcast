@@ -1434,6 +1434,8 @@ Dom.prototype.clearGItem = function( gItem ) {
 Dom.prototype.updateGItem = async function( gItem , data , initial = false ) {
 	// The order matters
 	if ( data.vgObject ) { this.updateGItemVgObject( gItem , data ) ; }
+	else if ( data.vgMorph ) { this.updateGItemVgMorph( gItem , data ) ; }
+	
 	if ( data.url ) { await this.updateGItemImage( gItem , data ) ; }
 	if ( data.backUrl ) { await this.updateGItemBackImage( gItem , data ) ; }
 	if ( data.maskUrl ) { await this.updateGItemMask( gItem , data ) ; }
@@ -1551,6 +1553,8 @@ Dom.prototype.updateGItemCosmetics = async function( gItem , data , initial = fa
 Dom.prototype.updateGItemImage = function( gItem , data ) {
 	var promise = new Promise() ;
 
+	gItem.vgObject = null ;
+	
 	if ( gItem.type === 'card' ) {
 		gItem.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
 		promise.resolve() ;
@@ -1651,6 +1655,9 @@ Dom.prototype.updateGItemVgObject = function( gItem , data ) {
 		}
 	}
 	
+	// Save it now!
+	gItem.vgObject = vgObject ;
+	
 	// Always wipe any existing $image element and pre-create the <svg> tag
 	if ( gItem.$image ) { gItem.$image.remove() ; }
 
@@ -1689,6 +1696,25 @@ Dom.prototype.updateGItemVgObject = function( gItem , data ) {
 	if ( gItem.type !== 'marker' ) {
 		gItem.$wrapper.append( gItem.$image ) ;
 	}
+	
+	return ;
+} ;
+
+
+
+Dom.prototype.updateGItemVgMorph = function( gItem , data ) {
+	var vgObject = gItem.vgObject ;
+	
+	if ( ! vgObject ) {
+		// Do nothing if it's not a VG object
+		console.warn( "Has no VG object, abort..." ) ;
+		return ;
+	}
+	
+	//console.warn( "Got morph log:" , data.vgMorph ) ;
+	vgObject.importMorphLog( data.vgMorph ) ;
+	//console.warn( "After importing morph log:" , vgObject ) ;
+	vgObject.morphDom()
 	
 	return ;
 } ;
@@ -12206,22 +12232,13 @@ var autoId = 0 ;
 
 
 
-function VG( options = {} ) {
+function VG( options ) {
 	VGContainer.call( this , options ) ;
 
-	this.id = options.id || 'vg_' + ( autoId ++ ) ;
-
-	if ( options.viewBox && typeof options.viewBox === 'object' ) {
-		this.viewBox = {
-			x: options.viewBox.x || 0 ,
-			y: options.viewBox.y || 0 ,
-			width: options.viewBox.width || 100 ,
-			height: options.viewBox.height || 100
-		} ;
-	}
-	else {
-		this.viewBox = { x: 0 , y: 0 , width: 100 , height: 100 } ;
-	}
+	this.id = ( options && options.id ) || 'vg_' + ( autoId ++ ) ;
+	this.viewBox = { x: 0 , y: 0 , width: 100 , height: 100 } ;
+	
+	if ( options ) { this.set( options ) ; }
 }
 
 module.exports = VG ;
@@ -12244,6 +12261,19 @@ VG.prototype.svgAttributes = function() {
 	} ;
 	
 	return attr ;
+} ;
+
+
+
+VG.prototype.set = function( data ) {
+	VGContainer.prototype.set.call( this , data ) ;
+
+	if ( data.viewBox && typeof data.viewBox === 'object' ) {
+		if ( data.viewBox.x !== undefined ) { this.viewBox.x = data.viewBox.x ; }
+		if ( data.viewBox.y !== undefined ) { this.viewBox.y = data.viewBox.y ; }
+		if ( data.viewBox.width !== undefined ) { this.viewBox.width = data.viewBox.width ; }
+		if ( data.viewBox.height !== undefined ) { this.viewBox.height = data.viewBox.height ; }
+	}
 } ;
 
 
@@ -12283,15 +12313,9 @@ const VGItem = require( './VGItem.js' ) ;
 
 
 
-function VGContainer( options = {} ) {
+function VGContainer( options ) {
 	VGItem.call( this , options ) ;
 	this.items = [] ;
-	
-	if ( options.items && Array.isArray( options.items ) ) {
-		for ( let item of options.items ) {
-			this.items.push( svgKit.objectToVG( item ) ) ;
-		}
-	}
 }
 
 module.exports = VGContainer ;
@@ -12304,6 +12328,75 @@ VGContainer.prototype.__prototypeVersion__ = require( '../package.json' ).versio
 
 
 VGContainer.prototype.isContainer = true ;
+
+
+
+VGContainer.prototype.set = function( data ) {
+	VGItem.prototype.set.call( this , data ) ;
+
+	if ( data.items && Array.isArray( data.items ) ) {
+		for ( let item of data.items ) {
+			this.items.push( svgKit.objectToVG( item ) ) ;
+		}
+	}
+} ;
+
+
+
+VGContainer.prototype.exportMorphLog = function() {
+	var hasInner = false , inner = {} ;
+	
+	this.items.forEach( ( item , index ) => {
+		var log = item.exportMorphLog() ;
+		if ( log ) {
+			inner[ index ] = log ;
+			hasInner = true ;
+		}
+	} ) ;
+	
+	if ( ! hasInner && ! this.morphLog.length ) { return null ; }
+	
+	var output = {} ;
+	if ( this.morphLog.length ) { output.l = [ ... this.morphLog ] ; }
+	if ( hasInner ) { output.i = inner ; }
+	
+	this.morphLog.length = 0 ;
+	return output ;
+} ;
+
+
+
+VGContainer.prototype.importMorphLog = function( log ) {
+	var key , index ;
+	
+	if ( ! log ) {
+		this.morphLog.length = 0 ;
+		return ;
+	}
+	
+	if ( ! log.l || ! log.l.length ) { this.morphLog.length = 0 ; }
+	else { this.morphLog = log.l ; }
+
+	if ( log.i ) {
+		for ( key in log.i ) {
+			index = + key ;
+			if ( this.items[ index ] ) {
+				console.warn( "Sub:" , this.items[ index ] , log.i[ key ] ) ;
+				this.items[ index ].importMorphLog( log.i[ key ] ) ;
+			}
+		}
+	}
+} ;
+
+
+
+// Update the DOM, based upon the morphLog
+VGContainer.prototype.morphDom = function() {
+	this.items.forEach( item => item.morphDom() ) ;
+	this.morphLog.forEach( entry => this.morphOneEntryDom( entry ) ) ;
+	this.morphLog.length = 0 ;
+	return this.$element ;
+} ;
 
 
 },{"../package.json":51,"./VGItem.js":36,"./svg-kit.js":39}],36:[function(require,module,exports){
@@ -12337,9 +12430,10 @@ VGContainer.prototype.isContainer = true ;
 
 
 
-function VGItem( options = {} ) {
+function VGItem( options ) {
 	this.style = {} ;
-	if ( options.style ) { Object.assign( this.style , options.style ) ; }
+	this.morphLog = [] ;
+	this.$element = null ;
 }
 
 module.exports = VGItem ;
@@ -12356,7 +12450,46 @@ VGItem.prototype.svgAttributes = () => ( {} ) ;
 
 
 VGItem.prototype.toJSON = function() {
-	return Object.assign( { _type: this.__prototypeUID__ } , this ) ;
+	var object = Object.assign( {} , this ) ;
+	object._type = this.__prototypeUID__ ;
+	delete object.morphLog ;
+	delete object.$element ;
+	return object ;
+} ;
+
+
+
+VGItem.prototype.set = function( data ) {
+	if ( data.style ) { Object.assign( this.style , data.style ) ; }
+} ;
+
+
+
+var morphVersion = 0 ;
+
+VGItem.prototype.morph = function( data ) {
+	var log = Object.assign( {} , data ) ;
+	log._v = morphVersion ++ ;
+	this.morphLog.push( log ) ;
+	this.set( data ) ;
+} ;
+
+
+
+VGItem.prototype.exportMorphLog = function() {
+	if ( ! this.morphLog.length ) { return null ; }
+	var output = { l: [ ... this.morphLog ] } ;
+	this.morphLog.length = 0 ;
+	return output ;
+} ;
+
+
+
+VGItem.prototype.importMorphLog = function( log ) {
+	console.warn( "import" , this.svgTag , log ) ;
+	if ( ! log || ! log.l || ! log.l.length ) { this.morphLog.length = 0 ; }
+	else { this.morphLog = log.l ; }
+	console.warn( "AFT import" , this.svgTag , this ) ;
 } ;
 
 
@@ -12401,26 +12534,53 @@ VGItem.prototype.renderText = function() {
 // Render the Vector Graphic inside a browser, as DOM SVG
 VGItem.prototype.renderDom = function( options = {} ) {
 	var key ,
-		$element = document.createElementNS( 'http://www.w3.org/2000/svg' , options.overrideTag || this.svgTag ) ,
 		attr = this.svgAttributes() ;
+	
+	this.$element = document.createElementNS( 'http://www.w3.org/2000/svg' , options.overrideTag || this.svgTag ) ;
 
-	console.warn('attr:' , attr , "this:" , this ) ;
 	for ( key in attr ) {
-		$element.setAttribute( key , attr[ key ] ) ;
+		this.$element.setAttribute( key , attr[ key ] ) ;
 	}
 
 	for ( key in this.style ) {
-		$element.style[ key ] = this.style[ key ] ;
+		this.$element.style[ key ] = this.style[ key ] ;
 	}
 
-	if ( ! this.isContainer ) { return $element ; }
+	if ( ! this.isContainer ) { return this.$element ; }
 
 	// Inner content
 	for ( let item of this.items ) {
-		$element.appendChild( item.renderDom() ) ;
+		this.$element.appendChild( item.renderDom() ) ;
 	}
 
-	return $element ;
+	return this.$element ;
+} ;
+
+
+
+// Update the DOM, based upon the morphLog
+VGItem.prototype.morphDom = function() {
+	this.morphLog.forEach( entry => this.morphOneEntryDom( entry ) ) ;
+	this.morphLog.length = 0 ;
+	return this.$element ;
+} ;
+
+
+
+VGItem.prototype.morphOneEntryDom = function( data ) {
+	var key ;
+
+	if ( data.attr ) {
+		for ( key in data.attr ) {
+			this.$element.setAttribute( key , data.attr[ key ] ) ;
+		}
+	}
+
+	if ( data.style ) {
+		for ( key in data.style ) {
+			this.$element.style[ key ] = data.style[ key ] ;
+		}
+	}
 } ;
 
 
@@ -12459,17 +12619,19 @@ const VGItem = require( './VGItem.js' ) ;
 
 
 
-function VGRect( options = {} ) {
+function VGRect( options ) {
 	VGItem.call( this , options ) ;
 
-	this.x = options.x || 0 ;
-	this.y = options.y || 0 ;
-	this.width = options.width || 0 ;
-	this.height = options.height || 0 ;
+	this.x = 0 ;
+	this.y = 0 ;
+	this.width = 0 ;
+	this.height = 0 ;
 
 	// Round corner radius
-	this.rx = options.rx || options.r || 0 ;
-	this.ry = options.ry || options.r || 0 ;
+	this.rx = 0 ;
+	this.ry = 0 ;
+	
+	if ( options ) { this.set( options ) ; }
 }
 
 module.exports = VGRect ;
@@ -12494,6 +12656,22 @@ VGRect.prototype.svgAttributes = function() {
 	} ;
 
 	return attr ;
+} ;
+
+
+
+VGRect.prototype.set = function( data ) {
+	VGItem.prototype.set.call( this , data ) ;
+
+	if ( data.x !== undefined ) { this.x = data.x ; }
+	if ( data.y !== undefined ) { this.y = data.y ; }
+	if ( data.width !== undefined ) { this.width = data.width ; }
+	if ( data.height !== undefined ) { this.height = data.height ; }
+
+	// Round corner radius
+	if ( data.r !== undefined ) { this.rx = this.ry = data.r ; }
+	if ( data.rx !== undefined ) { this.rx = data.rx ; }
+	if ( data.ry !== undefined ) { this.ry = data.ry ; }
 } ;
 
 
