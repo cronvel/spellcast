@@ -2500,7 +2500,7 @@ function soundFadeOut( $element , callback ) {
 }
 
 
-},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":39}],2:[function(require,module,exports){
+},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":40}],2:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12277,7 +12277,7 @@ VG.prototype.set = function( data ) {
 } ;
 
 
-},{"../package.json":51,"./VGContainer.js":35,"./svg-kit.js":39}],35:[function(require,module,exports){
+},{"../package.json":52,"./VGContainer.js":35,"./svg-kit.js":40}],35:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12399,7 +12399,92 @@ VGContainer.prototype.morphDom = function() {
 } ;
 
 
-},{"../package.json":51,"./VGItem.js":36,"./svg-kit.js":39}],36:[function(require,module,exports){
+},{"../package.json":52,"./VGItem.js":37,"./svg-kit.js":40}],36:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const VGItem = require( './VGItem.js' ) ;
+
+
+
+function VGEllipse( options ) {
+	VGItem.call( this , options ) ;
+
+	this.x = 0 ;
+	this.y = 0 ;
+	this.rx = 0 ;
+	this.ry = 0 ;
+	
+	if ( options ) { this.set( options ) ; }
+}
+
+module.exports = VGEllipse ;
+
+VGEllipse.prototype = Object.create( VGItem.prototype ) ;
+VGEllipse.prototype.constructor = VGEllipse ;
+VGEllipse.prototype.__prototypeUID__ = 'svg-kit/VGEllipse' ;
+VGEllipse.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGEllipse.prototype.svgTag = 'ellipse' ;
+
+VGEllipse.prototype.svgAttributes = function() {
+	var attr = {
+		cx: this.x ,
+		cy: this.y ,
+		rx: this.rx ,
+		ry: this.ry
+	} ;
+
+	return attr ;
+} ;
+
+
+
+VGEllipse.prototype.set = function( data ) {
+	VGItem.prototype.set.call( this , data ) ;
+
+	// Interop'
+	if ( data.cx !== undefined ) { this.x = data.cx ; }
+	if ( data.cy !== undefined ) { this.y = data.cy ; }
+	
+	if ( data.x !== undefined ) { this.x = data.x ; }
+	if ( data.y !== undefined ) { this.y = data.y ; }
+	if ( data.r !== undefined ) { this.rx = this.ry = data.r ; }
+	if ( data.rx !== undefined ) { this.rx = data.rx ; }
+	if ( data.ry !== undefined ) { this.ry = data.ry ; }
+} ;
+
+
+},{"../package.json":52,"./VGItem.js":37}],37:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12431,7 +12516,16 @@ VGContainer.prototype.morphDom = function() {
 
 
 function VGItem( options ) {
+	this.id = null ;
+	this.class = new Set() ;
 	this.style = {} ;
+	this.data = null ;		// User custom data, e.g. data-* attributes
+	
+	// Spellcast data
+	this.button = null ;
+	this.hint = null ;
+	this.area = null ;
+	
 	this.morphLog = [] ;
 	this.$element = null ;
 }
@@ -12451,16 +12545,61 @@ VGItem.prototype.svgAttributes = () => ( {} ) ;
 
 VGItem.prototype.toJSON = function() {
 	var object = Object.assign( {} , this ) ;
+	
 	object._type = this.__prototypeUID__ ;
+	
+	if ( this.class.size ) { object.class = [ ... this.class ] ; }
+	else { delete object.class ; }
+	
+	if ( ! object.id ) { delete object.id ; }
+	if ( ! object.data ) { delete object.data ; }
+	if ( ! object.button ) { delete object.button ; }
+	if ( ! object.hint ) { delete object.hint ; }
+	if ( ! object.area ) { delete object.area ; }
+	
 	delete object.morphLog ;
 	delete object.$element ;
+	
 	return object ;
 } ;
 
 
 
 VGItem.prototype.set = function( data ) {
+	if ( data.id !== undefined ) { this.id = data.id || null ; }
+	
+	if ( data.class ) {
+		if ( Array.isArray( data.class ) || ( data.class instanceof Set ) ) {
+			this.class.clear() ;
+
+			for ( let className of data.class ) {
+				this.class.add( data.class ) ;
+			}
+		}
+		else if ( typeof data.class === 'object' ) {
+			for ( let className in data.class ) {
+				if ( data.class[ className ] ) { this.class.add( className ) ; }
+				else { this.class.delete( className ) ; }
+			}
+		}
+	}
+
 	if ( data.style ) { Object.assign( this.style , data.style ) ; }
+	
+	if ( data.data !== undefined ) {
+		// User custom data, e.g. data-* attributes
+		if ( ! data.data ) {
+			this.data = null ;
+		}
+		else {
+			if ( ! this.data ) { this.data = {} ; }
+			Object.assign( this.data , data.data ) ;
+		}
+	}
+
+	if ( data.button !== undefined ) { this.button = data.button || null ; }
+	if ( data.hint !== undefined ) { this.hint = data.hint || null ; }
+	if ( data.area !== undefined ) { this.area = data.area || null ; }
 } ;
 
 
@@ -12486,10 +12625,8 @@ VGItem.prototype.exportMorphLog = function() {
 
 
 VGItem.prototype.importMorphLog = function( log ) {
-	console.warn( "import" , this.svgTag , log ) ;
 	if ( ! log || ! log.l || ! log.l.length ) { this.morphLog.length = 0 ; }
 	else { this.morphLog = log.l ; }
-	console.warn( "AFT import" , this.svgTag , this ) ;
 } ;
 
 
@@ -12501,8 +12638,23 @@ VGItem.prototype.renderText = function() {
 	
 	str += '<' + this.svgTag ;
 	
+	if ( this.id ) { str += ' id="' + this.id + '"' ; }
+	if ( this.button ) { str += ' button="' + this.button + '"' ; }
+	if ( this.hint ) { str += ' hint="' + this.hint + '"' ; }
+	if ( this.area ) { str += ' area="' + this.area + '"' ; }
+
+	if ( this.class.size ) {
+		str += ' class="' + [ ... this.class ].join( ' ' ) + '"' ;
+	}
+
 	for ( key in attr ) {
 		str += ' ' + key + '="' + attr[ key ] + '"' ;
+	}
+
+	if ( this.data ) {
+		for ( key in this.data ) {
+			str += ' data-' + key + '="' + this.data[ key ] + '"' ;
+		}
 	}
 
 	for ( key in this.style ) {
@@ -12538,10 +12690,25 @@ VGItem.prototype.renderDom = function( options = {} ) {
 	
 	this.$element = document.createElementNS( 'http://www.w3.org/2000/svg' , options.overrideTag || this.svgTag ) ;
 
+	if ( this.id ) { this.$element.setAttribute( 'id' , this.id ) ; }
+	if ( this.button ) { this.$element.setAttribute( 'button' , this.button ) ; }
+	if ( this.hint ) { this.$element.setAttribute( 'hint' , this.hint ) ; }
+	if ( this.area ) { this.$element.setAttribute( 'area' , this.area ) ; }
+
+	if ( this.class.size ) {
+		this.class.forEach( className => this.$element.classList.add( className ) ) ;
+	}
+	
 	for ( key in attr ) {
 		this.$element.setAttribute( key , attr[ key ] ) ;
 	}
 
+	if ( this.data ) {
+		for ( key in this.data ) {
+			this.$element.setAttribute( 'data-' + key , this.data[ key ] ) ;
+		}
+	}
+	
 	for ( key in this.style ) {
 		this.$element.style[ key ] = this.style[ key ] ;
 	}
@@ -12570,12 +12737,40 @@ VGItem.prototype.morphDom = function() {
 VGItem.prototype.morphOneEntryDom = function( data ) {
 	var key ;
 
+	// Disallow id changes?
+	//if ( data.id ) { this.$element.setAttribute( 'id' , data.id ) ; }
+	
+	if ( data.button ) { this.$element.setAttribute( 'button' , data.button ) ; }
+	if ( data.hint ) { this.$element.setAttribute( 'hint' , data.hint ) ; }
+	if ( data.area ) { this.$element.setAttribute( 'area' , data.area ) ; }
+	
+	if ( data.class ) {
+		if ( Array.isArray( data.class ) ) {
+			this.$element.setAttribute( 'class' , data.class.join( ' ' ) ) ;
+		}
+		else if ( data.class instanceof Set ) {
+			this.$element.setAttribute( 'class' , [ ... data.class ].join( ' ' ) ) ;
+		}
+		else if ( typeof data.class === 'object' ) {
+			for ( let className in data.class ) {
+				if ( data.class[ className ] ) { this.$element.classList.add( className ) ; }
+				else { this.$element.classList.remove( className ) ; }
+			}
+		}
+	}
+
 	if ( data.attr ) {
 		for ( key in data.attr ) {
 			this.$element.setAttribute( key , data.attr[ key ] ) ;
 		}
 	}
 
+	if ( data.data ) {
+		for ( key in data.data ) {
+			this.$element.setAttribute( 'data-' + key , data.data[ key ] ) ;
+		}
+	}
+	
 	if ( data.style ) {
 		for ( key in data.style ) {
 			this.$element.style[ key ] = data.style[ key ] ;
@@ -12584,7 +12779,7 @@ VGItem.prototype.morphOneEntryDom = function( data ) {
 } ;
 
 
-},{"../package.json":51}],37:[function(require,module,exports){
+},{"../package.json":52}],38:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12675,7 +12870,7 @@ VGRect.prototype.set = function( data ) {
 } ;
 
 
-},{"../package.json":51,"./VGItem.js":36}],38:[function(require,module,exports){
+},{"../package.json":52,"./VGItem.js":37}],39:[function(require,module,exports){
 /*
 	SVG Kit
 
@@ -12723,7 +12918,7 @@ path.dFromPoints = ( points , invertY ) => {
 } ;
 
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 (function (process){
 /*
 	SVG Kit
@@ -12771,7 +12966,9 @@ svgKit.path = require( './path.js' ) ;
 
 svgKit.VG = require( './VG.js' ) ;
 svgKit.VGItem = require( './VGItem.js' ) ;
+svgKit.VGContainer = require( './VGContainer.js' ) ;
 svgKit.VGRect = require( './VGRect.js' ) ;
+svgKit.VGEllipse = require( './VGEllipse.js' ) ;
 
 
 
@@ -13197,29 +13394,29 @@ svgKit.objectToVG = function( object ) {
 
 
 }).call(this,require('_process'))
-},{"./VG.js":34,"./VGItem.js":36,"./VGRect.js":37,"./path.js":38,"_process":13,"dom-kit":40,"fs":6,"seventh":48,"string-kit/lib/escape.js":50}],40:[function(require,module,exports){
+},{"./VG.js":34,"./VGContainer.js":35,"./VGEllipse.js":36,"./VGItem.js":37,"./VGRect.js":38,"./path.js":39,"_process":13,"dom-kit":41,"fs":6,"seventh":49,"string-kit/lib/escape.js":51}],41:[function(require,module,exports){
 arguments[4][7][0].apply(exports,arguments)
-},{"@cronvel/xmldom":6,"_process":13,"dup":7}],41:[function(require,module,exports){
+},{"@cronvel/xmldom":6,"_process":13,"dup":7}],42:[function(require,module,exports){
 arguments[4][18][0].apply(exports,arguments)
-},{"_process":13,"dup":18}],42:[function(require,module,exports){
+},{"_process":13,"dup":18}],43:[function(require,module,exports){
 arguments[4][19][0].apply(exports,arguments)
-},{"./seventh.js":48,"dup":19}],43:[function(require,module,exports){
+},{"./seventh.js":49,"dup":19}],44:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"./seventh.js":48,"dup":20}],44:[function(require,module,exports){
+},{"./seventh.js":49,"dup":20}],45:[function(require,module,exports){
 arguments[4][21][0].apply(exports,arguments)
-},{"_process":13,"dup":21,"setimmediate":41,"timers":31}],45:[function(require,module,exports){
+},{"_process":13,"dup":21,"setimmediate":42,"timers":31}],46:[function(require,module,exports){
 arguments[4][22][0].apply(exports,arguments)
-},{"./seventh.js":48,"dup":22}],46:[function(require,module,exports){
+},{"./seventh.js":49,"dup":22}],47:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"./seventh.js":48,"_process":13,"dup":23}],47:[function(require,module,exports){
+},{"./seventh.js":49,"_process":13,"dup":23}],48:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"./seventh.js":48,"dup":24}],48:[function(require,module,exports){
+},{"./seventh.js":49,"dup":24}],49:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./api.js":42,"./batch.js":43,"./core.js":44,"./decorators.js":45,"./misc.js":46,"./parasite.js":47,"./wrapper.js":49,"dup":25}],49:[function(require,module,exports){
+},{"./api.js":43,"./batch.js":44,"./core.js":45,"./decorators.js":46,"./misc.js":47,"./parasite.js":48,"./wrapper.js":50,"dup":25}],50:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"./seventh.js":48,"dup":26}],50:[function(require,module,exports){
+},{"./seventh.js":49,"dup":26}],51:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}],51:[function(require,module,exports){
+},{"dup":28}],52:[function(require,module,exports){
 module.exports={
   "name": "svg-kit",
   "version": "0.2.0",
