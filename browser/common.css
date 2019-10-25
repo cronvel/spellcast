@@ -100,7 +100,7 @@ body {
 	position: absolute;
 	height: 100%;
 	z-index: 30;
-	transition: all 1s ;
+	/*transition: all 1s ;*/
 }
 
 .sprite-wrapper[data-select-index]:not(.has-mask) {
@@ -154,7 +154,7 @@ body {
 	position: absolute;
 	height: 100%;
 	z-index: 10;
-	transition: all 1s ;
+	/*transition: all 1s ;*/
 }
 
 .vg {
@@ -216,7 +216,7 @@ body {
 	position: absolute;
 	z-index: 40;
 	opacity: 1;
-	transition: all 1s ;
+	/*transition: all 1s ;*/
 	/*pointer-events: none;*/
 	
 	perspective: 1000px;
