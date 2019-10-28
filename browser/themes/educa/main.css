@@ -94,6 +94,14 @@ spellcast[data-image-position="left"] #main-buffer {
 	margin-bottom: 2em;
 }
 
+#main-buffer.chat-hidden {
+	padding-bottom: 0px;
+}
+
+#main-buffer.chat-hidden .buffer-wrapper {
+	height: 100%;
+}
+
 #main-buffer .buffer-wrapper:hover {
 	padding-right: 0;
 }

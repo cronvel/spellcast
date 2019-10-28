@@ -926,6 +926,7 @@ Dom.prototype.enableCommand = function( callback ) {
 
 		this.$chatForm.addEventListener( 'submit' , this.onCommandSubmit ) ;
 
+		this.$mainBuffer.classList.remove( 'chat-hidden' ) ;
 		this.$chat.classList.remove( 'hidden' ) ;
 		this.$chatInput.removeAttribute( 'disabled' ) ;
 	}
@@ -937,6 +938,7 @@ Dom.prototype.disableCommand = function() {
 	this.$chatForm.removeEventListener( 'submit' , this.onCommandSubmit ) ;
 	this.onCommandSubmit = null ;
 
+	this.$mainBuffer.classList.add( 'chat-hidden' ) ;
 	this.$chat.classList.add( 'hidden' ) ;
 	this.$chatInput.setAttribute( 'disabled' , true ) ;
 } ;
@@ -12240,8 +12242,12 @@ function VG( options ) {
 	VGContainer.call( this , options ) ;
 
 	this.id = ( options && options.id ) || 'vg_' + ( autoId ++ ) ;
-	this.viewBox = { x: 0 , y: 0 , width: 100 , height: 100 } ;
-	
+	this.viewBox = {
+		x: 0 , y: 0 , width: 100 , height: 100
+	} ;
+
+	this.css = [] ;
+
 	if ( options ) { this.set( options ) ; }
 }
 
@@ -12263,7 +12269,7 @@ VG.prototype.svgAttributes = function() {
 		xmlns: "http://www.w3.org/2000/svg" ,
 		viewBox: this.viewBox.x + ' ' + this.viewBox.y + ' ' + this.viewBox.width + ' ' + this.viewBox.height
 	} ;
-	
+
 	return attr ;
 } ;
 
@@ -12278,10 +12284,37 @@ VG.prototype.set = function( data ) {
 		if ( data.viewBox.width !== undefined ) { this.viewBox.width = data.viewBox.width ; }
 		if ( data.viewBox.height !== undefined ) { this.viewBox.height = data.viewBox.height ; }
 	}
+
+	if ( data.css && Array.isArray( data.css ) ) {
+		this.css.length = 0 ;
+		for ( let rule of data.css ) {
+			this.addCssRule( rule ) ;
+		}
+	}
 } ;
 
 
-},{"../package.json":53,"./VGContainer.js":35,"./svg-kit.js":41}],35:[function(require,module,exports){
+
+/*
+    To update a style:
+    $style = $element.querySelector( 'style' ) ;
+    $style.sheet <-- this is a StyleSheet object
+    $style.sheet.cssRules
+    $style.sheet.cssRules[0].type                   type:1 for style rules, other can be important rules (3), media rule (4), keyframes rule (7)
+    $style.sheet.cssRules[0].selectorText           the selector for this rule
+    $style.sheet.cssRules[0].style.<cssProperty>    it works like any $element.style
+    $style.sheet.insertRule( <cssText> , index )    insert a new CSS rule, passing a pure CSS string, the index is where it should be inserted (default to 0: at the begining)
+    $style.sheet.deleteRule( index )                delete the rule at this index, see $style.sheet.length
+    ...
+*/
+
+VG.prototype.addCssRule = function( rule ) {
+	if ( ! rule || typeof rule !== 'object' || ! rule.select || ! rule.style || typeof rule.style !== 'object' ) { return ; }
+	this.css.push( rule ) ;
+} ;
+
+
+},{"../package.json":54,"./VGContainer.js":35,"./svg-kit.js":41}],35:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12349,7 +12382,7 @@ VGContainer.prototype.set = function( data ) {
 
 VGContainer.prototype.exportMorphLog = function() {
 	var hasInner = false , inner = {} ;
-	
+
 	this.items.forEach( ( item , index ) => {
 		var log = item.exportMorphLog() ;
 		if ( log ) {
@@ -12357,13 +12390,13 @@ VGContainer.prototype.exportMorphLog = function() {
 			hasInner = true ;
 		}
 	} ) ;
-	
+
 	if ( ! hasInner && ! this.morphLog.length ) { return null ; }
-	
+
 	var output = {} ;
 	if ( this.morphLog.length ) { output.l = [ ... this.morphLog ] ; }
 	if ( hasInner ) { output.i = inner ; }
-	
+
 	this.morphLog.length = 0 ;
 	return output ;
 } ;
@@ -12372,12 +12405,12 @@ VGContainer.prototype.exportMorphLog = function() {
 
 VGContainer.prototype.importMorphLog = function( log ) {
 	var key , index ;
-	
+
 	if ( ! log ) {
 		this.morphLog.length = 0 ;
 		return ;
 	}
-	
+
 	if ( ! log.l || ! log.l.length ) { this.morphLog.length = 0 ; }
 	else { this.morphLog = log.l ; }
 
@@ -12403,7 +12436,7 @@ VGContainer.prototype.morphDom = function() {
 } ;
 
 
-},{"../package.json":53,"./VGItem.js":37,"./svg-kit.js":41}],36:[function(require,module,exports){
+},{"../package.json":54,"./VGItem.js":37,"./svg-kit.js":41}],36:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12445,7 +12478,7 @@ function VGEllipse( options ) {
 	this.y = 0 ;
 	this.rx = 0 ;
 	this.ry = 0 ;
-	
+
 	if ( options ) { this.set( options ) ; }
 }
 
@@ -12479,7 +12512,7 @@ VGEllipse.prototype.set = function( data ) {
 	// Interop'
 	if ( data.cx !== undefined ) { this.x = data.cx ; }
 	if ( data.cy !== undefined ) { this.y = data.cy ; }
-	
+
 	if ( data.x !== undefined ) { this.x = data.x ; }
 	if ( data.y !== undefined ) { this.y = data.y ; }
 	if ( data.r !== undefined ) { this.rx = this.ry = data.r ; }
@@ -12488,7 +12521,7 @@ VGEllipse.prototype.set = function( data ) {
 } ;
 
 
-},{"../package.json":53,"./VGItem.js":37}],37:[function(require,module,exports){
+},{"../package.json":54,"./VGItem.js":37}],37:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12519,19 +12552,25 @@ VGEllipse.prototype.set = function( data ) {
 
 
 
+const camel = require( 'string-kit/lib/camel' ) ;
+const escape = require( 'string-kit/lib/escape' ) ;
+
+
+
 function VGItem( options ) {
 	this.id = null ;
 	this.class = new Set() ;
 	this.style = {} ;
 	this.data = null ;		// User custom data, e.g. data-* attributes
-	
+
 	// Spellcast data
 	this.button = null ;
 	this.hint = null ;
 	this.area = null ;
-	
+
 	this.morphLog = [] ;
 	this.$element = null ;
+	this.$style = null ;
 }
 
 module.exports = VGItem ;
@@ -12549,21 +12588,22 @@ VGItem.prototype.svgAttributes = () => ( {} ) ;
 
 VGItem.prototype.toJSON = function() {
 	var object = Object.assign( {} , this ) ;
-	
+
 	object._type = this.__prototypeUID__ ;
-	
+
 	if ( this.class.size ) { object.class = [ ... this.class ] ; }
 	else { delete object.class ; }
-	
+
 	if ( ! object.id ) { delete object.id ; }
 	if ( ! object.data ) { delete object.data ; }
 	if ( ! object.button ) { delete object.button ; }
 	if ( ! object.hint ) { delete object.hint ; }
 	if ( ! object.area ) { delete object.area ; }
-	
+
 	delete object.morphLog ;
 	delete object.$element ;
-	
+	delete object.$style ;
+
 	return object ;
 } ;
 
@@ -12571,13 +12611,17 @@ VGItem.prototype.toJSON = function() {
 
 VGItem.prototype.set = function( data ) {
 	if ( data.id !== undefined ) { this.id = data.id || null ; }
-	
+
 	if ( data.class ) {
-		if ( Array.isArray( data.class ) || ( data.class instanceof Set ) ) {
+		if ( typeof data.class === 'string' ) {
+			this.class.clear() ;
+			this.class.add( data.class ) ;
+		}
+		else if ( Array.isArray( data.class ) || ( data.class instanceof Set ) ) {
 			this.class.clear() ;
 
 			for ( let className of data.class ) {
-				this.class.add( data.class ) ;
+				this.class.add( className ) ;
 			}
 		}
 		else if ( typeof data.class === 'object' ) {
@@ -12588,8 +12632,13 @@ VGItem.prototype.set = function( data ) {
 		}
 	}
 
-	if ( data.style ) { Object.assign( this.style , data.style ) ; }
-	
+	if ( data.style ) {
+		for ( let key in data.style ) {
+			// Stored in the camelCase variant
+			this.style[ this.toCamelCase( key ) ] = data.style[ key ] === null ? '' : data.style[ key ] ;
+		}
+	}
+
 	if ( data.data !== undefined ) {
 		// User custom data, e.g. data-* attributes
 		if ( ! data.data ) {
@@ -12635,52 +12684,86 @@ VGItem.prototype.importMorphLog = function( log ) {
 
 
 
+// Use the preserveUpperCase option, cause the value can be in camelCased already
+VGItem.prototype.toCamelCase = value => camel.toCamelCase( value , true ) ;
+
+VGItem.prototype.escape = function( value ) {
+	if ( typeof value === 'object' ) { return null ; }
+	if ( typeof value !== 'string' ) { return value ; }
+	return escape.htmlAttr( value ) ;
+} ;
+
+
+
 // Render the Vector Graphic as a text SVG
 VGItem.prototype.renderText = function() {
-	var key , str = '' , styleStr = '' ,
+	var key , rule , str = '' , styleStr = '' ,
 		attr = this.svgAttributes() ;
-	
+
 	str += '<' + this.svgTag ;
-	
-	if ( this.id ) { str += ' id="' + this.id + '"' ; }
-	if ( this.button ) { str += ' button="' + this.button + '"' ; }
-	if ( this.hint ) { str += ' hint="' + this.hint + '"' ; }
-	if ( this.area ) { str += ' area="' + this.area + '"' ; }
+
+	if ( this.id ) { str += ' id="' + this.escape( this.id ) + '"' ; }
+	if ( this.button ) { str += ' button="' + this.escape( this.button ) + '"' ; }
+	if ( this.hint ) { str += ' hint="' + this.escape( this.hint ) + '"' ; }
+	if ( this.area ) { str += ' area="' + this.escape( this.area ) + '"' ; }
 
 	if ( this.class.size ) {
-		str += ' class="' + [ ... this.class ].join( ' ' ) + '"' ;
+		str += ' class="' ;
+		let first = true ;
+		for ( let className of this.class ) {
+			if ( ! first ) { str += ' ' ; }
+			str += this.escape( className ) ;
+			first = false ;
+		}
+		str += '"' ;
 	}
 
 	for ( key in attr ) {
-		str += ' ' + key + '="' + attr[ key ] + '"' ;
+		str += ' ' + key + '="' + this.escape( attr[ key ] ) + '"' ;
 	}
 
 	if ( this.data ) {
 		for ( key in this.data ) {
-			str += ' data-' + key + '="' + this.data[ key ] + '"' ;
+			str += ' data-' + this.escape( key ) + '="' + this.escape( this.data[ key ] ) + '"' ;
 		}
 	}
 
 	for ( key in this.style ) {
-		styleStr += key + ':' + this.style[ key ] + ';' ;
+		// Key is in camelCase, but should use dash
+		styleStr += this.escape( camel.camelCaseToDash( key ) ) + ':' + this.escape( this.style[ key ] ) + ';' ;
 	}
-	
+
 	if ( styleStr ) {
 		str += ' style="' + styleStr + '"' ;
 	}
-	
+
 	if ( ! this.isContainer ) {
 		str += ' />' ;
 		return str ;
 	}
-	
+
 	str += '>' ;
 	
+	// StyleSheet inside a <style> tag
+	if ( this.css && this.css.length ) {
+		str += '<style>\n' ;
+		
+		for ( rule of this.css ) {
+			str += rule.select + ' {\n' ;
+			for ( key in rule.style ) {
+				str += '    ' + this.escape( camel.camelCaseToDash( key ) ) + ': ' + this.escape( rule.style[ key ] ) + ';\n' ;
+			}
+			str += '}\n' ;
+		}
+		
+		str += '</style>' ;
+	}
+
 	// Inner content
 	for ( let item of this.items ) {
 		str += item.renderText() ;
 	}
-	
+
 	str += '</' + this.svgTag + '>' ;
 	return str ;
 } ;
@@ -12689,9 +12772,9 @@ VGItem.prototype.renderText = function() {
 
 // Render the Vector Graphic inside a browser, as DOM SVG
 VGItem.prototype.renderDom = function( options = {} ) {
-	var key ,
+	var key , rule , cssStr ,
 		attr = this.svgAttributes() ;
-	
+
 	this.$element = document.createElementNS( 'http://www.w3.org/2000/svg' , options.overrideTag || this.svgTag ) ;
 
 	if ( this.id ) { this.$element.setAttribute( 'id' , this.id ) ; }
@@ -12702,7 +12785,7 @@ VGItem.prototype.renderDom = function( options = {} ) {
 	if ( this.class.size ) {
 		this.class.forEach( className => this.$element.classList.add( className ) ) ;
 	}
-	
+
 	for ( key in attr ) {
 		this.$element.setAttribute( key , attr[ key ] ) ;
 	}
@@ -12712,12 +12795,40 @@ VGItem.prototype.renderDom = function( options = {} ) {
 			this.$element.setAttribute( 'data-' + key , this.data[ key ] ) ;
 		}
 	}
-	
+
 	for ( key in this.style ) {
+		// Key is already in camelCase
+		console.warn( "Set style " , key , this.style[ key ] ) ;
 		this.$element.style[ key ] = this.style[ key ] ;
 	}
 
 	if ( ! this.isContainer ) { return this.$element ; }
+
+	// StyleSheet inside a <style> tag
+	if ( this.css && this.css.length ) {
+		this.$style = document.createElementNS( 'http://www.w3.org/2000/svg' , 'style' ) ;
+		//this.$style = document.createElement( 'style' ) ;
+		
+		cssStr = '' ;
+		
+		for ( rule of this.css ) {
+			cssStr += rule.select + ' {\n' ;
+			
+			for ( key in rule.style ) {
+				// Key is in camelCase, but should use dash
+				cssStr += this.escape( camel.camelCaseToDash( key ) ) + ': ' + this.escape( rule.style[ key ] ) + ';\n' ;
+			}
+
+			cssStr += '}\n' ;
+			
+			// WARNING: this.$style.sheet does not work at that moment, it seems to be added only after behind inserted into the DOM,
+			// so we construct a text-node instead of pure rule insertion
+			//this.$style.sheet.insertRule( cssStr , this.$style.sheet.length ) ;
+		}
+		
+		this.$style.appendChild( document.createTextNode( cssStr ) ) ;
+		this.$element.appendChild( this.$style ) ;
+	}
 
 	// Inner content
 	for ( let item of this.items ) {
@@ -12743,11 +12854,11 @@ VGItem.prototype.morphOneEntryDom = function( data ) {
 
 	// Disallow id changes?
 	//if ( data.id ) { this.$element.setAttribute( 'id' , data.id ) ; }
-	
+
 	if ( data.button ) { this.$element.setAttribute( 'button' , data.button ) ; }
 	if ( data.hint ) { this.$element.setAttribute( 'hint' , data.hint ) ; }
 	if ( data.area ) { this.$element.setAttribute( 'area' , data.area ) ; }
-	
+
 	if ( data.class ) {
 		if ( Array.isArray( data.class ) ) {
 			this.$element.setAttribute( 'class' , data.class.join( ' ' ) ) ;
@@ -12774,16 +12885,17 @@ VGItem.prototype.morphOneEntryDom = function( data ) {
 			this.$element.setAttribute( 'data-' + key , data.data[ key ] ) ;
 		}
 	}
-	
+
 	if ( data.style ) {
 		for ( key in data.style ) {
-			this.$element.style[ key ] = data.style[ key ] ;
+			// Key is already in camelCase
+			this.$element.style[ key ] = data.style[ key ] === null ? '' : data.style[ key ] ;
 		}
 	}
 } ;
 
 
-},{"../package.json":53}],38:[function(require,module,exports){
+},{"../package.json":54,"string-kit/lib/camel":52,"string-kit/lib/escape":53}],38:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12822,7 +12934,7 @@ function VGPath( options ) {
 	VGItem.call( this , options ) ;
 
 	this.commands = [] ;
-	
+
 	if ( options ) { this.set( options ) ; }
 }
 
@@ -12864,19 +12976,19 @@ VGPath.prototype.toD = function() {
 		cy: 0 ,		// cursor position y
 		ca: Math.PI / 2		// cursor angle, default to up
 	} ;
-	
+
 	this.commands.forEach( ( command , index ) => {
 		if ( index ) { build.d += ' ' ; }
 		builders[ command.type ]( command , build ) ;
 	} ) ;
-	
+
 	return build.d ;
 } ;
 
 
 
-const degToRad = deg => deg * Math.PI / 180 ; 
-const radToDeg = rad => rad * 180 / Math.PI ; 
+const degToRad = deg => deg * Math.PI / 180 ;
+const radToDeg = rad => rad * 180 / Math.PI ;
 
 
 
@@ -12977,6 +13089,53 @@ builders.arc = ( command , build ) => {
 	}
 } ;
 
+// VG-specific
+
+/*
+	Approximation of circles using cubic bezier curves.
+
+	Controle point distance/radius ratio for quarter of circle: 0.55228475 or 4/3 (sqrt(2)-1)
+	For half of a circle: 4/3
+
+	From: https://www.tinaja.com/glib/bezcirc2.pdf
+	The arc is bissected by the X-axis.
+	x0 = cos( / 2)			y0 = sin( / 2)
+	x3 = x1					y3 = - y0
+	x1 = (4 - x0) / 3		y1 = (1 - x0)(3 - x0) / 3 y0
+	x2 = x1					y2 = -y1
+
+	This distance ensure that the mid-time point is exactly on the arc.
+	It works very well for angle ranging from 0-90°, can be good enough for 90-180°,
+	but it's bad for greater than 180°.
+	In fact it's not possible to approximate a 270° arc with a single cubic bezier curve.
+*/
+function controleDistance( angle ) {
+	if ( ! angle ) { return 0 ; }
+	var angleRad = degToRad( angle ) ;
+	var x0 = Math.cos( angleRad / 2 ) ,
+		y0 = Math.sin( angleRad / 2 ) ,
+		x1 = ( 4 - x0 ) / 3 ,
+		y1 = ( 1 - x0 ) * ( 3 - x0 ) / ( 3 * y0 ) ;
+	return Math.sqrt( ( x0 - x1 ) ** 2 + ( y0 - y1 ) ** 2 ) ;
+}
+
+builders.centerArc = ( command , build ) => {
+	var { x , y , cx , cy } = command ;
+
+	if ( command.rel ) {
+		x += build.cx ;
+		y += build.cy ;
+		cx += build.cx ;
+		cy += build.cy ;
+	}
+
+	var startAngle = Math.atan2( build.cy - cy , build.cx - cx ) ,
+		endAngle = Math.atan2( y - cy , x - cx ) ;
+
+	build.cx = x ;
+	build.cy = y ;
+} ;
+
 // Turtle-like
 
 builders.pen = ( command , build ) => {
@@ -12986,10 +13145,10 @@ builders.pen = ( command , build ) => {
 builders.forward = ( command , build ) => {
 	var dx = command.l * Math.cos( build.ca ) ,
 		dy = command.l * Math.sin( build.ca ) ;
-		
+
 	if ( build.pu ) { build.d += 'm ' + dx + ' ' + dy ; }
 	else { build.d += 'l ' + dx + ' ' + dy ; }
-	
+
 	build.cx += dx ;
 	build.cy += dy ;
 } ;
@@ -13015,7 +13174,7 @@ builders.forwardTurn = ( command , build ) => {
 		trY = radius * Math.sin( alpha ) ,
 		dist = Math.sqrt( ( radius - trX ) ** 2 + trY ** 2 ) ,
 		beta = Math.atan2( radius - trX , trY ) ;	// beta is the deviation
-	
+
 	var dx = dist * Math.cos( build.ca + angleSign * beta ) ,
 		dy = dist * Math.sin( build.ca + angleSign * beta ) ;
 
@@ -13167,10 +13326,13 @@ VGPath.prototype.arc = function( data ) {
 		rx: data.rx || 0 ,
 		ry: data.ry || 0 ,
 		ra: data.ra || data.a || 0 ,	// x-axis rotation
-		la: data.largeArc !== undefined ? !! data.largeArc :
+		la:
+			data.largeArc !== undefined ? !! data.largeArc :
+			data.longArc !== undefined ? !! data.longArc :
 			data.la !== undefined ? !! data.la :
 			false ,
-		pr: data.positiveRotation !== undefined ? !! data.positiveRotation :
+		pr:
+			data.positiveRotation !== undefined ? !! data.positiveRotation :
 			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
 			data.pr !== undefined ? !! data.pr :
 			true ,
@@ -13185,10 +13347,13 @@ VGPath.prototype.arcTo = function( data ) {
 		rx: data.rx || 0 ,
 		ry: data.ry || 0 ,
 		ra: data.ra || data.a || 0 ,	// x-axis rotation
-		la: data.largeArc !== undefined ? !! data.largeArc :
+		la:
+			data.largeArc !== undefined ? !! data.largeArc :
+			data.longArc !== undefined ? !! data.longArc :
 			data.la !== undefined ? !! data.la :
 			false ,
-		pr: data.positiveRotation !== undefined ? !! data.positiveRotation :
+		pr:
+			data.positiveRotation !== undefined ? !! data.positiveRotation :
 			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
 			data.pr !== undefined ? !! data.pr :
 			true ,
@@ -13204,14 +13369,18 @@ VGPath.prototype.negativeArc = function( data ) {
 		rel: true ,
 		rx: data.rx || 0 ,
 		ry: data.ry || 0 ,
-		ra: - ( data.ra || data.a || 0 ) ,	// x-axis rotation
-		la: data.largeArc !== undefined ? !! data.largeArc :
+		ra: -( data.ra || data.a || 0 ) ,	// x-axis rotation
+		la:
+			data.largeArc !== undefined ? !! data.largeArc :
+			data.longArc !== undefined ? !! data.longArc :
 			data.la !== undefined ? !! data.la :
 			false ,
-		pr: ! ( data.positiveRotation !== undefined ? !! data.positiveRotation :
+		pr: ! (
+			data.positiveRotation !== undefined ? !! data.positiveRotation :
 			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
 			data.pr !== undefined ? !! data.pr :
-			true ) ,
+			true
+		) ,
 		x: data.x || 0 ,
 		y: data.y || 0
 	} ) ;
@@ -13223,14 +13392,54 @@ VGPath.prototype.negativeArcTo = function( data ) {
 		type: 'arc' ,
 		rx: data.rx || 0 ,
 		ry: data.ry || 0 ,
-		ra: - ( data.ra || data.a || 0 ) ,	// x-axis rotation
-		la: data.largeArc !== undefined ? !! data.largeArc :
+		ra: -( data.ra || data.a || 0 ) ,	// x-axis rotation
+		la:
+			data.largeArc !== undefined ? !! data.largeArc :
+			data.longArc !== undefined ? !! data.longArc :
 			data.la !== undefined ? !! data.la :
 			false ,
-		pr: ! ( data.positiveRotation !== undefined ? !! data.positiveRotation :
+		pr: ! (
+			data.positiveRotation !== undefined ? !! data.positiveRotation :
 			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
 			data.pr !== undefined ? !! data.pr :
-			true ) ,
+			true
+		) ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+
+
+/*
+	VG-specific commands
+*/
+
+// Better arc-like command, but use curve behind the scene
+VGPath.prototype.centerArc = function( data ) {
+	this.commands.push( {
+		type: 'centerArc' ,
+		rel: true ,
+		cx: data.cx || 0 ,
+		cy: data.cy || 0 ,
+		la: data.largeArc !== undefined ? !! data.largeArc :
+		data.longArc !== undefined ? !! data.longArc :
+		data.la !== undefined ? !! data.la :
+		false ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.centerArcTo = function( data ) {
+	this.commands.push( {
+		type: 'centerArc' ,
+		cx: data.cx || 0 ,
+		cy: data.cy || 0 ,
+		la: data.largeArc !== undefined ? !! data.largeArc :
+		data.longArc !== undefined ? !! data.longArc :
+		data.la !== undefined ? !! data.la :
+		false ,
 		x: data.x || 0 ,
 		y: data.y || 0
 	} ) ;
@@ -13266,7 +13475,7 @@ VGPath.prototype.forward = function( data ) {
 VGPath.prototype.backward = function( data ) {
 	this.commands.push( {
 		type: 'forward' ,
-		l: - ( typeof data === 'number' ? data : data.length || data.l || 0 )
+		l: -( typeof data === 'number' ? data : data.length || data.l || 0 )
 	} ) ;
 } ;
 
@@ -13292,7 +13501,7 @@ VGPath.prototype.negativeTurn = function( data ) {
 	this.commands.push( {
 		type: 'turn' ,
 		rel: true ,
-		a: - ( typeof data === 'number' ? data : data.angle || data.a || 0 )
+		a: -( typeof data === 'number' ? data : data.angle || data.a || 0 )
 	} ) ;
 } ;
 
@@ -13318,12 +13527,12 @@ VGPath.prototype.forwardNegativeTurn = function( data ) {
 	this.commands.push( {
 		type: 'forwardTurn' ,
 		l: data.length || data.l || 0 ,
-		a: - ( data.angle || data.a || 0 )
+		a: -( data.angle || data.a || 0 )
 	} ) ;
 } ;
 
 
-},{"../package.json":53,"./VGItem.js":37}],39:[function(require,module,exports){
+},{"../package.json":54,"./VGItem.js":37}],39:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -13369,7 +13578,7 @@ function VGRect( options ) {
 	// Round corner radius
 	this.rx = 0 ;
 	this.ry = 0 ;
-	
+
 	if ( options ) { this.set( options ) ; }
 }
 
@@ -13414,7 +13623,7 @@ VGRect.prototype.set = function( data ) {
 } ;
 
 
-},{"../package.json":53,"./VGItem.js":37}],40:[function(require,module,exports){
+},{"../package.json":54,"./VGItem.js":37}],40:[function(require,module,exports){
 /*
 	SVG Kit
 
@@ -13552,14 +13761,14 @@ svgKit.load = async function( url , options = {} ) {
 
 
 svgKit.loadFromString = async function( content , options = {} ) {
-	$doc = domKit.fromXml( content ) ;
+	var $doc = domKit.fromXml( content ) ;
 
 	if ( options.removeComments ) {
 		domKit.removeComments( $doc ) ;
 		delete options.removeComments ;
 	}
 
-	$svg = $doc.documentElement ;
+	var $svg = $doc.documentElement ;
 	svgKit.inject( $svg , options ) ;
 	return $svg ;
 } ;
@@ -13939,7 +14148,7 @@ svgKit.objectToVG = function( object ) {
 
 
 }).call(this,require('_process'))
-},{"./VG.js":34,"./VGContainer.js":35,"./VGEllipse.js":36,"./VGItem.js":37,"./VGPath.js":38,"./VGRect.js":39,"./path.js":40,"_process":13,"dom-kit":42,"fs":6,"seventh":50,"string-kit/lib/escape.js":52}],42:[function(require,module,exports){
+},{"./VG.js":34,"./VGContainer.js":35,"./VGEllipse.js":36,"./VGItem.js":37,"./VGPath.js":38,"./VGRect.js":39,"./path.js":40,"_process":13,"dom-kit":42,"fs":6,"seventh":50,"string-kit/lib/escape.js":53}],42:[function(require,module,exports){
 arguments[4][7][0].apply(exports,arguments)
 },{"@cronvel/xmldom":6,"_process":13,"dup":7}],43:[function(require,module,exports){
 arguments[4][18][0].apply(exports,arguments)
@@ -13960,11 +14169,87 @@ arguments[4][25][0].apply(exports,arguments)
 },{"./api.js":44,"./batch.js":45,"./core.js":46,"./decorators.js":47,"./misc.js":48,"./parasite.js":49,"./wrapper.js":51,"dup":25}],51:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
 },{"./seventh.js":50,"dup":26}],52:[function(require,module,exports){
+/*
+	String Kit
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+var camel = {} ;
+module.exports = camel ;
+
+
+
+// Transform alphanum separated by underscore or minus to camel case
+camel.toCamelCase = function( str , preserveUpperCase = false ) {
+	if ( ! str || typeof str !== 'string' ) { return '' ; }
+
+	return str.replace( /^[\s_-]*([^\s_-]+)|[\s_-]+([^\s_-]?)([^\s_-]*)/g , ( match , firstWord , firstLetter , endOfWord ) => {
+
+		if ( preserveUpperCase ) {
+			if ( firstWord ) { return firstWord ; }
+			if ( ! firstLetter ) { return '' ; }
+			return firstLetter.toUpperCase() + endOfWord ;
+		}
+
+		if ( firstWord ) { return firstWord.toLowerCase() ; }
+		if ( ! firstLetter ) { return '' ; }
+		return firstLetter.toUpperCase() + endOfWord.toLowerCase() ;
+
+	} ) ;
+} ;
+
+
+
+camel.camelCaseToSeparated = function( str , separator = ' ' ) {
+	if ( ! str || typeof str !== 'string' ) { return '' ; }
+
+	return str.replace( /^([A-Z])|([A-Z])/g , ( match , firstLetter , letter ) => {
+
+		if ( firstLetter ) { return firstLetter.toLowerCase() ; }
+		return separator + letter.toLowerCase() ;
+	} ) ;
+} ;
+
+
+
+// Transform camel case to alphanum separated by minus
+camel.camelCaseToDash =
+camel.camelCaseToDashed = ( str ) => camel.camelCaseToSeparated( str , '-' ) ;
+
+
+
+
+},{}],53:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}],53:[function(require,module,exports){
+},{"dup":28}],54:[function(require,module,exports){
 module.exports={
   "name": "svg-kit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A small SVG toolkit.",
   "main": "lib/svg-kit.js",
   "directories": {
@@ -14006,6 +14291,5 @@ module.exports={
     "owner": "Cédric Ronvel"
   }
 }
-
 },{}]},{},[2])(2)
 });

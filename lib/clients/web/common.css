@@ -92,6 +92,11 @@ body {
 	position: relative; /* So cards will be positioned relative to this div */
 }
 
+svg * {
+	transform-box: fill-box;
+	transform-origin: center;
+}
+
 
 
 /* Sprite */
