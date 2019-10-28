@@ -1,0 +1,155 @@
+[[doctype spellcast/book]]
+
+[chapter tests]
+	[theme] > /themes/educa
+	
+	[starting-scene vg]
+		[vg $vg]
+			[attr]
+				css:
+					-	select: .hoverable
+						style:
+							transition: all 1s
+							fill: blue
+							cursor: pointer
+					-	select: .hoverable:hover
+						style:
+							transform: scale( 1.5 )
+							fill: crimson
+				style:
+					pointer-events: painted
+				viewBox:
+					x: 0
+					y: 0
+					width: 200
+					height: 200
+			
+			[set $local.x] 25
+			[while $local.x < 175]
+				[set $local.y] 25
+				[while $local.y < 175]
+					#[vg-rect]
+					[vg-ellipse]
+						#x: $local.x
+						#y: $local.y
+						#width: 30
+						#height: 30
+						x: $local.x
+						y: $local.y
+						r: 15
+						class: hoverable
+						style:
+							stroke: none
+					[set $local.y] $= $local.y + 40
+				[set $local.x] $= $local.x + 40
+					
+		#[debug hdebug] $vg
+
+		[show-vg vg]
+			vgObject: $vg
+			size:
+				mode: area
+				xy: 0.5
+			position:
+				mode: areaInSpriteOut
+				x: 0
+				y: 0
+
+		[pause] 1
+
+		[vg-morph $vg.items[0]]
+			style:
+				fill: orange
+		[update-vg vg]
+			vgMorph: $vg
+
+		[pause] 1
+
+		[vg-morph $vg.items[0]]
+			style:
+				fill: green
+		[update-vg vg]
+			vgMorph: $vg
+
+		[next menu/end]
+
+
+	[scene vg-path]
+		[vg $vg]
+			[attr]
+				viewBox:
+					x: -10
+					y: -10
+					width: 220
+					height: 220
+			[vg-path]
+				[attr]
+					style:
+						fill: green
+
+				[vg-move-to]
+					x: 50
+					y: 50
+				#[vg-turn-to] 10
+				
+				[set $local.i] 0
+				[while $local.i < 5]
+					[vg-forward] 100
+					[vg-turn] 144
+					[inc $local.i]
+
+			[vg-path]
+				[attr]
+					style:
+						fill: none
+						stroke: red
+						stroke-width: 5
+
+				[vg-move-to]
+					x: 50
+					y: 0
+				[vg-forward] 100
+				[vg-forward-right]
+					l: 50
+					a: 359
+				[vg-forward] 50
+
+			[vg-path]
+				[attr]
+					style:
+						fill: none
+						stroke: blue
+						stroke-width: 5
+
+				[vg-move-to]
+					x: 0
+					y: 100
+				[vg-qcurve-to]
+					cx: 0
+					cy: 200
+					x: 100
+					y: 200
+				[vg-smooth-qcurve-to]
+					x: 200
+					y: 100
+				[vg-smooth-qcurve-to]
+					x: 100
+					y: 0
+				[vg-smooth-qcurve-to]
+					x: 0
+					y: 100
+					
+				
+		[show-vg vg]
+			vgObject: $vg
+			size:
+				mode: area
+				xy: 0.8
+			position:
+				mode: areaInSpriteOut
+				x: 0
+				y: 0
+
+		[next menu/end]
+
+

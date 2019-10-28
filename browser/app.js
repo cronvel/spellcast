@@ -2506,7 +2506,7 @@ function soundFadeOut( $element , callback ) {
 }
 
 
-},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":41}],2:[function(require,module,exports){
+},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":42}],2:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12314,7 +12314,7 @@ VG.prototype.addCssRule = function( rule ) {
 } ;
 
 
-},{"../package.json":54,"./VGContainer.js":35,"./svg-kit.js":41}],35:[function(require,module,exports){
+},{"../package.json":55,"./VGContainer.js":35,"./svg-kit.js":42}],35:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12436,7 +12436,7 @@ VGContainer.prototype.morphDom = function() {
 } ;
 
 
-},{"../package.json":54,"./VGItem.js":37,"./svg-kit.js":41}],36:[function(require,module,exports){
+},{"../package.json":55,"./VGItem.js":38,"./svg-kit.js":42}],36:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12521,7 +12521,63 @@ VGEllipse.prototype.set = function( data ) {
 } ;
 
 
-},{"../package.json":54,"./VGItem.js":37}],37:[function(require,module,exports){
+},{"../package.json":55,"./VGItem.js":38}],37:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const svgKit = require( './svg-kit.js' ) ;
+const VGContainer = require( './VGContainer.js' ) ;
+
+
+
+function VGGroup( options ) {
+	VGContainer.call( this , options ) ;
+}
+
+module.exports = VGGroup ;
+
+VGGroup.prototype = Object.create( VGContainer.prototype ) ;
+VGGroup.prototype.constructor = VGGroup ;
+VGGroup.prototype.__prototypeUID__ = 'svg-kit/VGGroup' ;
+VGGroup.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGGroup.prototype.svgTag = 'g' ;
+
+VGGroup.prototype.set = function( data ) {
+	VGContainer.prototype.set.call( this , data ) ;
+} ;
+
+
+},{"../package.json":55,"./VGContainer.js":35,"./svg-kit.js":42}],38:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12895,7 +12951,7 @@ VGItem.prototype.morphOneEntryDom = function( data ) {
 } ;
 
 
-},{"../package.json":54,"string-kit/lib/camel":52,"string-kit/lib/escape":53}],38:[function(require,module,exports){
+},{"../package.json":55,"string-kit/lib/camel":53,"string-kit/lib/escape":54}],39:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -13120,6 +13176,11 @@ function controleDistance( angle ) {
 }
 
 builders.centerArc = ( command , build ) => {
+
+// ---------------------------------------------------------------------------------- NOT CODED ----------------------------------------------------------------
+	
+	// It's supposed to ease circle creation inside path, converting them to SVG curves...
+	
 	var { x , y , cx , cy } = command ;
 
 	if ( command.rel ) {
@@ -13532,7 +13593,7 @@ VGPath.prototype.forwardNegativeTurn = function( data ) {
 } ;
 
 
-},{"../package.json":54,"./VGItem.js":37}],39:[function(require,module,exports){
+},{"../package.json":55,"./VGItem.js":38}],40:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -13623,7 +13684,7 @@ VGRect.prototype.set = function( data ) {
 } ;
 
 
-},{"../package.json":54,"./VGItem.js":37}],40:[function(require,module,exports){
+},{"../package.json":55,"./VGItem.js":38}],41:[function(require,module,exports){
 /*
 	SVG Kit
 
@@ -13671,7 +13732,7 @@ path.dFromPoints = ( points , invertY ) => {
 } ;
 
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 (function (process){
 /*
 	SVG Kit
@@ -13720,6 +13781,7 @@ svgKit.path = require( './path.js' ) ;
 svgKit.VG = require( './VG.js' ) ;
 svgKit.VGItem = require( './VGItem.js' ) ;
 svgKit.VGContainer = require( './VGContainer.js' ) ;
+svgKit.VGGroup = require( './VGGroup.js' ) ;
 svgKit.VGRect = require( './VGRect.js' ) ;
 svgKit.VGEllipse = require( './VGEllipse.js' ) ;
 svgKit.VGPath = require( './VGPath.js' ) ;
@@ -14148,27 +14210,27 @@ svgKit.objectToVG = function( object ) {
 
 
 }).call(this,require('_process'))
-},{"./VG.js":34,"./VGContainer.js":35,"./VGEllipse.js":36,"./VGItem.js":37,"./VGPath.js":38,"./VGRect.js":39,"./path.js":40,"_process":13,"dom-kit":42,"fs":6,"seventh":50,"string-kit/lib/escape.js":53}],42:[function(require,module,exports){
+},{"./VG.js":34,"./VGContainer.js":35,"./VGEllipse.js":36,"./VGGroup.js":37,"./VGItem.js":38,"./VGPath.js":39,"./VGRect.js":40,"./path.js":41,"_process":13,"dom-kit":43,"fs":6,"seventh":51,"string-kit/lib/escape.js":54}],43:[function(require,module,exports){
 arguments[4][7][0].apply(exports,arguments)
-},{"@cronvel/xmldom":6,"_process":13,"dup":7}],43:[function(require,module,exports){
+},{"@cronvel/xmldom":6,"_process":13,"dup":7}],44:[function(require,module,exports){
 arguments[4][18][0].apply(exports,arguments)
-},{"_process":13,"dup":18}],44:[function(require,module,exports){
+},{"_process":13,"dup":18}],45:[function(require,module,exports){
 arguments[4][19][0].apply(exports,arguments)
-},{"./seventh.js":50,"dup":19}],45:[function(require,module,exports){
+},{"./seventh.js":51,"dup":19}],46:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"./seventh.js":50,"dup":20}],46:[function(require,module,exports){
+},{"./seventh.js":51,"dup":20}],47:[function(require,module,exports){
 arguments[4][21][0].apply(exports,arguments)
-},{"_process":13,"dup":21,"setimmediate":43,"timers":31}],47:[function(require,module,exports){
+},{"_process":13,"dup":21,"setimmediate":44,"timers":31}],48:[function(require,module,exports){
 arguments[4][22][0].apply(exports,arguments)
-},{"./seventh.js":50,"dup":22}],48:[function(require,module,exports){
+},{"./seventh.js":51,"dup":22}],49:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"./seventh.js":50,"_process":13,"dup":23}],49:[function(require,module,exports){
+},{"./seventh.js":51,"_process":13,"dup":23}],50:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"./seventh.js":50,"dup":24}],50:[function(require,module,exports){
+},{"./seventh.js":51,"dup":24}],51:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./api.js":44,"./batch.js":45,"./core.js":46,"./decorators.js":47,"./misc.js":48,"./parasite.js":49,"./wrapper.js":51,"dup":25}],51:[function(require,module,exports){
+},{"./api.js":45,"./batch.js":46,"./core.js":47,"./decorators.js":48,"./misc.js":49,"./parasite.js":50,"./wrapper.js":52,"dup":25}],52:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"./seventh.js":50,"dup":26}],52:[function(require,module,exports){
+},{"./seventh.js":51,"dup":26}],53:[function(require,module,exports){
 /*
 	String Kit
 
@@ -14244,9 +14306,9 @@ camel.camelCaseToDashed = ( str ) => camel.camelCaseToSeparated( str , '-' ) ;
 
 
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}],54:[function(require,module,exports){
+},{"dup":28}],55:[function(require,module,exports){
 module.exports={
   "name": "svg-kit",
   "version": "0.2.1",
