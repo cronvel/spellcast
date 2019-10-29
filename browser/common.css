@@ -92,9 +92,18 @@ body {
 	position: relative; /* So cards will be positioned relative to this div */
 }
 
-svg * {
+
+
+/* SVG */
+svg.vg-object * {
 	transform-box: fill-box;
 	transform-origin: center;
+}
+
+svg.vg-invert text {
+	/* When vg-invert is used, text would flip too, being unreadable */
+	transform: scaleY(-1);
+	dominant-baseline: hanging;
 }
 
 

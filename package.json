@@ -31,7 +31,7 @@
     "server-kit": "^0.9.17",
     "seventh": "^0.7.30",
     "string-kit": "^0.10.1",
-    "svg-kit": "^0.2.1",
+    "svg-kit": "^0.2.2",
     "terminal-kit": "^1.31.4",
     "tree-kit": "^0.6.1",
     "utterminal": "^0.5.39",

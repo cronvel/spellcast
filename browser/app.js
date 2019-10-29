@@ -1407,7 +1407,7 @@ Dom.prototype.createGItem = function( data ) {
 		gItem.$wrapper.classList.add( 'g-item-wrapper' , data.type + '-wrapper' ) ;
 		this.$gfx.append( gItem.$wrapper ) ;
 	}
-	
+
 	gItem.size = { mode: 'relative' , xy: 1 } ;
 	gItem.position = { mode: 'relative' , x: 0 , y: 0 } ;
 	gItem.vgInvert = false ;	// Invert Y-axis (script's vector graphics)
@@ -1439,7 +1439,7 @@ Dom.prototype.updateGItem = async function( gItem , data , initial = false ) {
 	// The order matters
 	if ( data.vgObject ) { this.updateGItemVgObject( gItem , data ) ; }
 	else if ( data.vgMorph ) { this.updateGItemVgMorph( gItem , data ) ; }
-	
+
 	if ( data.url ) { await this.updateGItemImage( gItem , data ) ; }
 	if ( data.backUrl ) { await this.updateGItemBackImage( gItem , data ) ; }
 	if ( data.maskUrl ) { await this.updateGItemMask( gItem , data ) ; }
@@ -1468,7 +1468,7 @@ Dom.prototype.updateGItem = async function( gItem , data , initial = false ) {
 */
 Dom.prototype.updateGItemCosmetics = async function( gItem , data , initial = false ) {
 	// The order matters
-	
+
 	// Should comes first: Transition,
 	// Either remove them (for initial value) or set them to the user value before changing anything
 	if ( ! initial && gItem.type !== 'marker' && data.transition !== undefined ) {
@@ -1482,8 +1482,8 @@ Dom.prototype.updateGItemCosmetics = async function( gItem , data , initial = fa
 			gItem.$wrapper.style.transition = 'all ' + data.transition + 's' ;
 		}
 	}
-	
-	
+
+
 	if ( data.location !== undefined && gItem.type !== 'marker' ) {
 		// Should be triggered first, or pose/style would conflict with it
 		await this.moveGItemToLocation( gItem , data ) ;
@@ -1529,7 +1529,7 @@ Dom.prototype.updateGItemCosmetics = async function( gItem , data , initial = fa
 	if ( initial && gItem.type !== 'marker' ) {
 		// At creation, the visibility is turned off, now we need to turn it on again
 		gItem.$wrapper.style.visibility = 'visible' ;
-		
+
 		// If it's done immediately, the transition can kick in nonetheless
 		//await Promise.resolveTimeout( 5 ) ;
 		await Promise.resolveAtAnimationFrame() ;
@@ -1553,7 +1553,7 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 	var promise = new Promise() ;
 
 	gItem.vgObject = null ;
-	
+
 	if ( gItem.type === 'card' ) {
 		gItem.$image.style.backgroundImage = 'url("' + this.cleanUrl( data.url ) + '")' ;
 		promise.resolve() ;
@@ -1613,7 +1613,7 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 			else {
 				gItem.emit( 'loaded' ) ;
 			}
-			
+
 			promise.resolve() ;
 		} ) ;
 
@@ -1637,7 +1637,7 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 	if ( gItem.type !== 'marker' ) {
 		gItem.$wrapper.append( gItem.$image ) ;
 	}
-	
+
 	return promise ;
 } ;
 
@@ -1645,7 +1645,7 @@ Dom.prototype.updateGItemImage = function( gItem , data ) {
 
 Dom.prototype.updateGItemVgObject = function( gItem , data ) {
 	var vgObject = data.vgObject ;
-	
+
 	if ( ! ( vgObject instanceof svgKit.VG ) ) {
 		vgObject = svgKit.objectToVG( vgObject ) ;
 		if ( ! ( vgObject instanceof svgKit.VG ) ) {
@@ -1653,10 +1653,10 @@ Dom.prototype.updateGItemVgObject = function( gItem , data ) {
 			return ;
 		}
 	}
-	
+
 	// Save it now!
 	gItem.vgObject = vgObject ;
-	
+
 	// Always wipe any existing $image element and pre-create the <svg> tag
 	if ( gItem.$image ) { gItem.$image.remove() ; }
 
@@ -1669,8 +1669,9 @@ Dom.prototype.updateGItemVgObject = function( gItem , data ) {
 		// Add a removeSvgStyle:true options?
 		gItem.$image = vgObject.renderDom() ;
 		gItem.$image.classList.add( 'svg' ) ;
+		gItem.$image.classList.add( 'vg-object' ) ;
 	}
-	
+
 	switch ( gItem.type ) {
 		case 'vg' :
 			// Stop event propagation
@@ -1695,7 +1696,7 @@ Dom.prototype.updateGItemVgObject = function( gItem , data ) {
 	if ( gItem.type !== 'marker' ) {
 		gItem.$wrapper.append( gItem.$image ) ;
 	}
-	
+
 	return ;
 } ;
 
@@ -1703,18 +1704,18 @@ Dom.prototype.updateGItemVgObject = function( gItem , data ) {
 
 Dom.prototype.updateGItemVgMorph = function( gItem , data ) {
 	var vgObject = gItem.vgObject ;
-	
+
 	if ( ! vgObject ) {
 		// Do nothing if it's not a VG object
 		console.warn( "Has no VG object, abort..." ) ;
 		return ;
 	}
-	
+
 	//console.warn( "Got morph log:" , data.vgMorph ) ;
 	vgObject.importMorphLog( data.vgMorph ) ;
 	//console.warn( "After importing morph log:" , vgObject ) ;
-	vgObject.morphDom()
-	
+	vgObject.morphDom() ;
+
 	return ;
 } ;
 
@@ -1727,7 +1728,7 @@ Dom.prototype.updateGItemBackImage = function( gItem , data ) {
 		gItem.$backImage.style.backgroundImage = 'url("' + this.cleanUrl( data.backUrl ) + '")' ;
 		//gItem.$image.onload = () => promise.resolve() ;
 	}
-	
+
 	return Promise.resolved ;
 } ;
 
@@ -1736,7 +1737,7 @@ Dom.prototype.updateGItemBackImage = function( gItem , data ) {
 // Load/replace the gItem mask (data.maskUrl)
 Dom.prototype.updateGItemMask = function( gItem , data ) {
 	var promise = new Promise() ;
-	
+
 	if ( data.maskUrl.endsWith( '.svg' ) && gItem.type === 'sprite' ) {
 		console.warn( 'has mask!' ) ;
 
@@ -1774,32 +1775,36 @@ Dom.prototype.updateGItemMask = function( gItem , data ) {
 Dom.prototype.updateGItemTransform = function( gItem , data ) {
 	var wrapperAspect , imageAspect , imageWidth , imageHeight ,
 		scale , xMinOffset , yMinOffset , xFactor , yFactor ;
-	
+
 	// For instance, marker are excluded
 	if ( ! gItem.$wrapper || ! gItem.$image ) { return ; }
-	
-	
+
+
 	// First, assign new size and position
 	// /!\ Size and position MUST be checked! /!\
 	if ( data.size ) {
 		gItem.size = data.size ;
 	}
-	
+
 	if ( data.position ) {
 		gItem.position = data.position ;
 	}
-	
-	if ( data.vgInvert !== undefined ) { gItem.vgInvert = !! data.vgInvert ; }
-	
-	
+
+	if ( data.vgInvert !== undefined ) {
+		gItem.vgInvert = !! data.vgInvert ;
+		if ( gItem.vgInvert ) { gItem.$image.classList.add( 'vg-invert' ) ; }
+		else { gItem.$image.classList.remove( 'vg-invert' ) ; }
+	}
+
+
 	// Pre-compute few thing necessary for the following stuff
 	if ( gItem.$image.tagName.toLowerCase() === 'svg' ) {
 		// The SVG element is not a DOM HTML element, it does not have offsetWidth/offsetHeight,
 		// hence it' a little bit trickier to get its real boxmodel size
-		
+
 		wrapperAspect = gItem.$wrapper.offsetWidth / gItem.$wrapper.offsetHeight ;
 		imageAspect = gItem.$image.width.baseVal.value / gItem.$image.height.baseVal.value ;
-		
+
 		if ( imageAspect > wrapperAspect ) {
 			imageWidth = gItem.$wrapper.offsetWidth ;
 			imageHeight = imageWidth / imageAspect ;
@@ -1808,14 +1813,16 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 			imageHeight = gItem.$wrapper.offsetHeight ;
 			imageWidth = imageHeight * imageAspect ;
 		}
-		console.log( "dbg svg:" , { wrapperAspect , imageAspect , imageWidth , imageHeight } ) ;
+		console.log( "dbg svg:" , {
+			wrapperAspect , imageAspect , imageWidth , imageHeight
+		} ) ;
 	}
 	else {
 		imageWidth = gItem.$image.offsetWidth ;
 		imageHeight = gItem.$image.offsetHeight ;
 	}
-	
-	
+
+
 	// Compute scaling -- should comes first for this to work!
 	switch ( gItem.size.mode ) {
 		case 'area' :
@@ -1827,7 +1834,7 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 			break ;
 	}
 
-	
+
 	// Compute position
 	switch ( gItem.position.mode ) {
 		case 'areaInSpriteOut' :
@@ -1835,20 +1842,20 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 			// Any value in [-1,1] ensure the whole sprite is inside the area.
 			// For values <-1 or >1 the extra are scaled using the sprite scale, e.g.:
 			// x=-1.5 means that the sprite is on the left, its left half being invisible (outside the container), its right half being visible (inside the container).
-			
+
 			xMinOffset = yMinOffset = 0 ;
 			xFactor = this.$gfx.offsetWidth - imageWidth ;
 			yFactor = this.$gfx.offsetHeight - imageHeight ;
-			
+
 			if ( scale !== undefined ) {
-				xMinOffset = - 0.5 * imageWidth * ( 1 - scale ) ;
-				yMinOffset = - 0.5 * imageHeight * ( 1 - scale ) ;
+				xMinOffset = -0.5 * imageWidth * ( 1 - scale ) ;
+				yMinOffset = -0.5 * imageHeight * ( 1 - scale ) ;
 				xFactor += imageWidth * ( 1 - scale ) ;
 				yFactor += imageHeight * ( 1 - scale ) ;
 			}
-			
+
 			console.log( "dbg:" , { xMinOffset , xFactor , yFactor } ) ;
-			
+
 			if ( gItem.position.x < -1 ) {
 				gItem.transform.translateX = xMinOffset + ( gItem.position.x + 1 ) * imageWidth * scale ;
 			}
@@ -1858,7 +1865,7 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 			else {
 				gItem.transform.translateX = xMinOffset + ( 0.5 + gItem.position.x / 2 ) * xFactor ;
 			}
-			
+
 			if ( gItem.position.y < -1 ) {
 				gItem.transform.translateY = yMinOffset + yFactor - ( gItem.position.y + 1 ) * imageHeight * scale ;
 			}
@@ -1868,41 +1875,41 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 			else {
 				gItem.transform.translateY = yMinOffset + ( 0.5 - gItem.position.y / 2 ) * yFactor ;
 			}
-			
+
 			console.log( "transform after .updateGItemPosition()" , gItem.transform ) ;
 			break ;
-		
+
 		case 'area' :
-		default:
+		default :
 			// In this mode, the sprite is positioned relative to its container area -1,-1 being bottom-left and 1,1 being top-right and 0,0 being the center
 			// Any value in [-1,1] ensure the whole sprite is inside the area.
 			// Values <-1 or >1 still use the same linear coordinate (so are scaled using the container size).
-			
+
 			xMinOffset = yMinOffset = 0 ;
 			xFactor = this.$gfx.offsetWidth - imageWidth ;
 			yFactor = this.$gfx.offsetHeight - imageHeight ;
-			
+
 			if ( scale !== undefined ) {
-				xMinOffset = - 0.5 * imageWidth * ( 1 - scale ) ;
-				yMinOffset = - 0.5 * imageHeight * ( 1 - scale ) ;
+				xMinOffset = -0.5 * imageWidth * ( 1 - scale ) ;
+				yMinOffset = -0.5 * imageHeight * ( 1 - scale ) ;
 				xFactor += imageWidth * ( 1 - scale ) ;
 				yFactor += imageHeight * ( 1 - scale ) ;
 			}
-			
+
 			console.log( "dbg:" , { xMinOffset , xFactor , yFactor } ) ;
 			gItem.transform.translateX = xMinOffset + ( 0.5 + gItem.position.x / 2 ) * xFactor ;
 			gItem.transform.translateY = yMinOffset + ( 0.5 - gItem.position.y / 2 ) * yFactor ;
-			
+
 			console.log( "transform after .updateGItemPosition()" , gItem.transform ) ;
 			break ;
 	}
 
 	// Invert Y-axis (custom script VG have Y pointing up by default)
 	if ( gItem.vgInvert ) {
-		if ( gItem.transform.scaleY ) { gItem.transform.scaleY = - gItem.transform.scaleY ; }
+		if ( gItem.transform.scaleY ) { gItem.transform.scaleY = -gItem.transform.scaleY ; }
 		else { gItem.transform.scaleY = -1 ; }
 	}
-	
+
 	// Finally, create the transformation CSS string
 	domKit.transform( gItem.$wrapper , gItem.transform ) ;
 } ;
@@ -2013,7 +2020,7 @@ Dom.prototype.updateGItemAction = function( gItem , data ) {
 Dom.prototype.moveGItemToLocation = function( gItem , data ) {
 	var promise = new Promise() ,
 		locationName = data.location ;
-	
+
 	if ( gItem.location === locationName ) { promise.resolve() ; return promise ; }
 
 	var $location , $oldLocation , oldLocationName , $slot , $oldSlot , direction , oldDirection ,
@@ -2180,7 +2187,7 @@ Dom.prototype.moveGItemToLocation = function( gItem , data ) {
 		gItem.$wrapper.style.transform = domKit.stringifyTransform( targetTransform ) ;
 		promise.resolve() ;
 	} , flipTimeout ) ;
-	
+
 	return promise ;
 } ;
 
@@ -2506,7 +2513,7 @@ function soundFadeOut( $element , callback ) {
 }
 
 
-},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":42}],2:[function(require,module,exports){
+},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":43}],2:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12314,7 +12321,7 @@ VG.prototype.addCssRule = function( rule ) {
 } ;
 
 
-},{"../package.json":55,"./VGContainer.js":35,"./svg-kit.js":42}],35:[function(require,module,exports){
+},{"../package.json":56,"./VGContainer.js":35,"./svg-kit.js":43}],35:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12436,7 +12443,7 @@ VGContainer.prototype.morphDom = function() {
 } ;
 
 
-},{"../package.json":55,"./VGItem.js":38,"./svg-kit.js":42}],36:[function(require,module,exports){
+},{"../package.json":56,"./VGItem.js":38,"./svg-kit.js":43}],36:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12521,7 +12528,7 @@ VGEllipse.prototype.set = function( data ) {
 } ;
 
 
-},{"../package.json":55,"./VGItem.js":38}],37:[function(require,module,exports){
+},{"../package.json":56,"./VGItem.js":38}],37:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12578,7 +12585,7 @@ VGGroup.prototype.set = function( data ) {
 } ;
 
 
-},{"../package.json":55,"./VGContainer.js":35,"./svg-kit.js":42}],38:[function(require,module,exports){
+},{"../package.json":56,"./VGContainer.js":35,"./svg-kit.js":43}],38:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -12794,17 +12801,21 @@ VGItem.prototype.renderText = function() {
 		str += ' style="' + styleStr + '"' ;
 	}
 
+	if ( this.svgTextNode ) {
+		str += this.svgTextNode() ;
+	}
+
 	if ( ! this.isContainer ) {
 		str += ' />' ;
 		return str ;
 	}
 
 	str += '>' ;
-	
+
 	// StyleSheet inside a <style> tag
 	if ( this.css && this.css.length ) {
 		str += '<style>\n' ;
-		
+
 		for ( rule of this.css ) {
 			str += rule.select + ' {\n' ;
 			for ( key in rule.style ) {
@@ -12812,13 +12823,15 @@ VGItem.prototype.renderText = function() {
 			}
 			str += '}\n' ;
 		}
-		
+
 		str += '</style>' ;
 	}
 
 	// Inner content
-	for ( let item of this.items ) {
-		str += item.renderText() ;
+	if ( this.items ) {
+		for ( let item of this.items ) {
+			str += item.renderText() ;
+		}
 	}
 
 	str += '</' + this.svgTag + '>' ;
@@ -12855,43 +12868,47 @@ VGItem.prototype.renderDom = function( options = {} ) {
 
 	for ( key in this.style ) {
 		// Key is already in camelCase
-		console.warn( "Set style " , key , this.style[ key ] ) ;
 		this.$element.style[ key ] = this.style[ key ] ;
 	}
+
+	if ( this.svgTextNode ) {
+		console.warn( "SVG text node!!!" ) ;
+		this.$element.appendChild( document.createTextNode( this.svgTextNode() ) ) ;
+	}
+
+	if ( ! this.isContainer ) { return this.$element ; }
 
 	// StyleSheet inside a <style> tag
 	if ( this.css && this.css.length ) {
 		this.$style = document.createElementNS( 'http://www.w3.org/2000/svg' , 'style' ) ;
 		//this.$style = document.createElement( 'style' ) ;
-		
+
 		cssStr = '' ;
-		
+
 		for ( rule of this.css ) {
 			cssStr += rule.select + ' {\n' ;
-			
+
 			for ( key in rule.style ) {
 				// Key is in camelCase, but should use dash
 				cssStr += this.escape( camel.camelCaseToDash( key ) ) + ': ' + this.escape( rule.style[ key ] ) + ';\n' ;
 			}
 
 			cssStr += '}\n' ;
-			
+
 			// WARNING: this.$style.sheet does not work at that moment, it seems to be added only after behind inserted into the DOM,
 			// so we construct a text-node instead of pure rule insertion
 			//this.$style.sheet.insertRule( cssStr , this.$style.sheet.length ) ;
 		}
-		
+
 		this.$style.appendChild( document.createTextNode( cssStr ) ) ;
 		this.$element.appendChild( this.$style ) ;
 	}
 
-	console.warn( "From" , this , "isContainer" , this.isContainer ) ;
-	if ( ! this.isContainer ) { return this.$element ; }
-
 	// Inner content
-	for ( let item of this.items ) {
-		console.warn( "From" , this , "append" , item ) ;
-		this.$element.appendChild( item.renderDom() ) ;
+	if ( this.items ) {
+		for ( let item of this.items ) {
+			this.$element.appendChild( item.renderDom() ) ;
+		}
 	}
 
 	return this.$element ;
@@ -12954,7 +12971,7 @@ VGItem.prototype.morphOneEntryDom = function( data ) {
 } ;
 
 
-},{"../package.json":55,"string-kit/lib/camel":53,"string-kit/lib/escape":54}],39:[function(require,module,exports){
+},{"../package.json":56,"string-kit/lib/camel":54,"string-kit/lib/escape":55}],39:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -13180,10 +13197,10 @@ function controleDistance( angle ) {
 
 builders.centerArc = ( command , build ) => {
 
-// ---------------------------------------------------------------------------------- NOT CODED ----------------------------------------------------------------
-	
+	// ---------------------------------------------------------------------------------- NOT CODED ----------------------------------------------------------------
+
 	// It's supposed to ease circle creation inside path, converting them to SVG curves...
-	
+
 	var { x , y , cx , cy } = command ;
 
 	if ( command.rel ) {
@@ -13596,7 +13613,7 @@ VGPath.prototype.forwardNegativeTurn = function( data ) {
 } ;
 
 
-},{"../package.json":55,"./VGItem.js":38}],40:[function(require,module,exports){
+},{"../package.json":56,"./VGItem.js":38}],40:[function(require,module,exports){
 /*
 	Spellcast
 
@@ -13687,7 +13704,119 @@ VGRect.prototype.set = function( data ) {
 } ;
 
 
-},{"../package.json":55,"./VGItem.js":38}],41:[function(require,module,exports){
+},{"../package.json":56,"./VGItem.js":38}],41:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const VGItem = require( './VGItem.js' ) ;
+
+
+
+/*
+	/!\ Must support text on path
+*/
+
+function VGText( options ) {
+	VGItem.call( this , options ) ;
+
+	this.x = 0 ;
+	this.y = 0 ;
+	this.text = '' ;
+	this.anchor = null ;		// the CSS 'text-anchors', can be 'start', 'middle' or 'end', in VG it default to 'middle' instead of 'start'
+	this.length = null ;		// the length of the text, textLength in SVG
+	this.adjustGlyph = false ;	// true make SVG's 'lengthAdjust' set to 'spacingAndGlyphs', false does not set it (the default for SVG being 'spacing')
+
+	// Position text relative to the previous text element
+	//this.dx = 0 ;
+	//this.dy = 0 ;
+
+	if ( options ) { this.set( options ) ; }
+}
+
+module.exports = VGText ;
+
+VGText.prototype = Object.create( VGItem.prototype ) ;
+VGText.prototype.constructor = VGText ;
+VGText.prototype.__prototypeUID__ = 'svg-kit/VGText' ;
+VGText.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGText.prototype.svgTag = 'text' ;
+
+VGText.prototype.svgAttributes = function() {
+	var attr = {
+		x: this.x ,
+		y: this.y ,
+		'text-anchor': this.anchor || 'middle'
+	} ;
+
+	if ( this.length !== null ) { attr.textLength = this.length ; }
+	if ( this.adjustGlyph !== null ) { attr.lengthAdjust = 'spacingAndGlyphs' ; }
+
+	return attr ;
+} ;
+
+
+
+VGText.prototype.svgTextNode = function() {
+	// Text-formatting should be possible
+	return this.text ;
+} ;
+
+
+
+VGText.prototype.set = function( data ) {
+	VGItem.prototype.set.call( this , data ) ;
+
+	if ( data.x !== undefined ) { this.x = data.x ; }
+	if ( data.y !== undefined ) { this.y = data.y ; }
+
+	if ( data.text !== undefined ) { this.text = data.text ; }
+
+	// Interop'
+	if ( data.textAnchor !== undefined ) { this.anchor = data.textAnchor ; }
+	if ( data.anchor !== undefined ) { this.anchor = data.anchor ; }
+
+	// Interop'
+	if ( data.textLength !== undefined ) { this.length = data.textLength ; }
+	if ( data.length !== undefined ) { this.length = data.length ; }
+
+	// Interop'
+	if ( data.lengthAdjust === 'spacingAndGlyphs' ) { this.adjustGlyph = true ; }
+	else if ( data.lengthAdjust === 'spacing' ) { this.adjustGlyph = false ; }
+	if ( data.adjustGlyph !== undefined ) { this.adjustGlyph = !! data.adjustGlyph ; }
+} ;
+
+
+},{"../package.json":56,"./VGItem.js":38}],42:[function(require,module,exports){
 /*
 	SVG Kit
 
@@ -13735,7 +13864,7 @@ path.dFromPoints = ( points , invertY ) => {
 } ;
 
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 (function (process){
 /*
 	SVG Kit
@@ -13788,6 +13917,7 @@ svgKit.VGGroup = require( './VGGroup.js' ) ;
 svgKit.VGRect = require( './VGRect.js' ) ;
 svgKit.VGEllipse = require( './VGEllipse.js' ) ;
 svgKit.VGPath = require( './VGPath.js' ) ;
+svgKit.VGText = require( './VGText.js' ) ;
 
 
 
@@ -14213,27 +14343,27 @@ svgKit.objectToVG = function( object ) {
 
 
 }).call(this,require('_process'))
-},{"./VG.js":34,"./VGContainer.js":35,"./VGEllipse.js":36,"./VGGroup.js":37,"./VGItem.js":38,"./VGPath.js":39,"./VGRect.js":40,"./path.js":41,"_process":13,"dom-kit":43,"fs":6,"seventh":51,"string-kit/lib/escape.js":54}],43:[function(require,module,exports){
+},{"./VG.js":34,"./VGContainer.js":35,"./VGEllipse.js":36,"./VGGroup.js":37,"./VGItem.js":38,"./VGPath.js":39,"./VGRect.js":40,"./VGText.js":41,"./path.js":42,"_process":13,"dom-kit":44,"fs":6,"seventh":52,"string-kit/lib/escape.js":55}],44:[function(require,module,exports){
 arguments[4][7][0].apply(exports,arguments)
-},{"@cronvel/xmldom":6,"_process":13,"dup":7}],44:[function(require,module,exports){
+},{"@cronvel/xmldom":6,"_process":13,"dup":7}],45:[function(require,module,exports){
 arguments[4][18][0].apply(exports,arguments)
-},{"_process":13,"dup":18}],45:[function(require,module,exports){
+},{"_process":13,"dup":18}],46:[function(require,module,exports){
 arguments[4][19][0].apply(exports,arguments)
-},{"./seventh.js":51,"dup":19}],46:[function(require,module,exports){
+},{"./seventh.js":52,"dup":19}],47:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"./seventh.js":51,"dup":20}],47:[function(require,module,exports){
+},{"./seventh.js":52,"dup":20}],48:[function(require,module,exports){
 arguments[4][21][0].apply(exports,arguments)
-},{"_process":13,"dup":21,"setimmediate":44,"timers":31}],48:[function(require,module,exports){
+},{"_process":13,"dup":21,"setimmediate":45,"timers":31}],49:[function(require,module,exports){
 arguments[4][22][0].apply(exports,arguments)
-},{"./seventh.js":51,"dup":22}],49:[function(require,module,exports){
+},{"./seventh.js":52,"dup":22}],50:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"./seventh.js":51,"_process":13,"dup":23}],50:[function(require,module,exports){
+},{"./seventh.js":52,"_process":13,"dup":23}],51:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"./seventh.js":51,"dup":24}],51:[function(require,module,exports){
+},{"./seventh.js":52,"dup":24}],52:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./api.js":45,"./batch.js":46,"./core.js":47,"./decorators.js":48,"./misc.js":49,"./parasite.js":50,"./wrapper.js":52,"dup":25}],52:[function(require,module,exports){
+},{"./api.js":46,"./batch.js":47,"./core.js":48,"./decorators.js":49,"./misc.js":50,"./parasite.js":51,"./wrapper.js":53,"dup":25}],53:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"./seventh.js":51,"dup":26}],53:[function(require,module,exports){
+},{"./seventh.js":52,"dup":26}],54:[function(require,module,exports){
 /*
 	String Kit
 
@@ -14309,12 +14439,12 @@ camel.camelCaseToDashed = ( str ) => camel.camelCaseToSeparated( str , '-' ) ;
 
 
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}],55:[function(require,module,exports){
+},{"dup":28}],56:[function(require,module,exports){
 module.exports={
   "name": "svg-kit",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A small SVG toolkit.",
   "main": "lib/svg-kit.js",
   "directories": {
