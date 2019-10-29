@@ -12559,6 +12559,7 @@ const VGContainer = require( './VGContainer.js' ) ;
 
 function VGGroup( options ) {
 	VGContainer.call( this , options ) ;
+	if ( options ) { this.set( options ) ; }
 }
 
 module.exports = VGGroup ;
@@ -12858,8 +12859,6 @@ VGItem.prototype.renderDom = function( options = {} ) {
 		this.$element.style[ key ] = this.style[ key ] ;
 	}
 
-	if ( ! this.isContainer ) { return this.$element ; }
-
 	// StyleSheet inside a <style> tag
 	if ( this.css && this.css.length ) {
 		this.$style = document.createElementNS( 'http://www.w3.org/2000/svg' , 'style' ) ;
@@ -12886,8 +12885,12 @@ VGItem.prototype.renderDom = function( options = {} ) {
 		this.$element.appendChild( this.$style ) ;
 	}
 
+	console.warn( "From" , this , "isContainer" , this.isContainer ) ;
+	if ( ! this.isContainer ) { return this.$element ; }
+
 	// Inner content
 	for ( let item of this.items ) {
+		console.warn( "From" , this , "append" , item ) ;
 		this.$element.appendChild( item.renderDom() ) ;
 	}
 
