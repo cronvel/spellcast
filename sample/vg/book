@@ -3,7 +3,11 @@
 [chapter tests]
 	[theme] > /themes/educa
 	
-	[starting-scene vg]
+	[starting-scene menu]
+		[next vg] vg
+		[next vg-path] vg-path
+	
+	[scene vg]
 		[vg $vg]
 			[attr]
 				css:
@@ -71,7 +75,7 @@
 		[update-vg vg]
 			vgMorph: $vg
 
-		[next menu/end]
+		[next menu]
 
 
 	[scene vg-path]
@@ -109,9 +113,10 @@
 					x: 50
 					y: 0
 				[vg-forward] 100
+				#[vg-turn-to] -60
 				[vg-forward-right]
 					l: 50
-					a: 359
+					a: 160
 				[vg-forward] 50
 
 			[vg-path]
@@ -150,6 +155,6 @@
 				x: 0
 				y: 0
 
-		[next menu/end]
+		[next menu]
 
 

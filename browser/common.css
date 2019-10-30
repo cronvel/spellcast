@@ -100,12 +100,6 @@ svg.vg-object * {
 	transform-origin: center;
 }
 
-svg.vg-invert text {
-	/* When vg-invert is used, text would flip too, being unreadable */
-	transform: scaleY(-1);
-	dominant-baseline: hanging;
-}
-
 
 
 /* Sprite */

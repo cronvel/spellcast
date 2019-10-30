@@ -1410,7 +1410,6 @@ Dom.prototype.createGItem = function( data ) {
 
 	gItem.size = { mode: 'relative' , xy: 1 } ;
 	gItem.position = { mode: 'relative' , x: 0 , y: 0 } ;
-	gItem.vgInvert = false ;	// Invert Y-axis (script's vector graphics)
 	gItem.transform = {} ;
 
 	Object.assign( gItem , data ) ;
@@ -1517,7 +1516,7 @@ Dom.prototype.updateGItemCosmetics = async function( gItem , data , initial = fa
 		domKit.css( gItem.$mask , data.maskStyle ) ;
 	}
 
-	if ( data.size || data.position || data.vgInvert !== undefined ) { this.updateGItemTransform( gItem , data ) ; }
+	if ( data.size || data.position ) { this.updateGItemTransform( gItem , data ) ; }
 
 	if ( data.class ) {
 		data.class = commonUtils.toClassObject( data.class ) ;
@@ -1790,12 +1789,6 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 		gItem.position = data.position ;
 	}
 
-	if ( data.vgInvert !== undefined ) {
-		gItem.vgInvert = !! data.vgInvert ;
-		if ( gItem.vgInvert ) { gItem.$image.classList.add( 'vg-invert' ) ; }
-		else { gItem.$image.classList.remove( 'vg-invert' ) ; }
-	}
-
 
 	// Pre-compute few thing necessary for the following stuff
 	if ( gItem.$image.tagName.toLowerCase() === 'svg' ) {
@@ -1902,12 +1895,6 @@ Dom.prototype.updateGItemTransform = function( gItem , data ) {
 
 			console.log( "transform after .updateGItemPosition()" , gItem.transform ) ;
 			break ;
-	}
-
-	// Invert Y-axis (custom script VG have Y pointing up by default)
-	if ( gItem.vgInvert ) {
-		if ( gItem.transform.scaleY ) { gItem.transform.scaleY = -gItem.transform.scaleY ; }
-		else { gItem.transform.scaleY = -1 ; }
 	}
 
 	// Finally, create the transformation CSS string
@@ -12254,6 +12241,7 @@ function VG( options ) {
 	} ;
 
 	this.css = [] ;
+	this.invertY = false ;
 
 	if ( options ) { this.set( options ) ; }
 }
@@ -12271,10 +12259,10 @@ VG.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
 
 VG.prototype.svgTag = 'svg' ;
 
-VG.prototype.svgAttributes = function() {
+VG.prototype.svgAttributes = function( root = this ) {
 	var attr = {
 		xmlns: "http://www.w3.org/2000/svg" ,
-		viewBox: this.viewBox.x + ' ' + this.viewBox.y + ' ' + this.viewBox.width + ' ' + this.viewBox.height
+		viewBox: this.viewBox.x + ' ' + ( root.invertY ? - this.viewBox.y - this.viewBox.height : this.viewBox.y ) + ' ' + this.viewBox.width + ' ' + this.viewBox.height
 	} ;
 
 	return attr ;
@@ -12298,6 +12286,8 @@ VG.prototype.set = function( data ) {
 			this.addCssRule( rule ) ;
 		}
 	}
+
+	if ( data.invertY !== undefined ) { this.invertY = !! data.invertY ; }
 } ;
 
 
@@ -12425,7 +12415,7 @@ VGContainer.prototype.importMorphLog = function( log ) {
 		for ( key in log.i ) {
 			index = + key ;
 			if ( this.items[ index ] ) {
-				console.warn( "Sub:" , this.items[ index ] , log.i[ key ] ) ;
+				//console.warn( "Sub:" , this.items[ index ] , log.i[ key ] ) ;
 				this.items[ index ].importMorphLog( log.i[ key ] ) ;
 			}
 		}
@@ -12435,9 +12425,9 @@ VGContainer.prototype.importMorphLog = function( log ) {
 
 
 // Update the DOM, based upon the morphLog
-VGContainer.prototype.morphDom = function() {
-	this.items.forEach( item => item.morphDom() ) ;
-	this.morphLog.forEach( entry => this.morphOneEntryDom( entry ) ) ;
+VGContainer.prototype.morphDom = function( root = this ) {
+	this.items.forEach( item => item.morphDom( root ) ) ;
+	this.morphLog.forEach( entry => this.morphOneEntryDom( entry , root ) ) ;
 	this.morphLog.length = 0 ;
 	return this.$element ;
 } ;
@@ -12500,10 +12490,10 @@ VGEllipse.prototype.__prototypeVersion__ = require( '../package.json' ).version 
 
 VGEllipse.prototype.svgTag = 'ellipse' ;
 
-VGEllipse.prototype.svgAttributes = function() {
+VGEllipse.prototype.svgAttributes = function( root = this ) {
 	var attr = {
 		cx: this.x ,
-		cy: this.y ,
+		cy: root.invertY ? - this.y : this.y ,
 		rx: this.rx ,
 		ry: this.ry
 	} ;
@@ -12760,9 +12750,9 @@ VGItem.prototype.escape = function( value ) {
 
 
 // Render the Vector Graphic as a text SVG
-VGItem.prototype.renderText = function() {
+VGItem.prototype.renderText = function( root = this ) {
 	var key , rule , str = '' , styleStr = '' ,
-		attr = this.svgAttributes() ;
+		attr = this.svgAttributes( root ) ;
 
 	str += '<' + this.svgTag ;
 
@@ -12830,7 +12820,7 @@ VGItem.prototype.renderText = function() {
 	// Inner content
 	if ( this.items ) {
 		for ( let item of this.items ) {
-			str += item.renderText() ;
+			str += item.renderText( root ) ;
 		}
 	}
 
@@ -12841,9 +12831,9 @@ VGItem.prototype.renderText = function() {
 
 
 // Render the Vector Graphic inside a browser, as DOM SVG
-VGItem.prototype.renderDom = function( options = {} ) {
+VGItem.prototype.renderDom = function( options = {} , root = this ) {
 	var key , rule , cssStr ,
-		attr = this.svgAttributes() ;
+		attr = this.svgAttributes( root ) ;
 
 	this.$element = document.createElementNS( 'http://www.w3.org/2000/svg' , options.overrideTag || this.svgTag ) ;
 
@@ -12907,7 +12897,7 @@ VGItem.prototype.renderDom = function( options = {} ) {
 	// Inner content
 	if ( this.items ) {
 		for ( let item of this.items ) {
-			this.$element.appendChild( item.renderDom() ) ;
+			this.$element.appendChild( item.renderDom( undefined , root ) ) ;
 		}
 	}
 
@@ -12917,15 +12907,15 @@ VGItem.prototype.renderDom = function( options = {} ) {
 
 
 // Update the DOM, based upon the morphLog
-VGItem.prototype.morphDom = function() {
-	this.morphLog.forEach( entry => this.morphOneEntryDom( entry ) ) ;
+VGItem.prototype.morphDom = function( root = this ) {
+	this.morphLog.forEach( entry => this.morphOneEntryDom( entry , root ) ) ;
 	this.morphLog.length = 0 ;
 	return this.$element ;
 } ;
 
 
 
-VGItem.prototype.morphOneEntryDom = function( data ) {
+VGItem.prototype.morphOneEntryDom = function( data , root = this ) {
 	var key ;
 
 	// Disallow id changes?
@@ -13025,10 +13015,10 @@ VGPath.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
 
 VGPath.prototype.svgTag = 'path' ;
 
-VGPath.prototype.svgAttributes = function() {
+VGPath.prototype.svgAttributes = function( root = this ) {
 	var attr = {
 		// That enigmatic SVG attribute 'd' probably means 'data' or 'draw'
-		d: this.toD()
+		d: this.toD( root )
 	} ;
 
 	return attr ;
@@ -13044,13 +13034,14 @@ VGPath.prototype.set = function( data ) {
 
 
 // Build the SVG 'd' attribute
-VGPath.prototype.toD = function() {
+VGPath.prototype.toD = function( root = this ) {
 	var build = {
+		root: root ,
 		d: '' ,
 		pu: false ,	// Pen Up, when true, turtle-like commands move without tracing anything
 		cx: 0 ,		// cursor position x
 		cy: 0 ,		// cursor position y
-		ca: Math.PI / 2		// cursor angle, default to up
+		ca: root.invertY ? - Math.PI / 2 : Math.PI / 2		// cursor angle, default to positive Y-axis
 	} ;
 
 	this.commands.forEach( ( command , index ) => {
@@ -13075,93 +13066,113 @@ builders.close = ( command , build ) => {
 } ;
 
 builders.move = ( command , build ) => {
+	var y = build.root.invertY ? - command.y : command.y ;
+
 	if ( command.rel ) {
-		build.d += 'm ' + command.x + ' ' + command.y ;
+		build.d += 'm ' + command.x + ' ' + y ;
 		build.cx += command.x ;
-		build.cy += command.y ;
+		build.cy += y ;
 	}
 	else {
-		build.d += 'M ' + command.x + ' ' + command.y ;
+		build.d += 'M ' + command.x + ' ' + y ;
 		build.cx = command.x ;
-		build.cy = command.y ;
+		build.cy = y ;
 	}
 } ;
 
 builders.line = ( command , build ) => {
+	var y = build.root.invertY ? - command.y : command.y ;
+
 	if ( command.rel ) {
-		build.d += 'l ' + command.x + ' ' + command.y ;
+		build.d += 'l ' + command.x + ' ' + y ;
 		build.cx += command.x ;
-		build.cy += command.y ;
+		build.cy += y ;
 	}
 	else {
-		build.d += 'L ' + command.x + ' ' + command.y ;
+		build.d += 'L ' + command.x + ' ' + y ;
 		build.cx = command.x ;
-		build.cy = command.y ;
+		build.cy = y ;
 	}
 } ;
 
 builders.curve = ( command , build ) => {
+	var cy1 = build.root.invertY ? - command.cy1 : command.cy1 ,
+		cy2 = build.root.invertY ? - command.cy2 : command.cy2 ,
+		y = build.root.invertY ? - command.y : command.y ;
+
 	if ( command.rel ) {
-		build.d += 'c ' + command.cx1 + ' ' + command.cy1 + ' ' + command.cx2 + ' ' + command.cy2 + ' '  + command.x + ' ' + command.y ;
+		build.d += 'c ' + command.cx1 + ' ' + cy1 + ' ' + command.cx2 + ' ' + cy2 + ' '  + command.x + ' ' + y ;
 		build.cx += command.x ;
-		build.cy += command.y ;
+		build.cy += y ;
 	}
 	else {
-		build.d += 'C ' + command.cx1 + ' ' + command.cy1 + ' ' + command.cx2 + ' ' + command.cy2 + ' '  + command.x + ' ' + command.y ;
+		build.d += 'C ' + command.cx1 + ' ' + cy1 + ' ' + command.cx2 + ' ' + cy2 + ' '  + command.x + ' ' + y ;
 		build.cx = command.x ;
-		build.cy = command.y ;
+		build.cy = y ;
 	}
 } ;
 
 builders.smoothCurve = ( command , build ) => {
+	var cy = build.root.invertY ? - command.cy : command.cy ,
+		y = build.root.invertY ? - command.y : command.y ;
+
 	if ( command.rel ) {
-		build.d += 's ' + command.cx + ' ' + command.cy + ' ' + command.x + ' ' + command.y ;
+		build.d += 's ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
 		build.cx += command.x ;
-		build.cy += command.y ;
+		build.cy += y ;
 	}
 	else {
-		build.d += 'S ' + command.cx + ' ' + command.cy + ' ' + command.x + ' ' + command.y ;
+		build.d += 'S ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
 		build.cx = command.x ;
-		build.cy = command.y ;
+		build.cy = y ;
 	}
 } ;
 
 builders.qCurve = ( command , build ) => {
+	var cy = build.root.invertY ? - command.cy : command.cy ,
+		y = build.root.invertY ? - command.y : command.y ;
+
 	if ( command.rel ) {
-		build.d += 'q ' + command.cx + ' ' + command.cy + ' ' + command.x + ' ' + command.y ;
+		build.d += 'q ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
 		build.cx += command.x ;
-		build.cy += command.y ;
+		build.cy += y ;
 	}
 	else {
-		build.d += 'Q ' + command.cx + ' ' + command.cy + ' ' + command.x + ' ' + command.y ;
+		build.d += 'Q ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
 		build.cx = command.x ;
-		build.cy = command.y ;
+		build.cy = y ;
 	}
 } ;
 
 builders.smoothQCurve = ( command , build ) => {
+	var y = build.root.invertY ? - command.y : command.y ;
+
 	if ( command.rel ) {
-		build.d += 't ' + command.x + ' ' + command.y ;
+		build.d += 't ' + command.x + ' ' + y ;
 		build.cx += command.x ;
-		build.cy += command.y ;
+		build.cy += y ;
 	}
 	else {
-		build.d += 'T ' + command.x + ' ' + command.y ;
+		build.d += 'T ' + command.x + ' ' + y ;
 		build.cx = command.x ;
-		build.cy = command.y ;
+		build.cy = y ;
 	}
 } ;
 
 builders.arc = ( command , build ) => {
+	var ra = build.root.invertY ? - command.ra : command.ra ,
+		pr = build.root.invertY ? ! command.pr : command.pr ,
+		y = build.root.invertY ? - command.y : command.y ;
+
 	if ( command.rel ) {
-		build.d += 'a ' + command.rx + ' ' + command.ry + ' ' + command.ra + ' ' + ( + command.la ) + ' '  + ( + command.pr ) + ' ' + command.x + ' ' + command.y ;
+		build.d += 'a ' + command.rx + ' ' + command.ry + ' ' + ra + ' ' + ( + command.la ) + ' '  + ( + pr ) + ' ' + command.x + ' ' + y ;
 		build.cx += command.x ;
-		build.cy += command.y ;
+		build.cy += y ;
 	}
 	else {
-		build.d += 'A ' + command.rx + ' ' + command.ry + ' ' + command.ra + ' ' + ( + command.la ) + ' '  + ( + command.pr ) + ' ' + command.x + ' ' + command.y ;
+		build.d += 'A ' + command.rx + ' ' + command.ry + ' ' + ra + ' ' + ( + command.la ) + ' '  + ( + pr ) + ' ' + command.x + ' ' + y ;
 		build.cx = command.x ;
-		build.cy = command.y ;
+		build.cy = y ;
 	}
 } ;
 
@@ -13235,19 +13246,23 @@ builders.forward = ( command , build ) => {
 } ;
 
 builders.turn = ( command , build ) => {
+	var a = build.root.invertY ? - command.a : command.a ;
+
 	if ( command.rel ) {
-		build.ca += degToRad( command.a ) ;
+		build.ca += degToRad( a ) ;
 	}
 	else {
-		build.ca = degToRad( command.a ) ;
+		build.ca = degToRad( a ) ;
 	}
 } ;
 
 builders.forwardTurn = ( command , build ) => {
+	var a = build.root.invertY ? - command.a : command.a ;
+
 	/*
 		We will first transpose to a circle of center 0,0 and we are starting at x=radius,y=0 and moving positively
 	*/
-	var angleRad = degToRad( command.a ) ,
+	var angleRad = degToRad( a ) ,
 		angleSign = angleRad >= 0 ? 1 : -1 ,
 		alpha = Math.abs( angleRad ) ,
 		radius = command.l / alpha ,
@@ -13674,10 +13689,10 @@ VGRect.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
 
 VGRect.prototype.svgTag = 'rect' ;
 
-VGRect.prototype.svgAttributes = function() {
+VGRect.prototype.svgAttributes = function( root = this ) {
 	var attr = {
 		x: this.x ,
-		y: this.y ,
+		y: root.invertY ? - this.y : this.y ,
 		width: this.width ,
 		height: this.height ,
 		rx: this.rx ,
@@ -13771,10 +13786,10 @@ VGText.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
 
 VGText.prototype.svgTag = 'text' ;
 
-VGText.prototype.svgAttributes = function() {
+VGText.prototype.svgAttributes = function( root = this ) {
 	var attr = {
 		x: this.x ,
-		y: this.y ,
+		y: root.invertY ? - this.y : this.y ,
 		'text-anchor': this.anchor || 'middle'
 	} ;
 
