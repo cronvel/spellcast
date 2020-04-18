@@ -31,6 +31,14 @@
 			action: drink
 			object: $args.stars.input[0]
 		
+	[query]
+		[pattern] > order * to *
+		[sr] $args.stars.input[1]
+		[reply]
+			action: $args.sr.input[0]
+			object: $args.stars.input[0]
+			object: $args.stars.input[0]
+		
 	# Catchall
 	#[query]
 	#	[pattern] > *
