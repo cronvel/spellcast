@@ -123,16 +123,18 @@
 	status:
 		quantity: 2
 
-[create-place room]
-	name: room
-	items:
-		- water
-
 #[create-item $item] water
 
 [create-entity $sofia]
 	model: human
 	name: Sofia
+
+[create-place room]
+	name: room
+	items:
+		- water
+	entities:
+		- $sofia
 
 [action drink]
 	[require]

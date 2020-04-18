@@ -35,9 +35,11 @@
 		[pattern] > order * to *
 		[sr] $args.stars.input[1]
 		[reply]
-			action: $args.sr.input[0]
-			object: $args.stars.input[0]
-			object: $args.stars.input[0]
+			performer: $args.stars.input[0]
+			action: $args.sr[0].action
+			object: $args.sr[0].object
+			target: $args.sr[0].target
+			using: $args.sr[0].using
 		
 	# Catchall
 	#[query]
