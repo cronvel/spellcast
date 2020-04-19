@@ -122,6 +122,22 @@
 	name: water
 	status:
 		quantity: 2
+	params:
+		drinkable: yes
+
+[item-model tea]
+	class: object
+	name: tea
+	status:
+		quantity: 1
+	params:
+		drinkable: yes
+
+[item-model chest]
+	class: object
+	name: chest
+	params:
+		openable: yes
 
 #[create-item $item] water
 
@@ -133,6 +149,8 @@
 	name: room
 	items:
 		- water
+		- tea
+		- chest
 	entities:
 		- $sofia
 
@@ -145,6 +163,10 @@
 	# [check] is an alias of [check precondition]
 	[check]
 		[message] $> Precondition check #1
+		[if ! $args.object.params.drinkable]
+			[precondition-failure-report prevent-default]
+				[message] $> ^YThe ${args.object.name} is not drinkable!
+			[failure]
 		[if $args.object.status.quantity <= 0]
 			[precondition-failure-report prevent-default]
 				[message] $> ^YThere is no ${args.object.name} anymore...
