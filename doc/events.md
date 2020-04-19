@@ -68,8 +68,9 @@ Events emitted here are usually **userland** event, except few standard events:
 	* image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
 	  of what is described
 	* sound `url` if set, a sound that should be played along with the message
-* textInput (label, grantedRoleIds): the book requires that the user enter a text, `label` is the text describing what is required,
-  the client response should emit a `textSubmit` event, `grantedRoleIds` is an array of role's ID, roles that can respond.
+* textInput (label, grantedRoleIds, historyGroup): the book requires that the user enter a text, `label` is the text describing what is required,
+  the client response should emit a `textSubmit` event, `grantedRoleIds` is an array of role's ID, roles that can respond, and finally
+  `historyGroup` is a string, an identifier used for populating the history lines, or is null if there isn't history lines.
 
 * indicators (data): intended to display indicators in the message area flow (i.e. mixed with *message* events).
   An indicator is a data-representation visual-element, like bars.

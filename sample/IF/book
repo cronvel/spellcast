@@ -146,9 +146,6 @@
 	[check]
 		[message] $> Precondition check #1
 		[if $args.object.status.quantity <= 0]
-			[message] $> Precondition check #1: failure!
-			[precondition-failure-report]
-				[message] $> ^YThere is no ${args.object.name} anymore... (bis)
 			[precondition-failure-report prevent-default]
 				[message] $> ^YThere is no ${args.object.name} anymore...
 			[failure]
@@ -195,6 +192,7 @@
 	[persuasion-failure-report reset-default]
 		[message] $> ^Y${args.performer.name//uc1} is a liberated woman, she refuses to be commanded.
 	[maybe-failure]
+	#[maybe-success]
 	#[failure]
 
 [on <low> precondition:drink]
@@ -261,6 +259,7 @@
 		
 		[define $state] <Object>
 		[input $state.input]
+			history: yes
 		[request command-interpreter => $reply] $state
 		
 		[set $reply.commander] $player
