@@ -1504,10 +1504,10 @@ describe( "API" , () => {
 			[ '8: Success!' ] ,
 			[ 'Blasted Goblin!' ] ,
 			[ 'Roasted Goblin!' ] ,
-			[ '9: Failure!' ] ,
+			[ '9: Success!' ] ,
 			[ 'Blasted Ogre!' ] ,
 			[ 'Roasted Ogre!' ] ,
-			[ '10: Success!' ]
+			[ '10: Failure!' ]
 		] ) ;
 	} ) ;
 
