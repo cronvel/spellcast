@@ -1,5 +1,6 @@
 
 [[doctype spellcast/book]]
+[[locale en]]
 
 [module] @@{core}/utils.kfg
 [module] @@{rpg}/characters/common-characters.kfg
@@ -119,7 +120,7 @@
 
 [item-model water]
 	class: object
-	name: water
+	name: <Atom> water[a:z]
 	status:
 		quantity: 2
 	params:
@@ -127,7 +128,7 @@
 
 [item-model tea]
 	class: object
-	name: tea
+	name: <Atom> tea[a:p]
 	status:
 		quantity: 1
 	params:
@@ -135,7 +136,7 @@
 
 [item-model chest]
 	class: object
-	name: chest
+	name: <Atom> chest[a:d]
 	params:
 		openable: yes
 
@@ -143,7 +144,7 @@
 
 [create-entity $sofia]
 	model: human
-	name: Sofia
+	name: <Atom> Sofia[a:P/g:f]
 
 [create-place room]
 	name: room
@@ -165,11 +166,11 @@
 		[message] $> Precondition check #1
 		[if ! $args.object.params.drinkable]
 			[precondition-failure-report prevent-default]
-				[message] $> ^YThe ${args.object.name} is not drinkable!
+				[message] $> ^Y${args.object.name}[+a//uc1] is not drinkable!
 			[failure]
 		[if $args.object.status.quantity <= 0]
 			[precondition-failure-report prevent-default]
-				[message] $> ^YThere is no ${args.object.name} anymore...
+				[message] $> ^YThere is ${args.object.name}[+a/n:0] anymore...
 			[failure]
 		[maybe-success]
 	
@@ -182,18 +183,18 @@
 		[message] $> ^geffect tag
 	
 	#[precondition-success-report]
-	#	[message] $> ^B${args.performer.name//uc1} drinks ${args.object.name}.
+	#	[message] $> ^B${args.performer.name}[+a//uc1] drinks ${args.object.name}.
 	[precondition-failure-report]
-		[message] $> ^Y${args.performer.name//uc1} can't drink ${args.object.name}.
+		[message] $> ^Y${args.performer.name}[+a//uc1] can't drink ${args.object.name}[+a].
 	
 	[persuasion-failure-report]
-		[message] $> ^YNobody should tell ${args.performer.name} when to drink.
+		[message] $> ^YNobody should tell ${args.performer.name}[+a//uc1] when to drink.
 	[persuasion-success-report]
-		[message] $> ^B${args.performer.name//uc1} nods.
+		[message] $> ^B${args.performer.name}[+a//uc1] nods.
 	[success-report]
-		[message] $> ^B${args.performer.name//uc1} drinks ${args.object.name}.
+		[message] $> ^B${args.performer.name}[+a//uc1] drinks ${args.object.name}[+a].
 	[failure-report]
-		[message] $> ^Y${args.object.name//uc1} is not drinkable!
+		[message] $> ^Y${args.object.name}[+a//uc1] is not drinkable!
 
 
 [action open]
@@ -206,11 +207,11 @@
 		[message] $> Precondition check #1
 		[if ! $args.object.params.openable]
 			[precondition-failure-report prevent-default]
-				[message] $> ^YThe ${args.object.name} is not openable!
+				[message] $> ^Y${args.object.name}[+a//uc1] is not openable!
 			[failure]
 		[if $args.object.status.open]
 			[precondition-failure-report prevent-default]
-				[message] $> ^YThe ${args.object.name} is already opened!
+				[message] $> ^Y${args.object.name}[+a//uc1] is already opened!
 			[failure]
 		[maybe-success]
 	
@@ -218,16 +219,16 @@
 		[set $args.object.status.open] true
 	
 	[precondition-failure-report]
-		[message] $> ^Y${args.performer.name//uc1} can't open ${args.object.name}.
+		[message] $> ^Y${args.performer.name}[+a//uc1] can't open ${args.object.name}[+a].
 	
 	#[persuasion-failure-report]
-	#	[message] $> ^YNobody should tell ${args.performer.name} when to drink.
+	#	[message] $> ^YNobody should tell ${args.performer.name}[+a] when to drink.
 	#[persuasion-success-report]
-	#	[message] $> ^B${args.performer.name//uc1} nods.
+	#	[message] $> ^B${args.performer.name}[+a//uc1] nods.
 	[success-report]
-		[message] $> ^B${args.performer.name//uc1} opens ${args.object.name}.
+		[message] $> ^B${args.performer.name}[+a//uc1] opens ${args.object.name}[+a].
 	[failure-report]
-		[message] $> ^B${args.performer.name//uc1} can't open ${args.object.name}.
+		[message] $> ^B${args.performer.name}[+a//uc1] can't open ${args.object.name}[+a].
 
 [on $player persuasion:*:commander]
 	[message] $> persuasion:*:commander player
@@ -246,7 +247,7 @@
 	[message] $> persuasion:*:performer sofia
 	#[persuasion-failure-report]
 	[persuasion-failure-report reset-default]
-		[message] $> ^Y${args.performer.name//uc1} is a liberated woman, she refuses to be commanded.
+		[message] $> ^Y${args.performer.name}[+a//uc1] is a liberated woman, she refuses to be commanded.
 	[maybe-failure]
 	#[maybe-success]
 	#[failure]
