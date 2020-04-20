@@ -1,7 +1,7 @@
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2019 Cédric Ronvel
+	Copyright (c) 2014 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
