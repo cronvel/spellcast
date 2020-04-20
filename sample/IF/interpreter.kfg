@@ -32,6 +32,12 @@
 			object: $args.stars.input[0]
 		
 	[query]
+		[pattern] > open *
+		[reply]
+			action: open
+			object: $args.stars.input[0]
+		
+	[query]
 		[pattern] > order * to *
 		[sr] $args.stars.input[1]
 		[reply]

@@ -195,6 +195,40 @@
 	[failure-report]
 		[message] $> ^Y${args.object.name//uc1} is not drinkable!
 
+
+[action open]
+	[require]
+		- commander
+		- performer
+		- object
+
+	[check]
+		[message] $> Precondition check #1
+		[if ! $args.object.params.openable]
+			[precondition-failure-report prevent-default]
+				[message] $> ^YThe ${args.object.name} is not openable!
+			[failure]
+		[if $args.object.status.open]
+			[precondition-failure-report prevent-default]
+				[message] $> ^YThe ${args.object.name} is already opened!
+			[failure]
+		[maybe-success]
+	
+	[effect]
+		[set $args.object.status.open] true
+	
+	[precondition-failure-report]
+		[message] $> ^Y${args.performer.name//uc1} can't open ${args.object.name}.
+	
+	#[persuasion-failure-report]
+	#	[message] $> ^YNobody should tell ${args.performer.name} when to drink.
+	#[persuasion-success-report]
+	#	[message] $> ^B${args.performer.name//uc1} nods.
+	[success-report]
+		[message] $> ^B${args.performer.name//uc1} opens ${args.object.name}.
+	[failure-report]
+		[message] $> ^B${args.performer.name//uc1} can't open ${args.object.name}.
+
 [on $player persuasion:*:commander]
 	[message] $> persuasion:*:commander player
 
