@@ -11,7 +11,7 @@
 
 [create-main-entity]
 	class: character
-	name: the hero
+	name: <Atom> hero[a:d]
 	slots:
 		hand: 2
 

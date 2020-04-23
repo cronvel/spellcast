@@ -1,0 +1,13 @@
+
+[[doctype spellcast/book]]
+[[locale fr]]
+[[locales locales/*]]
+
+
+
+[chapter fr]
+
+	[scene fr1]
+		[message] $> Il était une fois...
+		[next en/en1]
+

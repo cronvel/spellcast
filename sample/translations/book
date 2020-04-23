@@ -1,0 +1,15 @@
+
+[[doctype spellcast/book]]
+[[locale en]]
+[[locales locales/*]]
+
+[module] @@fr-part.kfg
+
+
+
+[chapter en]
+
+	[starting-scene en1]
+		[message] $> A long time ago...
+		[next fr/fr1]
+
