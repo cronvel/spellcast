@@ -166,11 +166,11 @@
 		[message] $> Precondition check #1
 		[if ! $args.object.params.drinkable]
 			[precondition-failure-report prevent-default]
-				[message] $> ^Y${args.object.name}[+a//uc1] is not drinkable!
+				[message] $> ^Y${args.object.name}[+d:a//uc1] is not drinkable!
 			[failure]
 		[if $args.object.status.quantity <= 0]
 			[precondition-failure-report prevent-default]
-				[message] $> ^YThere is ${args.object.name}[+a/n:0] anymore...
+				[message] $> ^YThere is ${args.object.name}[+d:a/n:0] anymore...
 			[failure]
 		[maybe-success]
 	
@@ -183,18 +183,18 @@
 		[message] $> ^geffect tag
 	
 	#[precondition-success-report]
-	#	[message] $> ^B${args.performer.name}[+a//uc1] drinks ${args.object.name}.
+	#	[message] $> ^B${args.performer.name}[+d:a//uc1] drinks ${args.object.name}.
 	[precondition-failure-report]
-		[message] $> ^Y${args.performer.name}[+a//uc1] can't drink ${args.object.name}[+a].
+		[message] $> ^Y${args.performer.name}[+d:a//uc1] can't drink ${args.object.name}[+d:a].
 	
 	[persuasion-failure-report]
-		[message] $> ^YNobody should tell ${args.performer.name}[+a//uc1] when to drink.
+		[message] $> ^YNobody should tell ${args.performer.name}[+d:a//uc1] when to drink.
 	[persuasion-success-report]
-		[message] $> ^B${args.performer.name}[+a//uc1] nods.
+		[message] $> ^B${args.performer.name}[+d:a//uc1] nods.
 	[success-report]
-		[message] $> ^B${args.performer.name}[+a//uc1] drinks ${args.object.name}[+a].
+		[message] $> ^B${args.performer.name}[+d:a//uc1] drinks ${args.object.name}[+d:a].
 	[failure-report]
-		[message] $> ^Y${args.object.name}[+a//uc1] is not drinkable!
+		[message] $> ^Y${args.object.name}[+d:a//uc1] is not drinkable!
 
 
 [action open]
@@ -207,11 +207,11 @@
 		[message] $> Precondition check #1
 		[if ! $args.object.params.openable]
 			[precondition-failure-report prevent-default]
-				[message] $> ^Y${args.object.name}[+a//uc1] is not openable!
+				[message] $> ^Y${args.object.name}[+d:a//uc1] is not openable!
 			[failure]
 		[if $args.object.status.open]
 			[precondition-failure-report prevent-default]
-				[message] $> ^Y${args.object.name}[+a//uc1] is already opened!
+				[message] $> ^Y${args.object.name}[+d:a//uc1] is already opened!
 			[failure]
 		[maybe-success]
 	
@@ -219,16 +219,16 @@
 		[set $args.object.status.open] true
 	
 	[precondition-failure-report]
-		[message] $> ^Y${args.performer.name}[+a//uc1] can't open ${args.object.name}[+a].
+		[message] $> ^Y${args.performer.name}[+d:a//uc1] can't open ${args.object.name}[+d:a].
 	
 	#[persuasion-failure-report]
-	#	[message] $> ^YNobody should tell ${args.performer.name}[+a] when to drink.
+	#	[message] $> ^YNobody should tell ${args.performer.name}[+d:a] when to drink.
 	#[persuasion-success-report]
-	#	[message] $> ^B${args.performer.name}[+a//uc1] nods.
+	#	[message] $> ^B${args.performer.name}[+d:a//uc1] nods.
 	[success-report]
-		[message] $> ^B${args.performer.name}[+a//uc1] opens ${args.object.name}[+a].
+		[message] $> ^B${args.performer.name}[+d:a//uc1] opens ${args.object.name}[+d:a].
 	[failure-report]
-		[message] $> ^B${args.performer.name}[+a//uc1] can't open ${args.object.name}[+a].
+		[message] $> ^B${args.performer.name}[+d:a//uc1] can't open ${args.object.name}[+d:a].
 
 [on $player persuasion:*:commander]
 	[message] $> persuasion:*:commander player
@@ -247,7 +247,7 @@
 	[message] $> persuasion:*:performer sofia
 	#[persuasion-failure-report]
 	[persuasion-failure-report reset-default]
-		[message] $> ^Y${args.performer.name}[+a//uc1] is a liberated woman, she refuses to be commanded.
+		[message] $> ^Y${args.performer.name}[+d:a//uc1] is a liberated woman, she refuses to be commanded.
 	[maybe-failure]
 	#[maybe-success]
 	#[failure]
