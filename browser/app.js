@@ -439,7 +439,6 @@ Dom.prototype.restServiceSpeech = function( text , options , callback ) {
 	var url = BASE_URL ;
 	url += "?text=" + encodeURIComponent( text ) ;
 	url += "&lang=" + encodeURIComponent( options.speechLang || 'en' ) ;
-	//url += "&lang=" + encodeURIComponent( options.speechLang || 'fr' ) ;
 	url += "&volume=" + encodeURIComponent( options.speechVolume !== undefined ? options.speechVolume : 1 ) ;
 	url += "&rate=" + encodeURIComponent( options.speechRate !== undefined ? options.speechRate : 1 ) ;
 	url += "&pitch=" + encodeURIComponent( options.speechPitch !== undefined ? options.speechPitch : 1 ) ;
@@ -3170,6 +3169,8 @@ UI.message = function( text , options , callback ) {
 	if ( ! options ) { options = {} ; }
 
 	if ( options.speech ) {
+		if ( ! options.speechLang ) { options.speechLang = this.config.defaultLocale ; }
+
 		if ( options.speechOnly ) {
 			this.dom.speech( toolkit.stripMarkup( text ) , options , callback ) ;
 		}

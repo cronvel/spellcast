@@ -1,6 +1,7 @@
 
 [[doctype spellcast/book]]
-[[local en]]
+[[locale en]]
+[[locales locales/*]]
 
 [chapter intro]
 	
@@ -8,6 +9,8 @@
 		
 		[speech]
 			text: $> ^/Once ^Bupon a time...
+			speechRate: 0.5
+			speechPitch: 0.5
 		
 		[next two]
 
@@ -15,6 +18,7 @@
 		
 		[speech]
 			text: $> ^/Once ^Bupon a time...
+			speechLang: en
 			speechRate: 0.5
 			speechPitch: 0.5
 
