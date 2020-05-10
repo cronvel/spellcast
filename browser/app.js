@@ -2,7 +2,7 @@
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2019 Cédric Ronvel
+	Copyright (c) 2014 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -420,6 +420,65 @@ Dom.prototype.messageNext = function( value , callback ) {
 	if ( typeof value === 'number' && isFinite( value ) && value > 0 ) {
 		setTimeout( triggerCallback , value * 1000 ) ;
 	}
+} ;
+
+
+
+Dom.prototype.speech = function( text , options , callback ) {
+	//return this.nativeBrowserSpeech( text , options , callback ) ;
+	return this.restServiceSpeech( text , options , callback ) ;
+} ;
+
+
+
+const BASE_URL = "https://texttospeech.responsivevoice.org/v1/text:synthesize" ;
+
+
+
+Dom.prototype.restServiceSpeech = function( text , options , callback ) {
+	var url = BASE_URL ;
+	url += "?text=" + encodeURIComponent( text ) ;
+	url += "&lang=" + encodeURIComponent( options.speechLang || 'en' ) ;
+	//url += "&lang=" + encodeURIComponent( options.speechLang || 'fr' ) ;
+	url += "&volume=" + encodeURIComponent( options.speechVolume !== undefined ? options.speechVolume : 1 ) ;
+	url += "&rate=" + encodeURIComponent( options.speechRate !== undefined ? options.speechRate : 1 ) ;
+	url += "&pitch=" + encodeURIComponent( options.speechPitch !== undefined ? options.speechPitch : 1 ) ;
+	url += "&gender=" + encodeURIComponent( options.speechGender || 'female' ) ;
+
+	// TMP:
+	url += "&engine=g1&name=&key=5KF3cB1d" ;
+	console.log( "REST service URL:" , url ) ;
+	this.sound( { url } , true , callback ) ;
+} ;
+
+
+
+Dom.prototype.nativeBrowserSpeech = function( text , options , callback ) {
+	var speechSynthesis = window.speechSynthesis ,
+		message , voices ;
+	
+	if ( ! speechSynthesis ) {
+		// Not supported by this browser
+		callback() ;
+		return ;
+	}
+
+	message = new SpeechSynthesisUtterance( text ) ;
+	//voices = window.speechSynthesis.getVoices() ;
+	//message.voice = voices[10]; // Note: some voices don't support altering params
+	//message.text = text ;
+	message.lang = options.speechLang || 'en-US' ;
+	message.volume = options.speechVolume !== undefined ? options.speechVolume : 1 ;	// 0 to 1
+	message.rate = options.speechRate !== undefined ? options.speechRate : 1 ;	// 0.1 to 10
+	message.pitch = options.speechPitch !== undefined ? options.speechPitch : 1 ;	//0 to 2
+	if ( options.speechVoice ) { message.voiceURI = options.speechVoice ; }
+
+	message.onend = event => {
+		console.log( 'Speech: finished in ' + event.elapsedTime + ' seconds.' ) ;
+		callback() ;
+	} ;
+
+	speechSynthesis.speak( message ) ;
 } ;
 
 
@@ -2421,13 +2480,25 @@ Dom.prototype.setVgPassiveHints = function( $svg ) {
 
 
 // maybe callback?
-Dom.prototype.sound = function( data ) {
-	var $element = this[ '$sound' + this.nextSoundChannel ] ;
+Dom.prototype.sound = function( data , internal = false , callback ) {
+	var endHandler ,
+		url = internal ? data.url : this.cleanUrl( data.url ) ,
+		$element = this[ '$sound' + this.nextSoundChannel ] ;
+
 	console.warn( '$sound' + this.nextSoundChannel , data , $element ) ;
 	this.nextSoundChannel = ( this.nextSoundChannel + 1 ) % 4 ;
 
-	$element.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
+	$element.setAttribute( 'src' , url ) ;
 	$element.play() ;
+	
+	if ( callback ) {
+		endHandler = () => {
+			$element.removeEventListener( 'ended' , endHandler ) ;
+			callback() ;
+		} ;
+		
+		$element.addEventListener( 'ended' , endHandler ) ;
+	}
 } ;
 
 
@@ -2500,11 +2571,11 @@ function soundFadeOut( $element , callback ) {
 }
 
 
-},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":43}],2:[function(require,module,exports){
+},{"../../commonUtils.js":5,"dom-kit":7,"nextgen-events/lib/browser.js":11,"seventh":25,"svg-kit":42}],2:[function(require,module,exports){
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2019 Cédric Ronvel
+	Copyright (c) 2014 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -2693,11 +2764,11 @@ dom.ready( () => {
 } ) ;
 
 
-},{"./ui/classic.js":4,"dom-kit":7,"nextgen-events/lib/browser.js":11,"url":32}],3:[function(require,module,exports){
+},{"./ui/classic.js":4,"dom-kit":7,"nextgen-events/lib/browser.js":11,"url":47}],3:[function(require,module,exports){
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2019 Cédric Ronvel
+	Copyright (c) 2014 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -2780,17 +2851,29 @@ const markupConfig = {
 
 
 
-toolkit.markup = function( ... args ) {
+toolkit.markup = ( ... args ) => {
 	args[ 0 ] = escapeHtml( args[ 0 ] ).replace( /\n/ , '<br />' ) ;
 	return markupMethod.apply( markupConfig , args ) ;
 } ;
+
+
+
+const MARKUP_REGEX = /\^\[([^\]]*)]|\^(.)|([^^]+)/g ;
+
+toolkit.stripMarkup = text => text.replace(
+	MARKUP_REGEX ,
+	( match , complex , markup , raw ) => 
+		raw ? raw :
+		markup === '^' ? '^' :
+		''
+) ;
 
 
 },{"string-kit/lib/escape.js":28,"string-kit/lib/format.js":29}],4:[function(require,module,exports){
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2019 Cédric Ronvel
+	Copyright (c) 2014 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -3082,15 +3165,31 @@ UI.roleList = function( roles , unassignedUsers , assigned ) {
 // Script [message], execution can be suspended if the listener is async, waiting for completion.
 // E.g.: possible use: wait for a user input before continuing processing.
 UI.message = function( text , options , callback ) {
-	var triggered = false ;
-
 	this.hasNewContent = true ;
-
-	text = toolkit.markup( text ) ;
 
 	if ( ! options ) { options = {} ; }
 
-	this.dom.addMessage( text , options , callback ) ;
+	if ( options.speech ) {
+		if ( options.speechOnly ) {
+			this.dom.speech( toolkit.stripMarkup( text ) , options , callback ) ;
+		}
+		else {
+			let messageDone = false , speechDone = false ;
+
+			this.dom.addMessage( toolkit.markup( text ) , options , () => {
+				messageDone = true ;
+				if ( speechDone ) { callback() ; }
+			} ) ;
+
+			this.dom.speech( toolkit.stripMarkup( text ) , options , () => {
+				speechDone = true ;
+				if ( messageDone ) { callback() ; }
+			} ) ;
+		}
+	}
+	else {
+		this.dom.addMessage( toolkit.markup( text ) , options , callback ) ;
+	}
 } ;
 
 
@@ -3535,7 +3634,7 @@ UI.exit = function( error , timeout , callback ) {
 /*
 	Spellcast
 
-	Copyright (c) 2014 - 2019 Cédric Ronvel
+	Copyright (c) 2014 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -4187,7 +4286,7 @@ domKit.html = function( $element , html ) { $element.innerHTML = html ; } ;
 /*!
  * Determine if an object is a Buffer
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @author   Feross Aboukhadijeh <https://feross.org>
  * @license  MIT
  */
 
@@ -5604,7 +5703,7 @@ NextGenEvents.Proxy = require( './Proxy.js' ) ;
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"../package.json":12,"./Proxy.js":10,"_process":13,"timers":31}],10:[function(require,module,exports){
+},{"../package.json":12,"./Proxy.js":10,"_process":13,"timers":46}],10:[function(require,module,exports){
 /*
 	Next-Gen Events
 
@@ -7383,7 +7482,7 @@ exports.encode = exports.stringify = require('./encode');
 /*
 	Seventh
 
-	Copyright (c) 2017 - 2019 Cédric Ronvel
+	Copyright (c) 2017 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -7467,7 +7566,7 @@ Promise.promisifyAnyNodeApi = ( api , suffix , multiSuffix , filter ) => {
 /*
 	Seventh
 
-	Copyright (c) 2017 - 2019 Cédric Ronvel
+	Copyright (c) 2017 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -8077,7 +8176,7 @@ Promise.race = ( iterable ) => {
 /*
 	Seventh
 
-	Copyright (c) 2017 - 2019 Cédric Ronvel
+	Copyright (c) 2017 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -8827,11 +8926,11 @@ if ( process.browser ) {
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"_process":13,"setimmediate":18,"timers":31}],22:[function(require,module,exports){
+},{"_process":13,"setimmediate":18,"timers":46}],22:[function(require,module,exports){
 /*
 	Seventh
 
-	Copyright (c) 2017 - 2019 Cédric Ronvel
+	Copyright (c) 2017 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -9009,6 +9108,27 @@ Promise.debounce = ( asyncFn , thisBinding ) => {
 
 
 /*
+	Like .debouce(), but the last promise is returned for some extra time after it resolved
+*/
+Promise.debounceDelay = ( delay , asyncFn , thisBinding ) => {
+	var inProgress = null ;
+
+	const outWrapper = () => {
+		setTimeout( () => inProgress = null , delay ) ;
+	} ;
+
+	return function( ... args ) {
+		if ( inProgress ) { return inProgress ; }
+
+		inProgress = asyncFn.call( thisBinding || this , ... args ) ;
+		Promise.finally( inProgress , outWrapper ) ;
+		return inProgress ;
+	} ;
+} ;
+
+
+
+/*
 	It does nothing if the decoratee is still in progress.
 	Instead, the decoratee is called when finished once and only once, if it was tried one or more time during its progress.
 	In case of multiple calls, the arguments of the last call will be used.
@@ -9060,6 +9180,12 @@ Promise.debounceUpdate = ( asyncFn , thisBinding ) => {
 
 
 
+// Used to ensure that the sync is done immediately if not busy
+Promise.NO_DELAY = {} ;
+
+// Used to ensure that the sync is done immediately if not busy, but for the first of a batch
+Promise.BATCH_NO_DELAY = {} ;
+
 /*
 	Debounce for synchronization algorithm.
 	Get two functions, one for getting from upstream, one for a full sync with upstream (getting AND updating).
@@ -9072,6 +9198,7 @@ Promise.debounceUpdate = ( asyncFn , thisBinding ) => {
 		delay: the minimum delay between to call
 			for get: nothing is done is the delay is not met, simply return the last promise
 			for update/fullSync, it waits for that delay before synchronizing again
+		onDebounce: *ONLY* for GET ATM, a callback called when debounced
 */
 Promise.debounceSync = ( getParams , fullSyncParams ) => {
 	var perResourceData = new Map() ;
@@ -9088,7 +9215,8 @@ Promise.debounceSync = ( getParams , fullSyncParams ) => {
 				lastFullSync: null ,		// last full sync promise
 				lastFullSyncTime: null ,	// last full sync time
 				nextFullSyncPromise: null ,	// the promise for the next fullSync iteration
-				nextFullSyncWith: null 	// the 'this' and arguments for the next fullSync iteration
+				nextFullSyncWith: null , 	// the 'this' and arguments for the next fullSync iteration
+				noDelayBatches: new Set()		// only the first of the batch has no delay
 			} ;
 
 			perResourceData.set( resourceId , resourceData ) ;
@@ -9134,11 +9262,29 @@ Promise.debounceSync = ( getParams , fullSyncParams ) => {
 	} ;
 
 	const getInWrapper = function( resourceId , ... args ) {
-		var localThis = getParams.thisBinding || this ,
+		var noDelay = false ,
+			localThis = getParams.thisBinding || this ,
 			resourceData = getResourceData( resourceId ) ;
 
+		if ( args[ 0 ] === Promise.NO_DELAY ) {
+			noDelay = true ;
+			args.shift() ;
+		}
+		else if ( args[ 0 ] === Promise.BATCH_NO_DELAY ) {
+			args.shift() ;
+			let batchId = args.shift() ;
+			if ( ! resourceData.noDelayBatches.has( batchId ) ) {
+				resourceData.noDelayBatches.add( batchId ) ;
+				noDelay = true ;
+			}
+		}
+
 		if ( resourceData.inProgress ) { return resourceData.inProgress ; }
-		if ( getParams.delay && resourceData.lastTime && new Date() - resourceData.lastTime < getParams.delay ) { return resourceData.last ; }
+
+		if ( ! noDelay && getParams.delay && resourceData.lastTime && new Date() - resourceData.lastTime < getParams.delay ) {
+			if ( typeof getParams.onDebounce === 'function' ) { getParams.onDebounce( resourceId , ... args ) ; }
+			return resourceData.last ;
+		}
 
 		resourceData.last = resourceData.inProgress = getParams.fn.call( localThis , resourceId , ... args ) ;
 		resourceData.inProgressIsFull = false ;
@@ -9148,10 +9294,24 @@ Promise.debounceSync = ( getParams , fullSyncParams ) => {
 
 	const fullSyncInWrapper = function( resourceId , ... args ) {
 		var delta ,
+			noDelay = false ,
 			localThis = fullSyncParams.thisBinding || this ,
 			resourceData = getResourceData( resourceId ) ;
 
-		if ( ! resourceData.inProgress && fullSyncParams.delay && resourceData.lastFullSyncTime && ( delta = new Date() - resourceData.lastFullSyncTime - fullSyncParams.delay ) < 0 ) {
+		if ( args[ 0 ] === Promise.NO_DELAY ) {
+			noDelay = true ;
+			args.shift() ;
+		}
+		else if ( args[ 0 ] === Promise.BATCH_NO_DELAY ) {
+			args.shift() ;
+			let batchId = args.shift() ;
+			if ( ! resourceData.noDelayBatches.has( batchId ) ) {
+				resourceData.noDelayBatches.add( batchId ) ;
+				noDelay = true ;
+			}
+		}
+
+		if ( ! resourceData.inProgress && ! noDelay && fullSyncParams.delay && resourceData.lastFullSyncTime && ( delta = new Date() - resourceData.lastFullSyncTime - fullSyncParams.delay ) < 0 ) {
 			resourceData.inProgress = Promise.resolveTimeout( -delta + 1 ) ;	// Strangely, sometime it is trigerred 1ms too soon
 			Promise.finally( resourceData.inProgress , () => outWrapper( resourceData , 0 ) ) ;
 		}
@@ -9277,7 +9437,7 @@ Promise.variableRetry = ( asyncFn , thisBinding ) => {
 /*
 	Seventh
 
-	Copyright (c) 2017 - 2019 Cédric Ronvel
+	Copyright (c) 2017 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -9376,7 +9536,7 @@ Promise.resolveSafeTimeout = function( timeout , value ) {
 /*
 	Seventh
 
-	Copyright (c) 2017 - 2019 Cédric Ronvel
+	Copyright (c) 2017 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -9428,7 +9588,7 @@ Promise.parasite = () => {
 /*
 	Seventh
 
-	Copyright (c) 2017 - 2019 Cédric Ronvel
+	Copyright (c) 2017 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -9471,7 +9631,7 @@ require( './misc.js' ) ;
 /*
 	Seventh
 
-	Copyright (c) 2017 - 2019 Cédric Ronvel
+	Copyright (c) 2017 - 2020 Cédric Ronvel
 
 	The MIT License (MIT)
 
@@ -9568,12 +9728,12 @@ Promise.onceEventAll = ( emitter , eventName ) => {
 
 
 // Resolve once an event is fired, or reject on error
-Promise.onceEventOrError = ( emitter , eventName , excludeEvents ) => {
+Promise.onceEventOrError = ( emitter , eventName , excludeEvents , _internalAllArgs = false ) => {
 	return new Promise( ( resolve , reject ) => {
 		var altRejects ;
 
 		// We care about removing listener, especially 'error', because if an error kick in after, it should throw because there is no listener
-		var resolve_ = arg => {
+		var resolve_ = ( ... args ) => {
 			emitter.removeListener( 'error' , reject_ ) ;
 
 			if ( altRejects ) {
@@ -9582,7 +9742,7 @@ Promise.onceEventOrError = ( emitter , eventName , excludeEvents ) => {
 				}
 			}
 
-			resolve( arg ) ;
+			resolve( _internalAllArgs ? args : args[ 0 ] ) ;
 		} ;
 
 		var reject_ = arg => {
@@ -9628,59 +9788,7 @@ Promise.onceEventOrError = ( emitter , eventName , excludeEvents ) => {
 
 // Resolve once an event is fired, or reject on error, resolve with an array of arguments, reject with the first argument
 Promise.onceEventAllOrError = ( emitter , eventName , excludeEvents ) => {
-	return new Promise( ( resolve , reject ) => {
-		var altRejects ;
-
-		// We care about removing listener, especially 'error', because if an error kick in after, it should throw because there is no listener
-		var resolve_ = ( ... args ) => {
-			emitter.removeListener( 'error' , reject_ ) ;
-
-			if ( altRejects ) {
-				for ( let event in altRejects ) {
-					emitter.removeListener( event , altRejects[ event ] ) ;
-				}
-			}
-
-			resolve( args ) ;
-		} ;
-
-		var reject_ = arg => {
-			emitter.removeListener( eventName , resolve_ ) ;
-
-			if ( altRejects ) {
-				for ( let event in altRejects ) {
-					emitter.removeListener( event , altRejects[ event ] ) ;
-				}
-			}
-
-			reject( arg ) ;
-		} ;
-
-		emitter.once( eventName , resolve_ ) ;
-		emitter.once( 'error' , reject_ ) ;
-
-		if ( excludeEvents ) {
-			if ( ! Array.isArray( excludeEvents ) ) { excludeEvents = [ excludeEvents ] ; }
-
-			altRejects = {} ;
-
-			excludeEvents.forEach( event => {
-				var altReject = ( ... args ) => {
-					emitter.removeListener( 'error' , reject_ ) ;
-					emitter.removeListener( eventName , resolve_ ) ;
-
-					var error = new Error( "Received an excluded event: " + event ) ;
-					error.event = event ;
-					error.eventArgs = args ;
-					reject( error ) ;
-				} ;
-
-				emitter.once( event , altReject ) ;
-
-				altRejects[ event ] = altReject ;
-			} ) ;
-		}
-	} ) ;
+	return Promise.onceEventOrError( emitter , eventName , excludeEvents , true ) ;
 } ;
 
 
@@ -9909,10 +10017,12 @@ exports.httpHeaderValue = str => exports.unicodePercentEncode( str ) ;
 
 
 
-var inspect = require( './inspect.js' ).inspect ;
-var inspectError = require( './inspect.js' ).inspectError ;
-var escape = require( './escape.js' ) ;
-var ansi = require( './ansi.js' ) ;
+const inspect = require( './inspect.js' ).inspect ;
+const inspectError = require( './inspect.js' ).inspectError ;
+const escape = require( './escape.js' ) ;
+const ansi = require( './ansi.js' ) ;
+const unicode = require( './unicode.js' ) ;
+const naturalSort = require( './naturalSort.js' ) ;
 
 
 
@@ -9921,12 +10031,14 @@ var ansi = require( './ansi.js' ) ;
 	%s		string
 	%S		string, interpret ^ formatting
 	%r		raw string: without sanitizer
+	%n		natural: output the most natural representation for this type, object entries are sorted by keys
+	%N		even more natural: avoid type hinting marks like bracket for array
 	%f		float
 	%e		for scientific notation
 	%d	%i	integer
 	%u		unsigned integer
 	%U		unsigned positive integer (>0)
-	%k		metric system
+	%k		number with metric system prefixes
 	%t		time duration, convert ms into H:min:s
 	%h		hexadecimal
 	%x		hexadecimal, force pair of symbols (e.g. 'f' -> '0f')
@@ -9934,6 +10046,7 @@ var ansi = require( './ansi.js' ) ;
 	%b		binary
 	%z		base64
 	%Z		base64url
+	%O		object (like inspect, but with ultra minimal options)
 	%I		call string-kit's inspect()
 	%Y		call string-kit's inspect(), but do not inspect non-enumerable
 	%E		call string-kit's inspectError()
@@ -9943,13 +10056,13 @@ var ansi = require( './ansi.js' ) ;
 	%a		argument for a function
 
 	Candidate format:
-	%A		for automatic type?
+	%A		for automatic type? probably not good: it's like %n Natural
 	%c		for char? (can receive a string or an integer translated into an UTF8 chars)
 	%C		for currency formating?
 	%B		for Buffer objects?
 */
 
-exports.formatMethod = function format( ... args ) {
+exports.formatMethod = function( ... args ) {
 	var str = args[ 0 ] ;
 
 	if ( typeof str !== 'string' ) {
@@ -10045,6 +10158,7 @@ exports.formatMethod = function format( ... args ) {
 			if ( modes[ mode ] ) {
 				replacement = modes[ mode ]( arg , modeArg , this ) ;
 				if ( this.argumentSanitizer && ! modes[ mode ].noSanitize ) { replacement = this.argumentSanitizer( replacement ) ; }
+				if ( modeArg && ! modes[ mode ].noCommonModeArg ) { replacement = commonModeArg( replacement , modeArg ) ; }
 				return replacement ;
 			}
 
@@ -10110,7 +10224,10 @@ exports.formatMethod = function format( ... args ) {
 } ;
 
 
-var modes = {} ;
+
+// --- MODES ---
+
+const modes = {} ;
 
 
 
@@ -10141,56 +10258,106 @@ modes.S = ( arg , modeArg , options ) => {
 } ;
 
 modes.S.noSanitize = true ;
+modes.S.noCommonModeArg = true ;
 
 
 
-const NUMBER_FORMAT_REGEX = /([a-zA-Z]?)(.[^a-zA-Z]*)/g ;
+// natural (WIP)
+modes.N = ( arg , isSubCall ) => {
+	if ( typeof arg === 'string' ) { return arg ; }
+
+	if ( arg === null || arg === undefined || arg === true || arg === false || typeof arg === 'number' ) {
+		return '' + arg ;
+	}
+
+	if ( Array.isArray( arg ) ) {
+		arg = arg.map( e => modes.N( e , true ) ) ;
+
+		if ( isSubCall ) {
+			return '[' + arg.join( ',' ) + ']' ;
+		}
+
+		return arg.join( ', ' ) ;
+	}
+
+	if ( Buffer.isBuffer( arg ) ) {
+		arg = [ ... arg ].map( e => {
+			e = e.toString( 16 ) ;
+			if ( e.length === 1 ) { e = '0' + e ; }
+			return e ;
+		} ) ;
+		return '<' + arg.join( ' ' ) + '>' ;
+	}
+
+	var proto = Object.getPrototypeOf( arg ) ;
+
+	if ( proto === null || proto === Object.prototype ) {
+		// Plain objects
+		arg = Object.entries( arg ).sort( naturalSort )
+			.map( e => e[ 0 ] + ': ' + modes.N( e[ 1 ] , true ) ) ;
+
+		if ( isSubCall ) {
+			return '{' + arg.join( ', ' ) + '}' ;
+		}
+
+		return arg.join( ', ' ) ;
+	}
+
+	if ( typeof arg.inspect === 'function' ) { return arg.inspect() ; }
+	if ( typeof arg.toString === 'function' ) { return arg.toString() ; }
+
+	return '(' + arg + ')' ;
+} ;
+
+modes.n = arg => modes.N( arg , true ) ;
 
 
 
 // float
 modes.f = ( arg , modeArg ) => {
-	var match , k , v , lv , n ,
-		step = 0 , toFixed , toFixedIfDecimal , padding ;
+	var match , k , v , lv , n , step = 0 ,
+		toFixed , toFixedIfDecimal , padding ;
 
 	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 	if ( typeof arg !== 'number' ) { arg = 0 ; }
 
 	if ( modeArg ) {
-		NUMBER_FORMAT_REGEX.index = 0 ;
+		MODE_ARG_FORMAT_REGEX.lastIndex = 0 ;
 
-		while ( ( match = NUMBER_FORMAT_REGEX.exec( modeArg ) ) ) {
+		while ( ( match = MODE_ARG_FORMAT_REGEX.exec( modeArg ) ) ) {
 			[ , k , v ] = match ;
 
-			if ( k === 'p' ) {
+			if ( k === 'z' ) {
 				padding = + v ;
 			}
-			else if ( v[ 0 ] === '.' ) {
-				lv = v[ v.length - 1 ] ;
+			else if ( ! k ) {
+				if ( v[ 0 ] === '.' ) {
+					lv = v[ v.length - 1 ] ;
 
-				if ( lv === '!' ) {
-					n = parseInt( v.slice( 1 , -1 ) , 10 ) ;
-					step = 10 ** ( -n ) ;
-					toFixed = n ;
+					if ( lv === '!' ) {
+						n = parseInt( v.slice( 1 , -1 ) , 10 ) ;
+						step = 10 ** ( -n ) ;
+						toFixed = n ;
+					}
+					else if ( lv === '?' ) {
+						n = parseInt( v.slice( 1 , -1 ) , 10 ) ;
+						step = 10 ** ( -n ) ;
+						toFixed = n ;
+						toFixedIfDecimal = true ;
+					}
+					else {
+						n = parseInt( v.slice( 1 ) , 10 ) ;
+						step = 10 ** ( -n ) ;
+					}
 				}
-				else if ( lv === '?' ) {
-					n = parseInt( v.slice( 1 , -1 ) , 10 ) ;
-					step = 10 ** ( -n ) ;
-					toFixed = n ;
-					toFixedIfDecimal = true ;
+				else if ( v[ v.length - 1 ] === '.' ) {
+					n = parseInt( v.slice( 0 , -1 ) , 10 ) ;
+					step = 10 ** n ;
 				}
 				else {
-					n = parseInt( v.slice( 1 ) , 10 ) ;
-					step = 10 ** ( -n ) ;
+					n = parseInt( v , 10 ) ;
+					step = 10 ** ( Math.ceil( Math.log10( arg + Number.EPSILON ) + Number.EPSILON ) - n ) ;
 				}
-			}
-			else if ( v[ v.length - 1 ] === '.' ) {
-				n = parseInt( v.slice( 0 , -1 ) , 10 ) ;
-				step = 10 ** n ;
-			}
-			else {
-				n = parseInt( v , 10 ) ;
-				step = 10 ** ( Math.ceil( Math.log10( arg + Number.EPSILON ) + Number.EPSILON ) - n ) ;
 			}
 		}
 	}
@@ -10207,7 +10374,14 @@ modes.f = ( arg , modeArg ) => {
 	if ( padding ) {
 		n = arg.indexOf( '.' ) ;
 		if ( n === -1 ) { n = arg.length ; }
-		if ( n < padding ) { arg = '0'.repeat( padding - n ) + arg ; }
+		if ( arg[ 0 ] === '-' ) {
+			if ( n - 1 < padding ) {
+				arg = '-' + '0'.repeat( 1 + padding - n ) + arg.slice( 1 ) ;
+			}
+		}
+		else if ( n < padding ) {
+			arg = '0'.repeat( padding - n ) + arg ;
+		}
 	}
 
 	return arg ;
@@ -10217,13 +10391,23 @@ modes.f.noSanitize = true ;
 
 
 
-// integer
+// scientific notation
 modes.e = ( arg , modeArg ) => {
+	var match , k , v ;
+
 	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
 	if ( typeof arg !== 'number' ) { arg = 0 ; }
 
 	if ( modeArg ) {
-		return '' + arg.toExponential( parseInt( modeArg , 10 ) - 1 ) ;
+		MODE_ARG_FORMAT_REGEX.lastIndex = 0 ;
+
+		if ( ( match = MODE_ARG_FORMAT_REGEX.exec( modeArg ) ) ) {
+			[ , k , v ] = match ;
+
+			if ( ! k ) {
+				return '' + arg.toExponential( parseInt( v , 10 ) - 1 ) ;
+			}
+		}
 	}
 
 	return '' + arg.toExponential() ;
@@ -10278,6 +10462,35 @@ modes.k.noSanitize = true ;
 
 
 
+// Degree, minutes and seconds.
+// Unlike %t which receive ms, here the input is in degree.
+modes.m = arg => {
+	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
+	if ( typeof arg !== 'number' ) { return '(NaN)' ; }
+
+	var minus = '' ;
+	if ( arg < 0 ) { minus = '-' ; arg = -arg ; }
+
+	var degrees = epsilonFloor( arg ) ,
+		frac = arg - degrees ;
+
+	if ( ! frac ) { return minus + degrees + '°' ; }
+
+	var minutes = epsilonFloor( frac * 60 ) ,
+		seconds = epsilonFloor( frac * 3600 - minutes * 60 ) ;
+
+	if ( seconds ) {
+		return minus + degrees + '°' + ( '' + minutes ).padStart( 2 , '0' ) + '′' + ( '' + seconds ).padStart( 2 , '0' ) + '″' ;
+	}
+
+	return minus + degrees + '°' + ( '' + minutes ).padStart( 2 , '0' ) + '′' ;
+
+} ;
+
+modes.m.noSanitize = true ;
+
+
+
 // time duration, transform ms into H:min:s
 // Later it should format Date as well: number=duration, date object=date
 // Note that it would not replace moment.js, but it could uses it.
@@ -10290,23 +10503,17 @@ modes.t = arg => {
 
 	var min = Math.floor( s / 60 ) ;
 	s = s % 60 ;
-	if ( min < 60 ) { return min + 'min' + zeroPadding( s ) + 's' ; }
+	if ( min < 60 ) { return min + 'min' + ( '' + s ).padStart( 2 , '0' ) + 's' ; }
 
 	var h = Math.floor( min / 60 ) ;
 	min = min % 60 ;
 	//if ( h < 24 ) { return h + 'h' + zeroPadding( min ) +'min' + zeroPadding( s ) + 's' ; }
 
-	return h + 'h' + zeroPadding( min ) + 'min' + zeroPadding( s ) + 's' ;
+	return h + 'h' + ( '' + min ).padStart( 2 , '0' ) + 'min' + ( '' + s ).padStart( 2 , '0' ) + 's' ;
 } ;
 
 modes.t.noSanitize = true ;
 
-// Transform a number to a string, pad zero to the left if necessary
-function zeroPadding( n , width = 2 ) {
-	n = '' + n ;
-	if ( n.length < width ) { n = '0'.repeat( width - n.length ) + n ; }
-	return n ;
-}
 
 
 // unsigned hexadecimal
@@ -10323,7 +10530,7 @@ modes.h.noSanitize = true ;
 // unsigned hexadecimal, force pair of symboles
 modes.x = arg => {
 	if ( typeof arg === 'string' ) { arg = parseFloat( arg ) ; }
-	if ( typeof arg !== 'number' ) { return '0' ; }
+	if ( typeof arg !== 'number' ) { return '00' ; }
 
 	var value = '' + Math.max( Math.floor( arg ) , 0 ).toString( 16 ) ;
 
@@ -10377,44 +10584,44 @@ modes.Z = arg => {
 
 
 
-// inspect
-modes.I = ( arg , modeArg , options ) => {
-	var depth = 3 ;
-	if ( modeArg !== undefined ) { depth = parseInt( modeArg , 10 ) ; }
-	return inspect( {
-		depth: depth ,
-		style: ( options && options.color ? 'color' : 'none' )
-	} , arg ) ;
-} ;
-
+// Inspect
+const I_OPTIONS = {} ;
+modes.I = ( arg , modeArg , options ) => genericInspectMode( arg , modeArg , options , I_OPTIONS ) ;
 modes.I.noSanitize = true ;
 
 
 
-// more minimalist inspect
-modes.Y = ( arg , modeArg , options ) => {
-	var depth = 3 ;
-	if ( modeArg !== undefined ) { depth = parseInt( modeArg , 10 ) ; }
-	return inspect( {
-		depth: depth ,
-		style: ( options && options.color ? 'color' : 'none' ) ,
-		noFunc: true ,
-		enumOnly: true ,
-		noDescriptor: true ,
-		useInspect: true
-	} , arg ) ;
+// More minimalist inspect
+const Y_OPTIONS = {
+	noFunc: true ,
+	enumOnly: true ,
+	noDescriptor: true ,
+	useInspect: true ,
+	useInspectPropertyBlackList: true
 } ;
-
+modes.Y = ( arg , modeArg , options ) => genericInspectMode( arg , modeArg , options , Y_OPTIONS ) ;
 modes.Y.noSanitize = true ;
 
 
 
-// inspect error
-modes.E = ( arg , modeArg , options ) => inspectError( { style: ( options && options.color ? 'color' : 'none' ) } , arg ) ;
+// Even more minimalist inspect
+const O_OPTIONS = { minimal: true , noIndex: true } ;
+modes.O = ( arg , modeArg , options ) => genericInspectMode( arg , modeArg , options , O_OPTIONS ) ;
+modes.O.noSanitize = true ;
+
+
+
+// Inspect error
+const E_OPTIONS = {} ;
+modes.E = ( arg , modeArg , options ) => genericInspectMode( arg , modeArg , options , E_OPTIONS , true ) ;
 modes.E.noSanitize = true ;
 
-// json
+
+
+// JSON
 modes.J = arg => arg === undefined ? 'null' : JSON.stringify( arg ) ;
+
+
 
 // drop
 modes.D = () => '' ;
@@ -10491,7 +10698,7 @@ exports.format.default = defaultFormatter ;
 
 
 
-exports.markupMethod = function markup_( str ) {
+exports.markupMethod = function( str ) {
 	if ( typeof str !== 'string' ) {
 		if ( ! str ) { str = '' ; }
 		else if ( typeof str.toString === 'function' ) { str = str.toString() ; }
@@ -10569,7 +10776,7 @@ exports.markup = exports.markupMethod.bind( defaultFormatter ) ;
 
 
 // Count the number of parameters needed for this string
-exports.format.count = function formatCount( str ) {
+exports.format.count = function( str ) {
 	var match , index , relative , autoIndex = 1 , maxIndex = 0 ;
 
 	if ( typeof str !== 'string' ) { return 0 ; }
@@ -10606,19 +10813,118 @@ exports.format.count = function formatCount( str ) {
 
 
 // Tell if this string contains formatter chars
-exports.format.hasFormatting = function hasFormatting( str ) {
+exports.format.hasFormatting = function( str ) {
 	if ( str.search( /\^(.?)|(%%)|%([+-]?)([0-9]*)(?:\[([^\]]*)\])?([a-zA-Z])/ ) !== -1 ) { return true ; }
 	return false ;
 } ;
 
 
 
+// ModeArg formats
+
+// The format for commonModeArg
+const COMMON_MODE_ARG_FORMAT_REGEX = /([a-zA-Z])(.[^a-zA-Z]*)/g ;
+
+// The format for specific mode arg
+const MODE_ARG_FORMAT_REGEX = /([a-zA-Z]|^)(.[^a-zA-Z]*)/g ;
+
+
+
+// Called when there is a modeArg and the mode allow common mode arg
+// CONVENTION: reserve upper-cased letters for common mode arg
+function commonModeArg( str , modeArg ) {
+	var match , k , v ;
+
+	COMMON_MODE_ARG_FORMAT_REGEX.lastIndex = 0 ;
+
+	while ( ( match = COMMON_MODE_ARG_FORMAT_REGEX.exec( modeArg ) ) ) {
+		[ , k , v ] = match ;
+
+		if ( k === 'L' ) {
+			let width = unicode.width( str ) ;
+			v = + v || 1 ;
+
+			if ( width > v ) {
+				str = unicode.truncateWidth( str , v - 1 ).trim() + '…' ;
+				width = unicode.width( str ) ;
+			}
+
+			if ( width < v ) { str = ' '.repeat( v - width ) + str ; }
+		}
+		else if ( k === 'R' ) {
+			let width = unicode.width( str ) ;
+			v = + v || 1 ;
+
+			if ( width > v ) {
+				str = unicode.truncateWidth( str , v - 1 ).trim() + '…' ;
+				width = unicode.width( str ) ;
+			}
+
+			if ( width < v ) { str = str + ' '.repeat( v - width ) ; }
+		}
+	}
+
+	return str ;
+}
+
+
+
+// Generic inspect
+function genericInspectMode( arg , modeArg , options , modeOptions , isInspectError = false ) {
+	var match , k , v ,
+		outputMaxLength ,
+		maxLength ,
+		depth = 3 ,
+		style = options && options.color ? 'color' : 'none' ;
+
+	if ( modeArg ) {
+		MODE_ARG_FORMAT_REGEX.lastIndex = 0 ;
+
+		while ( ( match = MODE_ARG_FORMAT_REGEX.exec( modeArg ) ) ) {
+			[ , k , v ] = match ;
+
+			if ( k === 'c' ) {
+				if ( v === '+' ) { style = 'color' ; }
+				else if ( v === '-' ) { style = 'none' ; }
+			}
+			else if ( k === 'l' ) {
+				// total output max length
+				outputMaxLength = parseInt( v , 10 ) || undefined ;
+			}
+			else if ( k === 's' ) {
+				// string max length
+				maxLength = parseInt( v , 10 ) || undefined ;
+			}
+			else if ( ! k ) {
+				depth = parseInt( v , 10 ) || 1 ;
+			}
+		}
+	}
+
+	if ( isInspectError ) {
+		return inspectError( Object.assign( {
+			depth , style , outputMaxLength , maxLength
+		} , modeOptions ) , arg ) ;
+	}
+
+	return inspect( Object.assign( {
+		depth , style , outputMaxLength , maxLength
+	} , modeOptions ) , arg ) ;
+}
+
+
+
 // From math-kit module
+// /!\ Should be updated with the new way the math-kit module do it!!! /!\
 const EPSILON = 0.0000000001 ;
 const INVERSE_EPSILON = Math.round( 1 / EPSILON ) ;
 
 function epsilonRound( v ) {
 	return Math.round( v * INVERSE_EPSILON ) / INVERSE_EPSILON ;
+}
+
+function epsilonFloor( v ) {
+	return Math.floor( v + EPSILON ) ;
 }
 
 // Round with precision
@@ -10671,7 +10977,7 @@ function iround( v , istep ) {
 
 
 }).call(this,require("buffer").Buffer)
-},{"./ansi.js":27,"./escape.js":28,"./inspect.js":30,"buffer":6}],30:[function(require,module,exports){
+},{"./ansi.js":27,"./escape.js":28,"./inspect.js":30,"./naturalSort.js":31,"./unicode.js":32,"buffer":6}],30:[function(require,module,exports){
 (function (Buffer,process){
 /*
 	String Kit
@@ -10703,8 +11009,6 @@ function iround( v , istep ) {
 	Variable inspector.
 */
 
-
-
 "use strict" ;
 
 
@@ -10732,16 +11036,19 @@ const EMPTY = {} ;
 		* noFunc: do not display functions
 		* noDescriptor: do not display descriptor information
 		* noArrayProperty: do not display array properties
+		* noIndex: do not display array indexes
 		* noType: do not display type and constructor
 		* enumOnly: only display enumerable properties
 		* funcDetails: display function's details
 		* proto: display object's prototype
 		* sort: sort the keys
-		* minimal: imply noFunc: true, noDescriptor: true, noType: true, enumOnly: true, proto: false and funcDetails: false.
+		* minimal: imply noFunc: true, noDescriptor: true, noType: true, noArrayProperty: true, enumOnly: true, proto: false and funcDetails: false.
 		  Display a minimal JSON-like output
 		* protoBlackList: `Set` of blacklisted object prototype (will not recurse inside it)
 		* propertyBlackList: `Set` of blacklisted property names (will not even display it)
 		* useInspect: use .inspect() method when available on an object (default to false)
+		* useInspectPropertyBlackList: if set and if the object to be inspected has an 'inspectPropertyBlackList' property which value is a `Set`,
+		  use it like the 'propertyBlackList' option
 */
 
 function inspect( options , variable ) {
@@ -10768,8 +11075,8 @@ function inspect( options , variable ) {
 		options.noType = true ;
 		options.noArrayProperty = true ;
 		options.enumOnly = true ;
-		options.funcDetails = false ;
 		options.proto = false ;
+		options.funcDetails = false ;
 	}
 
 	var str = inspect_( runtime , options , variable ) ;
@@ -10820,7 +11127,7 @@ function inspect_( runtime , options , variable ) {
 				key = options.style.key( runtime.key ) + ': ' ;
 			}
 		}
-		else {
+		else if ( ! options.noIndex ) {
 			key = options.style.index( runtime.key ) ;
 		}
 
@@ -10953,7 +11260,10 @@ function inspect_( runtime , options , variable ) {
 			nextAncestors.push( variable ) ;
 
 			for ( i = 0 ; i < propertyList.length && str.length < options.outputMaxLength ; i ++ ) {
-				if ( ! isArray && options.propertyBlackList && options.propertyBlackList.has( propertyList[ i ] ) ) {
+				if ( ! isArray && (
+					( options.propertyBlackList && options.propertyBlackList.has( propertyList[ i ] ) )
+					|| ( options.useInspectPropertyBlackList && ( variable.inspectPropertyBlackList instanceof Set ) && variable.inspectPropertyBlackList.has( propertyList[ i ] ) )
+				) ) {
 					//str += options.style.limit( '[skip]' ) + options.style.newline ;
 					continue ;
 				}
@@ -11169,7 +11479,7 @@ function inspectError( options , error ) {
 	else if ( ! options || typeof options !== 'object' ) { options = {} ; }
 
 	if ( ! ( error instanceof Error ) ) {
-		return 'inspectError: not an error -- regular variable inspection: ' + inspect( options , error ) ;
+		return "inspectError(): it's not an error, using regular variable inspection: " + inspect( options , error ) ;
 	}
 
 	if ( ! options.style ) { options.style = inspectStyle.none ; }
@@ -11187,7 +11497,7 @@ function inspectError( options , error ) {
 	if ( stack ) { str += options.style.errorStack( stack ) + '\n' ; }
 
 	if ( error.from ) {
-		str += options.style.newline + options.style.errorFromMessage( 'Error created from:' ) + options.style.newline + inspectError( options , error.from ) ;
+		str += options.style.newline + options.style.errorFromMessage( 'From error:' ) + options.style.newline + inspectError( options , error.from ) ;
 	}
 
 	return str ;
@@ -11226,9 +11536,10 @@ function inspectStack( options , stack ) {
 	else {
 		stack = stack.replace( /^[^\n]*\n/ , '' ) ;
 		stack = stack.replace(
-			/^\s*(at)\s+(?:((?:new +)?[^\s:()[\]\n]+(?:\([^)]+\))?)\s)?(?:\[as ([^\s:()[\]\n]+)\]\s)?(?:\(?([^:()[\]\n]+):([0-9]+):([0-9]+)\)?)?$/mg ,
-			( matches , at , method , as , file , line , column ) => {
+			/^\s*(at)\s+(?:(?:(async|new)\s+)?([^\s:()[\]\n]+(?:\([^)]+\))?)\s)?(?:\[as ([^\s:()[\]\n]+)\]\s)?(?:\(?([^:()[\]\n]+):([0-9]+):([0-9]+)\)?)?$/mg ,
+			( matches , at , keyword , method , as , file , line , column ) => {
 				return options.style.errorStack( '    at ' ) +
+					( keyword ? options.style.errorStackKeyword( keyword ) + ' ' : '' ) +
 					( method ? options.style.errorStackMethod( method ) + ' ' : '' ) +
 					( as ? options.style.errorStack( '[as ' ) + options.style.errorStackMethodAs( as ) + options.style.errorStack( '] ' ) : '' ) +
 					options.style.errorStack( '(' ) +
@@ -11274,6 +11585,7 @@ inspectStyle.none = {
 	errorType: inspectStyleNoop ,
 	errorMessage: inspectStyleNoop ,
 	errorStack: inspectStyleNoop ,
+	errorStackKeyword: inspectStyleNoop ,
 	errorStackMethod: inspectStyleNoop ,
 	errorStackMethodAs: inspectStyleNoop ,
 	errorStackFile: inspectStyleNoop ,
@@ -11312,6 +11624,7 @@ inspectStyle.color = Object.assign( {} , inspectStyle.none , {
 	errorType: str => ansi.red + ansi.bold + str + ansi.reset ,
 	errorMessage: str => ansi.red + ansi.italic + str + ansi.reset ,
 	errorStack: str => ansi.brightBlack + str + ansi.reset ,
+	errorStackKeyword: str => ansi.italic + ansi.bold + str + ansi.reset ,
 	errorStackMethod: str => ansi.brightYellow + str + ansi.reset ,
 	errorStackMethodAs: str => ansi.yellow + str + ansi.reset ,
 	errorStackFile: str => ansi.brightCyan + str + ansi.reset ,
@@ -11350,6 +11663,7 @@ inspectStyle.html = Object.assign( {} , inspectStyle.none , {
 	errorType: str => '<span style="color:red">' + str + '</span>' ,
 	errorMessage: str => '<span style="color:red">' + str + '</span>' ,
 	errorStack: str => '<span style="color:gray">' + str + '</span>' ,
+	errorStackKeyword: str => '<i>' + str + '</i>' ,
 	errorStackMethod: str => '<span style="color:yellow">' + str + '</span>' ,
 	errorStackMethodAs: str => '<span style="color:yellow">' + str + '</span>' ,
 	errorStackFile: str => '<span style="color:cyan">' + str + '</span>' ,
@@ -11361,6 +11675,2808 @@ inspectStyle.html = Object.assign( {} , inspectStyle.none , {
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")},require('_process'))
 },{"../../is-buffer/index.js":8,"./ansi.js":27,"./escape.js":28,"_process":13}],31:[function(require,module,exports){
+/*
+	HTTP Requester
+
+	Copyright (c) 2015 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+/*
+ * Natural Sort algorithm for Javascript - Version 0.8 - Released under MIT license
+ * Author: Jim Palmer (based on chunking idea from Dave Koelle)
+ */
+module.exports = function( a , b ) {
+	var re = /(^([+-]?(?:\d*)(?:\.\d*)?(?:[eE][+-]?\d+)?)?$|^0x[\da-fA-F]+$|\d+)/g ,
+		sre = /^\s+|\s+$/g ,   // trim pre-post whitespace
+		snre = /\s+/g ,        // normalize all whitespace to single ' ' character
+		dre = /(^([\w ]+,?[\w ]+)?[\w ]+,?[\w ]+\d+:\d+(:\d+)?[\w ]?|^\d{1,4}[/-]\d{1,4}[/-]\d{1,4}|^\w+, \w+ \d+, \d{4})/ ,
+		hre = /^0x[0-9a-f]+$/i ,
+		ore = /^0/ ,
+		i = function( s ) {
+			return ( '' + s ).toLowerCase().replace( sre , '' ) ;
+		} ,
+		// convert all to strings strip whitespace
+		x = i( a ) || '' ,
+		y = i( b ) || '' ,
+		// chunk/tokenize
+		xN = x.replace( re , '\0$1\0' ).replace( /\0$/ , '' )
+			.replace( /^\0/ , '' )
+			.split( '\0' ) ,
+		yN = y.replace( re , '\0$1\0' ).replace( /\0$/ , '' )
+			.replace( /^\0/ , '' )
+			.split( '\0' ) ,
+		// numeric, hex or date detection
+		xD = parseInt( x.match( hre ) , 16 ) || ( xN.length !== 1 && Date.parse( x ) ) ,
+		yD = parseInt( y.match( hre ) , 16 ) || xD && y.match( dre ) && Date.parse( y ) || null ,
+		normChunk = function( s , l ) {
+			// normalize spaces; find floats not starting with '0', string or 0 if not defined (Clint Priest)
+			return ( ! s.match( ore ) || l === 1 ) && parseFloat( s ) || s.replace( snre , ' ' ).replace( sre , '' ) || 0 ;	// jshint ignore:line
+		} ,
+		oFxNcL , oFyNcL ;
+	// first try and sort Hex codes or Dates
+	if ( yD ) {
+		if ( xD < yD ) { return -1 ; }
+		else if ( xD > yD ) { return 1 ; }
+	}
+	// natural sorting through split numeric strings and default strings
+	for( var cLoc = 0 , xNl = xN.length , yNl = yN.length , numS = Math.max( xNl , yNl ) ; cLoc < numS ; cLoc ++ ) {
+		oFxNcL = normChunk( xN[cLoc] , xNl ) ;
+		oFyNcL = normChunk( yN[cLoc] , yNl ) ;
+		// handle numeric vs string comparison - number < string - (Kyle Adams)
+		if ( isNaN( oFxNcL ) !== isNaN( oFyNcL ) ) { return ( isNaN( oFxNcL ) ) ? 1 : -1 ; }
+		// rely on string comparison if different types - i.e. '02' < 2 != '02' < '2'
+		else if ( typeof oFxNcL !== typeof oFyNcL ) {
+			oFxNcL += '' ;
+			oFyNcL += '' ;
+		}
+		if ( oFxNcL < oFyNcL ) { return -1 ; }
+		if ( oFxNcL > oFyNcL ) { return 1 ; }
+	}
+	return 0 ;
+} ;
+
+
+},{}],32:[function(require,module,exports){
+/*
+	String Kit
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+/*
+	Javascript does not use UTF-8 but UCS-2.
+	The purpose of this module is to process correctly strings containing UTF-8 characters that take more than 2 bytes.
+
+	Since the punycode module is deprecated in Node.js v8.x, this is an adaptation of punycode.ucs2.x
+	as found on Aug 16th 2017 at: https://github.com/bestiejs/punycode.js/blob/master/punycode.js.
+*/
+
+
+
+// Create the module and export it
+const unicode = {} ;
+module.exports = unicode ;
+
+
+
+unicode.encode = array => String.fromCodePoint( ... array ) ;
+
+
+
+// Decode a string into an array of unicode codepoints
+unicode.decode = str => {
+	var value , extra , counter = 0 , output = [] ,
+		length = str.length ;
+
+	while ( counter < length ) {
+		value = str.charCodeAt( counter ++ ) ;
+
+		if ( value >= 0xD800 && value <= 0xDBFF && counter < length ) {
+			// It's a high surrogate, and there is a next character.
+			extra = str.charCodeAt( counter ++ ) ;
+
+			if ( ( extra & 0xFC00 ) === 0xDC00 ) {	// Low surrogate.
+				output.push( ( ( value & 0x3FF ) << 10 ) + ( extra & 0x3FF ) + 0x10000 ) ;
+			}
+			else {
+				// It's an unmatched surrogate; only append this code unit, in case the
+				// next code unit is the high surrogate of a surrogate pair.
+				output.push( value ) ;
+				counter -- ;
+			}
+		}
+		else {
+			output.push( value ) ;
+		}
+	}
+
+	return output ;
+} ;
+
+
+
+// Decode only the first char
+// Mostly an adaptation of .decode(), not factorized for performance's sake (used by Terminal-kit)
+unicode.firstCodePoint = str => {
+	var extra ,
+		value = str.charCodeAt( 0 ) ;
+
+	if ( value >= 0xD800 && value <= 0xDBFF && str.length >= 2 ) {
+		// It's a high surrogate, and there is a next character.
+		extra = str.charCodeAt( 1 ) ;
+
+		if ( ( extra & 0xFC00 ) === 0xDC00 ) {	// Low surrogate.
+			return ( ( value & 0x3FF ) << 10 ) + ( extra & 0x3FF ) + 0x10000 ;
+		}
+	}
+
+	return value ;
+} ;
+
+
+
+// Extract only the first char
+// Mostly an adaptation of .decode(), not factorized for performance's sake (used by Terminal-kit)
+unicode.firstChar = str => {
+	var extra ,
+		value = str.charCodeAt( 0 ) ;
+
+	if ( value >= 0xD800 && value <= 0xDBFF && str.length >= 2 ) {
+		// It's a high surrogate, and there is a next character.
+		extra = str.charCodeAt( 1 ) ;
+
+		if ( ( extra & 0xFC00 ) === 0xDC00 ) {	// Low surrogate.
+			return str.slice( 0 , 2 ) ;
+		}
+	}
+
+	return str[ 0 ] ;
+} ;
+
+
+
+// Decode a string into an array of unicode characters
+// Mostly an adaptation of .decode(), not factorized for performance's sake (used by Terminal-kit)
+unicode.toArray = str => {
+	var value , extra , counter = 0 , output = [] ,
+		length = str.length ;
+
+	while ( counter < length ) {
+		value = str.charCodeAt( counter ++ ) ;
+
+		if ( value >= 0xD800 && value <= 0xDBFF && counter < length ) {
+			// It's a high surrogate, and there is a next character.
+			extra = str.charCodeAt( counter ++ ) ;
+
+			if ( ( extra & 0xFC00 ) === 0xDC00 ) {	// Low surrogate.
+				output.push( str.slice( counter - 2 , counter ) ) ;
+			}
+			else {
+				// It's an unmatched surrogate; only append this code unit, in case the
+				// next code unit is the high surrogate of a surrogate pair.
+				output.push( str[ counter - 2 ] ) ;
+				counter -- ;
+			}
+		}
+		else {
+			output.push( str[ counter - 1 ] ) ;
+		}
+	}
+
+	return output ;
+} ;
+
+
+
+// Decode a string into an array of unicode characters
+// Wide chars have an additionnal filler cell, so position is correct
+// Mostly an adaptation of .decode(), not factorized for performance's sake (used by Terminal-kit)
+unicode.toCells = ( Cell , str , tabWidth = 4 , linePosition = 0 , ... extraCellArgs ) => {
+	var value , extra , counter = 0 , output = [] ,
+		fillSize ,
+		length = str.length ;
+
+	while ( counter < length ) {
+		value = str.charCodeAt( counter ++ ) ;
+
+		if ( value === 0x0a ) {	// New line
+			linePosition = 0 ;
+		}
+		else if ( value === 0x09 ) {	// Tab
+			// Depends upon the next tab-stop
+			fillSize = tabWidth - ( linePosition % tabWidth ) - 1 ;
+			output.push( new Cell( '\t' , ... extraCellArgs ) ) ;
+			linePosition += 1 + fillSize ;
+			while ( fillSize -- ) { output.push( new Cell( null , ... extraCellArgs ) ) ; }
+		}
+		else if ( value >= 0xD800 && value <= 0xDBFF && counter < length ) {
+			// It's a high surrogate, and there is a next character.
+			extra = str.charCodeAt( counter ++ ) ;
+
+			if ( ( extra & 0xFC00 ) === 0xDC00 ) {	// Low surrogate.
+				value = ( ( value & 0x3FF ) << 10 ) + ( extra & 0x3FF ) + 0x10000 ;
+				output.push(  new Cell( str.slice( counter - 2 , counter ) , ... extraCellArgs )  ) ;
+				linePosition ++ ;
+
+				if ( unicode.codePointWidth( value ) === 2 ) {
+					linePosition ++ ;
+					output.push( new Cell( null , ... extraCellArgs ) ) ;
+				}
+			}
+			else {
+				// It's an unmatched surrogate, remove it.
+				// Preserve current char in case the next code unit is the high surrogate of a surrogate pair.
+				counter -- ;
+			}
+		}
+		else {
+			output.push(  new Cell( str[ counter - 1 ] , ... extraCellArgs )  ) ;
+			linePosition ++ ;
+
+			if ( unicode.codePointWidth( value ) === 2 ) {
+				output.push( new Cell( null , ... extraCellArgs ) ) ;
+				linePosition ++ ;
+			}
+		}
+	}
+
+	return output ;
+} ;
+
+
+
+unicode.fromCells = ( cells ) => {
+	return cells.map( cell => cell.filler ? '' : cell.char ).join( '' ) ;
+} ;
+
+
+
+// Get the length of an unicode string
+// Mostly an adaptation of .decode(), not factorized for performance's sake (used by Terminal-kit)
+unicode.length = str => {
+	var value , extra , counter = 0 , uLength = 0 ,
+		length = str.length ;
+
+	while ( counter < length ) {
+		value = str.charCodeAt( counter ++ ) ;
+
+		if ( value >= 0xD800 && value <= 0xDBFF && counter < length ) {
+			// It's a high surrogate, and there is a next character.
+			extra = str.charCodeAt( counter ++ ) ;
+
+			if ( ( extra & 0xFC00 ) !== 0xDC00 ) {
+				// It's an unmatched surrogate; only append this code unit, in case the
+				// next code unit is the high surrogate of a surrogate pair.
+				counter -- ;
+			}
+		}
+
+		uLength ++ ;
+	}
+
+	return uLength ;
+} ;
+
+
+
+// Return the width of a string in a terminal/monospace font
+unicode.width = str => {
+	var count = 0 ;
+	unicode.decode( str ).forEach( code => count += unicode.codePointWidth( code ) ) ;
+	return count ;
+} ;
+
+
+
+// Return the width of an array of string in a terminal/monospace font
+unicode.arrayWidth = ( array , limit ) => {
+	var index , count = 0 ;
+
+	if ( limit === undefined ) { limit = array.length ; }
+
+	for ( index = 0 ; index < limit ; index ++ ) {
+		count += unicode.isFullWidth( array[ index ] ) ? 2 : 1 ;
+	}
+
+	return count ;
+} ;
+
+
+
+// Return a string that does not exceed the limit
+// Mostly an adaptation of .decode(), not factorized for performance's sake (used by Terminal-kit)
+unicode.widthLimit =	// DEPRECATED
+unicode.truncateWidth = ( str , limit ) => {
+	var value , extra , counter = 0 , lastCounter = 0 , width = 0 ,
+		length = str.length ;
+
+	while ( counter < length ) {
+		value = str.charCodeAt( counter ++ ) ;
+
+		if ( value >= 0xD800 && value <= 0xDBFF && counter < length ) {
+			// It's a high surrogate, and there is a next character.
+			extra = str.charCodeAt( counter ++ ) ;
+
+			if ( ( extra & 0xFC00 ) === 0xDC00 ) {	// Low surrogate.
+				value = ( ( value & 0x3FF ) << 10 ) + ( extra & 0x3FF ) + 0x10000 ;
+			}
+			else {
+				// It's an unmatched surrogate; only append this code unit, in case the
+				// next code unit is the high surrogate of a surrogate pair.
+				counter -- ;
+			}
+		}
+
+		width += unicode.codePointWidth( value ) ;
+
+		if ( width > limit ) {
+			return str.slice( 0 , lastCounter ) ;
+		}
+
+		lastCounter = counter ;
+	}
+
+	// The string remains unchanged
+	return str ;
+} ;
+
+
+
+/*
+	Returns:
+		0: single char
+		1: leading surrogate
+		-1: trailing surrogate
+
+	Note: it does not check input, to gain perfs.
+*/
+unicode.surrogatePair = char => {
+	var code = char.charCodeAt( 0 ) ;
+
+	if ( code < 0xd800 || code >= 0xe000 ) { return 0 ; }
+	else if ( code < 0xdc00 ) { return 1 ; }
+	return -1 ;
+} ;
+
+
+
+/*
+	Check if a character is a full-width char or not.
+*/
+unicode.isFullWidth = char => {
+	if ( char.length <= 1 ) { return unicode.isFullWidthCodePoint( char.codePointAt( 0 ) ) ; }
+	return unicode.isFullWidthCodePoint( unicode.firstCodePoint( char ) ) ;
+} ;
+
+
+// Return the width of a char, leaner than .width() for one char
+unicode.charWidth = char => {
+	if ( char.length <= 1 ) { return unicode.codePointWidth( char.codePointAt( 0 ) ) ; }
+	return unicode.codePointWidth( unicode.firstCodePoint( char ) ) ;
+} ;
+
+
+
+/*
+	Check if a codepoint represent a full-width char or not.
+
+	Borrowed from Node.js source, from readline.js.
+*/
+unicode.codePointWidth = code => {
+	// Code points are derived from:
+	// http://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt
+	if ( code >= 0x1100 && (
+		code <= 0x115f ||	// Hangul Jamo
+			0x2329 === code || // LEFT-POINTING ANGLE BRACKET
+			0x232a === code || // RIGHT-POINTING ANGLE BRACKET
+			// CJK Radicals Supplement .. Enclosed CJK Letters and Months
+			( 0x2e80 <= code && code <= 0x3247 && code !== 0x303f ) ||
+			// Enclosed CJK Letters and Months .. CJK Unified Ideographs Extension A
+			0x3250 <= code && code <= 0x4dbf ||
+			// CJK Unified Ideographs .. Yi Radicals
+			0x4e00 <= code && code <= 0xa4c6 ||
+			// Hangul Jamo Extended-A
+			0xa960 <= code && code <= 0xa97c ||
+			// Hangul Syllables
+			0xac00 <= code && code <= 0xd7a3 ||
+			// CJK Compatibility Ideographs
+			0xf900 <= code && code <= 0xfaff ||
+			// Vertical Forms
+			0xfe10 <= code && code <= 0xfe19 ||
+			// CJK Compatibility Forms .. Small Form Variants
+			0xfe30 <= code && code <= 0xfe6b ||
+			// Halfwidth and Fullwidth Forms
+			0xff01 <= code && code <= 0xff60 ||
+			0xffe0 <= code && code <= 0xffe6 ||
+			// Kana Supplement
+			0x1b000 <= code && code <= 0x1b001 ||
+			// Enclosed Ideographic Supplement
+			0x1f200 <= code && code <= 0x1f251 ||
+			// CJK Unified Ideographs Extension B .. Tertiary Ideographic Plane
+			0x20000 <= code && code <= 0x3fffd ) ) {
+		return 2 ;
+	}
+
+	return 1 ;
+} ;
+
+// For a true/false type of result
+unicode.isFullWidthCodePoint = code => unicode.codePointWidth( code ) === 2 ;
+
+
+
+// Convert normal ASCII chars to their full-width counterpart
+unicode.toFullWidth = str => {
+	return String.fromCodePoint( ... unicode.decode( str ).map( code =>
+		code >= 33 && code <= 126  ?  0xff00 + code - 0x20  :  code
+	) ) ;
+} ;
+
+
+},{}],33:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+/*
+	VG: Vector Graphics.
+	A portable structure describing some vector graphics.
+*/
+
+const svgKit = require( './svg-kit.js' ) ;
+const VGContainer = require( './VGContainer.js' ) ;
+
+var autoId = 0 ;
+
+
+
+function VG( options ) {
+	VGContainer.call( this , options ) ;
+
+	this.id = ( options && options.id ) || 'vg_' + ( autoId ++ ) ;
+	this.viewBox = {
+		x: 0 , y: 0 , width: 100 , height: 100
+	} ;
+
+	this.css = [] ;
+	this.invertY = false ;
+
+	if ( options ) { this.set( options ) ; }
+}
+
+module.exports = VG ;
+
+
+
+VG.prototype = Object.create( VGContainer.prototype ) ;
+VG.prototype.constructor = VG ;
+VG.prototype.__prototypeUID__ = 'svg-kit/VG' ;
+VG.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VG.prototype.svgTag = 'svg' ;
+
+VG.prototype.svgAttributes = function( root = this ) {
+	var attr = {
+		xmlns: "http://www.w3.org/2000/svg" ,
+		viewBox: this.viewBox.x + ' ' + ( root.invertY ? -this.viewBox.y - this.viewBox.height : this.viewBox.y ) + ' ' + this.viewBox.width + ' ' + this.viewBox.height
+	} ;
+
+	return attr ;
+} ;
+
+
+
+VG.prototype.set = function( data ) {
+	VGContainer.prototype.set.call( this , data ) ;
+
+	if ( data.viewBox && typeof data.viewBox === 'object' ) {
+		if ( data.viewBox.x !== undefined ) { this.viewBox.x = data.viewBox.x ; }
+		if ( data.viewBox.y !== undefined ) { this.viewBox.y = data.viewBox.y ; }
+		if ( data.viewBox.width !== undefined ) { this.viewBox.width = data.viewBox.width ; }
+		if ( data.viewBox.height !== undefined ) { this.viewBox.height = data.viewBox.height ; }
+	}
+
+	if ( data.css && Array.isArray( data.css ) ) {
+		this.css.length = 0 ;
+		for ( let rule of data.css ) {
+			this.addCssRule( rule ) ;
+		}
+	}
+
+	if ( data.invertY !== undefined ) { this.invertY = !! data.invertY ; }
+} ;
+
+
+
+/*
+    To update a style:
+    $style = $element.querySelector( 'style' ) ;
+    $style.sheet <-- this is a StyleSheet object
+    $style.sheet.cssRules
+    $style.sheet.cssRules[0].type                   type:1 for style rules, other can be important rules (3), media rule (4), keyframes rule (7)
+    $style.sheet.cssRules[0].selectorText           the selector for this rule
+    $style.sheet.cssRules[0].style.<cssProperty>    it works like any $element.style
+    $style.sheet.insertRule( <cssText> , index )    insert a new CSS rule, passing a pure CSS string, the index is where it should be inserted (default to 0: at the begining)
+    $style.sheet.deleteRule( index )                delete the rule at this index, see $style.sheet.length
+    ...
+*/
+
+VG.prototype.addCssRule = function( rule ) {
+	if ( ! rule || typeof rule !== 'object' || ! rule.select || ! rule.style || typeof rule.style !== 'object' ) { return ; }
+	this.css.push( rule ) ;
+} ;
+
+
+},{"../package.json":45,"./VGContainer.js":34,"./svg-kit.js":42}],34:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const svgKit = require( './svg-kit.js' ) ;
+const VGItem = require( './VGItem.js' ) ;
+
+
+
+function VGContainer( options ) {
+	VGItem.call( this , options ) ;
+	this.items = [] ;
+}
+
+module.exports = VGContainer ;
+
+VGContainer.prototype = Object.create( VGItem.prototype ) ;
+VGContainer.prototype.constructor = VGContainer ;
+VGContainer.prototype.__prototypeUID__ = 'svg-kit/VGContainer' ;
+VGContainer.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGContainer.prototype.isContainer = true ;
+
+
+
+VGContainer.prototype.set = function( data ) {
+	VGItem.prototype.set.call( this , data ) ;
+
+	if ( data.items && Array.isArray( data.items ) ) {
+		for ( let item of data.items ) {
+			this.items.push( svgKit.objectToVG( item ) ) ;
+		}
+	}
+} ;
+
+
+
+VGContainer.prototype.exportMorphLog = function() {
+	var hasInner = false , inner = {} ;
+
+	this.items.forEach( ( item , index ) => {
+		var log = item.exportMorphLog() ;
+		if ( log ) {
+			inner[ index ] = log ;
+			hasInner = true ;
+		}
+	} ) ;
+
+	if ( ! hasInner && ! this.morphLog.length ) { return null ; }
+
+	var output = {} ;
+	if ( this.morphLog.length ) { output.l = [ ... this.morphLog ] ; }
+	if ( hasInner ) { output.i = inner ; }
+
+	this.morphLog.length = 0 ;
+	return output ;
+} ;
+
+
+
+VGContainer.prototype.importMorphLog = function( log ) {
+	var key , index ;
+
+	if ( ! log ) {
+		this.morphLog.length = 0 ;
+		return ;
+	}
+
+	if ( ! log.l || ! log.l.length ) { this.morphLog.length = 0 ; }
+	else { this.morphLog = log.l ; }
+
+	if ( log.i ) {
+		for ( key in log.i ) {
+			index = + key ;
+			if ( this.items[ index ] ) {
+				this.items[ index ].importMorphLog( log.i[ key ] ) ;
+			}
+		}
+	}
+} ;
+
+
+
+// Update the DOM, based upon the morphLog
+VGContainer.prototype.morphDom = function( root = this ) {
+	this.items.forEach( item => item.morphDom( root ) ) ;
+	this.morphLog.forEach( entry => this.morphOneEntryDom( entry , root ) ) ;
+	this.morphLog.length = 0 ;
+	return this.$element ;
+} ;
+
+
+},{"../package.json":45,"./VGItem.js":37,"./svg-kit.js":42}],35:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const VGItem = require( './VGItem.js' ) ;
+
+
+
+function VGEllipse( options ) {
+	VGItem.call( this , options ) ;
+
+	this.x = 0 ;
+	this.y = 0 ;
+	this.rx = 0 ;
+	this.ry = 0 ;
+
+	if ( options ) { this.set( options ) ; }
+}
+
+module.exports = VGEllipse ;
+
+VGEllipse.prototype = Object.create( VGItem.prototype ) ;
+VGEllipse.prototype.constructor = VGEllipse ;
+VGEllipse.prototype.__prototypeUID__ = 'svg-kit/VGEllipse' ;
+VGEllipse.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGEllipse.prototype.svgTag = 'ellipse' ;
+
+VGEllipse.prototype.svgAttributes = function( root = this ) {
+	var attr = {
+		cx: this.x ,
+		cy: root.invertY ? -this.y : this.y ,
+		rx: this.rx ,
+		ry: this.ry
+	} ;
+
+	return attr ;
+} ;
+
+
+
+VGEllipse.prototype.set = function( data ) {
+	VGItem.prototype.set.call( this , data ) ;
+
+	// Interop'
+	if ( data.cx !== undefined ) { this.x = data.cx ; }
+	if ( data.cy !== undefined ) { this.y = data.cy ; }
+
+	if ( data.x !== undefined ) { this.x = data.x ; }
+	if ( data.y !== undefined ) { this.y = data.y ; }
+	if ( data.r !== undefined ) { this.rx = this.ry = data.r ; }
+	if ( data.rx !== undefined ) { this.rx = data.rx ; }
+	if ( data.ry !== undefined ) { this.ry = data.ry ; }
+} ;
+
+
+},{"../package.json":45,"./VGItem.js":37}],36:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const svgKit = require( './svg-kit.js' ) ;
+const VGContainer = require( './VGContainer.js' ) ;
+
+
+
+function VGGroup( options ) {
+	VGContainer.call( this , options ) ;
+	if ( options ) { this.set( options ) ; }
+}
+
+module.exports = VGGroup ;
+
+VGGroup.prototype = Object.create( VGContainer.prototype ) ;
+VGGroup.prototype.constructor = VGGroup ;
+VGGroup.prototype.__prototypeUID__ = 'svg-kit/VGGroup' ;
+VGGroup.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGGroup.prototype.svgTag = 'g' ;
+
+VGGroup.prototype.set = function( data ) {
+	VGContainer.prototype.set.call( this , data ) ;
+} ;
+
+
+},{"../package.json":45,"./VGContainer.js":34,"./svg-kit.js":42}],37:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const camel = require( 'string-kit/lib/camel' ) ;
+const escape = require( 'string-kit/lib/escape' ) ;
+
+
+
+function VGItem( options ) {
+	this.id = null ;
+	this.class = new Set() ;
+	this.style = {} ;
+	this.data = null ;		// User custom data, e.g. data-* attributes
+
+	// Spellcast data
+	this.button = null ;
+	this.hint = null ;
+	this.area = null ;
+
+	this.morphLog = [] ;
+	this.$element = null ;
+	this.$style = null ;
+}
+
+module.exports = VGItem ;
+
+VGItem.prototype.__prototypeUID__ = 'svg-kit/VGItem' ;
+VGItem.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGItem.prototype.isContainer = false ;
+VGItem.prototype.svgTag = 'none' ;
+VGItem.prototype.svgAttributes = () => ( {} ) ;
+
+
+
+VGItem.prototype.toJSON = function() {
+	var object = Object.assign( {} , this ) ;
+
+	object._type = this.__prototypeUID__ ;
+
+	if ( this.class.size ) { object.class = [ ... this.class ] ; }
+	else { delete object.class ; }
+
+	if ( ! object.id ) { delete object.id ; }
+	if ( ! object.data ) { delete object.data ; }
+	if ( ! object.button ) { delete object.button ; }
+	if ( ! object.hint ) { delete object.hint ; }
+	if ( ! object.area ) { delete object.area ; }
+
+	delete object.morphLog ;
+	delete object.$element ;
+	delete object.$style ;
+
+	return object ;
+} ;
+
+
+
+VGItem.prototype.set = function( data ) {
+	if ( data.id !== undefined ) { this.id = data.id || null ; }
+
+	if ( data.class ) {
+		if ( typeof data.class === 'string' ) {
+			this.class.clear() ;
+			this.class.add( data.class ) ;
+		}
+		else if ( Array.isArray( data.class ) || ( data.class instanceof Set ) ) {
+			this.class.clear() ;
+
+			for ( let className of data.class ) {
+				this.class.add( className ) ;
+			}
+		}
+		else if ( typeof data.class === 'object' ) {
+			for ( let className in data.class ) {
+				if ( data.class[ className ] ) { this.class.add( className ) ; }
+				else { this.class.delete( className ) ; }
+			}
+		}
+	}
+
+	if ( data.style ) {
+		for ( let key in data.style ) {
+			// Stored in the camelCase variant
+			this.style[ this.toCamelCase( key ) ] = data.style[ key ] === null ? '' : data.style[ key ] ;
+		}
+	}
+
+	if ( data.data !== undefined ) {
+		// User custom data, e.g. data-* attributes
+		if ( ! data.data ) {
+			this.data = null ;
+		}
+		else {
+			if ( ! this.data ) { this.data = {} ; }
+			Object.assign( this.data , data.data ) ;
+		}
+	}
+
+	if ( data.button !== undefined ) { this.button = data.button || null ; }
+	if ( data.hint !== undefined ) { this.hint = data.hint || null ; }
+	if ( data.area !== undefined ) { this.area = data.area || null ; }
+} ;
+
+
+
+var morphVersion = 0 ;
+
+VGItem.prototype.morph = function( data ) {
+	var log = Object.assign( {} , data ) ;
+	log._v = morphVersion ++ ;
+	this.morphLog.push( log ) ;
+	this.set( data ) ;
+} ;
+
+
+
+VGItem.prototype.exportMorphLog = function() {
+	if ( ! this.morphLog.length ) { return null ; }
+	var output = { l: [ ... this.morphLog ] } ;
+	this.morphLog.length = 0 ;
+	return output ;
+} ;
+
+
+
+VGItem.prototype.importMorphLog = function( log ) {
+	if ( ! log || ! log.l || ! log.l.length ) { this.morphLog.length = 0 ; }
+	else { this.morphLog = log.l ; }
+} ;
+
+
+
+// Use the preserveUpperCase option, cause the value can be in camelCased already
+VGItem.prototype.toCamelCase = value => camel.toCamelCase( value , true ) ;
+
+VGItem.prototype.escape = function( value ) {
+	if ( typeof value === 'object' ) { return null ; }
+	if ( typeof value !== 'string' ) { return value ; }
+	return escape.htmlAttr( value ) ;
+} ;
+
+
+
+// Render the Vector Graphic as a text SVG
+VGItem.prototype.renderText = function( root = this ) {
+	var key , rule , str = '' , styleStr = '' ,
+		attr = this.svgAttributes( root ) ;
+
+	str += '<' + this.svgTag ;
+
+	if ( this.id ) { str += ' id="' + this.escape( this.id ) + '"' ; }
+	if ( this.button ) { str += ' button="' + this.escape( this.button ) + '"' ; }
+	if ( this.hint ) { str += ' hint="' + this.escape( this.hint ) + '"' ; }
+	if ( this.area ) { str += ' area="' + this.escape( this.area ) + '"' ; }
+
+	if ( this.class.size ) {
+		str += ' class="' ;
+		let first = true ;
+		for ( let className of this.class ) {
+			if ( ! first ) { str += ' ' ; }
+			str += this.escape( className ) ;
+			first = false ;
+		}
+		str += '"' ;
+	}
+
+	for ( key in attr ) {
+		str += ' ' + key + '="' + this.escape( attr[ key ] ) + '"' ;
+	}
+
+	if ( this.data ) {
+		for ( key in this.data ) {
+			str += ' data-' + this.escape( key ) + '="' + this.escape( this.data[ key ] ) + '"' ;
+		}
+	}
+
+	for ( key in this.style ) {
+		// Key is in camelCase, but should use dash
+		styleStr += this.escape( camel.camelCaseToDash( key ) ) + ':' + this.escape( this.style[ key ] ) + ';' ;
+	}
+
+	if ( styleStr ) {
+		str += ' style="' + styleStr + '"' ;
+	}
+
+	if ( this.svgTextNode ) {
+		str += this.svgTextNode() ;
+	}
+
+	if ( ! this.isContainer ) {
+		str += ' />' ;
+		return str ;
+	}
+
+	str += '>' ;
+
+	// StyleSheet inside a <style> tag
+	if ( this.css && this.css.length ) {
+		str += '<style>\n' ;
+
+		for ( rule of this.css ) {
+			str += rule.select + ' {\n' ;
+			for ( key in rule.style ) {
+				str += '    ' + this.escape( camel.camelCaseToDash( key ) ) + ': ' + this.escape( rule.style[ key ] ) + ';\n' ;
+			}
+			str += '}\n' ;
+		}
+
+		str += '</style>' ;
+	}
+
+	// Inner content
+	if ( this.items ) {
+		for ( let item of this.items ) {
+			str += item.renderText( root ) ;
+		}
+	}
+
+	str += '</' + this.svgTag + '>' ;
+	return str ;
+} ;
+
+
+
+// Render the Vector Graphic inside a browser, as DOM SVG
+VGItem.prototype.renderDom = function( options = {} , root = this ) {
+	var key , rule , cssStr ,
+		attr = this.svgAttributes( root ) ;
+
+	this.$element = document.createElementNS( 'http://www.w3.org/2000/svg' , options.overrideTag || this.svgTag ) ;
+
+	if ( this.id ) { this.$element.setAttribute( 'id' , this.id ) ; }
+	if ( this.button ) { this.$element.setAttribute( 'button' , this.button ) ; }
+	if ( this.hint ) { this.$element.setAttribute( 'hint' , this.hint ) ; }
+	if ( this.area ) { this.$element.setAttribute( 'area' , this.area ) ; }
+
+	if ( this.class.size ) {
+		this.class.forEach( className => this.$element.classList.add( className ) ) ;
+	}
+
+	for ( key in attr ) {
+		this.$element.setAttribute( key , attr[ key ] ) ;
+	}
+
+	if ( this.data ) {
+		for ( key in this.data ) {
+			this.$element.setAttribute( 'data-' + key , this.data[ key ] ) ;
+		}
+	}
+
+	for ( key in this.style ) {
+		// Key is already in camelCase
+		this.$element.style[ key ] = this.style[ key ] ;
+	}
+
+	if ( this.svgTextNode ) {
+		this.$element.appendChild( document.createTextNode( this.svgTextNode() ) ) ;
+	}
+
+	if ( ! this.isContainer ) { return this.$element ; }
+
+	// StyleSheet inside a <style> tag
+	if ( this.css && this.css.length ) {
+		this.$style = document.createElementNS( 'http://www.w3.org/2000/svg' , 'style' ) ;
+		//this.$style = document.createElement( 'style' ) ;
+
+		cssStr = '' ;
+
+		for ( rule of this.css ) {
+			cssStr += rule.select + ' {\n' ;
+
+			for ( key in rule.style ) {
+				// Key is in camelCase, but should use dash
+				cssStr += this.escape( camel.camelCaseToDash( key ) ) + ': ' + this.escape( rule.style[ key ] ) + ';\n' ;
+			}
+
+			cssStr += '}\n' ;
+
+			// WARNING: this.$style.sheet does not work at that moment, it seems to be added only after behind inserted into the DOM,
+			// so we construct a text-node instead of pure rule insertion
+			//this.$style.sheet.insertRule( cssStr , this.$style.sheet.length ) ;
+		}
+
+		this.$style.appendChild( document.createTextNode( cssStr ) ) ;
+		this.$element.appendChild( this.$style ) ;
+	}
+
+	// Inner content
+	if ( this.items ) {
+		for ( let item of this.items ) {
+			this.$element.appendChild( item.renderDom( undefined , root ) ) ;
+		}
+	}
+
+	return this.$element ;
+} ;
+
+
+
+// Update the DOM, based upon the morphLog
+VGItem.prototype.morphDom = function( root = this ) {
+	this.morphLog.forEach( entry => this.morphOneEntryDom( entry , root ) ) ;
+	this.morphLog.length = 0 ;
+	return this.$element ;
+} ;
+
+
+
+VGItem.prototype.morphOneEntryDom = function( data , root = this ) {
+	var key ;
+
+	// Disallow id changes?
+	//if ( data.id ) { this.$element.setAttribute( 'id' , data.id ) ; }
+
+	if ( data.button ) { this.$element.setAttribute( 'button' , data.button ) ; }
+	if ( data.hint ) { this.$element.setAttribute( 'hint' , data.hint ) ; }
+	if ( data.area ) { this.$element.setAttribute( 'area' , data.area ) ; }
+
+	if ( data.class ) {
+		if ( Array.isArray( data.class ) ) {
+			this.$element.setAttribute( 'class' , data.class.join( ' ' ) ) ;
+		}
+		else if ( data.class instanceof Set ) {
+			this.$element.setAttribute( 'class' , [ ... data.class ].join( ' ' ) ) ;
+		}
+		else if ( typeof data.class === 'object' ) {
+			for ( let className in data.class ) {
+				if ( data.class[ className ] ) { this.$element.classList.add( className ) ; }
+				else { this.$element.classList.remove( className ) ; }
+			}
+		}
+	}
+
+	if ( data.attr ) {
+		for ( key in data.attr ) {
+			this.$element.setAttribute( key , data.attr[ key ] ) ;
+		}
+	}
+
+	if ( data.data ) {
+		for ( key in data.data ) {
+			this.$element.setAttribute( 'data-' + key , data.data[ key ] ) ;
+		}
+	}
+
+	if ( data.style ) {
+		for ( key in data.style ) {
+			// Key is already in camelCase
+			this.$element.style[ key ] = data.style[ key ] === null ? '' : data.style[ key ] ;
+		}
+	}
+} ;
+
+
+},{"../package.json":45,"string-kit/lib/camel":43,"string-kit/lib/escape":44}],38:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const VGItem = require( './VGItem.js' ) ;
+
+
+
+function VGPath( options ) {
+	VGItem.call( this , options ) ;
+
+	this.commands = [] ;
+
+	if ( options ) { this.set( options ) ; }
+}
+
+module.exports = VGPath ;
+
+VGPath.prototype = Object.create( VGItem.prototype ) ;
+VGPath.prototype.constructor = VGPath ;
+VGPath.prototype.__prototypeUID__ = 'svg-kit/VGPath' ;
+VGPath.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGPath.prototype.svgTag = 'path' ;
+
+VGPath.prototype.svgAttributes = function( root = this ) {
+	var attr = {
+		// That enigmatic SVG attribute 'd' probably means 'data' or 'draw'
+		d: this.toD( root )
+	} ;
+
+	return attr ;
+} ;
+
+
+
+VGPath.prototype.set = function( data ) {
+	VGItem.prototype.set.call( this , data ) ;
+	if ( Array.isArray( data.commands ) ) { this.commands = data.commands ; }
+} ;
+
+
+
+// Build the SVG 'd' attribute
+VGPath.prototype.toD = function( root = this ) {
+	var build = {
+		root: root ,
+		d: '' ,
+		pu: false ,	// Pen Up, when true, turtle-like commands move without tracing anything
+		cx: 0 ,		// cursor position x
+		cy: 0 ,		// cursor position y
+		ca: root.invertY ? -Math.PI / 2 : Math.PI / 2		// cursor angle, default to positive Y-axis
+	} ;
+
+	this.commands.forEach( ( command , index ) => {
+		if ( index ) { build.d += ' ' ; }
+		builders[ command.type ]( command , build ) ;
+	} ) ;
+
+	return build.d ;
+} ;
+
+
+
+const degToRad = deg => deg * Math.PI / 180 ;
+const radToDeg = rad => rad * 180 / Math.PI ;
+
+
+
+const builders = {} ;
+
+builders.close = ( command , build ) => {
+	build.d += 'z' ;
+} ;
+
+builders.move = ( command , build ) => {
+	var y = build.root.invertY ? -command.y : command.y ;
+
+	if ( command.rel ) {
+		build.d += 'm ' + command.x + ' ' + y ;
+		build.cx += command.x ;
+		build.cy += y ;
+	}
+	else {
+		build.d += 'M ' + command.x + ' ' + y ;
+		build.cx = command.x ;
+		build.cy = y ;
+	}
+} ;
+
+builders.line = ( command , build ) => {
+	var y = build.root.invertY ? -command.y : command.y ;
+
+	if ( command.rel ) {
+		build.d += 'l ' + command.x + ' ' + y ;
+		build.cx += command.x ;
+		build.cy += y ;
+	}
+	else {
+		build.d += 'L ' + command.x + ' ' + y ;
+		build.cx = command.x ;
+		build.cy = y ;
+	}
+} ;
+
+builders.curve = ( command , build ) => {
+	var cy1 = build.root.invertY ? -command.cy1 : command.cy1 ,
+		cy2 = build.root.invertY ? -command.cy2 : command.cy2 ,
+		y = build.root.invertY ? -command.y : command.y ;
+
+	if ( command.rel ) {
+		build.d += 'c ' + command.cx1 + ' ' + cy1 + ' ' + command.cx2 + ' ' + cy2 + ' '  + command.x + ' ' + y ;
+		build.cx += command.x ;
+		build.cy += y ;
+	}
+	else {
+		build.d += 'C ' + command.cx1 + ' ' + cy1 + ' ' + command.cx2 + ' ' + cy2 + ' '  + command.x + ' ' + y ;
+		build.cx = command.x ;
+		build.cy = y ;
+	}
+} ;
+
+builders.smoothCurve = ( command , build ) => {
+	var cy = build.root.invertY ? -command.cy : command.cy ,
+		y = build.root.invertY ? -command.y : command.y ;
+
+	if ( command.rel ) {
+		build.d += 's ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
+		build.cx += command.x ;
+		build.cy += y ;
+	}
+	else {
+		build.d += 'S ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
+		build.cx = command.x ;
+		build.cy = y ;
+	}
+} ;
+
+builders.qCurve = ( command , build ) => {
+	var cy = build.root.invertY ? -command.cy : command.cy ,
+		y = build.root.invertY ? -command.y : command.y ;
+
+	if ( command.rel ) {
+		build.d += 'q ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
+		build.cx += command.x ;
+		build.cy += y ;
+	}
+	else {
+		build.d += 'Q ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
+		build.cx = command.x ;
+		build.cy = y ;
+	}
+} ;
+
+builders.smoothQCurve = ( command , build ) => {
+	var y = build.root.invertY ? -command.y : command.y ;
+
+	if ( command.rel ) {
+		build.d += 't ' + command.x + ' ' + y ;
+		build.cx += command.x ;
+		build.cy += y ;
+	}
+	else {
+		build.d += 'T ' + command.x + ' ' + y ;
+		build.cx = command.x ;
+		build.cy = y ;
+	}
+} ;
+
+builders.arc = ( command , build ) => {
+	var ra = build.root.invertY ? -command.ra : command.ra ,
+		pr = build.root.invertY ? ! command.pr : command.pr ,
+		y = build.root.invertY ? -command.y : command.y ;
+
+	if ( command.rel ) {
+		build.d += 'a ' + command.rx + ' ' + command.ry + ' ' + ra + ' ' + ( + command.la ) + ' '  + ( + pr ) + ' ' + command.x + ' ' + y ;
+		build.cx += command.x ;
+		build.cy += y ;
+	}
+	else {
+		build.d += 'A ' + command.rx + ' ' + command.ry + ' ' + ra + ' ' + ( + command.la ) + ' '  + ( + pr ) + ' ' + command.x + ' ' + y ;
+		build.cx = command.x ;
+		build.cy = y ;
+	}
+} ;
+
+// VG-specific
+
+/*
+	Approximation of circles using cubic bezier curves.
+
+	Controle point distance/radius ratio for quarter of circle: 0.55228475 or 4/3 (sqrt(2)-1)
+	For half of a circle: 4/3
+
+	From: https://www.tinaja.com/glib/bezcirc2.pdf
+	The arc is bissected by the X-axis.
+	x0 = cos( / 2)			y0 = sin( / 2)
+	x3 = x1					y3 = - y0
+	x1 = (4 - x0) / 3		y1 = (1 - x0)(3 - x0) / 3 y0
+	x2 = x1					y2 = -y1
+
+	This distance ensure that the mid-time point is exactly on the arc.
+	It works very well for angle ranging from 0-90°, can be good enough for 90-180°,
+	but it's bad for greater than 180°.
+	In fact it's not possible to approximate a 270° arc with a single cubic bezier curve.
+*/
+function controleDistance( angle ) {
+	if ( ! angle ) { return 0 ; }
+	var angleRad = degToRad( angle ) ;
+	var x0 = Math.cos( angleRad / 2 ) ,
+		y0 = Math.sin( angleRad / 2 ) ,
+		x1 = ( 4 - x0 ) / 3 ,
+		y1 = ( 1 - x0 ) * ( 3 - x0 ) / ( 3 * y0 ) ;
+	return Math.sqrt( ( x0 - x1 ) ** 2 + ( y0 - y1 ) ** 2 ) ;
+}
+
+builders.centerArc = ( command , build ) => {
+
+	// ---------------------------------------------------------------------------------- NOT CODED ----------------------------------------------------------------
+
+	// It's supposed to ease circle creation inside path, converting them to SVG curves...
+
+	var { x , y , cx , cy } = command ;
+
+	if ( command.rel ) {
+		x += build.cx ;
+		y += build.cy ;
+		cx += build.cx ;
+		cy += build.cy ;
+	}
+
+	var startAngle = Math.atan2( build.cy - cy , build.cx - cx ) ,
+		endAngle = Math.atan2( y - cy , x - cx ) ;
+
+	build.cx = x ;
+	build.cy = y ;
+} ;
+
+// Turtle-like
+
+builders.pen = ( command , build ) => {
+	build.pu = command.u ;
+} ;
+
+builders.forward = ( command , build ) => {
+	var dx = command.l * Math.cos( build.ca ) ,
+		dy = command.l * Math.sin( build.ca ) ;
+
+	if ( build.pu ) { build.d += 'm ' + dx + ' ' + dy ; }
+	else { build.d += 'l ' + dx + ' ' + dy ; }
+
+	build.cx += dx ;
+	build.cy += dy ;
+} ;
+
+builders.turn = ( command , build ) => {
+	var a = build.root.invertY ? -command.a : command.a ;
+
+	if ( command.rel ) {
+		build.ca += degToRad( a ) ;
+	}
+	else {
+		build.ca = degToRad( a ) ;
+	}
+} ;
+
+builders.forwardTurn = ( command , build ) => {
+	var a = build.root.invertY ? -command.a : command.a ;
+
+	/*
+		We will first transpose to a circle of center 0,0 and we are starting at x=radius,y=0 and moving positively
+	*/
+	var angleRad = degToRad( a ) ,
+		angleSign = angleRad >= 0 ? 1 : -1 ,
+		alpha = Math.abs( angleRad ) ,
+		radius = command.l / alpha ,
+		trX = radius * Math.cos( alpha ) ,
+		trY = radius * Math.sin( alpha ) ,
+		dist = Math.sqrt( ( radius - trX ) ** 2 + trY ** 2 ) ,
+		beta = Math.atan2( radius - trX , trY ) ;	// beta is the deviation
+
+	var dx = dist * Math.cos( build.ca + angleSign * beta ) ,
+		dy = dist * Math.sin( build.ca + angleSign * beta ) ;
+
+	if ( build.pu ) {
+		build.d += 'm ' + dx + ' ' + dy ;
+	}
+	else {
+		build.d += 'a ' + radius + ' ' + radius + ' 0 ' + ( alpha > Math.PI ? 1 : 0 ) + ' '  + ( angleRad >= 0 ? 1 : 0 ) + ' ' + dx + ' ' + dy ;
+	}
+
+	build.cx += dx ;
+	build.cy += dy ;
+	build.ca += angleRad ;
+} ;
+
+
+
+/*
+	First, true SVG path commands
+*/
+
+VGPath.prototype.close = function() {
+	this.commands.push( { type: 'close' } ) ;
+} ;
+
+VGPath.prototype.move = function( data ) {
+	this.commands.push( {
+		type: 'move' ,
+		rel: true ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.moveTo = function( data ) {
+	this.commands.push( {
+		type: 'move' ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.line = function( data ) {
+	this.commands.push( {
+		type: 'line' ,
+		rel: true ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.lineTo = function( data ) {
+	this.commands.push( {
+		type: 'line' ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.curve = function( data ) {
+	this.commands.push( {
+		type: 'curve' ,
+		rel: true ,
+		cx1: data.cx1 || 0 ,
+		cy1: data.cy1 || 0 ,
+		cx2: data.cx2 || 0 ,
+		cy2: data.cy2 || 0 ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.curveTo = function( data ) {
+	this.commands.push( {
+		type: 'curve' ,
+		cx1: data.cx1 || 0 ,
+		cy1: data.cy1 || 0 ,
+		cx2: data.cx2 || 0 ,
+		cy2: data.cy2 || 0 ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.smoothCurve = function( data ) {
+	this.commands.push( {
+		type: 'smoothCurve' ,
+		rel: true ,
+		cx: data.cx || data.cx2 || 0 ,
+		cy: data.cy || data.cy2 || 0 ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.smoothCurveTo = function( data ) {
+	this.commands.push( {
+		type: 'smoothCurve' ,
+		cx: data.cx || data.cx2 || 0 ,
+		cy: data.cy || data.cy2 || 0 ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+// q-curve = Quadratic curve, it uses just one controle point instead of two
+VGPath.prototype.qCurve = function( data ) {
+	this.commands.push( {
+		type: 'qCurve' ,
+		rel: true ,
+		cx: data.cx || data.cx1 || 0 ,
+		cy: data.cy || data.cy1 || 0 ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.qCurveTo = function( data ) {
+	this.commands.push( {
+		type: 'qCurve' ,
+		cx: data.cx || data.cx1 || 0 ,
+		cy: data.cy || data.cy1 || 0 ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.smoothQCurve = function( data ) {
+	this.commands.push( {
+		type: 'smoothQCurve' ,
+		rel: true ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.smoothQCurveTo = function( data ) {
+	this.commands.push( {
+		type: 'smoothQCurve' ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.arc = function( data ) {
+	this.commands.push( {
+		type: 'arc' ,
+		rel: true ,
+		rx: data.rx || 0 ,
+		ry: data.ry || 0 ,
+		ra: data.ra || data.a || 0 ,	// x-axis rotation
+		la:
+			data.largeArc !== undefined ? !! data.largeArc :
+			data.longArc !== undefined ? !! data.longArc :
+			data.la !== undefined ? !! data.la :
+			false ,
+		pr:
+			data.positiveRotation !== undefined ? !! data.positiveRotation :
+			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
+			data.pr !== undefined ? !! data.pr :
+			true ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.arcTo = function( data ) {
+	this.commands.push( {
+		type: 'arc' ,
+		rx: data.rx || 0 ,
+		ry: data.ry || 0 ,
+		ra: data.ra || data.a || 0 ,	// x-axis rotation
+		la:
+			data.largeArc !== undefined ? !! data.largeArc :
+			data.longArc !== undefined ? !! data.longArc :
+			data.la !== undefined ? !! data.la :
+			false ,
+		pr:
+			data.positiveRotation !== undefined ? !! data.positiveRotation :
+			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
+			data.pr !== undefined ? !! data.pr :
+			true ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+// All angles use positive as Y-axis to X-axis (Spellcast usage)
+VGPath.prototype.negativeArc = function( data ) {
+	this.commands.push( {
+		type: 'arc' ,
+		rel: true ,
+		rx: data.rx || 0 ,
+		ry: data.ry || 0 ,
+		ra: -( data.ra || data.a || 0 ) ,	// x-axis rotation
+		la:
+			data.largeArc !== undefined ? !! data.largeArc :
+			data.longArc !== undefined ? !! data.longArc :
+			data.la !== undefined ? !! data.la :
+			false ,
+		pr: ! (
+			data.positiveRotation !== undefined ? !! data.positiveRotation :
+			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
+			data.pr !== undefined ? !! data.pr :
+			true
+		) ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+// All angles use positive as Y-axis to X-axis (Spellcast usage)
+VGPath.prototype.negativeArcTo = function( data ) {
+	this.commands.push( {
+		type: 'arc' ,
+		rx: data.rx || 0 ,
+		ry: data.ry || 0 ,
+		ra: -( data.ra || data.a || 0 ) ,	// x-axis rotation
+		la:
+			data.largeArc !== undefined ? !! data.largeArc :
+			data.longArc !== undefined ? !! data.longArc :
+			data.la !== undefined ? !! data.la :
+			false ,
+		pr: ! (
+			data.positiveRotation !== undefined ? !! data.positiveRotation :
+			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
+			data.pr !== undefined ? !! data.pr :
+			true
+		) ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+
+
+/*
+	VG-specific commands
+*/
+
+// Better arc-like command, but use curve behind the scene
+VGPath.prototype.centerArc = function( data ) {
+	this.commands.push( {
+		type: 'centerArc' ,
+		rel: true ,
+		cx: data.cx || 0 ,
+		cy: data.cy || 0 ,
+		la: data.largeArc !== undefined ? !! data.largeArc :
+		data.longArc !== undefined ? !! data.longArc :
+		data.la !== undefined ? !! data.la :
+		false ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+VGPath.prototype.centerArcTo = function( data ) {
+	this.commands.push( {
+		type: 'centerArc' ,
+		cx: data.cx || 0 ,
+		cy: data.cy || 0 ,
+		la: data.largeArc !== undefined ? !! data.largeArc :
+		data.longArc !== undefined ? !! data.longArc :
+		data.la !== undefined ? !! data.la :
+		false ,
+		x: data.x || 0 ,
+		y: data.y || 0
+	} ) ;
+} ;
+
+
+
+/*
+	Turtle-like commands
+*/
+
+VGPath.prototype.penUp = function( data ) {
+	this.commands.push( {
+		type: 'pen' ,
+		u: true
+	} ) ;
+} ;
+
+VGPath.prototype.penDown = function( data ) {
+	this.commands.push( {
+		type: 'pen' ,
+		u: false
+	} ) ;
+} ;
+
+VGPath.prototype.forward = function( data ) {
+	this.commands.push( {
+		type: 'forward' ,
+		l: typeof data === 'number' ? data : data.length || data.l || 0
+	} ) ;
+} ;
+
+VGPath.prototype.backward = function( data ) {
+	this.commands.push( {
+		type: 'forward' ,
+		l: -( typeof data === 'number' ? data : data.length || data.l || 0 )
+	} ) ;
+} ;
+
+// Turn using positive as X-axis to Y-axis
+VGPath.prototype.turn = function( data ) {
+	this.commands.push( {
+		type: 'turn' ,
+		rel: true ,
+		a: typeof data === 'number' ? data : data.angle || data.a || 0
+	} ) ;
+} ;
+
+// Turn from X-axis to Y-axis
+VGPath.prototype.turnTo = function( data ) {
+	this.commands.push( {
+		type: 'turn' ,
+		a: typeof data === 'number' ? data : data.angle || data.a || 0
+	} ) ;
+} ;
+
+// Turn using positive as Y-axis to X-axis (Spellcast usage)
+VGPath.prototype.negativeTurn = function( data ) {
+	this.commands.push( {
+		type: 'turn' ,
+		rel: true ,
+		a: -( typeof data === 'number' ? data : data.angle || data.a || 0 )
+	} ) ;
+} ;
+
+// Turn from Y-axis to X-axis (clockwise when Y point upward, the invert of the standard 2D computer graphics) (Spellcast usage)
+VGPath.prototype.negativeTurnTo = function( data ) {
+	this.commands.push( {
+		type: 'turn' ,
+		a: 90 - ( typeof data === 'number' ? data : data.angle || data.a || 0 )
+	} ) ;
+} ;
+
+// A turtle-like way of doing a curve: combine a forward and turn, moving along a circle
+VGPath.prototype.forwardTurn = function( data ) {
+	this.commands.push( {
+		type: 'forwardTurn' ,
+		l: data.length || data.l || 0 ,
+		a: data.angle || data.a || 0
+	} ) ;
+} ;
+
+// Turn using positive as Y-axis to X-axis (clockwise when Y point upward, the invert of the standard 2D computer graphics) (Spellcast usage)
+VGPath.prototype.forwardNegativeTurn = function( data ) {
+	this.commands.push( {
+		type: 'forwardTurn' ,
+		l: data.length || data.l || 0 ,
+		a: -( data.angle || data.a || 0 )
+	} ) ;
+} ;
+
+
+},{"../package.json":45,"./VGItem.js":37}],39:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const VGItem = require( './VGItem.js' ) ;
+
+
+
+function VGRect( options ) {
+	VGItem.call( this , options ) ;
+
+	this.x = 0 ;
+	this.y = 0 ;
+	this.width = 0 ;
+	this.height = 0 ;
+
+	// Round corner radius
+	this.rx = 0 ;
+	this.ry = 0 ;
+
+	if ( options ) { this.set( options ) ; }
+}
+
+module.exports = VGRect ;
+
+VGRect.prototype = Object.create( VGItem.prototype ) ;
+VGRect.prototype.constructor = VGRect ;
+VGRect.prototype.__prototypeUID__ = 'svg-kit/VGRect' ;
+VGRect.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGRect.prototype.svgTag = 'rect' ;
+
+VGRect.prototype.svgAttributes = function( root = this ) {
+	var attr = {
+		x: this.x ,
+		y: root.invertY ? -this.y : this.y ,
+		width: this.width ,
+		height: this.height ,
+		rx: this.rx ,
+		ry: this.ry
+	} ;
+
+	return attr ;
+} ;
+
+
+
+VGRect.prototype.set = function( data ) {
+	VGItem.prototype.set.call( this , data ) ;
+
+	if ( data.x !== undefined ) { this.x = data.x ; }
+	if ( data.y !== undefined ) { this.y = data.y ; }
+	if ( data.width !== undefined ) { this.width = data.width ; }
+	if ( data.height !== undefined ) { this.height = data.height ; }
+
+	// Round corner radius
+	if ( data.r !== undefined ) { this.rx = this.ry = data.r ; }
+	if ( data.rx !== undefined ) { this.rx = data.rx ; }
+	if ( data.ry !== undefined ) { this.ry = data.ry ; }
+} ;
+
+
+},{"../package.json":45,"./VGItem.js":37}],40:[function(require,module,exports){
+/*
+	Spellcast
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const VGItem = require( './VGItem.js' ) ;
+
+
+
+/*
+	/!\ Must support text on path
+*/
+
+function VGText( options ) {
+	VGItem.call( this , options ) ;
+
+	this.x = 0 ;
+	this.y = 0 ;
+	this.text = '' ;
+	this.anchor = null ;		// the CSS 'text-anchors', can be 'start', 'middle' or 'end', in VG it default to 'middle' instead of 'start'
+	this.length = null ;		// the length of the text, textLength in SVG
+	this.adjustGlyph = false ;	// true make SVG's 'lengthAdjust' set to 'spacingAndGlyphs', false does not set it (the default for SVG being 'spacing')
+
+	// Position text relative to the previous text element
+	//this.dx = 0 ;
+	//this.dy = 0 ;
+
+	if ( options ) { this.set( options ) ; }
+}
+
+module.exports = VGText ;
+
+VGText.prototype = Object.create( VGItem.prototype ) ;
+VGText.prototype.constructor = VGText ;
+VGText.prototype.__prototypeUID__ = 'svg-kit/VGText' ;
+VGText.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
+
+
+
+VGText.prototype.svgTag = 'text' ;
+
+VGText.prototype.svgAttributes = function( root = this ) {
+	var attr = {
+		x: this.x ,
+		y: root.invertY ? -this.y : this.y ,
+		'text-anchor': this.anchor || 'middle'
+	} ;
+
+	if ( this.length !== null ) { attr.textLength = this.length ; }
+	if ( this.adjustGlyph !== null ) { attr.lengthAdjust = 'spacingAndGlyphs' ; }
+
+	return attr ;
+} ;
+
+
+
+VGText.prototype.svgTextNode = function() {
+	// Text-formatting should be possible
+	return this.text ;
+} ;
+
+
+
+VGText.prototype.set = function( data ) {
+	VGItem.prototype.set.call( this , data ) ;
+
+	if ( data.x !== undefined ) { this.x = data.x ; }
+	if ( data.y !== undefined ) { this.y = data.y ; }
+
+	if ( data.text !== undefined ) { this.text = data.text ; }
+
+	// Interop'
+	if ( data.textAnchor !== undefined ) { this.anchor = data.textAnchor ; }
+	if ( data.anchor !== undefined ) { this.anchor = data.anchor ; }
+
+	// Interop'
+	if ( data.textLength !== undefined ) { this.length = data.textLength ; }
+	if ( data.length !== undefined ) { this.length = data.length ; }
+
+	// Interop'
+	if ( data.lengthAdjust === 'spacingAndGlyphs' ) { this.adjustGlyph = true ; }
+	else if ( data.lengthAdjust === 'spacing' ) { this.adjustGlyph = false ; }
+	if ( data.adjustGlyph !== undefined ) { this.adjustGlyph = !! data.adjustGlyph ; }
+} ;
+
+
+},{"../package.json":45,"./VGItem.js":37}],41:[function(require,module,exports){
+/*
+	SVG Kit
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const path = {} ;
+module.exports = path ;
+
+
+
+path.dFromPoints = ( points , invertY ) => {
+	var yMul = invertY ? -1 : 1 ,
+		str = 'M' ;
+
+	points.forEach( point => {
+		str += ' ' + point.x + ',' + ( point.y * yMul ) ;
+	} ) ;
+
+	return str ;
+} ;
+
+
+},{}],42:[function(require,module,exports){
+(function (process){
+/*
+	SVG Kit
+
+	Copyright (c) 2017 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+const fs = require( 'fs' ).promises ;
+const domKit = require( 'dom-kit' ) ;
+const Promise = require( 'seventh' ) ;
+const escape = require( 'string-kit/lib/escape.js' ) ;
+
+function noop() {}
+
+
+
+const svgKit = {} ;
+module.exports = svgKit ;
+
+svgKit.path = require( './path.js' ) ;
+
+svgKit.VG = require( './VG.js' ) ;
+svgKit.VGItem = require( './VGItem.js' ) ;
+svgKit.VGContainer = require( './VGContainer.js' ) ;
+svgKit.VGGroup = require( './VGGroup.js' ) ;
+svgKit.VGRect = require( './VGRect.js' ) ;
+svgKit.VGEllipse = require( './VGEllipse.js' ) ;
+svgKit.VGPath = require( './VGPath.js' ) ;
+svgKit.VGText = require( './VGText.js' ) ;
+
+
+
+/*
+	load( url , [options] )
+
+	* url: the URL of the .svg file
+	* options: (optional) object of options, transmitted to .inject() and .patch()
+
+	Return a promise resolving to the SVG DOM document.
+*/
+svgKit.load = async function( url , options = {} ) {
+	var content , $doc , $svg ;
+
+	if ( ! process.browser ) {
+		// Use Node.js 'fs' module
+		if ( url.substring( 0 , 7 ) === 'file://' ) { url = url.slice( 7 ) ; }
+		content = await fs.readFile( url , 'utf8' ) ;
+		$doc = domKit.fromXml( content ) ;
+	}
+	else {
+		// Use an AJAX HTTP Request
+		$doc = await svgKit.ajax( url ) ;
+	}
+
+	if ( options.removeComments ) {
+		domKit.removeComments( $doc ) ;
+		delete options.removeComments ;
+	}
+
+	$svg = $doc.documentElement ;
+	svgKit.inject( $svg , options ) ;
+	return $svg ;
+} ;
+
+
+
+svgKit.loadFromString = async function( content , options = {} ) {
+	var $doc = domKit.fromXml( content ) ;
+
+	if ( options.removeComments ) {
+		domKit.removeComments( $doc ) ;
+		delete options.removeComments ;
+	}
+
+	var $svg = $doc.documentElement ;
+	svgKit.inject( $svg , options ) ;
+	return $svg ;
+} ;
+
+
+
+svgKit.ajax = function( url ) {
+	var promise = new Promise() ,
+		xhr = new XMLHttpRequest() ;
+
+	xhr.responseType = 'document' ;
+
+	xhr.onreadystatechange = () => {
+		// From MDN: In the event of a communication error (such as the webserver going down),
+		// an exception will be thrown when attempting to access the 'status' property.
+
+		try {
+			if ( xhr.readyState === 4 ) {
+				if ( xhr.status === 200 ) {
+					promise.resolve( xhr.responseXML ) ;
+				}
+				else if ( xhr.status === 0 && xhr.responseXML ) {	// Yay, loading with file:// does not provide any status...
+					promise.resolve( xhr.responseXML ) ;
+				}
+				else if ( xhr.status ) { promise.reject( xhr.status ) ; }
+				else { promise.reject( new Error( "[svg-kit] ajaxStatus(): Error with falsy status" ) ) ; }
+			}
+		}
+		catch ( error ) {
+			promise.reject( error ) ;
+		}
+	} ;
+
+	xhr.open( 'GET' , url ) ;
+	xhr.send() ;
+
+	return promise ;
+} ;
+
+
+
+/*
+	Fix few <svg> things in order to inject it in the dom
+
+	* $svg: the svg element
+	* options: options object, where:
+		* into: `DOMElement` an element where the .svg file should be loaded into
+		* as: `DOMElement` a <svg> element where the .svg file should replace, almost like the "into" option,
+		  useful when a <svg> tag should be created synchronously to start doing stuffs on it,
+		  and let the asynchronous loading works in the background
+		* all other options are passed to .patch()
+*/
+svgKit.inject = function( $svg , options ) {
+	svgKit.patch( $svg , options ) ;
+
+	if ( options.into ) { options.into.appendChild( $svg ) ; }
+
+	// Better to avoid to check the tag name:
+	// it's too defensive and it prevents from loading inside a <g> tag
+	if ( options.as ) { //&& options.as.tagName.toLowerCase() === 'svg' )
+		domKit.moveAttributes( $svg , options.as ) ;
+		domKit.moveChildrenInto( $svg , options.as ) ;
+	}
+} ;
+
+
+
+/*
+	Fix few <svg> things.
+
+	* $svg: the svg element
+	* options: options object, where:
+		* id: `string` the id attribute of the <svg> tag (recommanded)
+		* removeIds: `boolean` remove all 'id' attributes
+		* prefixIds: `string` prefix all IDs and patch url #ref
+		* hidden: `boolean` turn the svg hidden (useful to apply modification before the show)
+		* class: `string` or `object` (key=class, value=true/false) to add/remove on the <svg> tag
+		* removeSize: `boolean` remove the width and height attribute and style from the <svg> tag
+		* removeSvgStyle: `boolean` remove the top-level style attribute of the <svg> tag
+		* removeDefaultStyles: `boolean` used to removed meaningless style pollution
+		* css: `object` a css object to apply on the <svg> tag
+		* colorClass: `boolean` a very specialized option. It moves all stroke and fill color inline styles to attribute
+		  on all drawing elements and add the "primary" class to those that are class-less.
+		  Since CSS has a greater priority than attributes (but lesser than inline styles), this allows us to controle
+		  color using CSS.
+		* removeComments: `boolean` remove all comment nodes
+		* removeWhiteSpaces: `boolean` remove all white-space
+		* removeWhiteLines: `boolean` remove all empty lines
+		* removeExoticNamespaces: `boolean` remove all tag and attributes that have a namespace different than svg,
+		  the svg namespace is stripped
+*/
+svgKit.patch = function( $svg , options ) {
+	var viewBox , width , height ;
+
+	svgKit.lightCleanup( $svg ) ;
+
+	// Fix id, if necessary
+	if ( options.id !== undefined ) {
+		if ( typeof options.id === 'string' ) { $svg.setAttribute( 'id' , options.id ) ; }
+		else if ( ! options.id ) { $svg.removeAttribute( 'id' ) ; }
+	}
+
+	if ( options.class ) {
+		if ( typeof options.class === 'string' ) { $svg.classList.add( options.class ) ; }
+		else if ( typeof options.class === 'object' ) { domKit.class( $svg , options.class ) ; }
+	}
+
+	if ( options.hidden ) { $svg.style.visibility = 'hidden' ; }
+
+	if ( options.prefixIds ) { domKit.prefixIds( $svg , options.prefixIds ) ; }
+	if ( options.removeIds ) { domKit.removeAllAttributes( $svg , 'id' ) ; }
+
+	if ( options.removeSvgStyle ) { $svg.removeAttribute( 'style' ) ; }
+	if ( options.removeDefaultStyles ) { svgKit.removeDefaultStyles( $svg ) ; }
+	if ( options.removeComments ) { domKit.removeComments( $svg ) ; }
+
+	if ( options.removeExoticNamespaces ) {
+		domKit.filterByNamespace( $svg , { primary: 'svg' , whitelist: [] } ) ;
+	}
+
+	if ( options.removeSize ) {
+		// Save and remove the width and height attribute
+		width = $svg.getAttribute( 'width' ) || $svg.style.width ;
+		height = $svg.getAttribute( 'height' ) || $svg.style.height ;
+
+		$svg.removeAttribute( 'height' ) ;
+		$svg.removeAttribute( 'width' ) ;
+		$svg.style.width = null ;
+		$svg.style.height = null ;
+
+		// if the $svg don't have a viewBox attribute, set it now from the width and height (it works most of time)
+		if ( ! $svg.getAttribute( 'viewBox' ) && width && height ) {
+			viewBox = '0 0 ' + width + ' ' + height ;
+			$svg.setAttribute( 'viewBox' , viewBox ) ;
+		}
+	}
+
+	if ( options.css ) { domKit.css( $svg , options.css ) ; }
+
+	if ( options.colorClass ) { svgKit.colorClass( $svg ) ; }
+
+	if ( options.removeWhiteSpaces ) { domKit.removeWhiteSpaces( $svg ) ; }
+	else if ( options.removeWhiteLines ) { domKit.removeWhiteSpaces( $svg , true ) ; }
+} ;
+
+
+
+svgKit.patchDocument = function( $doc , options ) {
+	var removeWhiteSpaces = options.removeWhiteSpaces ,
+		removeWhiteLines = options.removeWhiteLines ,
+		removeComments = options.removeComments ;
+
+	delete options.removeWhiteSpaces ;
+	delete options.removeWhiteLines ;
+	delete options.removeComments ;
+
+	if ( removeComments ) { domKit.removeComments( $doc ) ; }
+
+	svgKit.patch( $doc.documentElement , options ) ;
+
+	if ( removeWhiteSpaces ) { domKit.removeWhiteSpaces( $doc ) ; }
+	else if ( removeWhiteLines ) { domKit.removeWhiteSpaces( $doc , true ) ; }
+} ;
+
+
+
+svgKit.lightCleanup = function( $svg ) {
+	domKit.removeAllTags( $svg , 'metadata' ) ;
+	domKit.removeAllTags( $svg , 'script' ) ;
+	domKit.removeAllTags( $svg , 'defs' , true ) ;	// all empty defs
+} ;
+
+
+
+// List of svg tags that actually display things
+const drawingTags = [
+	'path' ,
+	'circle' ,
+	'ellipse' ,
+	'line' ,
+	'rect' ,
+	'polyline' ,
+	'polygone' ,
+	'text' ,
+	'textPath'
+] ;
+
+
+
+const defaultStyles = [
+	[ 'font-style' , 'normal' ] ,
+	[ 'font-weight' , 'normal' ] ,
+	[ 'font-variant' , 'normal' ] ,
+	[ 'font-stretch' , 'normal' ] ,
+	[ 'font-size' , 'medium' ] ,
+	[ 'line-height' , 'normal' ] ,
+	[ 'font-variant-ligatures' , 'normal' ] ,
+	//[ 'font-family' , 'sans-serif' ] ,
+	[ 'font-variant-position' , 'normal' ] ,
+	[ 'font-variant-caps' , 'normal' ] ,
+	[ 'font-variant-numeric' , 'normal' ] ,
+	[ 'font-variant-alternates' , 'normal' ] ,
+	[ 'font-variant-east-asian' , 'normal' ] ,
+	[ 'font-feature-settings' , 'normal' ] ,
+	[ 'text-indent' , '0' ] ,
+	[ 'text-align' , 'start' ] ,
+	[ 'text-decoration' , 'none' ] ,
+	[ 'text-decoration-line' , 'none' ] ,
+	[ 'text-decoration-style' , 'solid' ] ,
+	[ 'text-decoration-color' , '#000000' ] ,
+	[ 'letter-spacing' , 'normal' ] ,
+	[ 'word-spacing' , 'normal' ] ,
+	[ 'text-transform' , 'none' ] ,
+	[ 'writing-mode' , 'lr-tb' ] ,
+	[ 'direction' , 'ltr' ] ,
+	[ 'text-orientation' , 'mixed' ] ,
+	[ 'dominant-baseline' , 'auto' ] ,
+	[ 'baseline-shift' , 'baseline' ] ,
+	[ 'text-anchor' , 'start' ] ,
+	[ 'white-space' , 'normal' ] ,
+	[ 'shape-padding' , '0' ] ,
+	[ 'display' , 'inline' ] ,
+	[ 'visibility' , 'visible' ] ,
+	[ 'overflow' , 'visible' ] ,
+	[ 'opacity' , '1' ] ,
+	[ 'isolation' , 'auto' ] ,
+	[ 'mix-blend-mode' , 'normal' ] ,
+	[ 'color-interpolation' , 'sRGB' ] ,
+	[ 'color-interpolation-filters' , 'linearRGB' ] ,
+	[ 'solid-color' , '#000000' ] ,
+	[ 'solid-opacity' , '1' ] ,
+	[ 'vector-effect' , 'none' ] ,
+	[ 'fill-rule' , 'nonzero' ] ,
+	[ 'clip-rule' , 'nonzero' ] ,
+	[ 'color-rendering' , 'auto' ] ,
+	[ 'image-rendering' , 'auto' ] ,
+	[ 'shape-rendering' , 'auto' ] ,
+	[ 'text-rendering' , 'auto' ] ,
+	[ 'enable-background' , 'accumulate' ] ,
+	[ 'stroke-dasharray' , 'none' ] ,
+	[ 'stroke-dashoffset' , '0' ] ,
+	[ 'paint-order' , 'normal' ] ,
+	[ 'paint-order' , 'fill stroke markers' ]
+] ;
+
+
+
+svgKit.colorClass = function( $svg ) {
+	drawingTags.forEach( ( tagName ) => {
+		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( ( $element ) => {
+			// Beware, $element.className does not work as expected for SVG
+			if ( ! $element.getAttribute( 'class' ) ) {
+				$element.classList.add( 'primary' ) ;
+			}
+
+			// move style to attribute if they are not 'none'
+			domKit.styleToAttribute( $element , 'fill' , [ 'none' ] ) ;
+			domKit.styleToAttribute( $element , 'stroke' , [ 'none' ] ) ;
+		} ) ;
+	} ) ;
+} ;
+
+
+
+// Remove styles set to a default/unused value
+svgKit.removeDefaultStyles = function( $svg ) {
+	drawingTags.forEach( ( tagName ) => {
+		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( ( $element ) => {
+			var styles = $element.getAttribute( 'style' ) ;
+
+			defaultStyles.forEach( array => {
+				var k = array[ 0 ] ;
+				var v = array[ 1 ] ;
+
+				styles = styles.replace(
+					new RegExp( '(^|;) *' + escape.regExp( k ) + ' *: *' + escape.regExp( v ) + ' *(?:;|$)' ) ,
+					( full , pre ) => pre
+				) ;
+			} ) ;
+
+			$element.setAttribute( 'style' , styles ) ;
+		} ) ;
+	} ) ;
+} ;
+
+
+
+// Should remove all tags and attributes that have non-registered namespace,
+// e.g.: sodipodi, inkscape, etc...
+//svgKit.heavyCleanup = function( svgElement ) {} ;
+
+
+
+svgKit.getViewBox = function( $svg ) {
+	var raw = $svg.getAttribute( 'viewBox' ) ;
+
+	if ( ! raw ) { return null ; }
+
+	var array = raw.split( / +/ ) ;
+
+	return {
+		x: parseFloat( array[ 0 ] , 10 ) ,
+		y: parseFloat( array[ 1 ] , 10 ) ,
+		width: parseFloat( array[ 2 ] , 10 ) ,
+		height: parseFloat( array[ 3 ] , 10 )
+	} ;
+} ;
+
+
+
+svgKit.setViewBox = function( $svg , viewBox ) {
+	$svg.setAttribute( 'viewBox' , viewBox.x + ' ' + viewBox.y + ' ' + viewBox.width + ' ' + viewBox.height ) ;
+} ;
+
+
+
+svgKit.toAreaArray = function( object ) {
+	if ( object.min && object.max ) {
+		// Math Kit BoundingBox2D
+		return [
+			object.min.x ,
+			object.min.y ,
+			object.max.x - object.min.x ,
+			object.max.y - object.min.y
+		] ;
+	}
+	else if ( object.xmin !== undefined && object.xmax !== undefined && object.ymin !== undefined && object.ymax !== undefined ) {
+		return [
+			object.xmin ,
+			object.ymin ,
+			object.xmax - object.xmin ,
+			object.ymax - object.ymin
+		] ;
+	}
+	else if ( object.x !== undefined && object.y !== undefined && object.width !== undefined && object.height !== undefined ) {
+		return [
+			object.x ,
+			object.y ,
+			object.width ,
+			object.height
+		] ;
+	}
+
+	return [ 0 , 0 , 100 , 100 ] ;
+} ;
+
+
+
+svgKit.standalone = function( content , viewBox ) {
+	var output = '<?xml version="1.0" encoding="UTF-8"?>\n' ;
+
+	if ( ! Array.isArray( viewBox ) ) { viewBox = svgKit.toAreaArray( viewBox ) ; }
+
+	output += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + viewBox.join( ' ' ) + '">\n' ;
+
+	// ?
+	// width="500"
+	// height="500"
+
+	output += content ;
+	output += '\n</svg>\n' ;
+
+	return output ;
+} ;
+
+
+
+svgKit.unserializeVG = str => svgKit.objectToVG( JSON.parse( str ) ) ;
+
+svgKit.objectToVG = function( object ) {
+	if ( ! object._type || ! object._type.startsWith( 'svg-kit/' ) ) { return object ; }
+	var className = object._type.slice( 8 ) ;
+	if ( ! svgKit[ className ] ) { return object ; }
+	return new svgKit[ className ]( object ) ;
+} ;
+
+
+}).call(this,require('_process'))
+},{"./VG.js":33,"./VGContainer.js":34,"./VGEllipse.js":35,"./VGGroup.js":36,"./VGItem.js":37,"./VGPath.js":38,"./VGRect.js":39,"./VGText.js":40,"./path.js":41,"_process":13,"dom-kit":7,"fs":6,"seventh":25,"string-kit/lib/escape.js":44}],43:[function(require,module,exports){
+/*
+	String Kit
+
+	Copyright (c) 2014 - 2019 Cédric Ronvel
+
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+var camel = {} ;
+module.exports = camel ;
+
+
+
+// Transform alphanum separated by underscore or minus to camel case
+camel.toCamelCase = function( str , preserveUpperCase = false ) {
+	if ( ! str || typeof str !== 'string' ) { return '' ; }
+
+	return str.replace( /^[\s_-]*([^\s_-]+)|[\s_-]+([^\s_-]?)([^\s_-]*)/g , ( match , firstWord , firstLetter , endOfWord ) => {
+
+		if ( preserveUpperCase ) {
+			if ( firstWord ) { return firstWord ; }
+			if ( ! firstLetter ) { return '' ; }
+			return firstLetter.toUpperCase() + endOfWord ;
+		}
+
+		if ( firstWord ) { return firstWord.toLowerCase() ; }
+		if ( ! firstLetter ) { return '' ; }
+		return firstLetter.toUpperCase() + endOfWord.toLowerCase() ;
+
+	} ) ;
+} ;
+
+
+
+camel.camelCaseToSeparated = function( str , separator = ' ' ) {
+	if ( ! str || typeof str !== 'string' ) { return '' ; }
+
+	return str.replace( /^([A-Z])|([A-Z])/g , ( match , firstLetter , letter ) => {
+
+		if ( firstLetter ) { return firstLetter.toLowerCase() ; }
+		return separator + letter.toLowerCase() ;
+	} ) ;
+} ;
+
+
+
+// Transform camel case to alphanum separated by minus
+camel.camelCaseToDash =
+camel.camelCaseToDashed = ( str ) => camel.camelCaseToSeparated( str , '-' ) ;
+
+
+},{}],44:[function(require,module,exports){
+arguments[4][28][0].apply(exports,arguments)
+},{"dup":28}],45:[function(require,module,exports){
+module.exports={
+  "_from": "svg-kit@0.2.3",
+  "_id": "svg-kit@0.2.3",
+  "_inBundle": false,
+  "_integrity": "sha512-foEXyUwrL2r3ie15sO6a/KQ2qQLzfvjZ/xw+d0JWa5SzPly9Rgs7iJaQaeLjpsNucAtQ+XRM+jcI5cHPpDptkA==",
+  "_location": "/svg-kit",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "svg-kit@0.2.3",
+    "name": "svg-kit",
+    "escapedName": "svg-kit",
+    "rawSpec": "0.2.3",
+    "saveSpec": null,
+    "fetchSpec": "0.2.3"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/svg-kit/-/svg-kit-0.2.3.tgz",
+  "_shasum": "7bbd11739ddd1b402648eb199d1f1e5d91007cc1",
+  "_spec": "svg-kit@0.2.3",
+  "_where": "/home/cedric/inside/github/spellcast",
+  "author": {
+    "name": "Cédric Ronvel"
+  },
+  "bin": {
+    "svgkit": "bin/svgkit"
+  },
+  "bugs": {
+    "url": "https://github.com/cronvel/svg-kit/issues"
+  },
+  "bundleDependencies": false,
+  "copyright": {
+    "title": "SVG Kit",
+    "years": [
+      2017,
+      2019
+    ],
+    "owner": "Cédric Ronvel"
+  },
+  "dependencies": {
+    "@cronvel/xmldom": "^0.1.31",
+    "dom-kit": "^0.3.14",
+    "minimist": "^1.2.0",
+    "seventh": "^0.7.30",
+    "string-kit": "^0.10.1",
+    "terminal-kit": "^1.31.4"
+  },
+  "deprecated": false,
+  "description": "A small SVG toolkit.",
+  "devDependencies": {},
+  "directories": {
+    "test": "test"
+  },
+  "homepage": "https://github.com/cronvel/svg-kit#readme",
+  "keywords": [
+    "svg"
+  ],
+  "license": "MIT",
+  "main": "lib/svg-kit.js",
+  "name": "svg-kit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cronvel/svg-kit.git"
+  },
+  "scripts": {
+    "test": "tea-time -R dot"
+  },
+  "version": "0.2.3"
+}
+
+},{}],46:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -11439,7 +14555,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":13,"timers":31}],32:[function(require,module,exports){
+},{"process/browser.js":13,"timers":46}],47:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -12173,7 +15289,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":33,"punycode":14,"querystring":17}],33:[function(require,module,exports){
+},{"./util":48,"punycode":14,"querystring":17}],48:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -12191,2315 +15307,5 @@ module.exports = {
   }
 };
 
-},{}],34:[function(require,module,exports){
-/*
-	Spellcast
-
-	Copyright (c) 2014 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-/*
-	VG: Vector Graphics.
-	A portable structure describing some vector graphics.
-*/
-
-const svgKit = require( './svg-kit.js' ) ;
-const VGContainer = require( './VGContainer.js' ) ;
-
-var autoId = 0 ;
-
-
-
-function VG( options ) {
-	VGContainer.call( this , options ) ;
-
-	this.id = ( options && options.id ) || 'vg_' + ( autoId ++ ) ;
-	this.viewBox = {
-		x: 0 , y: 0 , width: 100 , height: 100
-	} ;
-
-	this.css = [] ;
-	this.invertY = false ;
-
-	if ( options ) { this.set( options ) ; }
-}
-
-module.exports = VG ;
-
-
-
-VG.prototype = Object.create( VGContainer.prototype ) ;
-VG.prototype.constructor = VG ;
-VG.prototype.__prototypeUID__ = 'svg-kit/VG' ;
-VG.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
-
-
-
-VG.prototype.svgTag = 'svg' ;
-
-VG.prototype.svgAttributes = function( root = this ) {
-	var attr = {
-		xmlns: "http://www.w3.org/2000/svg" ,
-		viewBox: this.viewBox.x + ' ' + ( root.invertY ? - this.viewBox.y - this.viewBox.height : this.viewBox.y ) + ' ' + this.viewBox.width + ' ' + this.viewBox.height
-	} ;
-
-	return attr ;
-} ;
-
-
-
-VG.prototype.set = function( data ) {
-	VGContainer.prototype.set.call( this , data ) ;
-
-	if ( data.viewBox && typeof data.viewBox === 'object' ) {
-		if ( data.viewBox.x !== undefined ) { this.viewBox.x = data.viewBox.x ; }
-		if ( data.viewBox.y !== undefined ) { this.viewBox.y = data.viewBox.y ; }
-		if ( data.viewBox.width !== undefined ) { this.viewBox.width = data.viewBox.width ; }
-		if ( data.viewBox.height !== undefined ) { this.viewBox.height = data.viewBox.height ; }
-	}
-
-	if ( data.css && Array.isArray( data.css ) ) {
-		this.css.length = 0 ;
-		for ( let rule of data.css ) {
-			this.addCssRule( rule ) ;
-		}
-	}
-
-	if ( data.invertY !== undefined ) { this.invertY = !! data.invertY ; }
-} ;
-
-
-
-/*
-    To update a style:
-    $style = $element.querySelector( 'style' ) ;
-    $style.sheet <-- this is a StyleSheet object
-    $style.sheet.cssRules
-    $style.sheet.cssRules[0].type                   type:1 for style rules, other can be important rules (3), media rule (4), keyframes rule (7)
-    $style.sheet.cssRules[0].selectorText           the selector for this rule
-    $style.sheet.cssRules[0].style.<cssProperty>    it works like any $element.style
-    $style.sheet.insertRule( <cssText> , index )    insert a new CSS rule, passing a pure CSS string, the index is where it should be inserted (default to 0: at the begining)
-    $style.sheet.deleteRule( index )                delete the rule at this index, see $style.sheet.length
-    ...
-*/
-
-VG.prototype.addCssRule = function( rule ) {
-	if ( ! rule || typeof rule !== 'object' || ! rule.select || ! rule.style || typeof rule.style !== 'object' ) { return ; }
-	this.css.push( rule ) ;
-} ;
-
-
-},{"../package.json":56,"./VGContainer.js":35,"./svg-kit.js":43}],35:[function(require,module,exports){
-/*
-	Spellcast
-
-	Copyright (c) 2014 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-const svgKit = require( './svg-kit.js' ) ;
-const VGItem = require( './VGItem.js' ) ;
-
-
-
-function VGContainer( options ) {
-	VGItem.call( this , options ) ;
-	this.items = [] ;
-}
-
-module.exports = VGContainer ;
-
-VGContainer.prototype = Object.create( VGItem.prototype ) ;
-VGContainer.prototype.constructor = VGContainer ;
-VGContainer.prototype.__prototypeUID__ = 'svg-kit/VGContainer' ;
-VGContainer.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
-
-
-
-VGContainer.prototype.isContainer = true ;
-
-
-
-VGContainer.prototype.set = function( data ) {
-	VGItem.prototype.set.call( this , data ) ;
-
-	if ( data.items && Array.isArray( data.items ) ) {
-		for ( let item of data.items ) {
-			this.items.push( svgKit.objectToVG( item ) ) ;
-		}
-	}
-} ;
-
-
-
-VGContainer.prototype.exportMorphLog = function() {
-	var hasInner = false , inner = {} ;
-
-	this.items.forEach( ( item , index ) => {
-		var log = item.exportMorphLog() ;
-		if ( log ) {
-			inner[ index ] = log ;
-			hasInner = true ;
-		}
-	} ) ;
-
-	if ( ! hasInner && ! this.morphLog.length ) { return null ; }
-
-	var output = {} ;
-	if ( this.morphLog.length ) { output.l = [ ... this.morphLog ] ; }
-	if ( hasInner ) { output.i = inner ; }
-
-	this.morphLog.length = 0 ;
-	return output ;
-} ;
-
-
-
-VGContainer.prototype.importMorphLog = function( log ) {
-	var key , index ;
-
-	if ( ! log ) {
-		this.morphLog.length = 0 ;
-		return ;
-	}
-
-	if ( ! log.l || ! log.l.length ) { this.morphLog.length = 0 ; }
-	else { this.morphLog = log.l ; }
-
-	if ( log.i ) {
-		for ( key in log.i ) {
-			index = + key ;
-			if ( this.items[ index ] ) {
-				//console.warn( "Sub:" , this.items[ index ] , log.i[ key ] ) ;
-				this.items[ index ].importMorphLog( log.i[ key ] ) ;
-			}
-		}
-	}
-} ;
-
-
-
-// Update the DOM, based upon the morphLog
-VGContainer.prototype.morphDom = function( root = this ) {
-	this.items.forEach( item => item.morphDom( root ) ) ;
-	this.morphLog.forEach( entry => this.morphOneEntryDom( entry , root ) ) ;
-	this.morphLog.length = 0 ;
-	return this.$element ;
-} ;
-
-
-},{"../package.json":56,"./VGItem.js":38,"./svg-kit.js":43}],36:[function(require,module,exports){
-/*
-	Spellcast
-
-	Copyright (c) 2014 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-const VGItem = require( './VGItem.js' ) ;
-
-
-
-function VGEllipse( options ) {
-	VGItem.call( this , options ) ;
-
-	this.x = 0 ;
-	this.y = 0 ;
-	this.rx = 0 ;
-	this.ry = 0 ;
-
-	if ( options ) { this.set( options ) ; }
-}
-
-module.exports = VGEllipse ;
-
-VGEllipse.prototype = Object.create( VGItem.prototype ) ;
-VGEllipse.prototype.constructor = VGEllipse ;
-VGEllipse.prototype.__prototypeUID__ = 'svg-kit/VGEllipse' ;
-VGEllipse.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
-
-
-
-VGEllipse.prototype.svgTag = 'ellipse' ;
-
-VGEllipse.prototype.svgAttributes = function( root = this ) {
-	var attr = {
-		cx: this.x ,
-		cy: root.invertY ? - this.y : this.y ,
-		rx: this.rx ,
-		ry: this.ry
-	} ;
-
-	return attr ;
-} ;
-
-
-
-VGEllipse.prototype.set = function( data ) {
-	VGItem.prototype.set.call( this , data ) ;
-
-	// Interop'
-	if ( data.cx !== undefined ) { this.x = data.cx ; }
-	if ( data.cy !== undefined ) { this.y = data.cy ; }
-
-	if ( data.x !== undefined ) { this.x = data.x ; }
-	if ( data.y !== undefined ) { this.y = data.y ; }
-	if ( data.r !== undefined ) { this.rx = this.ry = data.r ; }
-	if ( data.rx !== undefined ) { this.rx = data.rx ; }
-	if ( data.ry !== undefined ) { this.ry = data.ry ; }
-} ;
-
-
-},{"../package.json":56,"./VGItem.js":38}],37:[function(require,module,exports){
-/*
-	Spellcast
-
-	Copyright (c) 2014 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-const svgKit = require( './svg-kit.js' ) ;
-const VGContainer = require( './VGContainer.js' ) ;
-
-
-
-function VGGroup( options ) {
-	VGContainer.call( this , options ) ;
-	if ( options ) { this.set( options ) ; }
-}
-
-module.exports = VGGroup ;
-
-VGGroup.prototype = Object.create( VGContainer.prototype ) ;
-VGGroup.prototype.constructor = VGGroup ;
-VGGroup.prototype.__prototypeUID__ = 'svg-kit/VGGroup' ;
-VGGroup.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
-
-
-
-VGGroup.prototype.svgTag = 'g' ;
-
-VGGroup.prototype.set = function( data ) {
-	VGContainer.prototype.set.call( this , data ) ;
-} ;
-
-
-},{"../package.json":56,"./VGContainer.js":35,"./svg-kit.js":43}],38:[function(require,module,exports){
-/*
-	Spellcast
-
-	Copyright (c) 2014 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-const camel = require( 'string-kit/lib/camel' ) ;
-const escape = require( 'string-kit/lib/escape' ) ;
-
-
-
-function VGItem( options ) {
-	this.id = null ;
-	this.class = new Set() ;
-	this.style = {} ;
-	this.data = null ;		// User custom data, e.g. data-* attributes
-
-	// Spellcast data
-	this.button = null ;
-	this.hint = null ;
-	this.area = null ;
-
-	this.morphLog = [] ;
-	this.$element = null ;
-	this.$style = null ;
-}
-
-module.exports = VGItem ;
-
-VGItem.prototype.__prototypeUID__ = 'svg-kit/VGItem' ;
-VGItem.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
-
-
-
-VGItem.prototype.isContainer = false ;
-VGItem.prototype.svgTag = 'none' ;
-VGItem.prototype.svgAttributes = () => ( {} ) ;
-
-
-
-VGItem.prototype.toJSON = function() {
-	var object = Object.assign( {} , this ) ;
-
-	object._type = this.__prototypeUID__ ;
-
-	if ( this.class.size ) { object.class = [ ... this.class ] ; }
-	else { delete object.class ; }
-
-	if ( ! object.id ) { delete object.id ; }
-	if ( ! object.data ) { delete object.data ; }
-	if ( ! object.button ) { delete object.button ; }
-	if ( ! object.hint ) { delete object.hint ; }
-	if ( ! object.area ) { delete object.area ; }
-
-	delete object.morphLog ;
-	delete object.$element ;
-	delete object.$style ;
-
-	return object ;
-} ;
-
-
-
-VGItem.prototype.set = function( data ) {
-	if ( data.id !== undefined ) { this.id = data.id || null ; }
-
-	if ( data.class ) {
-		if ( typeof data.class === 'string' ) {
-			this.class.clear() ;
-			this.class.add( data.class ) ;
-		}
-		else if ( Array.isArray( data.class ) || ( data.class instanceof Set ) ) {
-			this.class.clear() ;
-
-			for ( let className of data.class ) {
-				this.class.add( className ) ;
-			}
-		}
-		else if ( typeof data.class === 'object' ) {
-			for ( let className in data.class ) {
-				if ( data.class[ className ] ) { this.class.add( className ) ; }
-				else { this.class.delete( className ) ; }
-			}
-		}
-	}
-
-	if ( data.style ) {
-		for ( let key in data.style ) {
-			// Stored in the camelCase variant
-			this.style[ this.toCamelCase( key ) ] = data.style[ key ] === null ? '' : data.style[ key ] ;
-		}
-	}
-
-	if ( data.data !== undefined ) {
-		// User custom data, e.g. data-* attributes
-		if ( ! data.data ) {
-			this.data = null ;
-		}
-		else {
-			if ( ! this.data ) { this.data = {} ; }
-			Object.assign( this.data , data.data ) ;
-		}
-	}
-
-	if ( data.button !== undefined ) { this.button = data.button || null ; }
-	if ( data.hint !== undefined ) { this.hint = data.hint || null ; }
-	if ( data.area !== undefined ) { this.area = data.area || null ; }
-} ;
-
-
-
-var morphVersion = 0 ;
-
-VGItem.prototype.morph = function( data ) {
-	var log = Object.assign( {} , data ) ;
-	log._v = morphVersion ++ ;
-	this.morphLog.push( log ) ;
-	this.set( data ) ;
-} ;
-
-
-
-VGItem.prototype.exportMorphLog = function() {
-	if ( ! this.morphLog.length ) { return null ; }
-	var output = { l: [ ... this.morphLog ] } ;
-	this.morphLog.length = 0 ;
-	return output ;
-} ;
-
-
-
-VGItem.prototype.importMorphLog = function( log ) {
-	if ( ! log || ! log.l || ! log.l.length ) { this.morphLog.length = 0 ; }
-	else { this.morphLog = log.l ; }
-} ;
-
-
-
-// Use the preserveUpperCase option, cause the value can be in camelCased already
-VGItem.prototype.toCamelCase = value => camel.toCamelCase( value , true ) ;
-
-VGItem.prototype.escape = function( value ) {
-	if ( typeof value === 'object' ) { return null ; }
-	if ( typeof value !== 'string' ) { return value ; }
-	return escape.htmlAttr( value ) ;
-} ;
-
-
-
-// Render the Vector Graphic as a text SVG
-VGItem.prototype.renderText = function( root = this ) {
-	var key , rule , str = '' , styleStr = '' ,
-		attr = this.svgAttributes( root ) ;
-
-	str += '<' + this.svgTag ;
-
-	if ( this.id ) { str += ' id="' + this.escape( this.id ) + '"' ; }
-	if ( this.button ) { str += ' button="' + this.escape( this.button ) + '"' ; }
-	if ( this.hint ) { str += ' hint="' + this.escape( this.hint ) + '"' ; }
-	if ( this.area ) { str += ' area="' + this.escape( this.area ) + '"' ; }
-
-	if ( this.class.size ) {
-		str += ' class="' ;
-		let first = true ;
-		for ( let className of this.class ) {
-			if ( ! first ) { str += ' ' ; }
-			str += this.escape( className ) ;
-			first = false ;
-		}
-		str += '"' ;
-	}
-
-	for ( key in attr ) {
-		str += ' ' + key + '="' + this.escape( attr[ key ] ) + '"' ;
-	}
-
-	if ( this.data ) {
-		for ( key in this.data ) {
-			str += ' data-' + this.escape( key ) + '="' + this.escape( this.data[ key ] ) + '"' ;
-		}
-	}
-
-	for ( key in this.style ) {
-		// Key is in camelCase, but should use dash
-		styleStr += this.escape( camel.camelCaseToDash( key ) ) + ':' + this.escape( this.style[ key ] ) + ';' ;
-	}
-
-	if ( styleStr ) {
-		str += ' style="' + styleStr + '"' ;
-	}
-
-	if ( this.svgTextNode ) {
-		str += this.svgTextNode() ;
-	}
-
-	if ( ! this.isContainer ) {
-		str += ' />' ;
-		return str ;
-	}
-
-	str += '>' ;
-
-	// StyleSheet inside a <style> tag
-	if ( this.css && this.css.length ) {
-		str += '<style>\n' ;
-
-		for ( rule of this.css ) {
-			str += rule.select + ' {\n' ;
-			for ( key in rule.style ) {
-				str += '    ' + this.escape( camel.camelCaseToDash( key ) ) + ': ' + this.escape( rule.style[ key ] ) + ';\n' ;
-			}
-			str += '}\n' ;
-		}
-
-		str += '</style>' ;
-	}
-
-	// Inner content
-	if ( this.items ) {
-		for ( let item of this.items ) {
-			str += item.renderText( root ) ;
-		}
-	}
-
-	str += '</' + this.svgTag + '>' ;
-	return str ;
-} ;
-
-
-
-// Render the Vector Graphic inside a browser, as DOM SVG
-VGItem.prototype.renderDom = function( options = {} , root = this ) {
-	var key , rule , cssStr ,
-		attr = this.svgAttributes( root ) ;
-
-	this.$element = document.createElementNS( 'http://www.w3.org/2000/svg' , options.overrideTag || this.svgTag ) ;
-
-	if ( this.id ) { this.$element.setAttribute( 'id' , this.id ) ; }
-	if ( this.button ) { this.$element.setAttribute( 'button' , this.button ) ; }
-	if ( this.hint ) { this.$element.setAttribute( 'hint' , this.hint ) ; }
-	if ( this.area ) { this.$element.setAttribute( 'area' , this.area ) ; }
-
-	if ( this.class.size ) {
-		this.class.forEach( className => this.$element.classList.add( className ) ) ;
-	}
-
-	for ( key in attr ) {
-		this.$element.setAttribute( key , attr[ key ] ) ;
-	}
-
-	if ( this.data ) {
-		for ( key in this.data ) {
-			this.$element.setAttribute( 'data-' + key , this.data[ key ] ) ;
-		}
-	}
-
-	for ( key in this.style ) {
-		// Key is already in camelCase
-		this.$element.style[ key ] = this.style[ key ] ;
-	}
-
-	if ( this.svgTextNode ) {
-		console.warn( "SVG text node!!!" ) ;
-		this.$element.appendChild( document.createTextNode( this.svgTextNode() ) ) ;
-	}
-
-	if ( ! this.isContainer ) { return this.$element ; }
-
-	// StyleSheet inside a <style> tag
-	if ( this.css && this.css.length ) {
-		this.$style = document.createElementNS( 'http://www.w3.org/2000/svg' , 'style' ) ;
-		//this.$style = document.createElement( 'style' ) ;
-
-		cssStr = '' ;
-
-		for ( rule of this.css ) {
-			cssStr += rule.select + ' {\n' ;
-
-			for ( key in rule.style ) {
-				// Key is in camelCase, but should use dash
-				cssStr += this.escape( camel.camelCaseToDash( key ) ) + ': ' + this.escape( rule.style[ key ] ) + ';\n' ;
-			}
-
-			cssStr += '}\n' ;
-
-			// WARNING: this.$style.sheet does not work at that moment, it seems to be added only after behind inserted into the DOM,
-			// so we construct a text-node instead of pure rule insertion
-			//this.$style.sheet.insertRule( cssStr , this.$style.sheet.length ) ;
-		}
-
-		this.$style.appendChild( document.createTextNode( cssStr ) ) ;
-		this.$element.appendChild( this.$style ) ;
-	}
-
-	// Inner content
-	if ( this.items ) {
-		for ( let item of this.items ) {
-			this.$element.appendChild( item.renderDom( undefined , root ) ) ;
-		}
-	}
-
-	return this.$element ;
-} ;
-
-
-
-// Update the DOM, based upon the morphLog
-VGItem.prototype.morphDom = function( root = this ) {
-	this.morphLog.forEach( entry => this.morphOneEntryDom( entry , root ) ) ;
-	this.morphLog.length = 0 ;
-	return this.$element ;
-} ;
-
-
-
-VGItem.prototype.morphOneEntryDom = function( data , root = this ) {
-	var key ;
-
-	// Disallow id changes?
-	//if ( data.id ) { this.$element.setAttribute( 'id' , data.id ) ; }
-
-	if ( data.button ) { this.$element.setAttribute( 'button' , data.button ) ; }
-	if ( data.hint ) { this.$element.setAttribute( 'hint' , data.hint ) ; }
-	if ( data.area ) { this.$element.setAttribute( 'area' , data.area ) ; }
-
-	if ( data.class ) {
-		if ( Array.isArray( data.class ) ) {
-			this.$element.setAttribute( 'class' , data.class.join( ' ' ) ) ;
-		}
-		else if ( data.class instanceof Set ) {
-			this.$element.setAttribute( 'class' , [ ... data.class ].join( ' ' ) ) ;
-		}
-		else if ( typeof data.class === 'object' ) {
-			for ( let className in data.class ) {
-				if ( data.class[ className ] ) { this.$element.classList.add( className ) ; }
-				else { this.$element.classList.remove( className ) ; }
-			}
-		}
-	}
-
-	if ( data.attr ) {
-		for ( key in data.attr ) {
-			this.$element.setAttribute( key , data.attr[ key ] ) ;
-		}
-	}
-
-	if ( data.data ) {
-		for ( key in data.data ) {
-			this.$element.setAttribute( 'data-' + key , data.data[ key ] ) ;
-		}
-	}
-
-	if ( data.style ) {
-		for ( key in data.style ) {
-			// Key is already in camelCase
-			this.$element.style[ key ] = data.style[ key ] === null ? '' : data.style[ key ] ;
-		}
-	}
-} ;
-
-
-},{"../package.json":56,"string-kit/lib/camel":54,"string-kit/lib/escape":55}],39:[function(require,module,exports){
-/*
-	Spellcast
-
-	Copyright (c) 2014 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-const VGItem = require( './VGItem.js' ) ;
-
-
-
-function VGPath( options ) {
-	VGItem.call( this , options ) ;
-
-	this.commands = [] ;
-
-	if ( options ) { this.set( options ) ; }
-}
-
-module.exports = VGPath ;
-
-VGPath.prototype = Object.create( VGItem.prototype ) ;
-VGPath.prototype.constructor = VGPath ;
-VGPath.prototype.__prototypeUID__ = 'svg-kit/VGPath' ;
-VGPath.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
-
-
-
-VGPath.prototype.svgTag = 'path' ;
-
-VGPath.prototype.svgAttributes = function( root = this ) {
-	var attr = {
-		// That enigmatic SVG attribute 'd' probably means 'data' or 'draw'
-		d: this.toD( root )
-	} ;
-
-	return attr ;
-} ;
-
-
-
-VGPath.prototype.set = function( data ) {
-	VGItem.prototype.set.call( this , data ) ;
-	if ( Array.isArray( data.commands ) ) { this.commands = data.commands ; }
-} ;
-
-
-
-// Build the SVG 'd' attribute
-VGPath.prototype.toD = function( root = this ) {
-	var build = {
-		root: root ,
-		d: '' ,
-		pu: false ,	// Pen Up, when true, turtle-like commands move without tracing anything
-		cx: 0 ,		// cursor position x
-		cy: 0 ,		// cursor position y
-		ca: root.invertY ? - Math.PI / 2 : Math.PI / 2		// cursor angle, default to positive Y-axis
-	} ;
-
-	this.commands.forEach( ( command , index ) => {
-		if ( index ) { build.d += ' ' ; }
-		builders[ command.type ]( command , build ) ;
-	} ) ;
-
-	return build.d ;
-} ;
-
-
-
-const degToRad = deg => deg * Math.PI / 180 ;
-const radToDeg = rad => rad * 180 / Math.PI ;
-
-
-
-const builders = {} ;
-
-builders.close = ( command , build ) => {
-	build.d += 'z' ;
-} ;
-
-builders.move = ( command , build ) => {
-	var y = build.root.invertY ? - command.y : command.y ;
-
-	if ( command.rel ) {
-		build.d += 'm ' + command.x + ' ' + y ;
-		build.cx += command.x ;
-		build.cy += y ;
-	}
-	else {
-		build.d += 'M ' + command.x + ' ' + y ;
-		build.cx = command.x ;
-		build.cy = y ;
-	}
-} ;
-
-builders.line = ( command , build ) => {
-	var y = build.root.invertY ? - command.y : command.y ;
-
-	if ( command.rel ) {
-		build.d += 'l ' + command.x + ' ' + y ;
-		build.cx += command.x ;
-		build.cy += y ;
-	}
-	else {
-		build.d += 'L ' + command.x + ' ' + y ;
-		build.cx = command.x ;
-		build.cy = y ;
-	}
-} ;
-
-builders.curve = ( command , build ) => {
-	var cy1 = build.root.invertY ? - command.cy1 : command.cy1 ,
-		cy2 = build.root.invertY ? - command.cy2 : command.cy2 ,
-		y = build.root.invertY ? - command.y : command.y ;
-
-	if ( command.rel ) {
-		build.d += 'c ' + command.cx1 + ' ' + cy1 + ' ' + command.cx2 + ' ' + cy2 + ' '  + command.x + ' ' + y ;
-		build.cx += command.x ;
-		build.cy += y ;
-	}
-	else {
-		build.d += 'C ' + command.cx1 + ' ' + cy1 + ' ' + command.cx2 + ' ' + cy2 + ' '  + command.x + ' ' + y ;
-		build.cx = command.x ;
-		build.cy = y ;
-	}
-} ;
-
-builders.smoothCurve = ( command , build ) => {
-	var cy = build.root.invertY ? - command.cy : command.cy ,
-		y = build.root.invertY ? - command.y : command.y ;
-
-	if ( command.rel ) {
-		build.d += 's ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
-		build.cx += command.x ;
-		build.cy += y ;
-	}
-	else {
-		build.d += 'S ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
-		build.cx = command.x ;
-		build.cy = y ;
-	}
-} ;
-
-builders.qCurve = ( command , build ) => {
-	var cy = build.root.invertY ? - command.cy : command.cy ,
-		y = build.root.invertY ? - command.y : command.y ;
-
-	if ( command.rel ) {
-		build.d += 'q ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
-		build.cx += command.x ;
-		build.cy += y ;
-	}
-	else {
-		build.d += 'Q ' + command.cx + ' ' + cy + ' ' + command.x + ' ' + y ;
-		build.cx = command.x ;
-		build.cy = y ;
-	}
-} ;
-
-builders.smoothQCurve = ( command , build ) => {
-	var y = build.root.invertY ? - command.y : command.y ;
-
-	if ( command.rel ) {
-		build.d += 't ' + command.x + ' ' + y ;
-		build.cx += command.x ;
-		build.cy += y ;
-	}
-	else {
-		build.d += 'T ' + command.x + ' ' + y ;
-		build.cx = command.x ;
-		build.cy = y ;
-	}
-} ;
-
-builders.arc = ( command , build ) => {
-	var ra = build.root.invertY ? - command.ra : command.ra ,
-		pr = build.root.invertY ? ! command.pr : command.pr ,
-		y = build.root.invertY ? - command.y : command.y ;
-
-	if ( command.rel ) {
-		build.d += 'a ' + command.rx + ' ' + command.ry + ' ' + ra + ' ' + ( + command.la ) + ' '  + ( + pr ) + ' ' + command.x + ' ' + y ;
-		build.cx += command.x ;
-		build.cy += y ;
-	}
-	else {
-		build.d += 'A ' + command.rx + ' ' + command.ry + ' ' + ra + ' ' + ( + command.la ) + ' '  + ( + pr ) + ' ' + command.x + ' ' + y ;
-		build.cx = command.x ;
-		build.cy = y ;
-	}
-} ;
-
-// VG-specific
-
-/*
-	Approximation of circles using cubic bezier curves.
-
-	Controle point distance/radius ratio for quarter of circle: 0.55228475 or 4/3 (sqrt(2)-1)
-	For half of a circle: 4/3
-
-	From: https://www.tinaja.com/glib/bezcirc2.pdf
-	The arc is bissected by the X-axis.
-	x0 = cos( / 2)			y0 = sin( / 2)
-	x3 = x1					y3 = - y0
-	x1 = (4 - x0) / 3		y1 = (1 - x0)(3 - x0) / 3 y0
-	x2 = x1					y2 = -y1
-
-	This distance ensure that the mid-time point is exactly on the arc.
-	It works very well for angle ranging from 0-90°, can be good enough for 90-180°,
-	but it's bad for greater than 180°.
-	In fact it's not possible to approximate a 270° arc with a single cubic bezier curve.
-*/
-function controleDistance( angle ) {
-	if ( ! angle ) { return 0 ; }
-	var angleRad = degToRad( angle ) ;
-	var x0 = Math.cos( angleRad / 2 ) ,
-		y0 = Math.sin( angleRad / 2 ) ,
-		x1 = ( 4 - x0 ) / 3 ,
-		y1 = ( 1 - x0 ) * ( 3 - x0 ) / ( 3 * y0 ) ;
-	return Math.sqrt( ( x0 - x1 ) ** 2 + ( y0 - y1 ) ** 2 ) ;
-}
-
-builders.centerArc = ( command , build ) => {
-
-	// ---------------------------------------------------------------------------------- NOT CODED ----------------------------------------------------------------
-
-	// It's supposed to ease circle creation inside path, converting them to SVG curves...
-
-	var { x , y , cx , cy } = command ;
-
-	if ( command.rel ) {
-		x += build.cx ;
-		y += build.cy ;
-		cx += build.cx ;
-		cy += build.cy ;
-	}
-
-	var startAngle = Math.atan2( build.cy - cy , build.cx - cx ) ,
-		endAngle = Math.atan2( y - cy , x - cx ) ;
-
-	build.cx = x ;
-	build.cy = y ;
-} ;
-
-// Turtle-like
-
-builders.pen = ( command , build ) => {
-	build.pu = command.u ;
-} ;
-
-builders.forward = ( command , build ) => {
-	var dx = command.l * Math.cos( build.ca ) ,
-		dy = command.l * Math.sin( build.ca ) ;
-
-	if ( build.pu ) { build.d += 'm ' + dx + ' ' + dy ; }
-	else { build.d += 'l ' + dx + ' ' + dy ; }
-
-	build.cx += dx ;
-	build.cy += dy ;
-} ;
-
-builders.turn = ( command , build ) => {
-	var a = build.root.invertY ? - command.a : command.a ;
-
-	if ( command.rel ) {
-		build.ca += degToRad( a ) ;
-	}
-	else {
-		build.ca = degToRad( a ) ;
-	}
-} ;
-
-builders.forwardTurn = ( command , build ) => {
-	var a = build.root.invertY ? - command.a : command.a ;
-
-	/*
-		We will first transpose to a circle of center 0,0 and we are starting at x=radius,y=0 and moving positively
-	*/
-	var angleRad = degToRad( a ) ,
-		angleSign = angleRad >= 0 ? 1 : -1 ,
-		alpha = Math.abs( angleRad ) ,
-		radius = command.l / alpha ,
-		trX = radius * Math.cos( alpha ) ,
-		trY = radius * Math.sin( alpha ) ,
-		dist = Math.sqrt( ( radius - trX ) ** 2 + trY ** 2 ) ,
-		beta = Math.atan2( radius - trX , trY ) ;	// beta is the deviation
-
-	var dx = dist * Math.cos( build.ca + angleSign * beta ) ,
-		dy = dist * Math.sin( build.ca + angleSign * beta ) ;
-
-	if ( build.pu ) {
-		build.d += 'm ' + dx + ' ' + dy ;
-	}
-	else {
-		build.d += 'a ' + radius + ' ' + radius + ' 0 ' + ( alpha > Math.PI ? 1 : 0 ) + ' '  + ( angleRad >= 0 ? 1 : 0 ) + ' ' + dx + ' ' + dy ;
-	}
-
-	build.cx += dx ;
-	build.cy += dy ;
-	build.ca += angleRad ;
-} ;
-
-
-
-/*
-	First, true SVG path commands
-*/
-
-VGPath.prototype.close = function() {
-	this.commands.push( { type: 'close' } ) ;
-} ;
-
-VGPath.prototype.move = function( data ) {
-	this.commands.push( {
-		type: 'move' ,
-		rel: true ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.moveTo = function( data ) {
-	this.commands.push( {
-		type: 'move' ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.line = function( data ) {
-	this.commands.push( {
-		type: 'line' ,
-		rel: true ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.lineTo = function( data ) {
-	this.commands.push( {
-		type: 'line' ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.curve = function( data ) {
-	this.commands.push( {
-		type: 'curve' ,
-		rel: true ,
-		cx1: data.cx1 || 0 ,
-		cy1: data.cy1 || 0 ,
-		cx2: data.cx2 || 0 ,
-		cy2: data.cy2 || 0 ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.curveTo = function( data ) {
-	this.commands.push( {
-		type: 'curve' ,
-		cx1: data.cx1 || 0 ,
-		cy1: data.cy1 || 0 ,
-		cx2: data.cx2 || 0 ,
-		cy2: data.cy2 || 0 ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.smoothCurve = function( data ) {
-	this.commands.push( {
-		type: 'smoothCurve' ,
-		rel: true ,
-		cx: data.cx || data.cx2 || 0 ,
-		cy: data.cy || data.cy2 || 0 ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.smoothCurveTo = function( data ) {
-	this.commands.push( {
-		type: 'smoothCurve' ,
-		cx: data.cx || data.cx2 || 0 ,
-		cy: data.cy || data.cy2 || 0 ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-// q-curve = Quadratic curve, it uses just one controle point instead of two
-VGPath.prototype.qCurve = function( data ) {
-	this.commands.push( {
-		type: 'qCurve' ,
-		rel: true ,
-		cx: data.cx || data.cx1 || 0 ,
-		cy: data.cy || data.cy1 || 0 ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.qCurveTo = function( data ) {
-	this.commands.push( {
-		type: 'qCurve' ,
-		cx: data.cx || data.cx1 || 0 ,
-		cy: data.cy || data.cy1 || 0 ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.smoothQCurve = function( data ) {
-	this.commands.push( {
-		type: 'smoothQCurve' ,
-		rel: true ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.smoothQCurveTo = function( data ) {
-	this.commands.push( {
-		type: 'smoothQCurve' ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.arc = function( data ) {
-	this.commands.push( {
-		type: 'arc' ,
-		rel: true ,
-		rx: data.rx || 0 ,
-		ry: data.ry || 0 ,
-		ra: data.ra || data.a || 0 ,	// x-axis rotation
-		la:
-			data.largeArc !== undefined ? !! data.largeArc :
-			data.longArc !== undefined ? !! data.longArc :
-			data.la !== undefined ? !! data.la :
-			false ,
-		pr:
-			data.positiveRotation !== undefined ? !! data.positiveRotation :
-			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
-			data.pr !== undefined ? !! data.pr :
-			true ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.arcTo = function( data ) {
-	this.commands.push( {
-		type: 'arc' ,
-		rx: data.rx || 0 ,
-		ry: data.ry || 0 ,
-		ra: data.ra || data.a || 0 ,	// x-axis rotation
-		la:
-			data.largeArc !== undefined ? !! data.largeArc :
-			data.longArc !== undefined ? !! data.longArc :
-			data.la !== undefined ? !! data.la :
-			false ,
-		pr:
-			data.positiveRotation !== undefined ? !! data.positiveRotation :
-			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
-			data.pr !== undefined ? !! data.pr :
-			true ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-// All angles use positive as Y-axis to X-axis (Spellcast usage)
-VGPath.prototype.negativeArc = function( data ) {
-	this.commands.push( {
-		type: 'arc' ,
-		rel: true ,
-		rx: data.rx || 0 ,
-		ry: data.ry || 0 ,
-		ra: -( data.ra || data.a || 0 ) ,	// x-axis rotation
-		la:
-			data.largeArc !== undefined ? !! data.largeArc :
-			data.longArc !== undefined ? !! data.longArc :
-			data.la !== undefined ? !! data.la :
-			false ,
-		pr: ! (
-			data.positiveRotation !== undefined ? !! data.positiveRotation :
-			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
-			data.pr !== undefined ? !! data.pr :
-			true
-		) ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-// All angles use positive as Y-axis to X-axis (Spellcast usage)
-VGPath.prototype.negativeArcTo = function( data ) {
-	this.commands.push( {
-		type: 'arc' ,
-		rx: data.rx || 0 ,
-		ry: data.ry || 0 ,
-		ra: -( data.ra || data.a || 0 ) ,	// x-axis rotation
-		la:
-			data.largeArc !== undefined ? !! data.largeArc :
-			data.longArc !== undefined ? !! data.longArc :
-			data.la !== undefined ? !! data.la :
-			false ,
-		pr: ! (
-			data.positiveRotation !== undefined ? !! data.positiveRotation :
-			data.sweep !== undefined ? !! data.sweep :		// <- this is the SVG term
-			data.pr !== undefined ? !! data.pr :
-			true
-		) ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-
-
-/*
-	VG-specific commands
-*/
-
-// Better arc-like command, but use curve behind the scene
-VGPath.prototype.centerArc = function( data ) {
-	this.commands.push( {
-		type: 'centerArc' ,
-		rel: true ,
-		cx: data.cx || 0 ,
-		cy: data.cy || 0 ,
-		la: data.largeArc !== undefined ? !! data.largeArc :
-		data.longArc !== undefined ? !! data.longArc :
-		data.la !== undefined ? !! data.la :
-		false ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-VGPath.prototype.centerArcTo = function( data ) {
-	this.commands.push( {
-		type: 'centerArc' ,
-		cx: data.cx || 0 ,
-		cy: data.cy || 0 ,
-		la: data.largeArc !== undefined ? !! data.largeArc :
-		data.longArc !== undefined ? !! data.longArc :
-		data.la !== undefined ? !! data.la :
-		false ,
-		x: data.x || 0 ,
-		y: data.y || 0
-	} ) ;
-} ;
-
-
-
-/*
-	Turtle-like commands
-*/
-
-VGPath.prototype.penUp = function( data ) {
-	this.commands.push( {
-		type: 'pen' ,
-		u: true
-	} ) ;
-} ;
-
-VGPath.prototype.penDown = function( data ) {
-	this.commands.push( {
-		type: 'pen' ,
-		u: false
-	} ) ;
-} ;
-
-VGPath.prototype.forward = function( data ) {
-	this.commands.push( {
-		type: 'forward' ,
-		l: typeof data === 'number' ? data : data.length || data.l || 0
-	} ) ;
-} ;
-
-VGPath.prototype.backward = function( data ) {
-	this.commands.push( {
-		type: 'forward' ,
-		l: -( typeof data === 'number' ? data : data.length || data.l || 0 )
-	} ) ;
-} ;
-
-// Turn using positive as X-axis to Y-axis
-VGPath.prototype.turn = function( data ) {
-	this.commands.push( {
-		type: 'turn' ,
-		rel: true ,
-		a: typeof data === 'number' ? data : data.angle || data.a || 0
-	} ) ;
-} ;
-
-// Turn from X-axis to Y-axis
-VGPath.prototype.turnTo = function( data ) {
-	this.commands.push( {
-		type: 'turn' ,
-		a: typeof data === 'number' ? data : data.angle || data.a || 0
-	} ) ;
-} ;
-
-// Turn using positive as Y-axis to X-axis (Spellcast usage)
-VGPath.prototype.negativeTurn = function( data ) {
-	this.commands.push( {
-		type: 'turn' ,
-		rel: true ,
-		a: -( typeof data === 'number' ? data : data.angle || data.a || 0 )
-	} ) ;
-} ;
-
-// Turn from Y-axis to X-axis (clockwise when Y point upward, the invert of the standard 2D computer graphics) (Spellcast usage)
-VGPath.prototype.negativeTurnTo = function( data ) {
-	this.commands.push( {
-		type: 'turn' ,
-		a: 90 - ( typeof data === 'number' ? data : data.angle || data.a || 0 )
-	} ) ;
-} ;
-
-// A turtle-like way of doing a curve: combine a forward and turn, moving along a circle
-VGPath.prototype.forwardTurn = function( data ) {
-	this.commands.push( {
-		type: 'forwardTurn' ,
-		l: data.length || data.l || 0 ,
-		a: data.angle || data.a || 0
-	} ) ;
-} ;
-
-// Turn using positive as Y-axis to X-axis (clockwise when Y point upward, the invert of the standard 2D computer graphics) (Spellcast usage)
-VGPath.prototype.forwardNegativeTurn = function( data ) {
-	this.commands.push( {
-		type: 'forwardTurn' ,
-		l: data.length || data.l || 0 ,
-		a: -( data.angle || data.a || 0 )
-	} ) ;
-} ;
-
-
-},{"../package.json":56,"./VGItem.js":38}],40:[function(require,module,exports){
-/*
-	Spellcast
-
-	Copyright (c) 2014 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-const VGItem = require( './VGItem.js' ) ;
-
-
-
-function VGRect( options ) {
-	VGItem.call( this , options ) ;
-
-	this.x = 0 ;
-	this.y = 0 ;
-	this.width = 0 ;
-	this.height = 0 ;
-
-	// Round corner radius
-	this.rx = 0 ;
-	this.ry = 0 ;
-
-	if ( options ) { this.set( options ) ; }
-}
-
-module.exports = VGRect ;
-
-VGRect.prototype = Object.create( VGItem.prototype ) ;
-VGRect.prototype.constructor = VGRect ;
-VGRect.prototype.__prototypeUID__ = 'svg-kit/VGRect' ;
-VGRect.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
-
-
-
-VGRect.prototype.svgTag = 'rect' ;
-
-VGRect.prototype.svgAttributes = function( root = this ) {
-	var attr = {
-		x: this.x ,
-		y: root.invertY ? - this.y : this.y ,
-		width: this.width ,
-		height: this.height ,
-		rx: this.rx ,
-		ry: this.ry
-	} ;
-
-	return attr ;
-} ;
-
-
-
-VGRect.prototype.set = function( data ) {
-	VGItem.prototype.set.call( this , data ) ;
-
-	if ( data.x !== undefined ) { this.x = data.x ; }
-	if ( data.y !== undefined ) { this.y = data.y ; }
-	if ( data.width !== undefined ) { this.width = data.width ; }
-	if ( data.height !== undefined ) { this.height = data.height ; }
-
-	// Round corner radius
-	if ( data.r !== undefined ) { this.rx = this.ry = data.r ; }
-	if ( data.rx !== undefined ) { this.rx = data.rx ; }
-	if ( data.ry !== undefined ) { this.ry = data.ry ; }
-} ;
-
-
-},{"../package.json":56,"./VGItem.js":38}],41:[function(require,module,exports){
-/*
-	Spellcast
-
-	Copyright (c) 2014 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-const VGItem = require( './VGItem.js' ) ;
-
-
-
-/*
-	/!\ Must support text on path
-*/
-
-function VGText( options ) {
-	VGItem.call( this , options ) ;
-
-	this.x = 0 ;
-	this.y = 0 ;
-	this.text = '' ;
-	this.anchor = null ;		// the CSS 'text-anchors', can be 'start', 'middle' or 'end', in VG it default to 'middle' instead of 'start'
-	this.length = null ;		// the length of the text, textLength in SVG
-	this.adjustGlyph = false ;	// true make SVG's 'lengthAdjust' set to 'spacingAndGlyphs', false does not set it (the default for SVG being 'spacing')
-
-	// Position text relative to the previous text element
-	//this.dx = 0 ;
-	//this.dy = 0 ;
-
-	if ( options ) { this.set( options ) ; }
-}
-
-module.exports = VGText ;
-
-VGText.prototype = Object.create( VGItem.prototype ) ;
-VGText.prototype.constructor = VGText ;
-VGText.prototype.__prototypeUID__ = 'svg-kit/VGText' ;
-VGText.prototype.__prototypeVersion__ = require( '../package.json' ).version ;
-
-
-
-VGText.prototype.svgTag = 'text' ;
-
-VGText.prototype.svgAttributes = function( root = this ) {
-	var attr = {
-		x: this.x ,
-		y: root.invertY ? - this.y : this.y ,
-		'text-anchor': this.anchor || 'middle'
-	} ;
-
-	if ( this.length !== null ) { attr.textLength = this.length ; }
-	if ( this.adjustGlyph !== null ) { attr.lengthAdjust = 'spacingAndGlyphs' ; }
-
-	return attr ;
-} ;
-
-
-
-VGText.prototype.svgTextNode = function() {
-	// Text-formatting should be possible
-	return this.text ;
-} ;
-
-
-
-VGText.prototype.set = function( data ) {
-	VGItem.prototype.set.call( this , data ) ;
-
-	if ( data.x !== undefined ) { this.x = data.x ; }
-	if ( data.y !== undefined ) { this.y = data.y ; }
-
-	if ( data.text !== undefined ) { this.text = data.text ; }
-
-	// Interop'
-	if ( data.textAnchor !== undefined ) { this.anchor = data.textAnchor ; }
-	if ( data.anchor !== undefined ) { this.anchor = data.anchor ; }
-
-	// Interop'
-	if ( data.textLength !== undefined ) { this.length = data.textLength ; }
-	if ( data.length !== undefined ) { this.length = data.length ; }
-
-	// Interop'
-	if ( data.lengthAdjust === 'spacingAndGlyphs' ) { this.adjustGlyph = true ; }
-	else if ( data.lengthAdjust === 'spacing' ) { this.adjustGlyph = false ; }
-	if ( data.adjustGlyph !== undefined ) { this.adjustGlyph = !! data.adjustGlyph ; }
-} ;
-
-
-},{"../package.json":56,"./VGItem.js":38}],42:[function(require,module,exports){
-/*
-	SVG Kit
-
-	Copyright (c) 2017 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-const path = {} ;
-module.exports = path ;
-
-
-
-path.dFromPoints = ( points , invertY ) => {
-	var yMul = invertY ? -1 : 1 ,
-		str = 'M' ;
-
-	points.forEach( point => {
-		str += ' ' + point.x + ',' + ( point.y * yMul ) ;
-	} ) ;
-
-	return str ;
-} ;
-
-
-},{}],43:[function(require,module,exports){
-(function (process){
-/*
-	SVG Kit
-
-	Copyright (c) 2017 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-const fs = require( 'fs' ).promises ;
-const domKit = require( 'dom-kit' ) ;
-const Promise = require( 'seventh' ) ;
-const escape = require( 'string-kit/lib/escape.js' ) ;
-
-function noop() {}
-
-
-
-const svgKit = {} ;
-module.exports = svgKit ;
-
-svgKit.path = require( './path.js' ) ;
-
-svgKit.VG = require( './VG.js' ) ;
-svgKit.VGItem = require( './VGItem.js' ) ;
-svgKit.VGContainer = require( './VGContainer.js' ) ;
-svgKit.VGGroup = require( './VGGroup.js' ) ;
-svgKit.VGRect = require( './VGRect.js' ) ;
-svgKit.VGEllipse = require( './VGEllipse.js' ) ;
-svgKit.VGPath = require( './VGPath.js' ) ;
-svgKit.VGText = require( './VGText.js' ) ;
-
-
-
-/*
-	load( url , [options] )
-
-	* url: the URL of the .svg file
-	* options: (optional) object of options, transmitted to .inject() and .patch()
-
-	Return a promise resolving to the SVG DOM document.
-*/
-svgKit.load = async function( url , options = {} ) {
-	var content , $doc , $svg ;
-
-	if ( ! process.browser ) {
-		// Use Node.js 'fs' module
-		if ( url.substring( 0 , 7 ) === 'file://' ) { url = url.slice( 7 ) ; }
-		content = await fs.readFile( url , 'utf8' ) ;
-		$doc = domKit.fromXml( content ) ;
-	}
-	else {
-		// Use an AJAX HTTP Request
-		$doc = await svgKit.ajax( url ) ;
-	}
-
-	if ( options.removeComments ) {
-		domKit.removeComments( $doc ) ;
-		delete options.removeComments ;
-	}
-
-	$svg = $doc.documentElement ;
-	svgKit.inject( $svg , options ) ;
-	return $svg ;
-} ;
-
-
-
-svgKit.loadFromString = async function( content , options = {} ) {
-	var $doc = domKit.fromXml( content ) ;
-
-	if ( options.removeComments ) {
-		domKit.removeComments( $doc ) ;
-		delete options.removeComments ;
-	}
-
-	var $svg = $doc.documentElement ;
-	svgKit.inject( $svg , options ) ;
-	return $svg ;
-} ;
-
-
-
-svgKit.ajax = function( url ) {
-	var promise = new Promise() ,
-		xhr = new XMLHttpRequest() ;
-
-	xhr.responseType = 'document' ;
-
-	xhr.onreadystatechange = () => {
-		// From MDN: In the event of a communication error (such as the webserver going down),
-		// an exception will be thrown when attempting to access the 'status' property.
-
-		try {
-			if ( xhr.readyState === 4 ) {
-				if ( xhr.status === 200 ) {
-					promise.resolve( xhr.responseXML ) ;
-				}
-				else if ( xhr.status === 0 && xhr.responseXML ) {	// Yay, loading with file:// does not provide any status...
-					promise.resolve( xhr.responseXML ) ;
-				}
-				else if ( xhr.status ) { promise.reject( xhr.status ) ; }
-				else { promise.reject( new Error( "[svg-kit] ajaxStatus(): Error with falsy status" ) ) ; }
-			}
-		}
-		catch ( error ) {
-			promise.reject( error ) ;
-		}
-	} ;
-
-	xhr.open( 'GET' , url ) ;
-	xhr.send() ;
-
-	return promise ;
-} ;
-
-
-
-/*
-	Fix few <svg> things in order to inject it in the dom
-
-	* $svg: the svg element
-	* options: options object, where:
-		* into: `DOMElement` an element where the .svg file should be loaded into
-		* as: `DOMElement` a <svg> element where the .svg file should replace, almost like the "into" option,
-		  useful when a <svg> tag should be created synchronously to start doing stuffs on it,
-		  and let the asynchronous loading works in the background
-		* all other options are passed to .patch()
-*/
-svgKit.inject = function( $svg , options ) {
-	svgKit.patch( $svg , options ) ;
-
-	if ( options.into ) { options.into.appendChild( $svg ) ; }
-
-	// Better to avoid to check the tag name:
-	// it's too defensive and it prevents from loading inside a <g> tag
-	if ( options.as ) { //&& options.as.tagName.toLowerCase() === 'svg' )
-		domKit.moveAttributes( $svg , options.as ) ;
-		domKit.moveChildrenInto( $svg , options.as ) ;
-	}
-} ;
-
-
-
-/*
-	Fix few <svg> things.
-
-	* $svg: the svg element
-	* options: options object, where:
-		* id: `string` the id attribute of the <svg> tag (recommanded)
-		* removeIds: `boolean` remove all 'id' attributes
-		* prefixIds: `string` prefix all IDs and patch url #ref
-		* hidden: `boolean` turn the svg hidden (useful to apply modification before the show)
-		* class: `string` or `object` (key=class, value=true/false) to add/remove on the <svg> tag
-		* removeSize: `boolean` remove the width and height attribute and style from the <svg> tag
-		* removeSvgStyle: `boolean` remove the top-level style attribute of the <svg> tag
-		* removeDefaultStyles: `boolean` used to removed meaningless style pollution
-		* css: `object` a css object to apply on the <svg> tag
-		* colorClass: `boolean` a very specialized option. It moves all stroke and fill color inline styles to attribute
-		  on all drawing elements and add the "primary" class to those that are class-less.
-		  Since CSS has a greater priority than attributes (but lesser than inline styles), this allows us to controle
-		  color using CSS.
-		* removeComments: `boolean` remove all comment nodes
-		* removeWhiteSpaces: `boolean` remove all white-space
-		* removeWhiteLines: `boolean` remove all empty lines
-		* removeExoticNamespaces: `boolean` remove all tag and attributes that have a namespace different than svg,
-		  the svg namespace is stripped
-*/
-svgKit.patch = function( $svg , options ) {
-	var viewBox , width , height ;
-
-	svgKit.lightCleanup( $svg ) ;
-
-	// Fix id, if necessary
-	if ( options.id !== undefined ) {
-		if ( typeof options.id === 'string' ) { $svg.setAttribute( 'id' , options.id ) ; }
-		else if ( ! options.id ) { $svg.removeAttribute( 'id' ) ; }
-	}
-
-	if ( options.class ) {
-		if ( typeof options.class === 'string' ) { $svg.classList.add( options.class ) ; }
-		else if ( typeof options.class === 'object' ) { domKit.class( $svg , options.class ) ; }
-	}
-
-	if ( options.hidden ) { $svg.style.visibility = 'hidden' ; }
-
-	if ( options.prefixIds ) { domKit.prefixIds( $svg , options.prefixIds ) ; }
-	if ( options.removeIds ) { domKit.removeAllAttributes( $svg , 'id' ) ; }
-
-	if ( options.removeSvgStyle ) { $svg.removeAttribute( 'style' ) ; }
-	if ( options.removeDefaultStyles ) { svgKit.removeDefaultStyles( $svg ) ; }
-	if ( options.removeComments ) { domKit.removeComments( $svg ) ; }
-
-	if ( options.removeExoticNamespaces ) {
-		domKit.filterByNamespace( $svg , { primary: 'svg' , whitelist: [] } ) ;
-	}
-
-	if ( options.removeSize ) {
-		// Save and remove the width and height attribute
-		width = $svg.getAttribute( 'width' ) || $svg.style.width ;
-		height = $svg.getAttribute( 'height' ) || $svg.style.height ;
-
-		$svg.removeAttribute( 'height' ) ;
-		$svg.removeAttribute( 'width' ) ;
-		$svg.style.width = null ;
-		$svg.style.height = null ;
-
-		// if the $svg don't have a viewBox attribute, set it now from the width and height (it works most of time)
-		if ( ! $svg.getAttribute( 'viewBox' ) && width && height ) {
-			viewBox = '0 0 ' + width + ' ' + height ;
-			//console.log( "viewBox:" , viewBox ) ;
-			$svg.setAttribute( 'viewBox' , viewBox ) ;
-		}
-	}
-
-	if ( options.css ) { domKit.css( $svg , options.css ) ; }
-
-	if ( options.colorClass ) { svgKit.colorClass( $svg ) ; }
-
-	if ( options.removeWhiteSpaces ) { domKit.removeWhiteSpaces( $svg ) ; }
-	else if ( options.removeWhiteLines ) { domKit.removeWhiteSpaces( $svg , true ) ; }
-} ;
-
-
-
-svgKit.patchDocument = function( $doc , options ) {
-	var removeWhiteSpaces = options.removeWhiteSpaces ,
-		removeWhiteLines = options.removeWhiteLines ,
-		removeComments = options.removeComments ;
-
-	delete options.removeWhiteSpaces ;
-	delete options.removeWhiteLines ;
-	delete options.removeComments ;
-
-	if ( removeComments ) { domKit.removeComments( $doc ) ; }
-
-	svgKit.patch( $doc.documentElement , options ) ;
-
-	if ( removeWhiteSpaces ) { domKit.removeWhiteSpaces( $doc ) ; }
-	else if ( removeWhiteLines ) { domKit.removeWhiteSpaces( $doc , true ) ; }
-} ;
-
-
-
-svgKit.lightCleanup = function( $svg ) {
-	domKit.removeAllTags( $svg , 'metadata' ) ;
-	domKit.removeAllTags( $svg , 'script' ) ;
-	domKit.removeAllTags( $svg , 'defs' , true ) ;	// all empty defs
-} ;
-
-
-
-// List of svg tags that actually display things
-const drawingTags = [
-	'path' ,
-	'circle' ,
-	'ellipse' ,
-	'line' ,
-	'rect' ,
-	'polyline' ,
-	'polygone' ,
-	'text' ,
-	'textPath'
-] ;
-
-
-
-const defaultStyles = [
-	[ 'font-style' , 'normal' ] ,
-	[ 'font-weight' , 'normal' ] ,
-	[ 'font-variant' , 'normal' ] ,
-	[ 'font-stretch' , 'normal' ] ,
-	[ 'font-size' , 'medium' ] ,
-	[ 'line-height' , 'normal' ] ,
-	[ 'font-variant-ligatures' , 'normal' ] ,
-	//[ 'font-family' , 'sans-serif' ] ,
-	[ 'font-variant-position' , 'normal' ] ,
-	[ 'font-variant-caps' , 'normal' ] ,
-	[ 'font-variant-numeric' , 'normal' ] ,
-	[ 'font-variant-alternates' , 'normal' ] ,
-	[ 'font-variant-east-asian' , 'normal' ] ,
-	[ 'font-feature-settings' , 'normal' ] ,
-	[ 'text-indent' , '0' ] ,
-	[ 'text-align' , 'start' ] ,
-	[ 'text-decoration' , 'none' ] ,
-	[ 'text-decoration-line' , 'none' ] ,
-	[ 'text-decoration-style' , 'solid' ] ,
-	[ 'text-decoration-color' , '#000000' ] ,
-	[ 'letter-spacing' , 'normal' ] ,
-	[ 'word-spacing' , 'normal' ] ,
-	[ 'text-transform' , 'none' ] ,
-	[ 'writing-mode' , 'lr-tb' ] ,
-	[ 'direction' , 'ltr' ] ,
-	[ 'text-orientation' , 'mixed' ] ,
-	[ 'dominant-baseline' , 'auto' ] ,
-	[ 'baseline-shift' , 'baseline' ] ,
-	[ 'text-anchor' , 'start' ] ,
-	[ 'white-space' , 'normal' ] ,
-	[ 'shape-padding' , '0' ] ,
-	[ 'display' , 'inline' ] ,
-	[ 'visibility' , 'visible' ] ,
-	[ 'overflow' , 'visible' ] ,
-	[ 'opacity' , '1' ] ,
-	[ 'isolation' , 'auto' ] ,
-	[ 'mix-blend-mode' , 'normal' ] ,
-	[ 'color-interpolation' , 'sRGB' ] ,
-	[ 'color-interpolation-filters' , 'linearRGB' ] ,
-	[ 'solid-color' , '#000000' ] ,
-	[ 'solid-opacity' , '1' ] ,
-	[ 'vector-effect' , 'none' ] ,
-	[ 'fill-rule' , 'nonzero' ] ,
-	[ 'clip-rule' , 'nonzero' ] ,
-	[ 'color-rendering' , 'auto' ] ,
-	[ 'image-rendering' , 'auto' ] ,
-	[ 'shape-rendering' , 'auto' ] ,
-	[ 'text-rendering' , 'auto' ] ,
-	[ 'enable-background' , 'accumulate' ] ,
-	[ 'stroke-dasharray' , 'none' ] ,
-	[ 'stroke-dashoffset' , '0' ] ,
-	[ 'paint-order' , 'normal' ] ,
-	[ 'paint-order' , 'fill stroke markers' ]
-] ;
-
-
-
-svgKit.colorClass = function( $svg ) {
-	drawingTags.forEach( ( tagName ) => {
-		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( ( $element ) => {
-			// Beware, $element.className does not work as expected for SVG
-			if ( ! $element.getAttribute( 'class' ) ) {
-				$element.classList.add( 'primary' ) ;
-			}
-
-			// move style to attribute if they are not 'none'
-			domKit.styleToAttribute( $element , 'fill' , [ 'none' ] ) ;
-			domKit.styleToAttribute( $element , 'stroke' , [ 'none' ] ) ;
-		} ) ;
-	} ) ;
-} ;
-
-
-
-// Remove styles set to a default/unused value
-svgKit.removeDefaultStyles = function( $svg ) {
-	drawingTags.forEach( ( tagName ) => {
-		Array.from( $svg.getElementsByTagName( tagName ) ).forEach( ( $element ) => {
-			var styles = $element.getAttribute( 'style' ) ;
-
-			defaultStyles.forEach( array => {
-				var k = array[ 0 ] ;
-				var v = array[ 1 ] ;
-
-				styles = styles.replace(
-					new RegExp( '(^|;) *' + escape.regExp( k ) + ' *: *' + escape.regExp( v ) + ' *(?:;|$)' ) ,
-					( full , pre ) => pre
-				) ;
-			} ) ;
-
-			$element.setAttribute( 'style' , styles ) ;
-		} ) ;
-	} ) ;
-} ;
-
-
-
-// Should remove all tags and attributes that have non-registered namespace,
-// e.g.: sodipodi, inkscape, etc...
-//svgKit.heavyCleanup = function( svgElement ) {} ;
-
-
-
-svgKit.getViewBox = function( $svg ) {
-	var raw = $svg.getAttribute( 'viewBox' ) ;
-
-	if ( ! raw ) { return null ; }
-
-	var array = raw.split( / +/ ) ;
-
-	return {
-		x: parseFloat( array[ 0 ] , 10 ) ,
-		y: parseFloat( array[ 1 ] , 10 ) ,
-		width: parseFloat( array[ 2 ] , 10 ) ,
-		height: parseFloat( array[ 3 ] , 10 )
-	} ;
-} ;
-
-
-
-svgKit.setViewBox = function( $svg , viewBox ) {
-	$svg.setAttribute( 'viewBox' , viewBox.x + ' ' + viewBox.y + ' ' + viewBox.width + ' ' + viewBox.height ) ;
-} ;
-
-
-
-svgKit.toAreaArray = function( object ) {
-	if ( object.min && object.max ) {
-		// Math Kit BoundingBox2D
-		return [
-			object.min.x ,
-			object.min.y ,
-			object.max.x - object.min.x ,
-			object.max.y - object.min.y
-		] ;
-	}
-	else if ( object.xmin !== undefined && object.xmax !== undefined && object.ymin !== undefined && object.ymax !== undefined ) {
-		return [
-			object.xmin ,
-			object.ymin ,
-			object.xmax - object.xmin ,
-			object.ymax - object.ymin
-		] ;
-	}
-	else if ( object.x !== undefined && object.y !== undefined && object.width !== undefined && object.height !== undefined ) {
-		return [
-			object.x ,
-			object.y ,
-			object.width ,
-			object.height
-		] ;
-	}
-
-	return [ 0 , 0 , 100 , 100 ] ;
-} ;
-
-
-
-svgKit.standalone = function( content , viewBox ) {
-	var output = '<?xml version="1.0" encoding="UTF-8"?>\n' ;
-
-	if ( ! Array.isArray( viewBox ) ) { viewBox = svgKit.toAreaArray( viewBox ) ; }
-
-	output += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + viewBox.join( ' ' ) + '">\n' ;
-
-	// ?
-	// width="500"
-	// height="500"
-
-	output += content ;
-	output += '\n</svg>\n' ;
-
-	return output ;
-} ;
-
-
-
-svgKit.unserializeVG = str => svgKit.objectToVG( JSON.parse( str ) ) ;
-
-svgKit.objectToVG = function( object ) {
-	if ( ! object._type || ! object._type.startsWith( 'svg-kit/' ) ) { return object ; }
-	var className = object._type.slice( 8 ) ;
-	if ( ! svgKit[ className ] ) { return object ; }
-	return new svgKit[ className ]( object ) ;
-} ;
-
-
-}).call(this,require('_process'))
-},{"./VG.js":34,"./VGContainer.js":35,"./VGEllipse.js":36,"./VGGroup.js":37,"./VGItem.js":38,"./VGPath.js":39,"./VGRect.js":40,"./VGText.js":41,"./path.js":42,"_process":13,"dom-kit":44,"fs":6,"seventh":52,"string-kit/lib/escape.js":55}],44:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"@cronvel/xmldom":6,"_process":13,"dup":7}],45:[function(require,module,exports){
-arguments[4][18][0].apply(exports,arguments)
-},{"_process":13,"dup":18}],46:[function(require,module,exports){
-arguments[4][19][0].apply(exports,arguments)
-},{"./seventh.js":52,"dup":19}],47:[function(require,module,exports){
-arguments[4][20][0].apply(exports,arguments)
-},{"./seventh.js":52,"dup":20}],48:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"_process":13,"dup":21,"setimmediate":45,"timers":31}],49:[function(require,module,exports){
-arguments[4][22][0].apply(exports,arguments)
-},{"./seventh.js":52,"dup":22}],50:[function(require,module,exports){
-arguments[4][23][0].apply(exports,arguments)
-},{"./seventh.js":52,"_process":13,"dup":23}],51:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"./seventh.js":52,"dup":24}],52:[function(require,module,exports){
-arguments[4][25][0].apply(exports,arguments)
-},{"./api.js":46,"./batch.js":47,"./core.js":48,"./decorators.js":49,"./misc.js":50,"./parasite.js":51,"./wrapper.js":53,"dup":25}],53:[function(require,module,exports){
-arguments[4][26][0].apply(exports,arguments)
-},{"./seventh.js":52,"dup":26}],54:[function(require,module,exports){
-/*
-	String Kit
-
-	Copyright (c) 2014 - 2019 Cédric Ronvel
-
-	The MIT License (MIT)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-*/
-
-"use strict" ;
-
-
-
-var camel = {} ;
-module.exports = camel ;
-
-
-
-// Transform alphanum separated by underscore or minus to camel case
-camel.toCamelCase = function( str , preserveUpperCase = false ) {
-	if ( ! str || typeof str !== 'string' ) { return '' ; }
-
-	return str.replace( /^[\s_-]*([^\s_-]+)|[\s_-]+([^\s_-]?)([^\s_-]*)/g , ( match , firstWord , firstLetter , endOfWord ) => {
-
-		if ( preserveUpperCase ) {
-			if ( firstWord ) { return firstWord ; }
-			if ( ! firstLetter ) { return '' ; }
-			return firstLetter.toUpperCase() + endOfWord ;
-		}
-
-		if ( firstWord ) { return firstWord.toLowerCase() ; }
-		if ( ! firstLetter ) { return '' ; }
-		return firstLetter.toUpperCase() + endOfWord.toLowerCase() ;
-
-	} ) ;
-} ;
-
-
-
-camel.camelCaseToSeparated = function( str , separator = ' ' ) {
-	if ( ! str || typeof str !== 'string' ) { return '' ; }
-
-	return str.replace( /^([A-Z])|([A-Z])/g , ( match , firstLetter , letter ) => {
-
-		if ( firstLetter ) { return firstLetter.toLowerCase() ; }
-		return separator + letter.toLowerCase() ;
-	} ) ;
-} ;
-
-
-
-// Transform camel case to alphanum separated by minus
-camel.camelCaseToDash =
-camel.camelCaseToDashed = ( str ) => camel.camelCaseToSeparated( str , '-' ) ;
-
-
-
-
-},{}],55:[function(require,module,exports){
-arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}],56:[function(require,module,exports){
-module.exports={
-  "name": "svg-kit",
-  "version": "0.2.2",
-  "description": "A small SVG toolkit.",
-  "main": "lib/svg-kit.js",
-  "directories": {
-    "test": "test"
-  },
-  "bin": {
-    "svgkit": "./bin/svgkit"
-  },
-  "dependencies": {
-    "@cronvel/xmldom": "^0.1.31",
-    "dom-kit": "^0.3.14",
-    "minimist": "^1.2.0",
-    "seventh": "^0.7.30",
-    "string-kit": "^0.10.1",
-    "terminal-kit": "^1.31.4"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "tea-time -R dot"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cronvel/svg-kit.git"
-  },
-  "keywords": [
-    "svg"
-  ],
-  "author": "Cédric Ronvel",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cronvel/svg-kit/issues"
-  },
-  "copyright": {
-    "title": "SVG Kit",
-    "years": [
-      2017,
-      2019
-    ],
-    "owner": "Cédric Ronvel"
-  }
-}
 },{}]},{},[2])(2)
 });

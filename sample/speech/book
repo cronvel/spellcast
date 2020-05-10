@@ -1,0 +1,31 @@
+
+[[doctype spellcast/book]]
+[[local en]]
+
+[chapter intro]
+	
+	[starting-scene one]
+		
+		[speech]
+			text: $> ^/Once ^Bupon a time...
+		
+		[next two]
+
+	[scene two]
+		
+		[speech]
+			text: $> ^/Once ^Bupon a time...
+			speechRate: 0.5
+			speechPitch: 0.5
+
+		[next three]
+
+	[scene three]
+		
+		[speech]
+			text: $> Il était une fois...
+			speechLang: fr
+			speechRate: 0.5
+			speechPitch: 0.5
+
+		[next two]

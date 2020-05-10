@@ -68,6 +68,14 @@ Events emitted here are usually **userland** event, except few standard events:
 	* image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
 	  of what is described
 	* sound `url` if set, a sound that should be played along with the message
+	* speech `boolean` if true, use the client speech synthesis capability (if any)
+	* speechOnly `boolean` if set, do not display the message, only use the client speech synthesis
+	* speechLang `string` language to use for the speech synthesis
+	* speechVoice `string` the voice to use for the speech synthesis
+	* speechVolume `number` the volume for the speech synthesis (default: 1)
+	* speechRate `number` the speech rate (speed) for the speech synthesis (default: 1)
+	* speechPitch `number` the speech pitch for the speech synthesis (default: 1)
+	* speechGender `string` the gender for the speech synthesis
 * textInput (label, grantedRoleIds, historyGroup): the book requires that the user enter a text, `label` is the text describing what is required,
   the client response should emit a `textSubmit` event, `grantedRoleIds` is an array of role's ID, roles that can respond, and finally
   `historyGroup` is a string, an identifier used for populating the history lines, or is null if there isn't history lines.
