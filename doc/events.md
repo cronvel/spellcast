@@ -59,6 +59,7 @@ Events emitted here are usually **userland** event, except few standard events:
   if `options` is set, it is an object contains details about the message. They may or may not be implemented, depending
   on the client. Available options:
 	* continue `boolean` if true, this message should be continued by the next message (i.e.: no newline, no new paragraph)
+	* wait `boolean` if true (the default), the script execution wait for the client ack (e.g. until the spoken voice or the slow-typing is finished)
 	* next `boolean` if true, the message wait for the user acknowledgement
 	* important `boolean` if true and if the scene is rendering in the *alternate buffer*, the message should be rendered
 	  in the *main buffer* too.
