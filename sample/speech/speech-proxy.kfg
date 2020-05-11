@@ -1,0 +1,12 @@
+
+# Using responsivevoice.org online service
+
+cacheDirectory: proxy-cache
+remoteProtocol: http
+remoteHostname: texttospeech.responsivevoice.org
+remoteBasePath: /v1/text:synthesize
+remoteBaseQuery:
+	engine: g1
+	name: ""
+	key: thekey
+upstreamHook: @@speech-proxy-hook.js

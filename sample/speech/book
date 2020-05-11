@@ -8,28 +8,28 @@
 	[starting-scene one]
 		
 		[speech]
-			text: $> ^/Once ^Bupon a time...
-			speechRate: 0.5
-			speechPitch: 0.5
+			text: $> ^/Once ^Bupon a time, in the wild wild west...
+			speechRate: 1
+			speechPitch: 1
 		
 		[next two]
 
 	[scene two]
 		
 		[speech]
-			text: $> ^/Once ^Bupon a time...
+			text: $> There was a lonely man...
 			speechLang: en
-			speechRate: 0.5
-			speechPitch: 0.5
+			speechRate: 1
+			speechPitch: 1
 
 		[next three]
 
 	[scene three]
 		
 		[speech]
-			text: $> Il était une fois...
+			text: $> Il était une fois dans l'ouest sauvage...
 			speechLang: fr
-			speechRate: 0.5
-			speechPitch: 0.5
+			speechRate: 1
+			speechPitch: 1
 
 		[next two]

@@ -425,18 +425,19 @@ Dom.prototype.messageNext = function( value , callback ) {
 
 
 Dom.prototype.speech = function( text , options , callback ) {
-	//return this.nativeBrowserSpeech( text , options , callback ) ;
-	return this.restServiceSpeech( text , options , callback ) ;
+	if ( options.useService ) {
+		return this.restServiceSpeech( text , options , callback ) ;
+	}
+	else {
+		return this.nativeBrowserSpeech( text , options , callback ) ;
+	}
 } ;
 
 
 
-const BASE_URL = "https://texttospeech.responsivevoice.org/v1/text:synthesize" ;
-
-
-
 Dom.prototype.restServiceSpeech = function( text , options , callback ) {
-	var url = BASE_URL ;
+	var url = /speech/ ;
+
 	url += "?text=" + encodeURIComponent( text ) ;
 	url += "&lang=" + encodeURIComponent( options.speechLang || 'en' ) ;
 	url += "&volume=" + encodeURIComponent( options.speechVolume !== undefined ? options.speechVolume : 1 ) ;
@@ -444,10 +445,8 @@ Dom.prototype.restServiceSpeech = function( text , options , callback ) {
 	url += "&pitch=" + encodeURIComponent( options.speechPitch !== undefined ? options.speechPitch : 1 ) ;
 	url += "&gender=" + encodeURIComponent( options.speechGender || 'female' ) ;
 
-	// TMP:
-	url += "&engine=g1&name=&key=5KF3cB1d" ;
 	console.log( "REST service URL:" , url ) ;
-	this.sound( { url } , true , callback ) ;
+	this.sound( { url } , callback ) ;
 } ;
 
 
@@ -2479,15 +2478,14 @@ Dom.prototype.setVgPassiveHints = function( $svg ) {
 
 
 // maybe callback?
-Dom.prototype.sound = function( data , internal = false , callback ) {
+Dom.prototype.sound = function( data , callback ) {
 	var endHandler ,
-		url = internal ? data.url : this.cleanUrl( data.url ) ,
 		$element = this[ '$sound' + this.nextSoundChannel ] ;
 
 	console.warn( '$sound' + this.nextSoundChannel , data , $element ) ;
 	this.nextSoundChannel = ( this.nextSoundChannel + 1 ) % 4 ;
 
-	$element.setAttribute( 'src' , url ) ;
+	$element.setAttribute( 'src' , this.cleanUrl( data.url ) ) ;
 	$element.play() ;
 	
 	if ( callback ) {
@@ -3170,6 +3168,7 @@ UI.message = function( text , options , callback ) {
 
 	if ( options.speech ) {
 		if ( ! options.speechLang ) { options.speechLang = this.config.defaultLocale ; }
+		options.useService = this.config.hasSpeechService ;
 
 		if ( options.speechOnly ) {
 			this.dom.speech( toolkit.stripMarkup( text ) , options , callback ) ;

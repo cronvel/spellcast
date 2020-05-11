@@ -10,6 +10,7 @@
 *.jsdat
 *.tmp
 .spellcast
+proxy-cache
 build
 _build
 _templates
