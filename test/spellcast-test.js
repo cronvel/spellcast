@@ -63,8 +63,10 @@ Logfella.defineOrConfig( 'userland' , {
 
 
 
-// Create the 'build' directory into the current 'test' directory
-fsKit.ensurePathSync( __dirname + '/build' ) ;
+before( async () => {
+	// Create the 'build' directory into the current 'test' directory
+	await fsKit.ensurePath( __dirname + '/build' ) ;
+} ) ;
 
 
 
@@ -165,8 +167,8 @@ describe( "I/O tags" , () => {
 		) ;
 
 		expect( messages ).to.equal( [
-			[ 'Some text.' , null ] ,
-			[ 'Some other text.' , null ] ,
+			[ 'Some text.' , {} ] ,
+			[ 'Some other text.' , {} ] ,
 			[ 'Welcome to The Shadow Terminal.' , {
 				next: true ,
 				slowTyping: true
@@ -813,8 +815,8 @@ describe( "Operations tags" , () => {
 
 describe( "Basic caster tags and features" , () => {
 
-	beforeEach( ( done ) => {
-		fsKit.deltree( __dirname + '/build/*' , done ) ;
+	beforeEach( async () => {
+		await fsKit.deltree( __dirname + '/build/*' ) ;
 	} ) ;
 
 	it( "[scroll] tag" , async () => {
@@ -1054,9 +1056,9 @@ describe( "Basic caster tags and features" , () => {
 		var book , extOutputs = [] , summons = [] ;
 
 		// Touch files, because some of them may have time set in the future by other tests
-		fsKit.touchSync( __dirname + '/src/file1.txt' ) ;
-		fsKit.touchSync( __dirname + '/src/file2.txt' ) ;
-		fsKit.touchSync( __dirname + '/src/file3.txt' ) ;
+		await fsKit.touch( __dirname + '/src/file1.txt' ) ;
+		await fsKit.touch( __dirname + '/src/file2.txt' ) ;
+		await fsKit.touch( __dirname + '/src/file3.txt' ) ;
 
 		book = await runBook( __dirname + '/books/summoning-static-dependencies.kfg' , { type: 'summon' , target: '../build/concat.txt' } ,
 			ui => {
@@ -1092,7 +1094,7 @@ describe( "Basic caster tags and features" , () => {
 
 		// Force a rebuild by 'touching' the dependency, but set the date one second in the future
 		// (if not, the test would not works consistently)
-		fsKit.touchSync( __dirname + '/src/file1.txt' , { time: Date.now() + 1000 } ) ;
+		await fsKit.touch( __dirname + '/src/file1.txt' , { time: Date.now() + 1000 } ) ;
 
 		// Reset
 		extOutputs = [] ;
@@ -1114,10 +1116,10 @@ describe( "Basic caster tags and features" , () => {
 		var book , extOutputs = [] , summons = [] ;
 
 		// Touch files, because some of them may have time set in the future by other tests
-		fsKit.touchSync( __dirname + '/src/file1.txt' ) ;
-		fsKit.touchSync( __dirname + '/src/file2.txt' ) ;
-		fsKit.touchSync( __dirname + '/src/file3.txt' ) ;
-		fsKit.touchSync( __dirname + '/src/something' ) ;
+		await fsKit.touch( __dirname + '/src/file1.txt' ) ;
+		await fsKit.touch( __dirname + '/src/file2.txt' ) ;
+		await fsKit.touch( __dirname + '/src/file3.txt' ) ;
+		await fsKit.touch( __dirname + '/src/something' ) ;
 
 		book = await runBook( __dirname + '/books/summoning-cascading-dependencies.kfg' , { type: 'summon' , target: '../build/cascade.txt' } ,
 			ui => {
@@ -1155,7 +1157,7 @@ describe( "Basic caster tags and features" , () => {
 
 		// Force a rebuild by 'touching' the dependency, but set the date one second in the future
 		// (if not, the test would not works consistently)
-		fsKit.touchSync( __dirname + '/src/something' , { time: Date.now() + 1000 } ) ;
+		await fsKit.touch( __dirname + '/src/something' , { time: Date.now() + 1000 } ) ;
 
 		// Reset
 		extOutputs = [] ;
@@ -1174,7 +1176,7 @@ describe( "Basic caster tags and features" , () => {
 
 		// Force a rebuild by 'touching' the dependency, but set the date one second in the future
 		// (if not, the test would not works consistently)
-		fsKit.touchSync( __dirname + '/src/file1.txt' , { time: Date.now() + 1000 } ) ;
+		await fsKit.touch( __dirname + '/src/file1.txt' , { time: Date.now() + 1000 } ) ;
 
 		// Reset
 		extOutputs = [] ;
@@ -1197,10 +1199,10 @@ describe( "Basic caster tags and features" , () => {
 
 		// Touch files, because some of them may have time set in the future by other tests
 		/*
-		fsKit.touchSync( __dirname + '/src/file1.txt' ) ;
-		fsKit.touchSync( __dirname + '/src/file2.txt' ) ;
-		fsKit.touchSync( __dirname + '/src/file3.txt' ) ;
-		fsKit.touchSync( __dirname + '/src/something' ) ;
+		await fsKit.touch( __dirname + '/src/file1.txt' ) ;
+		await fsKit.touch( __dirname + '/src/file2.txt' ) ;
+		await fsKit.touch( __dirname + '/src/file3.txt' ) ;
+		await fsKit.touch( __dirname + '/src/something' ) ;
 		*/
 
 		try {
@@ -1648,8 +1650,8 @@ describe( "Historical bugs" , () => {
 		) ;
 
 		expect( messages ).to.equal( [
-			[ 'Some text.' , null ] ,
-			[ 'Some other text.' , null ] ,
+			[ 'Some text.' , {} ] ,
+			[ 'Some other text.' , {} ] ,
 			[ 'Welcome to The Shadow Terminal.' , {
 				next: true ,
 				slowTyping: true
@@ -1663,8 +1665,8 @@ describe( "Historical bugs" , () => {
 		) ;
 
 		expect( messages ).to.equal( [
-			[ 'Some text.' , null ] ,
-			[ 'Some other text.' , null ] ,
+			[ 'Some text.' , {} ] ,
+			[ 'Some other text.' , {} ] ,
 			[ 'Welcome to The Shadow Terminal.' , {
 				next: true ,
 				slowTyping: true
