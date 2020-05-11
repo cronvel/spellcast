@@ -8,9 +8,10 @@
 	[starting-scene one]
 		
 		[speech]
-			text: $> ^/Once ^Bupon a time, in the wild wild west...
-			speechRate: 1
-			speechPitch: 1
+			text: $> ^/Once ^Bupon a time,^ in the wild wild west...
+			speechReplay: yes
+			#speechRate: 1
+			#speechPitch: 1
 		
 		[next two]
 
@@ -18,9 +19,11 @@
 		
 		[speech]
 			text: $> There was a lonely man...
+			speechOnly: yes
+			speechReplay: yes
 			speechLang: en
-			speechRate: 1
-			speechPitch: 1
+			#speechRate: 1
+			#speechPitch: 1
 
 		[next three]
 
@@ -28,8 +31,9 @@
 		
 		[speech]
 			text: $> Il était une fois dans l'ouest sauvage...
+			speechReplay: yes
 			speechLang: fr
-			speechRate: 1
-			speechPitch: 1
+			#speechRate: 1
+			#speechPitch: 1
 
 		[next two]

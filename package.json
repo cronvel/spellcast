@@ -28,7 +28,7 @@
     "nextgen-events": "^1.3.0",
     "nomi-ninja": "^0.2.0",
     "semver": "^7.3.2",
-    "server-kit": "^0.9.31",
+    "server-kit": "^0.9.32",
     "seventh": "^0.7.35",
     "string-kit": "^0.11.7",
     "svg-kit": "^0.2.3",

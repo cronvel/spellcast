@@ -9,4 +9,6 @@ remoteBaseQuery:
 	engine: g1
 	name: ""
 	key: thekey
+
 upstreamHook: @@speech-proxy-hook.js
+

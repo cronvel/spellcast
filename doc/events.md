@@ -70,6 +70,7 @@ Events emitted here are usually **userland** event, except few standard events:
 	* sound `url` if set, a sound that should be played along with the message
 	* speech `boolean` if true, use the client speech synthesis capability (if any)
 	* speechOnly `boolean` if set, do not display the message, only use the client speech synthesis
+	* speechReplay `boolean` if true, the client add a button to replay the speech
 	* speechLang `string` language to use for the speech synthesis
 	* speechVoice `string` the voice to use for the speech synthesis
 	* speechVolume `number` the volume for the speech synthesis (default: 1)

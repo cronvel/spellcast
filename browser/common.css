@@ -53,6 +53,14 @@ body {
 	content: counter( next , lower-alpha ) '. ' ;
 }
 
+.replay-button {
+	cursor: pointer;
+}
+
+.replay-button[disabled] {
+	cursor: normal;
+}
+
 .unassigned-users {
 	display: none !important;
 }
