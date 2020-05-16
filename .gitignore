@@ -11,6 +11,7 @@
 *.tmp
 .spellcast
 proxy-cache
+extensions
 build
 _build
 _templates
