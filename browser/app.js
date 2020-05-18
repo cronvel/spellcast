@@ -3721,7 +3721,6 @@ exports.toClassObject = function toClassObject( data ) {
 } ;
 
 
-
 },{}],6:[function(require,module,exports){
 
 },{}],7:[function(require,module,exports){
@@ -14433,28 +14432,29 @@ camel.camelCaseToDashed = ( str ) => camel.camelCaseToSeparated( str , '-' ) ;
 arguments[4][28][0].apply(exports,arguments)
 },{"dup":28}],45:[function(require,module,exports){
 module.exports={
-  "_from": "svg-kit@^0.2.3",
+  "_from": "svg-kit@0.2.3",
   "_id": "svg-kit@0.2.3",
   "_inBundle": false,
   "_integrity": "sha512-foEXyUwrL2r3ie15sO6a/KQ2qQLzfvjZ/xw+d0JWa5SzPly9Rgs7iJaQaeLjpsNucAtQ+XRM+jcI5cHPpDptkA==",
   "_location": "/svg-kit",
   "_phantomChildren": {},
   "_requested": {
-    "type": "range",
+    "type": "version",
     "registry": true,
-    "raw": "svg-kit@^0.2.3",
+    "raw": "svg-kit@0.2.3",
     "name": "svg-kit",
     "escapedName": "svg-kit",
-    "rawSpec": "^0.2.3",
+    "rawSpec": "0.2.3",
     "saveSpec": null,
-    "fetchSpec": "^0.2.3"
+    "fetchSpec": "0.2.3"
   },
   "_requiredBy": [
+    "#USER",
     "/"
   ],
   "_resolved": "https://registry.npmjs.org/svg-kit/-/svg-kit-0.2.3.tgz",
   "_shasum": "7bbd11739ddd1b402648eb199d1f1e5d91007cc1",
-  "_spec": "svg-kit@^0.2.3",
+  "_spec": "svg-kit@0.2.3",
   "_where": "/home/cedric/inside/github/spellcast",
   "author": {
     "name": "Cédric Ronvel"
