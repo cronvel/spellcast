@@ -66,22 +66,6 @@
 
 
 
-# Do not work ATM, the execution does not finish, hence no undead mode can kick in
-[spell dev-browser]
-	[cast]
-		- browser
-	[scroll store=$pid silence]
-		> ps x | grep spellcast | grep websocket
-	[set $regex] <RegExp> /^([0-9]+)[\s\S]*$/$1/m
-	[set $pid] $= $regex.substitute -> $pid
-	[message]
-		$> kill ${pid}
-	[scroll]
-		- $> kill ${pid}
-		- $> cd sample/adventure ; ../../bin/spellcast story --ui websocket
-
-
-
 # Cosmetics
 
 [prologue]
