@@ -36,9 +36,7 @@
     "tree-kit": "^0.6.2",
     "utterminal": "^0.5.43"
   },
-  "devDependencies": {
-    "electron": "^8.2.5"
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "tea-time -R dot -O"
   },

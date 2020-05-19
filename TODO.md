@@ -1,7 +1,10 @@
 
+## Cool libs
+
+Green Sock / GSAP: animation lib
 
 
-== STORY MODE ==
+## STORY MODE
 
 Tags:
 - aside
@@ -28,10 +31,3 @@ Terminal UI implementation:
 Bugs:
 cli.exit() is async, but callers act as if it was not
 
-
-
-== CASTER MODE (a.k.a. TASK RUNNER) ==
-
-- be compatible with Gulp plugins?
-- group dependencies into a [dependencies] tag?
-- [transmute] tag
