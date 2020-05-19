@@ -2,7 +2,10 @@
 [[doctype spellcast/book]]
 [[locale en]]
 [[locales locales/*]]
-#[[assets ./]]
+
+[[extension rpg-scripts]]
+
+
 
 [module] @@{rpg}/rpg.kfg
 [module] @@data.kfg
