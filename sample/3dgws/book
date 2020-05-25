@@ -1,0 +1,190 @@
+
+[[doctype spellcast/book]]
+[[extension 3dgws]]
+
+
+
+[chapter intro]
+	
+	[scene intro1]
+		[message] $> ^/Once upon a time...
+		
+		[animation shake]
+			frames:
+				-	duration: 0.05
+					style:
+						transform: translateX(0)
+						transition: all 0.05s
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(-5px)
+				-	duration: 0.05
+					style:
+						transform: translateX(0)
+				
+		
+		[show-sprite druidess]
+			url: /sprites/shaman.png
+			action: /drink
+			mask-url: /sprites/shaman.mask.svg
+			class: druidess
+			style:
+				height: 70%
+				right: 0
+				bottom: 0
+				transition: 1s
+		
+		#[pause] 2000
+		#[return]
+		
+		[fake-show-sprite another-one]
+			url: /sprites/shaman.png
+			label: A Druidess!
+			position:
+				# coord system: inside means that 0 is left but wholy included in the image, 1 is right but wholy included...
+				coord: inside
+				x: 0.5
+				y: 0.5
+				width: 0.3
+				height: 0.3
+			
+		[pause] 1
+		
+		[message] $> ^/There was a druidess...
+		
+		[update-sprite druidess]
+			style:
+				right: 10%
+		
+		[pause] 1.5
+		
+		[animate-sprite druidess] shake
+		[pause] 1.5
+		
+		[animate-sprite druidess] shake
+		[pause] 2
+		
+		[update-sprite druidess]
+			action: /shout
+		
+		[show-sprite druidess2]
+			url: /sprites/shaman.png
+			class: druidess
+			style:
+				height: 70%
+				left: 0
+				top: 0
+				transition: 1s
+				transform: scaleY(-1)
+				filter: blur(0px) saturate(100%) drop-shadow(16px 16px 4px black)
+			
+		[pause] 1
+		
+		[update-sprite druidess2]
+			style:
+				left: null
+				top: null
+				right: 20%
+				bottom: 0
+				transform: scaleY(1)
+		
+		[pause] 1
+		
+		#[clear-sprite druidess]
+		
+		[update-sprite druidess2]
+			style:
+				transform: perspective(300px) rotateX(45deg)
+		
+		[pause] 1
+				
+		[update-sprite druidess2]
+			style:
+				transform: perspective(300px) rotateX(45deg)
+		
+		[pause] 1
+		
+		[update-sprite druidess2]
+			style:
+				transform: perspective(300px) rotateX(-45deg)
+		
+		[pause] 1
+		
+		[update-sprite druidess2]
+			style:
+				transform: perspective(300px) rotateX(360deg)
+		
+		[pause] 1
+		
+		[update-sprite druidess2]
+			style:
+				transform: rotateZ(1deg)
+		
+		[pause] 1.2
+		
+		[update-sprite druidess2]
+			style:
+				transform: rotateZ(360deg)
+		
+		[pause] 1
+		
+		[update-sprite druidess2]
+			style:
+				filter: blur(0px) saturate(20%) drop-shadow(16px 16px 10px black)
+		
+		[pause] 1
+		
+		[update-sprite druidess2]
+			style:
+				filter: blur(0px) saturate(200%) drop-shadow(16px 16px 4px black)
+		
+		[pause] 1
+		
+		[update-sprite druidess2]
+			style:
+				filter: blur(100px) saturate(100%) drop-shadow(16px 16px 100px black)
+		
+		[pause] 1
+		
+		[update-sprite druidess]
+			action: null
+		
+		[update-sprite druidess2]
+			style:
+				filter: blur(0px) saturate(100%) drop-shadow(16px 16px 4px black)
+		
+		[next]
+
