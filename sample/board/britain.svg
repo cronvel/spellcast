@@ -17,27 +17,27 @@
 			fill: #f8f8f8;
 		}
 		
-		path.status-owned , g.status-owned path {
+		path.meta-owned , g.meta-owned path {
 			fill: #5c5;
 		}
 		
-		path.status-owned.button:not(.disabled) , g.status-owned.button:not(.disabled) path {
+		path.meta-owned.button:not(.disabled) , g.meta-owned.button:not(.disabled) path {
 			fill: #90ff90;
 		}
 		
-		path.status-owned.button:not(.disabled):hover , g.status-owned.button:not(.disabled):hover path {
+		path.meta-owned.button:not(.disabled):hover , g.meta-owned.button:not(.disabled):hover path {
 			fill: #e0ffe0;
 		}
 		
-		path.status-enemy , g.status-enemy path {
+		path.meta-enemy , g.meta-enemy path {
 			fill: #c55;
 		}
 		
-		path.status-enemy.button:not(.disabled) , g.status-enemy.button:not(.disabled) path {
+		path.meta-enemy.button:not(.disabled) , g.meta-enemy.button:not(.disabled) path {
 			fill: #ff9090;
 		}
 		
-		path.status-enemy.button:not(.disabled):hover , g.status-enemy.button:not(.disabled):hover path {
+		path.meta-enemy.button:not(.disabled):hover , g.meta-enemy.button:not(.disabled):hover path {
 			fill: #ffe0e0;
 		}
 		

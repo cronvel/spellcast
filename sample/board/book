@@ -24,19 +24,19 @@
 				transition: 1s
 			area:
 				dumnonia:
-					status:
+					meta:
 						owned: true
 				durotriges:
-					status:
+					meta:
 						owned: true
 				belgae:
-					status:
+					meta:
 						owned: true
 				iceni:
-					status:
+					meta:
 						enemy: true
 				trinovantes:
-					status:
+					meta:
 						enemy: true
 		
 		[show-marker here]
@@ -53,7 +53,7 @@
 		[update-vg britain]
 			area:
 				regnenses:
-					status:
+					meta:
 						enemy: true
 				#far-away:
 				#	hint: Northern lands
@@ -110,7 +110,7 @@
 		[update-vg britain]
 			area:
 				atrebates:
-					status:
+					meta:
 						owned: true
 		
 		[update-marker here]
@@ -128,7 +128,7 @@
 		[update-vg britain]
 			area:
 				dobunni:
-					status:
+					meta:
 						owned: true
 		
 		[update-marker here]
@@ -147,7 +147,7 @@
 		[update-vg britain]
 			area:
 				regnenses:
-					status:
+					meta:
 						owned: true
 						enemy: false
 		
