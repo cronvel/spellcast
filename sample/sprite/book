@@ -2,17 +2,23 @@
 [[doctype spellcast/book]]
 #[[assets ./]]
 
-[action drink]
-    [message]
-        $> You drink a cup of vine...
-
-[action shout]
-    [message]
-        $> You shout!
-
 [chapter intro]
 	
 	[scene intro1]
+		[message] $> ^/Once upon a time...
+		
+		[texture-pack]
+			id: shaman
+			single:
+				url: /sprites/shaman.png
+				mask-url: /sprites/shaman.mask.svg
+
+		[show-sprite druidess]
+			texture-pack: shaman
+		
+		[next]
+
+	[scene intro1-old]
 		[message] $> ^/Once upon a time...
 		
 		[animation shake]
@@ -89,7 +95,7 @@
 			
 		[pause] 1
 		
-		[sound] /sounds/open.wav
+		#[sound] /sounds/open.wav
 
 		[message] $> ^/There was a druidess...
 		
