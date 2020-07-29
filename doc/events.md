@@ -203,6 +203,11 @@ Events emitted here are usually **userland** event, except few standard events:
 	* url `string` this is the URL of the sound to play
   Multiple sounds may be played at any time. If the client supports sounds, it is recommended to support at least 2 channels.
 
+* texturePack (uid, data): defines a texture pack (if the client is capable) to be used later (e.g. on a sprite), where:
+	* uid `string` the texture pack unique ID to use (a combination of the ID and the theme)
+	* data `object` the texture pack data, where:
+	!SHOULD BE DOCUMENTED!
+
 * defineAnimation (id, data): defines an animation (if the client is capable) to be used later (e.g. on a sprite), where:
 	* id `string` the animation ID to use
 	* data `object` data related to the animation, where:

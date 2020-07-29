@@ -7,6 +7,8 @@
 	[scene intro1]
 		[message] $> ^/Once upon a time...
 		
+		#[texture-theme] winter
+
 		[texture-pack]
 			id: shaman
 			single:
