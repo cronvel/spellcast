@@ -17,7 +17,27 @@
 
 		[show-sprite druidess]
 			texture-pack: shaman
+			sizeMode: areaHeight
+			size:
+				xy: 0.7
+			#positionMode: areaInSpriteOut
+			position: 
+				x: 1
+				y: -1
 		
+		[pause] 1
+		
+		[update-sprite druidess]
+			transitions:
+				transform: 500
+			rotationMode: yzx
+			rotation: 
+				x: 10
+				y: 40
+				z: 30
+		
+		[pause] 1
+
 		[next]
 
 	[scene intro1-old]
