@@ -52,16 +52,14 @@
 		[show-vg vg]
 			vgObject: $vg
 			size:
-				mode: area
 				xy: 0.5
 			position:
-				mode: areaInSpriteOut
 				x: 0
 				y: 0
 
 		[pause] 1
 
-		[vg-morph $vg.items[0]]
+		[vg-morph $vg.entities[0]]
 			style:
 				fill: orange
 		[update-vg vg]
@@ -69,7 +67,7 @@
 
 		[pause] 1
 
-		[vg-morph $vg.items[0]]
+		[vg-morph $vg.entities[0]]
 			style:
 				fill: green
 		[update-vg vg]
@@ -148,10 +146,8 @@
 		[show-vg vg]
 			vgObject: $vg
 			size:
-				mode: area
 				xy: 0.8
 			position:
-				mode: areaInSpriteOut
 				x: 0
 				y: 0
 
