@@ -14,8 +14,8 @@
 			$> In red, our saxon ennemies occupy the Iceni province and the Trinovantes province...
 		
 		[show-vg britain]
-			vgUrl: /script/britain.svg
-			positionMode: origin
+			vg-url: /script/britain.svg
+			position-mode: origin
 			position:
 				x: 0.5
 				y: 0
@@ -39,8 +39,8 @@
 						enemy: true
 		
 		[show-marker here]
-			vgUrl: /icons/flag.svg
-			inVg: britain
+			vg-url: /icons/flag.svg
+			in-vg: britain
 			location: belgae
 		
 		[pause] 2
