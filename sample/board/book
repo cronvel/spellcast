@@ -15,10 +15,11 @@
 		
 		[show-vg britain]
 			vgUrl: /script/britain.svg
+			positionMode: origin
 			position:
 				x: 0.5
 				y: 0
-			scale:
+			size:
 				xy: 0.8
 			area:
 				dumnonia:
