@@ -9,8 +9,7 @@
 		
 		#[texture-theme] winter
 
-		[texture-pack]
-			id: shaman
+		[texture-pack shaman]
 			single:
 				url: /sprites/shaman.png
 				mask-url: /sprites/shaman.mask.svg
@@ -49,6 +48,20 @@
 			rotation-mode: yzx
 			rotation: 
 				x: 340
+		
+		[pause] 1
+
+		[camera]
+			transitions:
+				perspective: 0.5
+			perspective: 2
+		
+		[pause] 1
+
+		[camera]
+			transitions:
+				perspective: 0.5
+			perspective: 0.2
 		
 		[pause] 1
 
