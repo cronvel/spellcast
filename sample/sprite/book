@@ -14,6 +14,9 @@
 				url: /sprites/shaman.png
 				mask-url: /sprites/shaman.mask.svg
 
+		[camera]
+			perspective: 1
+		
 		[show-sprite druidess]
 			texture-pack: shaman
 			size-mode: areaHeight
@@ -26,17 +29,40 @@
 			transitions:
 				transform: 0.5
 		
+		[show-sprite druidess-far]
+			texture-pack: shaman
+			size-mode: areaHeight
+			size:
+				xy: 0.7
+			position: 
+				x: 0.5
+				y: -1
+				z: -0.25
+		
+		[show-sprite druidess-near]
+			texture-pack: shaman
+			size-mode: areaHeight
+			size:
+				xy: 0.7
+			position: 
+				x: 0
+				y: -1
+				z: 0.25
+			transitions:
+				transform: 0.5
+		
 		[pause] 1
 		
 		[update-sprite druidess]
+			transitions:
+				transform: 0.5
 			position: 
 				x: 0.7
-				z: -200
+				z: -0.125
 		
 		[pause] 1
 
 		[update-sprite druidess]
-			rotation-mode: yzx
 			rotation: 
 				x: 170
 		
@@ -45,26 +71,36 @@
 		[update-sprite druidess]
 			transitions:
 				transform: 0.5
-			rotation-mode: yzx
 			rotation: 
 				x: 340
 		
-		[pause] 1
+		[pause] 0.5
 
-		[camera]
+		[update-sprite druidess]
 			transitions:
-				perspective: 0.5
-			perspective: 2
+				transform: 0.2
+			rotation-mode: yzx
+			rotation: 
+				x: 0
 		
 		[pause] 1
 
-		[camera]
+		[update-sprite druidess]
 			transitions:
-				perspective: 0.5
-			perspective: 0.2
+				transform: 5
+			rotation-mode: yzx
+			rotation: 
+				x: 45
 		
-		[pause] 1
+		[pause] 5
 
+		[update-sprite druidess]
+			transitions:
+				transform: 5
+			rotation-mode: yzx
+			rotation: 
+				x: -45
+		
 		[next]
 
 
