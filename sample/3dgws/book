@@ -31,7 +31,21 @@
 					xy: 15
 				position: 
 					x: -3
-					z: 10
+					z: -10
+
+			[pause] 0.5
+			
+			[update-sprite druidess2]
+				transition: 1
+				position: 
+					x: 12
+
+			[pause] 2
+			
+			[update-sprite druidess2]
+				transition: 1
+				position: 
+					x: -8
 		
 		[next]
 
