@@ -5,12 +5,33 @@
 
 
 [chapter intro]
-	
+	[theme] > /themes/game
+
 	[scene intro1]
 		[message] $> ^/Once upon a time...
 		
-		[create-g-scene main]
+		[create-g-scene 3d]
 			engineId: 3dgws
+			active: true
+
+		[g-scene 3d]
+			[texture-pack shaman] /sprites/shaman.png
+
+			[show-sprite druidess]
+				texture-pack: shaman
+				size:
+					x: 15
+					y: 15
+				position: 
+					x: 3
+
+			[show-sprite druidess2]
+				texture-pack: shaman
+				size:
+					xy: 15
+				position: 
+					x: -3
+					z: 10
 		
 		[next]
 

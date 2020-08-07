@@ -27,8 +27,6 @@
 			position: 
 				x: 1
 				y: -1
-			transitions:
-				transform: 0.5
 		
 		[show-sprite druidess-far]
 			texture-pack: shaman
@@ -49,14 +47,11 @@
 				x: 0
 				y: -1
 				z: 0.25
-			transitions:
-				transform: 0.5
 		
 		[pause] 1
 		
 		[update-sprite druidess]
-			transitions:
-				transform: 0.5
+			transition: 0.5
 			position: 
 				x: 0.7
 				z: -0.125
@@ -64,22 +59,21 @@
 		[pause] 1
 
 		[update-sprite druidess]
+			transition: 0.5
 			rotation: 
 				x: 170
 		
 		[pause] 1
 
 		[update-sprite druidess]
-			transitions:
-				transform: 0.5
+			transition: 0.5
 			rotation: 
 				x: 340
 		
 		[pause] 0.5
 
 		[update-sprite druidess]
-			transitions:
-				transform: 0.2
+			transition: 0.2
 			rotation-mode: yzx
 			rotation: 
 				x: 0
@@ -87,8 +81,7 @@
 		[pause] 1
 
 		[update-sprite druidess]
-			transitions:
-				transform: 5
+			transition: 5
 			rotation-mode: yzx
 			rotation: 
 				x: 45
@@ -96,8 +89,7 @@
 		[pause] 5
 
 		[update-sprite druidess]
-			transitions:
-				transform: 5
+			transition: 5
 			rotation-mode: yzx
 			rotation: 
 				x: -45
