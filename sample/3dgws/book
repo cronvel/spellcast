@@ -46,6 +46,20 @@
 				transition: 1
 				position: 
 					x: -8
+
+			[pause] 1
+			
+			[camera]
+				transition: 1
+				position: 
+					z: 30
 		
+			[pause] 1
+
+			[camera]
+				transition: 1
+				fov: 120
+		
+
 		[next]
 
