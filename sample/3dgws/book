@@ -54,11 +54,22 @@
 				position: 
 					z: 30
 		
-			[pause] 1
+			[pause] 2
+
+			[camera]
+				transition: 2
+				target-position: 
+					x: 30
+		
+			[pause] 1000000
 
 			[camera]
 				transition: 1
-				fov: 120
+				#fov: 120
+				up:
+					x: 1
+					y: 0
+					z: 0
 		
 
 		[next]
