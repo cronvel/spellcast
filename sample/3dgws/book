@@ -15,7 +15,21 @@
 			active: true
 
 		[g-scene 3d]
+			[texture-pack background] /textures/background.jpg
+			[texture-pack ground] /textures/grass-rock-ground.jpg
 			[texture-pack shaman] /sprites/shaman.png
+
+			[camera]
+				position: 
+					y: 10
+		
+			[show-g-entity background]
+				usage: background
+				texture-pack: background
+
+			[show-g-entity ground]
+				usage: ground
+				texture-pack: ground
 
 			[show-sprite druidess]
 				texture-pack: shaman
@@ -57,9 +71,25 @@
 			[pause] 2
 
 			[camera]
+				transition: 1
+				position: 
+					x: -30
+		
+			[pause] 2
+
+			[pause] 1000000
+
+			[camera]
 				transition: 2
 				target-position: 
 					x: 30
+		
+			[pause] 2
+
+			[camera]
+				transition: 2
+				target-position: 
+					x: -30
 		
 			[pause] 1000000
 

@@ -28,12 +28,20 @@ Change made
 icons/catch.svg:
 by [Lorc](http://lorcblog.blogspot.fr)
 CC BY 3.0,
-Found at [game-icons.net](http://game-icons.net)
+Found at [game-icons.net](http://game-icons.net).
 Change made
 
 textures/card-back.png:
 CC0
-Found at [Pixabay](https://pixabay.com/)
+Found at [Pixabay](https://pixabay.com/).
+
+textures/grass-rock-ground.jpg
+CC0
+Found at [TextureHaven](https://texturehaven.com/).
+
+textures/background.jpg
+[Texturify licence](https://texturify.com/pages/terms-of-use.html) (TL;DR: free for commercial and non-commercial products, do not sell/distribute original)
+[Texturify](https://texturify.com/)
 
 sounds/success.mp3:
 by ZapSlat (“Sound effects obtained from https://www.zapsplat.com”)
