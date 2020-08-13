@@ -26,6 +26,8 @@
 			[show-g-entity background]
 				usage: background
 				texture-pack: background
+				origin:
+					y: -0.25
 
 			[show-g-entity ground]
 				usage: ground
@@ -33,6 +35,8 @@
 
 			[show-sprite druidess]
 				texture-pack: shaman
+				origin:
+					y: -1
 				size:
 					x: 15
 					y: 15
@@ -41,6 +45,8 @@
 
 			[show-sprite druidess2]
 				texture-pack: shaman
+				origin:
+					y: -1
 				size:
 					xy: 15
 				position: 
