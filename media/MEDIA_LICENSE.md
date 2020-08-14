@@ -15,6 +15,10 @@ Elf Shaman by Kathrin Polikeit (Kitty)
 GPL License,
 Part of the [Battle for Wesnoth](http://wesnoth.org) game.
 
+sprites/delfador.png and sprites/delfador-mentoring.png:
+GPL License,
+Part of the [Battle for Wesnoth](http://wesnoth.org) game.
+
 sounds/open.wav:
 GPL License,
 Part of the [Battle for Wesnoth](http://wesnoth.org) game.
