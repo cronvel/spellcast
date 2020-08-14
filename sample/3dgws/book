@@ -18,6 +18,10 @@
 			[texture-pack background] /textures/background.jpg
 			[texture-pack ground] /textures/grass-rock-ground.jpg
 			[texture-pack shaman] /sprites/shaman.png
+			[texture-pack mage]
+				variants:
+					default: /sprites/mage.png
+					mentoring: /sprites/mage-mentoring.png
 
 			[camera]
 				position: 
@@ -53,6 +57,18 @@
 					x: -3
 					z: -10
 
+			[show-sprite mage]
+				texture-pack: mage
+				#variant: mentoring
+				origin:
+					y: -1
+				size:
+					x: 20
+					y: 20
+				position: 
+					x: 20
+					z: -20
+
 			[pause] 0.5
 			
 			[update-sprite druidess2]
@@ -69,6 +85,9 @@
 
 			[pause] 1
 			
+			[update-sprite mage]
+				variant: mentoring
+
 			[camera]
 				transition: 1
 				position: 
