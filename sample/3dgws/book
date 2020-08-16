@@ -26,6 +26,11 @@
 			[camera]
 				position: 
 					y: 10
+					z: -40
+				target:
+					x: 0
+					y: 10
+					z: 0
 		
 			[show-g-entity background]
 				usage: background
@@ -37,26 +42,6 @@
 				usage: ground
 				texture-pack: ground
 
-			[show-sprite druidess]
-				texture-pack: shaman
-				origin:
-					y: -1
-				size:
-					x: 15
-					y: 15
-				position: 
-					x: 3
-
-			[show-sprite druidess2]
-				texture-pack: shaman
-				origin:
-					y: -1
-				size:
-					xy: 15
-				position: 
-					x: -3
-					z: -10
-
 			[show-sprite mage]
 				texture-pack: mage
 				#variant: mentoring
@@ -65,12 +50,81 @@
 				size:
 					x: 20
 					y: 20
+
+			[show-sprite druidess]
+				texture-pack: shaman
+				origin:
+					y: -1
+				size:
+					x: 15
+					y: 15
 				position: 
-					x: 20
-					z: -20
+					x: 30
+
+			[show-sprite druidess2]
+				texture-pack: shaman
+				origin:
+					y: -1
+				size:
+					xy: 15
+				position: 
+					z: 15
 
 			[pause] 0.5
 			
+			[pause] 0.5
+			[camera]
+				transition: 1
+				position: 
+					x: 60
+					z: -60
+			[pause] 1.5
+			[camera]
+				roll: 10
+				transition: 1
+				position: 
+					x: -60
+					z: -60
+			[pause] 1.5
+			[camera]
+				transition: 1
+				roll: -10
+				position: 
+					x: -60
+					z: 60
+			[pause] 1.5
+			[camera]
+				transition: 1
+				roll: 0
+				position: 
+					x: 60
+					z: 60
+			[pause] 1.5
+			[camera]
+				transition: 1
+				position: 
+					x: 60
+					z: -60
+			[pause] 1.5
+			[camera]
+				transition: 1
+				position: 
+					x: 0
+					y: 60
+					z: -10
+			[pause] 1.5
+			[camera]
+				transition: 1
+				position: 
+					x: 0
+					y: 10
+					z: -30
+			[pause] 1.5
+			[camera]
+				transition: 1
+				roll: 30
+			[pause] 1000000
+
 			[update-sprite druidess2]
 				transition: 1
 				position: 
@@ -102,18 +156,16 @@
 		
 			[pause] 2
 
-			[pause] 1000000
-
 			[camera]
 				transition: 2
-				target-position: 
+				target: 
 					x: 30
 		
 			[pause] 2
 
 			[camera]
 				transition: 2
-				target-position: 
+				target: 
 					x: -30
 		
 			[pause] 1000000
