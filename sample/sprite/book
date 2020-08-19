@@ -18,7 +18,7 @@
 		[camera]
 			perspective: 1
 		
-		[show-sprite druidess]
+		[g-create sprite druidess]
 			texture-pack: shaman
 			size-mode: areaHeight
 			size:
@@ -28,7 +28,7 @@
 				x: 1
 				y: -1
 		
-		[show-sprite druidess-far]
+		[g-create sprite druidess-far]
 			texture-pack: shaman
 			size-mode: areaHeight
 			size:
@@ -38,7 +38,7 @@
 				y: -1
 				z: -0.25
 		
-		[show-sprite druidess-near]
+		[g-create sprite druidess-near]
 			texture-pack: shaman
 			size-mode: areaHeight
 			size:
@@ -50,7 +50,7 @@
 		
 		[pause] 1
 		
-		[update-sprite druidess]
+		[g-update druidess]
 			transition: 0.5
 			position: 
 				x: 0.7
@@ -58,21 +58,21 @@
 		
 		[pause] 1
 
-		[update-sprite druidess]
+		[g-update druidess]
 			transition: 0.5
 			rotation: 
 				x: 170
 		
 		[pause] 1
 
-		[update-sprite druidess]
+		[g-update druidess]
 			transition: 0.5
 			rotation: 
 				x: 340
 		
 		[pause] 0.5
 
-		[update-sprite druidess]
+		[g-update druidess]
 			transition: 0.2
 			rotation-mode: yzx
 			rotation: 
@@ -80,7 +80,7 @@
 		
 		[pause] 1
 
-		[update-sprite druidess]
+		[g-update druidess]
 			transition: 5
 			rotation-mode: yzx
 			rotation: 
@@ -88,7 +88,7 @@
 		
 		[pause] 5
 
-		[update-sprite druidess]
+		[g-update druidess]
 			transition: 5
 			rotation-mode: yzx
 			rotation: 
@@ -149,7 +149,7 @@
 				
 		
 		[pause] 1.5
-		[animate-sprite druidess] shake
+		[g-animate druidess] shake
 		[pause] 1.5
 
 		[next]

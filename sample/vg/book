@@ -49,7 +49,7 @@
 					
 		#[debug hdebug] $vg
 
-		[show-vg vg]
+		[g-create vg vg]
 			vg-object: $vg
 			size:
 				xy: 0.5
@@ -62,7 +62,7 @@
 		[vg-morph $vg.entities[0]]
 			style:
 				fill: orange
-		[update-vg vg]
+		[g-update vg]
 			vg-morph: $vg
 
 		[pause] 1
@@ -70,7 +70,7 @@
 		[vg-morph $vg.entities[0]]
 			style:
 				fill: green
-		[update-vg vg]
+		[g-update vg]
 			vg-morph: $vg
 
 		[next menu]
@@ -143,7 +143,7 @@
 					y: 100
 					
 				
-		[show-vg vg]
+		[g-create vg vg]
 			vg-object: $vg
 			size:
 				xy: 0.8

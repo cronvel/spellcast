@@ -13,7 +13,7 @@
 		[message]
 			$> In red, our saxon ennemies occupy the Iceni province and the Trinovantes province...
 		
-		[show-vg britain]
+		[g-create vg britain]
 			vg-url: /script/britain.svg
 			position-mode: origin
 			position:
@@ -38,7 +38,7 @@
 					meta:
 						enemy: true
 		
-		[show-marker here]
+		[g-create marker here]
 			vg-url: /icons/flag.svg
 			in-vg: britain
 			location: belgae
@@ -49,7 +49,7 @@
 			$> But we heard that they have landed 3 days ago in the Regnenses province with a small army.
 			$> Those lands have probably fallen already.
 		
-		[update-vg britain]
+		[g-update britain]
 			area:
 				regnenses:
 					meta:
@@ -89,7 +89,7 @@
 			$> Great! I will raise an army in your name and fortify the province.
 		[pause] 2
 		
-		[update-marker here]
+		[g-update here]
 			location: durotriges
 		
 	[scene fortify-belgae]
@@ -106,13 +106,13 @@
 		[message]
 			$> As expected, the people of the Atrebates province have rallied us!
 		
-		[update-vg britain]
+		[g-update britain]
 			area:
 				atrebates:
 					meta:
 						owned: true
 		
-		[update-marker here]
+		[g-update here]
 			location: atrebates
 		
 	[scene claim-dobunni]
@@ -124,13 +124,13 @@
 		[message]
 			$> As expected, the people of the Dobunni province have rallied us!
 		
-		[update-vg britain]
+		[g-update britain]
 			area:
 				dobunni:
 					meta:
 						owned: true
 		
-		[update-marker here]
+		[g-update here]
 			location: dobunni
 		
 	[scene strike-regnenses]
@@ -143,13 +143,13 @@
 			$> That was a fierce battle, but we carried the day and the saxons abandoned the Regnenses province.
 			$> Those lands are now part of your kingdom!
 		
-		[update-vg britain]
+		[g-update britain]
 			area:
 				regnenses:
 					meta:
 						owned: true
 						enemy: false
 		
-		[update-marker here]
+		[g-update here]
 			location: regnenses
 		

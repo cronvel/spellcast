@@ -215,111 +215,24 @@ Events emitted here are usually **userland** event, except few standard events:
 			* duration `number` the duration time of the frame in seconds
 			* style `object` (optional) this is a CSS object to style the element
 
-* showSprite (id, data): instructs the client (if it is capable) to show a sprite or replace an existing sprite, where:
-	* id `string` the sprite ID
-	* data `object` data related to the sprite, where:
-		* url `string` this is the URL of the image of the sprite
-		* style `object` (optional) this is a CSS object to style the sprite element
-		* class `object` or `string` or `array` (optional) CSS class to enable/disable
+* createGEntity (id, data): instructs the client (if it is capable) to show a GEntity (graphic entity, like sprite, vector graphics)
+  or replace an existing one, where:
+	* id `string` the GEntity ID
+	* data `object` data related to the GEntity, where: (TODOC)
 
-* updateSprite (id, updatedData): instructs the client (if it is capable) to update a currently displayed sprite,
+* updateGEntity (id, updatedData): instructs the client (if it is capable) to update a currently displayed GEntity,
   i.e. all current sprite *data* properties will be deeply extended, where:
 	* id `string` the sprite ID
-	* updatedData `object` the data extension related to the sprite, where:
-		* url `string` (optional) this is the URL of the image of the sprite
-		* style `object` (optional) this is a CSS object to style the sprite element
-		* class `object` or `string` or `array` (optional) CSS class to enable/disable
+	* updatedData `object` the data extension related to the sprite, where: (TODOC)
 
-* animateSprite (spriteId, animationId): instructs the client (if it is capable) to animate a currently displayed sprite, 
+* animateGEntity (spriteId, animationId): instructs the client (if it is capable) to animate a currently displayed GEntity, 
   using a previously recorded animation, where:
 	* spriteId `string` the sprite ID to animate
 	* animationId `string` the animation ID to use
 
-* clearSprite (id): instructs the client (if it is capable) to clear a currently displayed sprite, the sprite will be
+* clearGEntity (id): instructs the client (if it is capable) to clear a currently displayed GEntity, the GEntity will be
   totally deleted, where:
 	* id `string` the sprite ID to delete
-
-* showUi (id, data): instructs the client (if it is capable) to show a UI or replace an existing UI, where:
-	* id `string` the UI ID
-	* data `object` data related to the UI, where:
-		* url `string` this is the URL of the image of the UI
-		* style `object` (optional) this is a CSS object to style the UI element
-		* class `object` or `string` or `array` (optional) CSS class to enable/disable
-		* area `object` (optional) an object where keys are area of the UI and value is an object,
-        	where keys are a status name and value a `boolean`
-
-* updateUi (id, updatedData): instructs the client (if it is capable) to update a currently displayed UI,
-  i.e. all current UI *data* properties will be deeply extended, where:
-	* id `string` the UI ID
-	* updatedData `object` the data extension related to the UI, where:
-		* url `string` (optional) this is the URL of the image of the UI
-		* style `object` (optional) this is a CSS object to style the whole UI element
-		* class `object` or `string` or `array` (optional) CSS class to enable/disable
-		* area `object` (optional) an object where keys are area of the UI and value is an object,
-        	where keys are a status name and value a `boolean`
-
-* animateUi (uiId, animationId): instructs the client (if it is capable) to animate a currently displayed UI, 
-  using a previously recorded animation, where:
-	* uiId `string` the UI ID to animate
-	* animationId `string` the animation ID to use
-
-* clearUi (id): instructs the client (if it is capable) to clear a currently displayed UI, the UI will be
-  totally deleted, where:
-	* id `string` the UI ID to delete
-
-* showMarker (id, data): instructs the client (if it is capable) to show a marker or replace an existing marker, where:
-	* id `string` the marker ID
-	* data `object` data related to the marker, where:
-		* url `string` this is the URL of the image of the marker
-		* style `object` (optional) this is a CSS object to style the marker element
-		* class `object` or `string` or `array` (optional) CSS class to enable/disable
-		* ui: `string` the UI ID where to put the marker
-		* location: `string` the UI area where to put the marker
-
-* updateMarker (id, updatedData): instructs the client (if it is capable) to update a currently displayed marker,
-  i.e. all current marker *data* properties will be deeply extended, where:
-	* id `string` the marker ID
-	* updatedData `object` the data extension related to the marker, where:
-		* url `string` (optional) this is the URL of the image of the marker
-		* style `object` (optional) this is a CSS object to style the whole marker element
-		* class `object` or `string` or `array` (optional) CSS class to enable/disable
-		* ui: `string` the UI ID where to put the marker
-		* location: `string` the UI area where to put the marker
-
-* animateMarker (markerId, animationId): instructs the client (if it is capable) to animate a currently displayed marker, 
-  using a previously recorded animation, where:
-	* markerId `string` the marker ID to animate
-	* animationId `string` the animation ID to use
-
-* clearMarker (id): instructs the client (if it is capable) to clear a currently displayed marker, the marker will be
-  totally deleted, where:
-	* id `string` the marker ID to delete
-
-* showCard (id, data): instructs the client (if it is capable) to show a card or replace an existing card, where:
-	* id `string` the card ID
-	* data `object` data related to the card, where:
-		* url `string` this is the URL of the image of the card
-		* backUrl `string` this is the URL of the back image of the card
-		* style `object` (optional) this is a CSS object to style the card element
-		* class `object` or `string` or `array` (optional) CSS class to enable/disable
-
-* updateCard (id, updatedData): instructs the client (if it is capable) to update a currently displayed card,
-  i.e. all current card *data* properties will be deeply extended, where:
-	* id `string` the card ID
-	* updatedData `object` the data extension related to the card, where:
-		* url `string` (optional) this is the URL of the image of the card
-		* backUrl `string` this is the URL of the back image of the card
-		* style `object` (optional) this is a CSS object to style the card element
-		* class `object` or `string` or `array` (optional) CSS class to enable/disable
-
-* animateCard (cardId, animationId): instructs the client (if it is capable) to animate a currently displayed card, 
-  using a previously recorded animation, where:
-	* cardId `string` the card ID to animate
-	* animationId `string` the animation ID to use
-
-* clearCard (id): instructs the client (if it is capable) to clear a currently displayed card, the card will be
-  totally deleted, where:
-	* id `string` the card ID to delete
 
 * custom (event, data): this is a custom event. This event is typically sent by the engine when the `[client-emit]`
   tag is encountered in a spellcast script.

@@ -32,17 +32,15 @@
 					y: 10
 					z: 0
 		
-			[show-g-entity background]
-				usage: background
+			[g-create background background]
 				texture-pack: background
 				origin:
 					y: -0.25
 
-			[show-g-entity ground]
-				usage: ground
+			[g-create ground ground]
 				texture-pack: ground
 
-			[show-sprite mage]
+			[g-create sprite mage]
 				texture-pack: mage
 				#variant: mentoring
 				origin:
@@ -51,7 +49,7 @@
 					x: 20
 					y: 20
 
-			[show-sprite druidess]
+			[g-create sprite druidess]
 				texture-pack: shaman
 				origin:
 					y: -1
@@ -61,7 +59,7 @@
 				position: 
 					x: 30
 
-			[show-sprite druidess2]
+			[g-create sprite druidess2]
 				texture-pack: shaman
 				origin:
 					y: -1
@@ -125,21 +123,21 @@
 				roll: 30
 			[pause] 1000000
 
-			[update-sprite druidess2]
+			[g-update druidess2]
 				transition: 1
 				position: 
 					x: 12
 
 			[pause] 2
 			
-			[update-sprite druidess2]
+			[g-update druidess2]
 				transition: 1
 				position: 
 					x: -8
 
 			[pause] 1
 			
-			[update-sprite mage]
+			[g-update mage]
 				variant: mentoring
 
 			[camera]
