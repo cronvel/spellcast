@@ -71,56 +71,50 @@
 			[pause] 0.5
 			
 			[pause] 0.5
-			[camera]
-				transition: 1
+			[camera await]
+				transition: 1.5
 				position: 
 					x: 60
 					z: -60
-			[pause] 1.5
-			[camera]
-				roll: 10
+			[camera await]
 				transition: 1
+				roll: 10
 				position: 
 					x: -60
 					z: -60
-			[pause] 1.5
-			[camera]
+			[camera await]
 				transition: 1
 				roll: -10
 				position: 
 					x: -60
 					z: 60
-			[pause] 1.5
-			[camera]
+			[camera await]
 				transition: 1
 				roll: 0
 				position: 
 					x: 60
 					z: 60
-			[pause] 1.5
-			[camera]
+			[camera await]
 				transition: 1
 				position: 
 					x: 60
 					z: -60
-			[pause] 1.5
-			[camera]
+			[camera await]
 				transition: 1
 				position: 
 					x: 0
 					y: 60
 					z: -10
-			[pause] 1.5
-			[camera]
+			[camera await]
 				transition: 1
 				position: 
 					x: 0
 					y: 10
 					z: -30
-			[pause] 1.5
-			[camera]
+			[camera await]
 				transition: 1
 				roll: 30
+
 			[pause] 1000000
 
 			[g-update druidess2]
@@ -140,42 +134,25 @@
 			[g-update mage]
 				variant: mentoring
 
-			[camera]
+			[camera await]
 				transition: 1
 				position: 
 					z: 30
 		
-			[pause] 2
-
-			[camera]
+			[camera await]
 				transition: 1
 				position: 
 					x: -30
 		
-			[pause] 2
-
-			[camera]
+			[camera await]
 				transition: 2
 				target: 
 					x: 30
 		
-			[pause] 2
-
-			[camera]
+			[camera await]
 				transition: 2
 				target: 
 					x: -30
-		
-			[pause] 1000000
-
-			[camera]
-				transition: 1
-				#fov: 120
-				up:
-					x: 1
-					y: 0
-					z: 0
-		
 
 		[next]
 
