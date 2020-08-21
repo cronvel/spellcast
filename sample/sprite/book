@@ -50,29 +50,23 @@
 		
 		[pause] 1
 		
-		[g-update druidess]
+		[g-update druidess await]
 			transition: 0.5
 			position: 
 				x: 0.7
 				z: -0.125
 		
-		[pause] 1
-
-		[g-update druidess]
+		[g-update druidess await]
 			transition: 0.5
 			rotation: 
 				x: 170
 		
-		[pause] 1
-
-		[g-update druidess]
+		[g-update druidess await]
 			transition: 0.5
 			rotation: 
 				x: 340
 		
-		[pause] 0.5
-
-		[g-update druidess]
+		[g-update druidess await]
 			transition: 0.2
 			rotation-mode: yzx
 			rotation: 
@@ -80,15 +74,13 @@
 		
 		[pause] 1
 
-		[g-update druidess]
+		[g-update druidess await]
 			transition: 5
 			rotation-mode: yzx
 			rotation: 
 				x: 45
 		
-		[pause] 5
-
-		[g-update druidess]
+		[g-update druidess await]
 			transition: 5
 			rotation-mode: yzx
 			rotation: 

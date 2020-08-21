@@ -115,44 +115,18 @@
 				transition: 1
 				roll: 30
 
-			[pause] 1000000
-
-			[g-update druidess2]
+			[g-update druidess2 await]
 				transition: 1
 				position: 
 					x: 12
 
-			[pause] 2
-			
-			[g-update druidess2]
+			[g-update druidess2 await]
 				transition: 1
 				position: 
 					x: -8
 
-			[pause] 1
-			
 			[g-update mage]
 				variant: mentoring
-
-			[camera await]
-				transition: 1
-				position: 
-					z: 30
-		
-			[camera await]
-				transition: 1
-				position: 
-					x: -30
-		
-			[camera await]
-				transition: 2
-				target: 
-					x: 30
-		
-			[camera await]
-				transition: 2
-				target: 
-					x: -30
 
 		[next]
 
