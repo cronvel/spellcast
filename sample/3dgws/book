@@ -24,6 +24,7 @@
 					mentoring: /sprites/mage-mentoring.png
 
 			[camera]
+				mode: positions
 				position: 
 					y: 10
 					z: -40
