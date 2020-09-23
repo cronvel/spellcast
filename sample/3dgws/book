@@ -129,5 +129,29 @@
 			[g-update mage]
 				variant: mentoring
 
+		[next first-person]
+
+	[scene first-person]
+		[g-scene 3d]
+			[camera]
+				mode: firstPerson
+				position:
+					y: 10
+					z: -40
+				yaw: 0
+				pitch: 0
+				roll: 0
+		
+			[pause 1]
+			[camera await]
+				transition: 1
+				yaw: 50
+			[camera await]
+				transition: 1
+				pitch: -20
+			[camera await]
+				transition: 1
+				roll: -20
+
 		[next]
 
