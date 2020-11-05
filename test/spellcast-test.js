@@ -35,12 +35,16 @@ const fs = require( 'fs' ) ;
 const fsKit = require( 'fs-kit' ) ;
 const string = require( 'string-kit' ) ;
 
+
 //const Book = require( '../lib/Book.js' ) ;
 const StoryBook = require( '../lib/StoryBook.js' ) ;
-const CasterBook = require( '../lib/CasterBook.js' ) ;
 const kungFig = require( 'kung-fig' ) ;
 const Client = require( '../lib/Client.js' ) ;
 const UnitUI = require( '../lib/ui/unit.js' ) ;
+
+const exm = require( '../lib/exm.js' ) ;
+const casterExtension = exm.requireExtension( 'caster' ) ;
+const CasterBook = casterExtension.exports.CasterBook ;
 
 const Logfella = require( 'logfella' ) ;
 const log = Logfella.global.use( 'unit-tests' ) ;
