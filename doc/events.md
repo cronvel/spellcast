@@ -234,6 +234,18 @@ Events emitted here are usually **userland** event, except few standard events:
   totally deleted, where:
 	* id `string` the sprite ID to delete
 
+* diceRoller (grantedRoleIds, data): instructs the client (if it is capable) to make the user roll the dice.
+	* grantedRoleIds `array` of role's ID, roles that can throw the dice
+	* data `object` where:
+		* label `string` label/title to present the dice roll to the user
+		* dice `number` of dice
+		* faces `number` of faces
+		* type `string` type of dice
+		* values `array` of `number` or `string` (optional), the value of each face is stored here
+		* timeout `number` (optional) the timeout, the user should roll the dice before this timeout, or auto-rolling will happen
+		* skinUrl `string` (optional) the URL for the skin of the dice
+  The client should emit a `diceRollerSubmit` event in response.
+
 * custom (event, data): this is a custom event. This event is typically sent by the engine when the `[client-emit]`
   tag is encountered in a spellcast script.
   Since this is a custom event, there is no global meaning for it.
@@ -258,4 +270,8 @@ Events emitted here are usually **userland** event, except few standard events:
   if `id` is `null`, the client has just unselected the *next item* it had chosen so far
 
 * authenticate (data): authenticate a user. (WIP API).
+
+* diceRollerSubmit (data): the data of the user's dice roll in response of a `diceRoller` event
+	* data `object`, where:
+		* dice `array` of face index
 
