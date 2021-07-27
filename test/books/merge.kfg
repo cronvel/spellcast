@@ -5,42 +5,38 @@
 	[set $tree]
 		a: 1
 		b: 2
-		a: (+) 3
 	
 	[set $tree2]
-		a: (+) 7
+		a: 7
 	
 	[set $tree3]
-		b: (*) 5
-	
-	[merge $tree => $out]
-	[message] $> tree.a: ${tree.a} tree.b: ${tree.b} out.a: ${out.a} out.b: ${out.b}
+		b: 5
+		c: 77
 	
 	[merge $tree , $tree2 => $out]
-	[message] $> tree.a: ${tree.a} tree.b: ${tree.b} out.a: ${out.a} out.b: ${out.b}
+	[message] $> tree.a: ${tree.a} tree.b: ${tree.b} out.a: ${out.a} out.b: ${out.b} out.c: ${out.c}
 	
 	[merge $tree , $tree2 , $tree3 => $out]
-	[message] $> tree.a: ${tree.a} tree.b: ${tree.b} out.a: ${out.a} out.b: ${out.b}
+	[message] $> tree.a: ${tree.a} tree.b: ${tree.b} out.a: ${out.a} out.b: ${out.b} out.c: ${out.c}
 	
 	[set $tree]
 		a: 1
 		b: 2
-		a: (+) 3
-	[merge $tree]
-	[message] $> tree.a: ${tree.a} tree.b: ${tree.b}
-
-	[set $tree]
-		a: 1
-		b: 2
-		a: (+) 3
+	
+	[set $tree2]
+		a: 7
+	
+	[set $tree3]
+		b: 5
+		c: 77
+	
 	[merge $tree , $tree2]
-	[message] $> tree.a: ${tree.a} tree.b: ${tree.b}
+	[message] $> tree.a: ${tree.a} tree.b: ${tree.b} tree.c: ${tree.c}
 	
 	[set $tree]
 		a: 1
 		b: 2
-		a: (+) 3
 	[merge $tree , $tree2 , $tree3]
-	[message] $> tree.a: ${tree.a} tree.b: ${tree.b}
+	[message] $> tree.a: ${tree.a} tree.b: ${tree.b} tree.c: ${tree.c}
 
 	

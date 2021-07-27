@@ -614,12 +614,10 @@ describe( "Operations tags" , () => {
 		) ;
 
 		expect( messages ).to.equal( [
-			[ 'tree.a: 1 tree.b: 2 out.a: 4 out.b: 2' ] ,
-			[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 2' ] ,
-			[ 'tree.a: 1 tree.b: 2 out.a: 11 out.b: 10' ] ,
-			[ 'tree.a: 4 tree.b: 2' ] ,
-			[ 'tree.a: 11 tree.b: 2' ] ,
-			[ 'tree.a: 11 tree.b: 10' ]
+			[ 'tree.a: 1 tree.b: 2 out.a: 7 out.b: 2 out.c: (undefined)' ] ,
+			[ 'tree.a: 1 tree.b: 2 out.a: 7 out.b: 5 out.c: 77' ] ,
+			[ 'tree.a: 7 tree.b: 2 tree.c: (undefined)' ] ,
+			[ 'tree.a: 7 tree.b: 5 tree.c: 77' ]
 		] ) ;
 	} ) ;
 
