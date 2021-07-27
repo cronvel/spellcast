@@ -34,6 +34,7 @@ const fs = require( 'fs' ) ;
 
 const fsKit = require( 'fs-kit' ) ;
 const string = require( 'string-kit' ) ;
+const Promise = require( 'seventh' ) ;
 
 
 //const Book = require( '../lib/Book.js' ) ;
@@ -1402,6 +1403,25 @@ describe( "Basic story tags and features" , () => {
 
 	// Deprecated?
 	it( "Special var $this" ) ;
+} ) ;
+
+
+
+describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
+
+	it( "Basic stats test" , async () => {
+		var unitTest = {} ;
+
+		await runBook( __dirname + '/books/entity.kfg' , { type: 'story' } ,
+			( ui , book ) => book.api.on( 'toUnitTest' , ( data , id ) => unitTest[ id ] = data )
+		) ;
+		
+		console.log( unitTest ) ;
+
+		var stats = unitTest.baseEntity.stats ;
+		expect( stats.quickness.base ).to.be( 15 ) ;
+		expect( stats.quickness.actual ).to.be( 15 ) ;
+	} ) ;
 } ) ;
 
 

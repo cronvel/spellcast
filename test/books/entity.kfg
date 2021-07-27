@@ -1,0 +1,45 @@
+
+[[doctype spellcast/book]]
+
+[entity-model character]
+	usage-types:
+		- melee-fighting
+		- ranged-fighting
+
+	params:
+		xp-reward: 10
+
+	slots:
+		hand: 2
+		body: 1
+
+	stats:
+		# Global stats
+		quickness: 15
+		strength: 12
+		resilience: 12
+		dexterity: 14
+		arcane: 18
+		
+		# Skills stats
+		skills:
+			fighting: 1
+			shooting: 1
+
+		status:
+			health: 100
+			mana: 100
+			xp: 0
+			body-bonus-factor: 1
+			spirit-bonus-factor: 1
+			alive: true
+
+
+
+[chapter a-chapter]
+	[starting-scene a-scene]
+		[create-entity $entity] character
+		#[debug] $entity
+		[to-unit-test baseEntity] $entity
+		#[message] $> Entity: ${entity}
+
