@@ -30,8 +30,8 @@
 
 
 
-var string = require( 'string-kit' ) ;
-var Metric = require( '../lib/objects/Metric.js' ) ;
+const string = require( 'string-kit' ) ;
+const Metric = require( '../lib/objects/Metric.js' ) ;
 
 
 
@@ -91,5 +91,4 @@ describe( "Metric tests" , () => {
 		expect( metric.value ).to.be.close.to( 0.36 ) ;
 	} ) ;
 } ) ;
-
 
