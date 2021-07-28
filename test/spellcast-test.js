@@ -1431,9 +1431,10 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 			} ) ;
 			
 			book.unitTest.ensureOnce( 'ring' , item => {
-				//console.log( item.modifiers ) ;
-				expect( item.modifiers.strength.plus.operand ).to.be( 3 ) ;
-				expect( item.modifiers.resilience.plus.operand ).to.be( 2 ) ;
+				console.log( item ) ;
+				console.log( item['active-mods'] ) ;
+				expect( item['active-mods'].strength.plus.operand ).to.be( 3 ) ;
+				expect( item['active-mods'].resilience.plus.operand ).to.be( 2 ) ;
 			} ) ;
 			
 			book.unitTest.ensureOnce( 'entity-with-ring' , entity => {

@@ -36,7 +36,7 @@
 	name: ring of power
 	slot-type: ring
 	slot-count: 1
-	modifiers:
+	active-mods:
 		strength: (+) 3
 		resilience: (+) 2
 
