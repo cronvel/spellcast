@@ -11,14 +11,15 @@
 
 	slots:
 		hand: 2
+		ring: 2
 		body: 1
 
 	stats:
 		# Global stats
-		quickness: 15
 		strength: 12
-		resilience: 12
 		dexterity: 14
+		quickness: 15
+		resilience: 12
 		arcane: 18
 		
 		# Skills stats
@@ -28,18 +29,32 @@
 
 		status:
 			health: 100
-			mana: 100
-			xp: 0
-			body-bonus-factor: 1
-			spirit-bonus-factor: 1
-			alive: true
 
+
+[item-model ring-of-power]
+	class: object
+	name: ring of power
+	slot-type: ring
+	slot-count: 1
+	modifiers:
+		strength: (+) 3
+		resilience: (+) 2
 
 
 [chapter a-chapter]
 	[starting-scene a-scene]
 		[create-entity $entity] character
 		#[debug] $entity
-		[to-unit-test baseEntity] $entity
-		#[message] $> Entity: ${entity}
+		[to-unit-test base-entity] $entity
+
+		[create-item $ring] ring-of-power
+		#[debug] $ring
+		[to-unit-test ring] $ring
+		
+		[equip $entity]
+			item: $ring
+		
+		#[debug] $entity
+		[to-unit-test entity-with-ring] $entity
+		
 

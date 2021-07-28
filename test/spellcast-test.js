@@ -86,7 +86,7 @@ function deb( something ) {
 
 
 async function runBook( bookPath , action , uiCallback ) {
-	var ui , uiId = 0 , cleaned = false , book , options = {} ;
+	var ui , uiId = 0 , cleaned = false , book , options = { unitTest: true } ;
 
 	if ( action.maxTicks ) { options.maxTicks = action.maxTicks ; }
 	if ( action.allowJsTag !== undefined ) { options.allowJsTag = action.allowJsTag ; }
@@ -129,6 +129,11 @@ async function runBook( bookPath , action , uiCallback ) {
 			case 'story' :
 				await book.startStory() ;
 				break ;
+		}
+		
+		// Check that all expected unit tests ran...
+		if ( book.unitTest.ensure.size ) {
+			throw new Error( 'Missing unit test: ' + [ ... book.unitTest.ensure ].join( ', ' ) ) ;
 		}
 
 	}
@@ -1410,17 +1415,41 @@ describe( "Basic story tags and features" , () => {
 describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 
 	it( "Basic stats test" , async () => {
-		var unitTest = {} ;
-
-		await runBook( __dirname + '/books/entity.kfg' , { type: 'story' } ,
-			( ui , book ) => book.api.on( 'toUnitTest' , ( data , id ) => unitTest[ id ] = data )
-		) ;
-		
-		console.log( unitTest ) ;
-
-		var stats = unitTest.baseEntity.stats ;
-		expect( stats.quickness.base ).to.be( 15 ) ;
-		expect( stats.quickness.actual ).to.be( 15 ) ;
+		await runBook( __dirname + '/books/entity.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'base-entity' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.strength.base ).to.be( 12 ) ;
+				expect( entity.stats.strength.actual ).to.be( 12 ) ;
+				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
+				expect( entity.stats.dexterity.actual ).to.be( 14 ) ;
+				expect( entity.stats.quickness.base ).to.be( 15 ) ;
+				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
+				expect( entity.stats.resilience.base ).to.be( 12 ) ;
+				expect( entity.stats.resilience.actual ).to.be( 12 ) ;
+				expect( entity.stats.arcane.base ).to.be( 18 ) ;
+				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+			} ) ;
+			
+			book.unitTest.ensureOnce( 'ring' , item => {
+				//console.log( item.modifiers ) ;
+				expect( item.modifiers.strength.plus.operand ).to.be( 3 ) ;
+				expect( item.modifiers.resilience.plus.operand ).to.be( 2 ) ;
+			} ) ;
+			
+			book.unitTest.ensureOnce( 'entity-with-ring' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.strength.base ).to.be( 12 ) ;
+				expect( entity.stats.strength.actual ).to.be( 15 ) ;
+				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
+				expect( entity.stats.dexterity.actual ).to.be( 14 ) ;
+				expect( entity.stats.quickness.base ).to.be( 15 ) ;
+				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
+				expect( entity.stats.resilience.base ).to.be( 12 ) ;
+				expect( entity.stats.resilience.actual ).to.be( 14 ) ;
+				expect( entity.stats.arcane.base ).to.be( 18 ) ;
+				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+			} ) ;
+		} ) ;
 	} ) ;
 } ) ;
 
