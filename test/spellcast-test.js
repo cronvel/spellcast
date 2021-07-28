@@ -1415,6 +1415,8 @@ describe( "Basic story tags and features" , () => {
 describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 
 	it( "Basic stats test" , async () => {
+		var ringItem ;
+
 		await runBook( __dirname + '/books/entity.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'base-entity' , entity => {
 				//console.log( entity ) ;
@@ -1431,14 +1433,17 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 			} ) ;
 			
 			book.unitTest.ensureOnce( 'ring' , item => {
-				console.log( item ) ;
-				console.log( item['active-mods'] ) ;
+				ringItem = item ;
+				//console.log( item ) ;
+				//console.log( item['active-mods'] ) ;
 				expect( item['active-mods'].strength.plus.operand ).to.be( 3 ) ;
 				expect( item['active-mods'].resilience.plus.operand ).to.be( 2 ) ;
 			} ) ;
 			
-			book.unitTest.ensureOnce( 'entity-with-ring' , entity => {
+			book.unitTest.ensureOnce( 'entity-ring-equipped' , entity => {
 				//console.log( entity ) ;
+				expect( [ ... entity['equipped-items'].ring ] ).to.equal( [ ringItem ] ) ;
+				
 				expect( entity.stats.strength.base ).to.be( 12 ) ;
 				expect( entity.stats.strength.actual ).to.be( 15 ) ;
 				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
@@ -1447,6 +1452,20 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
 				expect( entity.stats.resilience.base ).to.be( 12 ) ;
 				expect( entity.stats.resilience.actual ).to.be( 14 ) ;
+				expect( entity.stats.arcane.base ).to.be( 18 ) ;
+				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-ring-unequipped' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.strength.base ).to.be( 12 ) ;
+				expect( entity.stats.strength.actual ).to.be( 12 ) ;
+				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
+				expect( entity.stats.dexterity.actual ).to.be( 14 ) ;
+				expect( entity.stats.quickness.base ).to.be( 15 ) ;
+				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
+				expect( entity.stats.resilience.base ).to.be( 12 ) ;
+				expect( entity.stats.resilience.actual ).to.be( 12 ) ;
 				expect( entity.stats.arcane.base ).to.be( 18 ) ;
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
 			} ) ;

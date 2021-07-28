@@ -52,9 +52,16 @@
 		[to-unit-test ring] $ring
 		
 		[equip $entity]
+			owned: no
 			item: $ring
 		
 		#[debug] $entity
-		[to-unit-test entity-with-ring] $entity
+		[to-unit-test entity-ring-equipped] $entity
+		
+		[unequip $entity]
+			item: $ring
+		
+		#[debug] $entity
+		[to-unit-test entity-ring-unequipped] $entity
 		
 
