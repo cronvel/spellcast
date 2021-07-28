@@ -1458,6 +1458,8 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 
 			book.unitTest.ensureOnce( 'entity-ring-unequipped' , entity => {
 				//console.log( entity ) ;
+				expect( [ ... entity['equipped-items'].ring ] ).to.equal( [] ) ;
+
 				expect( entity.stats.strength.base ).to.be( 12 ) ;
 				expect( entity.stats.strength.actual ).to.be( 12 ) ;
 				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
