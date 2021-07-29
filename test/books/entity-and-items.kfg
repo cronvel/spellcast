@@ -117,12 +117,5 @@
 			item: $bastard-sword
 		
 		#[debug] $entity
-		[to-unit-test entity-ring-equipped] $entity
-
-		[equip $entity]
-			owned: no
-			item: $bastard-sword
-		
-		#[debug] $entity
 		[to-unit-test entity-bastard-sword-equipped] $entity
 
