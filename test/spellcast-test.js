@@ -1440,7 +1440,7 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 				charmItem = item ;
 				//console.log( item ) ;
 				//console.log( item['active-mods'] ) ;
-				expect( item['passive-mods'].resilience.plus.operand ).to.be( 1 ) ;
+				expect( item['passive-mods'].resilience.multiply.operand ).to.be( 1.1 ) ;
 				expect( item['passive-mods']['usages.melee-fighting.defense'].plus.operand ).to.be( 1 ) ;
 			} ) ;
 			
@@ -1616,7 +1616,7 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.quickness.base ).to.be( 15 ) ;
 				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
 				expect( entity.stats.resilience.base ).to.be( 12 ) ;
-				expect( entity.stats.resilience.actual ).to.be( 13 ) ;
+				expect( entity.stats.resilience.actual ).to.be.around( 13.2 ) ;
 				expect( entity.stats.arcane.base ).to.be( 18 ) ;
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
 
@@ -1639,7 +1639,7 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.quickness.base ).to.be( 15 ) ;
 				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
 				expect( entity.stats.resilience.base ).to.be( 12 ) ;
-				expect( entity.stats.resilience.actual ).to.be( 13 ) ;
+				expect( entity.stats.resilience.actual ).to.be.around( 13.2 ) ;
 				expect( entity.stats.arcane.base ).to.be( 18 ) ;
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
 

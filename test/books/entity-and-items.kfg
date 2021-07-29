@@ -41,7 +41,7 @@
 	class: object
 	name: charm of protection
 	passive-mods:
-		resilience: (+) 1
+		resilience: (*) +10%
 		usages.melee-fighting.defense: (+) 1
 
 [item-model ring-of-power]
