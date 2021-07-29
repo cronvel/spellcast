@@ -24,11 +24,17 @@
 		
 		# Skills stats
 		skills:
-			fighting: 1
+			fighting: 3
 			shooting: 1
 
 		status:
 			health: 100
+
+		usages:
+			melee-fighting:
+				attack: $$= ( ( $dexterity + $quickness ) / 2 ) + $skills.fighting
+				defense: $$= ( ( $dexterity + $quickness ) / 2 ) + $skills.fighting
+				damage: $$= $strength + $skills.fighting
 
 
 [item-model ring-of-power]
@@ -40,6 +46,40 @@
 		strength: (+) 3
 		resilience: (+) 2
 
+[item-model bastard-sword]
+	class: object
+	name: bastard sword
+	slot-type: hand
+	slot-count: 1
+	usages-mods:
+		melee-fighting:
+			primary:
+				attack: (+) 5
+				defense: (+) 4
+				damage: (+) 5
+			extra-slot:
+				attack: (+) 1
+				defense: (+) 1
+				damage: (+) 4
+			support:
+				attack: (+) 1
+				defense: (+) 1
+
+[item-model main-gauche]
+	class: object
+	name: main gauche
+	slot-type: hand
+	slot-count: 1
+	usages-mods:
+		melee-fighting:
+			primary:
+				attack: (+) 2
+				defense: (+) 3
+				damage: (+) 2
+			support:
+				attack: (+) 1
+				defense: (+) 3
+
 
 [chapter a-chapter]
 	[starting-scene a-scene]
@@ -50,6 +90,14 @@
 		[create-item $ring] ring-of-power
 		#[debug] $ring
 		[to-unit-test ring] $ring
+		
+		[create-item $bastard-sword] bastard-sword
+		#[debug] $bastard-sword
+		[to-unit-test bastard-sword] $bastard-sword
+		
+		[create-item $main-gauche] main-gauche
+		#[debug] $main-gauche
+		[to-unit-test main-gauche] $main-gauche
 		
 		[equip $entity]
 			owned: no
@@ -64,4 +112,17 @@
 		#[debug] $entity
 		[to-unit-test entity-ring-unequipped] $entity
 		
+		[equip $entity]
+			owned: no
+			item: $bastard-sword
+		
+		#[debug] $entity
+		[to-unit-test entity-ring-equipped] $entity
+
+		[equip $entity]
+			owned: no
+			item: $bastard-sword
+		
+		#[debug] $entity
+		[to-unit-test entity-bastard-sword-equipped] $entity
 

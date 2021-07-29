@@ -1415,7 +1415,7 @@ describe( "Basic story tags and features" , () => {
 describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 
 	it( "Basic stats test" , async () => {
-		var ringItem ;
+		var ringItem , bastardSwordItem , mainGaucheItem ;
 
 		await runBook( __dirname + '/books/entity.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'base-entity' , entity => {
@@ -1430,6 +1430,10 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.resilience.actual ).to.be( 12 ) ;
 				expect( entity.stats.arcane.base ).to.be( 18 ) ;
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+
+				expect( entity.stats.usages['melee-fighting'].attack.actual ).to.be( 17.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].defense.actual ).to.be( 17.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].damage.actual ).to.be( 15 ) ;
 			} ) ;
 			
 			book.unitTest.ensureOnce( 'ring' , item => {
@@ -1438,6 +1442,31 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 				//console.log( item['active-mods'] ) ;
 				expect( item['active-mods'].strength.plus.operand ).to.be( 3 ) ;
 				expect( item['active-mods'].resilience.plus.operand ).to.be( 2 ) ;
+			} ) ;
+			
+			book.unitTest.ensureOnce( 'bastard-sword' , item => {
+				bastardSwordItem = item ;
+				//console.log( item ) ;
+				//console.log( item['usages-mods'] ) ;
+				expect( item['usages-mods']['melee-fighting'].primary.attack.plus.operand ).to.be( 5 ) ;
+				expect( item['usages-mods']['melee-fighting'].primary.defense.plus.operand ).to.be( 4 ) ;
+				expect( item['usages-mods']['melee-fighting'].primary.damage.plus.operand ).to.be( 5 ) ;
+				expect( item['usages-mods']['melee-fighting']['extra-slot'].attack.plus.operand ).to.be( 1 ) ;
+				expect( item['usages-mods']['melee-fighting']['extra-slot'].defense.plus.operand ).to.be( 1 ) ;
+				expect( item['usages-mods']['melee-fighting']['extra-slot'].damage.plus.operand ).to.be( 4 ) ;
+				expect( item['usages-mods']['melee-fighting'].support.attack.plus.operand ).to.be( 1 ) ;
+				expect( item['usages-mods']['melee-fighting'].support.defense.plus.operand ).to.be( 1 ) ;
+			} ) ;
+			
+			book.unitTest.ensureOnce( 'main-gauche' , item => {
+				mainGaucheItem = item ;
+				//console.log( item ) ;
+				//console.log( item['usages-mods'] ) ;
+				expect( item['usages-mods']['melee-fighting'].primary.attack.plus.operand ).to.be( 2 ) ;
+				expect( item['usages-mods']['melee-fighting'].primary.defense.plus.operand ).to.be( 3 ) ;
+				expect( item['usages-mods']['melee-fighting'].primary.damage.plus.operand ).to.be( 2 ) ;
+				expect( item['usages-mods']['melee-fighting'].support.attack.plus.operand ).to.be( 1 ) ;
+				expect( item['usages-mods']['melee-fighting'].support.defense.plus.operand ).to.be( 3 ) ;
 			} ) ;
 			
 			book.unitTest.ensureOnce( 'entity-ring-equipped' , entity => {
@@ -1460,6 +1489,22 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 				//console.log( entity ) ;
 				expect( [ ... entity['equipped-items'].ring ] ).to.equal( [] ) ;
 
+				expect( entity.stats.strength.base ).to.be( 12 ) ;
+				expect( entity.stats.strength.actual ).to.be( 12 ) ;
+				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
+				expect( entity.stats.dexterity.actual ).to.be( 14 ) ;
+				expect( entity.stats.quickness.base ).to.be( 15 ) ;
+				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
+				expect( entity.stats.resilience.base ).to.be( 12 ) ;
+				expect( entity.stats.resilience.actual ).to.be( 12 ) ;
+				expect( entity.stats.arcane.base ).to.be( 18 ) ;
+				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+			} ) ;
+			
+			book.unitTest.ensureOnce( 'entity-bastard-sword-equipped' , entity => {
+				//console.log( entity ) ;
+				expect( [ ... entity['equipped-items'].ring ] ).to.equal( [] ) ;
+				
 				expect( entity.stats.strength.base ).to.be( 12 ) ;
 				expect( entity.stats.strength.actual ).to.be( 12 ) ;
 				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
