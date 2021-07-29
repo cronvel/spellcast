@@ -37,6 +37,13 @@
 				damage: $$= $strength + $skills.fighting
 
 
+[item-model charm-of-protection]
+	class: object
+	name: charm of protection
+	passive-mods:
+		resilience: (+) 1
+		usages.melee-fighting.defense: (+) 1
+
 [item-model ring-of-power]
 	class: object
 	name: ring of power
@@ -91,6 +98,10 @@
 		#[debug] $ring
 		[to-unit-test ring] $ring
 		
+		[create-item $charm] charm-of-protection
+		#[debug] $charm
+		[to-unit-test charm] $charm
+		
 		[create-item $bastard-sword] bastard-sword
 		#[debug] $bastard-sword
 		[to-unit-test bastard-sword] $bastard-sword
@@ -118,4 +129,50 @@
 		
 		#[debug] $entity
 		[to-unit-test entity-bastard-sword-equipped] $entity
+		
+		[unequip $entity]
+			item: $bastard-sword
+		
+		#[debug] $entity
+		[to-unit-test entity-bastard-sword-unequipped] $entity
+
+		[equip $entity]
+			item: $bastard-sword
+		
+		#[debug] $entity
+		[to-unit-test entity-bastard-sword-re-equipped] $entity
+
+		[equip $entity]
+			owned: no
+			item: $main-gauche
+		
+		#[debug] $entity
+		[to-unit-test entity-bastard-sword-and-main-gauche-equipped] $entity
+
+		[grab $entity]
+			from: null
+			item: $charm
+		
+		#[debug] $entity
+		[to-unit-test entity-after-charm] $entity
+
+		[equip $entity]
+			item: $charm
+		
+		#[debug] $entity
+		[to-unit-test entity-after-trying-to-equip-charm] $entity
+
+
+		[drop $entity]
+			into: null
+			item: $charm
+		
+		#[debug] $entity
+		[to-unit-test entity-after-dropping-charm] $entity
+
+		[unequip $entity]
+			item: $bastard-sword
+		
+		#[debug] $entity
+		[to-unit-test entity-main-gauche-only] $entity
 
