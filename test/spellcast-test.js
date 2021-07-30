@@ -1414,11 +1414,53 @@ describe( "Basic story tags and features" , () => {
 
 describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 
+	it( "yyy Entity from model" , async () => {
+		await runBook( __dirname + '/books/entity-from-model.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'entity1' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.strength.base ).to.be( 12 ) ;
+				expect( entity.stats.strength.actual ).to.be( 12 ) ;
+				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
+				expect( entity.stats.dexterity.actual ).to.be( 14 ) ;
+				expect( entity.stats.quickness.base ).to.be( 15 ) ;
+				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
+				expect( entity.stats.resilience.base ).to.be( 12 ) ;
+				expect( entity.stats.resilience.actual ).to.be( 12 ) ;
+				expect( entity.stats.arcane.base ).to.be( 18 ) ;
+				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+
+				expect( entity.stats.usages['melee-fighting'].attack.actual ).to.be( 17.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].defense.actual ).to.be( 17.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].damage.actual ).to.be( 15 ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity2' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.strength.base ).to.be( 12 ) ;
+				expect( entity.stats.strength.actual ).to.be( 12 ) ;
+				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
+				expect( entity.stats.dexterity.actual ).to.be( 14 ) ;
+				expect( entity.stats.quickness.base ).to.be( 15 ) ;
+				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
+				expect( entity.stats.resilience.base ).to.be( 12 ) ;
+				expect( entity.stats.resilience.actual ).to.be( 12 ) ;
+				expect( entity.stats.arcane.base ).to.be( 18 ) ;
+				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+
+				expect( entity.stats.usages['melee-fighting'].attack.actual ).to.be( 17.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].defense.actual ).to.be( 17.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].damage.actual ).to.be( 15 ) ;
+			} ) ;
+		} ) ;
+	} ) ;
+			
 	it( "Full entity equip/unequip items test" , async () => {
-		var charmItem , ringItem , bastardSwordItem , mainGaucheItem ;
+		var mainEntity , charmItem , ringItem , bastardSwordItem , mainGaucheItem ;
 
 		await runBook( __dirname + '/books/entity-and-items.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'base-entity' , entity => {
+				mainEntity = entity ;
+				expect( [ ... entity.items ] ).to.equal( [] ) ;
 				//console.log( entity ) ;
 				expect( entity.stats.strength.base ).to.be( 12 ) ;
 				expect( entity.stats.strength.actual ).to.be( 12 ) ;
@@ -1697,15 +1739,130 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 		} ) ;
 	} ) ;
 
-	it( "entity with items and equipped items at creation time" , async () => {
-		throw new Error( "TODO" ) ;
-	} ) ;
-
-	it( "entity with innate items" , async () => {
-		throw new Error( "TODO" ) ;
-	} ) ;
-
 	it( "entity and item grab from / drop to place" , async () => {
+		var mainPlace , mainEntity , ringItem ;
+
+		await runBook( __dirname + '/books/entity-grab-from-drop-to-place.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'base-place' , place => {
+				mainPlace = place ;
+				expect( [ ... place.entities ] ).to.equal( [] ) ;
+				expect( [ ... place.items ] ).to.equal( [] ) ;
+
+				//console.log( entity ) ;
+				expect( place.name ).to.be( "the place to be" ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'base-entity' , entity => {
+				mainEntity = entity ;
+				expect( [ ... entity.items ] ).to.equal( [] ) ;
+
+				//console.log( entity ) ;
+				expect( entity.stats.strength.base ).to.be( 12 ) ;
+				expect( entity.stats.strength.actual ).to.be( 12 ) ;
+				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
+				expect( entity.stats.dexterity.actual ).to.be( 14 ) ;
+				expect( entity.stats.quickness.base ).to.be( 15 ) ;
+				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
+				expect( entity.stats.resilience.base ).to.be( 12 ) ;
+				expect( entity.stats.resilience.actual ).to.be( 12 ) ;
+				expect( entity.stats.arcane.base ).to.be( 18 ) ;
+				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'ring' , item => {
+				ringItem = item ;
+				//console.log( item ) ;
+				//console.log( item['active-mods'] ) ;
+				expect( item['active-mods'].strength.plus.operand ).to.be( 3 ) ;
+				expect( item['active-mods'].resilience.plus.operand ).to.be( 2 ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'place-after-move-into' , place => {
+				mainPlace = place ;
+				expect( [ ... place.entities ] ).to.equal( [ mainEntity ] ) ;
+				expect( [ ... place.items ] ).to.equal( [ ringItem ] ) ;
+				expect( mainEntity.parent ).to.be( mainPlace ) ;
+				expect( ringItem.parent ).to.be( mainPlace ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-grab' , entity => {
+				expect( [ ... entity.items ] ).to.equal( [ ringItem ] ) ;
+				expect( [ ... mainPlace.entities ] ).to.equal( [ mainEntity ] ) ;
+				expect( [ ... mainPlace.items ] ).to.equal( [] ) ;
+				expect( mainEntity.parent ).to.be( mainPlace ) ;
+				expect( ringItem.parent ).to.be( mainEntity ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-drop' , entity => {
+				expect( [ ... entity.items ] ).to.equal( [] ) ;
+				expect( [ ... mainPlace.entities ] ).to.equal( [ mainEntity ] ) ;
+				expect( [ ... mainPlace.items ] ).to.equal( [ ringItem ] ) ;
+				expect( mainEntity.parent ).to.be( mainPlace ) ;
+				expect( ringItem.parent ).to.be( mainPlace ) ;
+			} ) ;
+		} ) ;
+	} ) ;
+
+	it( "xxx entity with items and equipped items at creation time" , async () => {
+		var mainEntity , charmItem , ringItem , bastardSwordItem , mainGaucheItem ;
+
+		await runBook( __dirname + '/books/entity-created-with-items.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'charm' , item => charmItem = item ) ;
+			book.unitTest.ensureOnce( 'ring' , item => ringItem = item ) ;
+			book.unitTest.ensureOnce( 'bastard-sword' , item => bastardSwordItem = item ) ;
+			book.unitTest.ensureOnce( 'main-gauche' , item => mainGaucheItem = item ) ;
+
+			// Using existing items
+			book.unitTest.ensureOnce( 'entity-created-with-existing' , entity => {
+				//console.log( entity ) ;
+				expect( [ ... entity.items ] ).to.equal( [ charmItem ] ) ;
+				expect( [ ... entity['equipped-items'].ring ] ).to.equal( [ ringItem ] ) ;
+				expect( [ ... entity['equipped-items'].hand ] ).to.equal( [ bastardSwordItem , mainGaucheItem ] ) ;
+				
+				expect( entity.stats.strength.base ).to.be( 12 ) ;
+				expect( entity.stats.strength.actual ).to.be( 15 ) ;
+				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
+				expect( entity.stats.dexterity.actual ).to.be( 14 ) ;
+				expect( entity.stats.quickness.base ).to.be( 15 ) ;
+				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
+				expect( entity.stats.resilience.base ).to.be( 12 ) ;
+				expect( entity.stats.resilience.actual ).to.be.around( 15.2 ) ;
+				expect( entity.stats.arcane.base ).to.be( 18 ) ;
+				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+
+				//log.hdebug( "melee: %I" , entity.stats.usages['melee-fighting'] ) ;
+				expect( entity.stats.usages['melee-fighting'].attack.actual ).to.be( 23.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].defense.actual ).to.be( 25.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].damage.actual ).to.be( 23 ) ;
+			} ) ;
+
+			// Using items models that should be instanciated
+			book.unitTest.ensureOnce( 'entity-created-with-model' , entity => {
+				console.log( entity ) ;
+				//expect( [ ... entity.items ] ).to.equal( [ charmItem ] ) ;
+				//expect( [ ... entity['equipped-items'].ring ] ).to.equal( [ ringItem ] ) ;
+				//expect( [ ... entity['equipped-items'].hand ] ).to.equal( [ bastardSwordItem , mainGaucheItem ] ) ;
+				
+				expect( entity.stats.strength.base ).to.be( 12 ) ;
+				expect( entity.stats.strength.actual ).to.be( 15 ) ;
+				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
+				expect( entity.stats.dexterity.actual ).to.be( 14 ) ;
+				expect( entity.stats.quickness.base ).to.be( 15 ) ;
+				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
+				expect( entity.stats.resilience.base ).to.be( 12 ) ;
+				expect( entity.stats.resilience.actual ).to.be.around( 15.2 ) ;
+				expect( entity.stats.arcane.base ).to.be( 18 ) ;
+				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+
+				//log.hdebug( "melee: %I" , entity.stats.usages['melee-fighting'] ) ;
+				expect( entity.stats.usages['melee-fighting'].attack.actual ).to.be( 23.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].defense.actual ).to.be( 25.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].damage.actual ).to.be( 23 ) ;
+			} ) ;
+		} ) ;
+	} ) ;
+
+	it( "entity's innate items" , async () => {
 		throw new Error( "TODO" ) ;
 	} ) ;
 } ) ;

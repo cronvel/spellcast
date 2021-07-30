@@ -2,13 +2,6 @@
 [[doctype spellcast/book]]
 
 [entity-model character]
-	usage-types:
-		- melee-fighting
-		- ranged-fighting
-
-	params:
-		xp-reward: 10
-
 	slots:
 		hand: 2
 		ring: 2
@@ -21,20 +14,6 @@
 		quickness: 15
 		resilience: 12
 		arcane: 18
-		
-		# Skills stats
-		skills:
-			fighting: 3
-			shooting: 1
-
-		status:
-			health: 100
-
-		usages:
-			melee-fighting:
-				attack: $$= ( ( $dexterity + $quickness ) / 2 ) + $skills.fighting
-				defense: $$= ( ( $dexterity + $quickness ) / 2 ) + $skills.fighting
-				damage: $$= $strength + $skills.fighting
 
 
 [item-model ring-of-power]
@@ -49,11 +28,25 @@
 
 [chapter a-chapter]
 	[starting-scene a-scene]
+		[create-place $place]
+			name: the place to be
+		[to-unit-test base-place] $place
+
 		[create-entity $entity] character
-		#[debug] $entity
 		[to-unit-test base-entity] $entity
 
 		[create-item $ring] ring-of-power
-		#[debug] $ring
 		[to-unit-test ring] $ring
 		
+		[move-into $entity => $place]
+		[move-into $ring => $place]
+		[to-unit-test place-after-move-into] $place
+		
+		[grab $entity]
+			item: $ring
+		[to-unit-test entity-after-grab] $entity
+
+		[drop $entity]
+			item: $ring
+		[to-unit-test entity-after-drop] $entity
+

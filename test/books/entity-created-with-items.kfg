@@ -90,9 +90,6 @@
 
 [chapter a-chapter]
 	[starting-scene a-scene]
-		[create-entity $entity] character
-		[to-unit-test base-entity] $entity
-
 		[create-item $ring] ring-of-power
 		[to-unit-test ring] $ring
 		
@@ -104,50 +101,27 @@
 		
 		[create-item $main-gauche] main-gauche
 		[to-unit-test main-gauche] $main-gauche
-		
-		[equip $entity]
-			owned: no
-			item: $ring
-		[to-unit-test entity-ring-equipped] $entity
-		
-		[unequip $entity]
-			item: $ring
-		[to-unit-test entity-ring-unequipped] $entity
-		
-		[equip $entity]
-			owned: no
-			item: $bastard-sword
-		[to-unit-test entity-bastard-sword-equipped] $entity
-		
-		[unequip $entity]
-			item: $bastard-sword
-		[to-unit-test entity-bastard-sword-unequipped] $entity
 
-		[equip $entity]
-			item: $bastard-sword
-		[to-unit-test entity-bastard-sword-re-equipped] $entity
+		[create-entity $entity]
+			model: character
+			equipped-items:
+				hand:
+					- $bastard-sword
+					- $main-gauche
+				ring:
+					- $ring
+			items: $charm
+		[to-unit-test entity-created-with-existing] $entity
 
-		[equip $entity]
-			owned: no
-			item: $main-gauche
-		[to-unit-test entity-bastard-sword-and-main-gauche-equipped] $entity
-
-		[grab $entity]
-			from: null
-			item: $charm
-		[to-unit-test entity-after-charm] $entity
-
-		[equip $entity]
-			item: $charm
-		[to-unit-test entity-after-trying-to-equip-charm] $entity
-
-
-		[drop $entity]
-			into: null
-			item: $charm
-		[to-unit-test entity-after-dropping-charm] $entity
-
-		[unequip $entity]
-			item: $bastard-sword
-		[to-unit-test entity-main-gauche-only] $entity
+		[create-entity $entity2]
+			model: character
+			equipped-items:
+				hand:
+					- bastard-sword
+					- main-gauche
+				ring:
+					- ring-of-power
+			items:
+				- charm-of-protection
+		[to-unit-test entity-created-with-model] $entity2
 

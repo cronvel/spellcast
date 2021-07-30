@@ -1,0 +1,46 @@
+
+[[doctype spellcast/book]]
+
+[entity-model character]
+	usage-types:
+		- melee-fighting
+		- ranged-fighting
+
+	params:
+		xp-reward: 10
+
+	slots:
+		hand: 2
+		ring: 2
+		body: 1
+
+	stats:
+		# Global stats
+		strength: 12
+		dexterity: 14
+		quickness: 15
+		resilience: 12
+		arcane: 18
+		
+		# Skills stats
+		skills:
+			fighting: 3
+			shooting: 1
+
+		status:
+			health: 100
+
+		usages:
+			melee-fighting:
+				attack: $$= ( ( $dexterity + $quickness ) / 2 ) + $skills.fighting
+				defense: $$= ( ( $dexterity + $quickness ) / 2 ) + $skills.fighting
+				damage: $$= $strength + $skills.fighting
+
+
+[chapter a-chapter]
+	[starting-scene a-scene]
+		[create-entity $entity] character
+		[to-unit-test entity1] $entity
+		[create-entity $entity2] character
+		[to-unit-test entity2] $entity2
+
