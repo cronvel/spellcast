@@ -1704,6 +1704,10 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 	it( "entity with innate items" , async () => {
 		throw new Error( "TODO" ) ;
 	} ) ;
+
+	it( "entity and item grab from / drop to place" , async () => {
+		throw new Error( "TODO" ) ;
+	} ) ;
 } ) ;
 
 
