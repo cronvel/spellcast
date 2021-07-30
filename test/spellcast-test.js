@@ -1502,9 +1502,9 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( item['usages-mods']['melee-fighting'].primary['usages.melee-fighting.attack'].plus.operand ).to.be( 5 ) ;
 				expect( item['usages-mods']['melee-fighting'].primary['usages.melee-fighting.defense'].plus.operand ).to.be( 4 ) ;
 				expect( item['usages-mods']['melee-fighting'].primary['usages.melee-fighting.damage'].plus.operand ).to.be( 5 ) ;
-				expect( item['usages-mods']['melee-fighting']['extra-slot']['usages.melee-fighting.attack'].plus.operand ).to.be( 1 ) ;
-				expect( item['usages-mods']['melee-fighting']['extra-slot']['usages.melee-fighting.defense'].plus.operand ).to.be( 1 ) ;
-				expect( item['usages-mods']['melee-fighting']['extra-slot']['usages.melee-fighting.damage'].plus.operand ).to.be( 4 ) ;
+				expect( item['usages-mods']['melee-fighting']['primary-extra']['usages.melee-fighting.attack'].plus.operand ).to.be( 6 ) ;
+				expect( item['usages-mods']['melee-fighting']['primary-extra']['usages.melee-fighting.defense'].plus.operand ).to.be( 5 ) ;
+				expect( item['usages-mods']['melee-fighting']['primary-extra']['usages.melee-fighting.damage'].plus.operand ).to.be( 9 ) ;
 				expect( item['usages-mods']['melee-fighting'].support['usages.melee-fighting.attack'].plus.operand ).to.be( 1 ) ;
 				expect( item['usages-mods']['melee-fighting'].support['usages.melee-fighting.defense'].plus.operand ).to.be( 1 ) ;
 			} ) ;
@@ -1622,7 +1622,7 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.usages['melee-fighting'].damage.actual ).to.be( 24 ) ;
 			} ) ;
 			
-			// Check 'extra-slot' removal and 'support' addition
+			// Check 'primary-extra' removal and 'support' addition
 			book.unitTest.ensureOnce( 'entity-bastard-sword-and-main-gauche-equipped' , entity => {
 				//console.log( entity ) ;
 				expect( [ ... entity['equipped-items'].ring ] ).to.equal( [] ) ;

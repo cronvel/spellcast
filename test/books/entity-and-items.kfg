@@ -64,10 +64,10 @@
 				attack: (+) 5
 				defense: (+) 4
 				damage: (+) 5
-			extra-slot:
-				attack: (+) 1
-				defense: (+) 1
-				damage: (+) 4
+			primary-extra:
+				attack: (+) 6
+				defense: (+) 5
+				damage: (+) 9
 			support:
 				attack: (+) 1
 				defense: (+) 1
