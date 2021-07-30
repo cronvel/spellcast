@@ -108,10 +108,8 @@
 				hand:
 					- $bastard-sword
 					- $main-gauche
-				ring:
-					- $ring
-			items:
-				- $charm
+				ring: $ring
+			items: $charm
 		[to-unit-test entity-created-with-existing] $entity
 
 		[create-entity $entity2]
@@ -120,9 +118,7 @@
 				hand:
 					- bastard-sword
 					- main-gauche
-				ring:
-					- ring-of-power
-			items:
-				- charm-of-protection
+				ring: ring-of-power
+			items: charm-of-protection
 		[to-unit-test entity-created-with-model] $entity2
 
