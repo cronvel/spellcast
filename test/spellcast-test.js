@@ -1412,7 +1412,7 @@ describe( "Basic story tags and features" , () => {
 
 
 
-describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
+describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 
 	it( "Full entity equip/unequip items test" , async () => {
 		var charmItem , ringItem , bastardSwordItem , mainGaucheItem ;
@@ -1695,6 +1695,14 @@ describe( "zzz Entity, Item, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.usages['melee-fighting'].damage.actual ).to.be( 17 ) ;
 			} ) ;
 		} ) ;
+	} ) ;
+
+	it( "entity with items and equipped items at creation time" , async () => {
+		throw new Error( "TODO" ) ;
+	} ) ;
+
+	it( "entity with innate items" , async () => {
+		throw new Error( "TODO" ) ;
 	} ) ;
 } ) ;
 
