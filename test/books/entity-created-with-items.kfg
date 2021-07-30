@@ -110,7 +110,8 @@
 					- $main-gauche
 				ring:
 					- $ring
-			items: $charm
+			items:
+				- $charm
 		[to-unit-test entity-created-with-existing] $entity
 
 		[create-entity $entity2]
