@@ -1414,7 +1414,7 @@ describe( "Basic story tags and features" , () => {
 
 describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 
-	it( "yyy Entity from model" , async () => {
+	it( "Entity from model" , async () => {
 		await runBook( __dirname + '/books/entity-from-model.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'entity1' , entity => {
 				//console.log( entity ) ;
