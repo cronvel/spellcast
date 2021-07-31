@@ -1803,7 +1803,7 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 		} ) ;
 	} ) ;
 
-	it( "xxx entity with items and equipped items at creation time" , async () => {
+	it( "entity with items and equipped items at creation time" , async () => {
 		var mainEntity , charmItem , ringItem , bastardSwordItem , mainGaucheItem ;
 
 		await runBook( __dirname + '/books/entity-created-with-items.kfg' , { type: 'story' } , ( ui , book ) => {
