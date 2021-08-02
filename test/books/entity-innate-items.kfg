@@ -1,0 +1,116 @@
+
+[[doctype spellcast/book]]
+
+[item-model claw]
+	class: object
+	name: claw
+	slot-type: hand
+	slot-count: 1
+	virtual: yes
+	usages-mods:
+		melee-fighting:
+			primary:
+				attack: (+) 1
+				defense: (+) 2
+				damage: (+) 3
+			support:
+				attack: (+) 1
+				defense: (+) 1
+
+[item-model bastard-sword]
+	class: object
+	name: bastard sword
+	slot-type: hand
+	slot-count: 1
+	usages-mods:
+		melee-fighting:
+			primary:
+				attack: (+) 5
+				defense: (+) 4
+				damage: (+) 5
+			primary-extra:
+				attack: (+) 6
+				defense: (+) 5
+				damage: (+) 9
+			support:
+				attack: (+) 1
+				defense: (+) 1
+
+[item-model main-gauche]
+	class: object
+	name: main gauche
+	slot-type: hand
+	slot-count: 1
+	usages-mods:
+		melee-fighting:
+			primary:
+				attack: (+) 2
+				defense: (+) 3
+				damage: (+) 2
+			support:
+				attack: (+) 1
+				defense: (+) 3
+
+[entity-model werewolf]
+	usage-types:
+		- melee-fighting
+
+	slots:
+		hand: 2
+
+	stats:
+		# Global stats
+		strength: 12
+		dexterity: 14
+		quickness: 15
+		resilience: 12
+		arcane: 18
+		
+		# Skills stats
+		skills:
+			fighting: 3
+
+		status:
+			health: 100
+
+		usages:
+			melee-fighting:
+				attack: $$= ( ( $dexterity + $quickness ) / 2 ) + $skills.fighting
+				defense: $$= ( ( $dexterity + $quickness ) / 2 ) + $skills.fighting
+				damage: $$= $strength + $skills.fighting
+	
+	innate-items:
+		hand:
+			- claw
+			- claw
+
+
+[chapter a-chapter]
+	[starting-scene a-scene]
+		[create-item $bastard-sword] bastard-sword
+		[to-unit-test bastard-sword] $bastard-sword
+		[create-item $main-gauche] main-gauche
+		[to-unit-test main-gauche] $main-gauche
+
+		[create-entity $entity]
+			model: werewolf
+			items:
+				- $bastard-sword
+				- $main-gauche
+		[to-unit-test base-entity] $entity
+		
+		[equip $entity]
+			item: $bastard-sword
+		[to-unit-test entity-bastard-sword-equipped] $entity
+
+		[unequip $entity]
+			item: $bastard-sword
+		[to-unit-test entity-bastard-sword-unequipped] $entity
+
+		[equip $entity]
+			item: $bastard-sword
+		[to-unit-test entity-bastard-sword-re-equipped] $entity
+
+		[equip $entity]
+			item: $main-gauche
+		[to-unit-test entity-bastard-sword-and-main-gauche-equipped] $entity
