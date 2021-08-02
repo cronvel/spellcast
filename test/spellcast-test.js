@@ -1862,8 +1862,36 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 		} ) ;
 	} ) ;
 
-	it( "entity's innate items" , async () => {
-		throw new Error( "TODO" ) ;
+	it( "xxx entity's innate items" , async () => {
+		var mainEntity , bastardSwordItem , mainGaucheItem ;
+
+		await runBook( __dirname + '/books/entity-innate-items.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'bastard-sword' , item => bastardSwordItem = item ) ;
+			book.unitTest.ensureOnce( 'main-gauche' , item => mainGaucheItem = item ) ;
+
+			// Using existing items
+			book.unitTest.ensureOnce( 'base-entity' , entity => {
+				//console.log( entity ) ;
+				expect( [ ... entity.items ] ).to.equal( [ bastardSwordItem , mainGaucheItem ] ) ;
+				expect( [ ... entity['equipped-items'].hand ] ).to.equal( [] ) ;
+				
+				expect( entity.stats.strength.base ).to.be( 12 ) ;
+				expect( entity.stats.strength.actual ).to.be( 12 ) ;
+				expect( entity.stats.dexterity.base ).to.be( 14 ) ;
+				expect( entity.stats.dexterity.actual ).to.be( 14 ) ;
+				expect( entity.stats.quickness.base ).to.be( 15 ) ;
+				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
+				expect( entity.stats.resilience.base ).to.be( 12 ) ;
+				expect( entity.stats.resilience.actual ).to.be.around( 12 ) ;
+				expect( entity.stats.arcane.base ).to.be( 18 ) ;
+				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+
+				//log.hdebug( "melee: %I" , entity.stats.usages['melee-fighting'] ) ;
+				expect( entity.stats.usages['melee-fighting'].attack.actual ).to.be( 17.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].defense.actual ).to.be( 17.5 ) ;
+				expect( entity.stats.usages['melee-fighting'].damage.actual ).to.be( 15 ) ;
+			} ) ;
+		} ) ;
 	} ) ;
 } ) ;
 
