@@ -1862,7 +1862,7 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 		} ) ;
 	} ) ;
 
-	it( "xxx entity's innate items" , async () => {
+	it( "entity's innate items" , async () => {
 		var mainEntity , bastardSwordItem , mainGaucheItem ;
 
 		await runBook( __dirname + '/books/entity-innate-items.kfg' , { type: 'story' } , ( ui , book ) => {
