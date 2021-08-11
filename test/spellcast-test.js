@@ -1415,9 +1415,9 @@ describe( "Basic story tags and features" , () => {
 describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 
 	it( "xxx Entity from model" , async () => {
-		await runBook( __dirname + '/books/entity-from-model.kfg' , { type: 'story' } , ( ui , book ) => {
-			var entity1 ;
+		var entity1 , entity2 ;
 
+		await runBook( __dirname + '/books/entity-from-model.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'entity1' , entity => {
 				entity1 = entity ;
 				//console.log( entity ) ;
@@ -1442,6 +1442,7 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 			} ) ;
 
 			book.unitTest.ensureOnce( 'entity2' , entity => {
+				entity2 = entity ;
 				//console.log( entity ) ;
 				expect( entity.stats.strength.base ).to.be( 12 ) ;
 				expect( entity.stats.strength.actual ).to.be( 12 ) ;
@@ -1455,8 +1456,6 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
 
 				expect( entity.stats.status.health ).to.be.a( kungFig.statsModifiers.Gauge ) ;
-				//expect( entity.stats.status.health === entity1.stats.status.health ).to.be( false ) ;
-				expect( entity.stats.status.health ).not.to.be( entity1.stats.status.health ) ;
 				expect( entity.stats.status.health.base ).to.be( 100 ) ;
 				expect( entity.stats.status.health.actual ).to.be( 100 ) ;
 				
@@ -1465,6 +1464,14 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.usages['melee-fighting'].damage.actual ).to.be( 15 ) ;
 			} ) ;
 		} ) ;
+		
+		// Check that gauges are independent clones
+		expect( entity2.stats.status.health ).not.to.be( entity1.stats.status.health ) ;
+		entity1.stats.status.health.base = 80 ;
+		expect( entity1.stats.status.health.base ).to.be( 80 ) ;
+		expect( entity1.stats.status.health.actual ).to.be( 80 ) ;
+		expect( entity2.stats.status.health.base ).to.be( 100 ) ;
+		expect( entity2.stats.status.health.actual ).to.be( 100 ) ;
 	} ) ;
 			
 	it( "Full entity equip/unequip items test" , async () => {
