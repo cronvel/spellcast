@@ -1414,9 +1414,12 @@ describe( "Basic story tags and features" , () => {
 
 describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 
-	it( "Entity from model" , async () => {
+	it( "xxx Entity from model" , async () => {
 		await runBook( __dirname + '/books/entity-from-model.kfg' , { type: 'story' } , ( ui , book ) => {
+			var entity1 ;
+
 			book.unitTest.ensureOnce( 'entity1' , entity => {
+				entity1 = entity ;
 				//console.log( entity ) ;
 				expect( entity.stats.strength.base ).to.be( 12 ) ;
 				expect( entity.stats.strength.actual ).to.be( 12 ) ;
@@ -1428,6 +1431,10 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.resilience.actual ).to.be( 12 ) ;
 				expect( entity.stats.arcane.base ).to.be( 18 ) ;
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
+				
+				expect( entity.stats.status.health ).to.be.a( kungFig.statsModifiers.Gauge ) ;
+				expect( entity.stats.status.health.base ).to.be( 100 ) ;
+				expect( entity.stats.status.health.actual ).to.be( 100 ) ;
 
 				expect( entity.stats.usages['melee-fighting'].attack.actual ).to.be( 17.5 ) ;
 				expect( entity.stats.usages['melee-fighting'].defense.actual ).to.be( 17.5 ) ;
@@ -1447,6 +1454,12 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.arcane.base ).to.be( 18 ) ;
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
 
+				expect( entity.stats.status.health ).to.be.a( kungFig.statsModifiers.Gauge ) ;
+				//expect( entity.stats.status.health === entity1.stats.status.health ).to.be( false ) ;
+				expect( entity.stats.status.health ).not.to.be( entity1.stats.status.health ) ;
+				expect( entity.stats.status.health.base ).to.be( 100 ) ;
+				expect( entity.stats.status.health.actual ).to.be( 100 ) ;
+				
 				expect( entity.stats.usages['melee-fighting'].attack.actual ).to.be( 17.5 ) ;
 				expect( entity.stats.usages['melee-fighting'].defense.actual ).to.be( 17.5 ) ;
 				expect( entity.stats.usages['melee-fighting'].damage.actual ).to.be( 15 ) ;
