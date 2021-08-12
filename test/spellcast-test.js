@@ -1414,7 +1414,7 @@ describe( "Basic story tags and features" , () => {
 
 describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 
-	it( "xxx Entity from model" , async () => {
+	it( "Entity from model" , async () => {
 		var entity1 , entity2 ;
 
 		await runBook( __dirname + '/books/entity-from-model.kfg' , { type: 'story' } , ( ui , book ) => {
@@ -1473,7 +1473,119 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 		expect( entity2.stats.status.health.base ).to.be( 100 ) ;
 		expect( entity2.stats.status.health.actual ).to.be( 100 ) ;
 	} ) ;
-			
+
+	it( "Entity's gauge stats" , async () => {
+		var entity1 ;
+
+		await runBook( __dirname + '/books/entity-gauge.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'base-entity' , entity => {
+				entity1 = entity ;
+				//console.log( entity ) ;
+				expect( entity.stats.status.health ).to.be.a( kungFig.statsModifiers.Gauge ) ;
+				expect( entity.stats.status.health.base ).to.be( 100 ) ;
+				expect( entity.stats.status.health.actual ).to.be( 100 ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-1st-hit' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.status.health.base ).to.be( 100 ) ;
+				expect( entity.stats.status.health.actual ).to.be( 80 ) ;
+				expect( entity.stats.status.health.entries ).to.be.like( [
+					{ value: -20 , weight: 2 , description: "take a hit" }
+				] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-3rd-hit' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.status.health.base ).to.be( 100 ) ;
+				expect( entity.stats.status.health.actual ).to.be( 68 ) ;
+				expect( entity.stats.status.health.entries ).to.be.like( [
+					{ value: -20 , weight: 2 , description: "take a hit" } ,
+					{ value: -5 , weight: 1 , description: "take a scratch" } ,
+					{ value: -7 , weight: 1 , description: null }
+				] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-recover' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.status.health.base ).to.be( 100 ) ;
+				expect( entity.stats.status.health.actual ).to.be( 94 ) ;
+				expect( entity.stats.status.health.entries ).to.be.like( [
+					{ value: -6 , weight: 2 , description: "take a hit" } ,
+				] ) ;
+			} ) ;
+		} ) ;
+	} ) ;
+
+	it( "Entity's alignometer stats" , async () => {
+		var entity1 ;
+
+		await runBook( __dirname + '/books/entity-alignometer.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'base-entity' , entity => {
+				entity1 = entity ;
+				//console.log( entity ) ;
+				expect( entity.stats.status.goodness ).to.be.a( kungFig.statsModifiers.Alignometer ) ;
+				expect( entity.stats.status.goodness.base ).to.be( 0 ) ;
+				expect( entity.stats.status.goodness.actual ).to.be( 0 ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-1st-mod' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.status.goodness.base ).to.be( 0 ) ;
+				expect( entity.stats.status.goodness.actual ).to.be( 50 ) ;
+				expect( entity.stats.status.goodness.entries ).to.be.like( [
+					{ direction: 1 , value: 100 , weight: 10 , description: "charity" }
+				] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-2nd-mod' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.status.goodness.base ).to.be( 0 ) ;
+				expect( entity.stats.status.goodness.actual ).to.be( 75 ) ;
+				expect( entity.stats.status.goodness.entries ).to.be.like( [
+					{ direction: 1 , value: 100 , weight: 10 , description: "charity" } ,
+					{ direction: 1 , value: 100 , weight: 5 , description: null }
+				] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-3rd-mod' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.status.goodness.base ).to.be( 0 ) ;
+				expect( entity.stats.status.goodness.actual ).to.be( 50 ) ;
+				expect( entity.stats.status.goodness.entries ).to.be.like( [
+					{ direction: 1 , value: 100 , weight: 10 , description: "charity" } ,
+					{ direction: 1 , value: 100 , weight: 5 , description: null } ,
+					{ direction: -1 , value: -100 , weight: 5 , description: null }
+				] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-4th-mod' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.status.goodness.base ).to.be( 0 ) ;
+				expect( entity.stats.status.goodness.actual ).to.be( 40 ) ;
+				expect( entity.stats.status.goodness.entries ).to.be.like( [
+					{ direction: 1 , value: 100 , weight: 10 , description: "charity" } ,
+					{ direction: 1 , value: 100 , weight: 5 , description: null } ,
+					{ direction: -1 , value: -100 , weight: 5 , description: null } ,
+					{ direction: -1 , value: 20 , weight: 10 , description: "not so good" }
+				] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-5th-mod' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.status.goodness.base ).to.be( 0 ) ;
+				expect( entity.stats.status.goodness.actual ).to.be( -25 ) ;
+				expect( entity.stats.status.goodness.entries ).to.be.like( [
+					{ direction: 1 , value: 100 , weight: 10 , description: "charity" } ,
+					{ direction: 1 , value: 100 , weight: 5 , description: null } ,
+					{ direction: -1 , value: -100 , weight: 5 , description: null } ,
+					{ direction: -1 , value: 20 , weight: 10 , description: "not so good" } ,
+					{ direction: -1 , value: -100 , weight: 20 , description: "that was really bad!!!" }
+				] ) ;
+			} ) ;
+		} ) ;
+	} ) ;
+	
 	it( "Full entity equip/unequip items test" , async () => {
 		var mainEntity , charmItem , ringItem , bastardSwordItem , mainGaucheItem ;
 

@@ -1,0 +1,42 @@
+
+[[doctype spellcast/book]]
+
+[entity-model character]
+	usage-types:
+		- melee-fighting
+		- ranged-fighting
+
+	slots:
+		hand: 2
+		ring: 2
+		body: 1
+
+	stats:
+		status:
+			health: <Gauge>
+				base: 100
+				min: 0
+				max: 100
+
+
+[chapter a-chapter]
+	[starting-scene a-scene]
+		[create-entity $entity] character
+		[to-unit-test base-entity] $entity
+
+		[affect $entity.stats.status.health]
+			value: -20
+			weight: 2
+			description: take a hit
+		[to-unit-test entity-after-1st-hit] $entity
+
+		[affect-lower $entity.stats.status.health]
+			value: 5
+			weight: 1
+			description: take a scratch
+		[affect-lower $entity.stats.status.health] 7
+		[to-unit-test entity-after-3rd-hit] $entity
+
+		[affect-recover $entity.stats.status.health] 40
+		[to-unit-test entity-after-recover] $entity
+
