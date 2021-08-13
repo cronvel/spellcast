@@ -24,19 +24,19 @@
 		[create-entity $entity] character
 		[to-unit-test base-entity] $entity
 
-		[affect $entity.stats.status.health]
+		[raise-gauge $entity.stats.status.health]
 			value: -20
 			weight: 2
 			description: take a hit
 		[to-unit-test entity-after-1st-hit] $entity
 
-		[affect-lower $entity.stats.status.health]
+		[lower-gauge $entity.stats.status.health]
 			value: 5
 			weight: 1
 			description: take a scratch
-		[affect-lower $entity.stats.status.health] 7
+		[lower-gauge $entity.stats.status.health] 7
 		[to-unit-test entity-after-3rd-hit] $entity
 
-		[affect-recover $entity.stats.status.health] 40
+		[recover-gauge $entity.stats.status.health] 40
 		[to-unit-test entity-after-recover] $entity
 

@@ -1517,7 +1517,7 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 		} ) ;
 	} ) ;
 
-	it( "Entity's alignometer stats" , async () => {
+	it( "www Entity's alignometer stats" , async () => {
 		var entity1 ;
 
 		await runBook( __dirname + '/books/entity-alignometer.kfg' , { type: 'story' } , ( ui , book ) => {
@@ -1582,6 +1582,12 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 					{ direction: -1 , value: 20 , weight: 10 , description: "not so good" } ,
 					{ direction: -1 , value: -100 , weight: 20 , description: "that was really bad!!!" }
 				] ) ;
+				expect( entity.stats.status.goodness.instant ).to.be( -25 ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-instant-max-weight-mod' , entity => {
+				//console.log( entity ) ;
+				expect( entity.stats.status.goodness.instant ).to.be( -100 ) ;
 			} ) ;
 		} ) ;
 	} ) ;

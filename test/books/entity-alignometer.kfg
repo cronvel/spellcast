@@ -24,25 +24,28 @@
 		[create-entity $entity] character
 		[to-unit-test base-entity] $entity
 
-		[affect-raise $entity.stats.status.goodness]
+		[raise-gauge $entity.stats.status.goodness]
 			weight: 10
 			description: charity
 		[to-unit-test entity-after-1st-mod] $entity
 
-		[affect-raise $entity.stats.status.goodness] 5
+		[raise-gauge $entity.stats.status.goodness] 5
 		[to-unit-test entity-after-2nd-mod] $entity
 
-		[affect-lower $entity.stats.status.goodness] 5
+		[lower-gauge $entity.stats.status.goodness] 5
 		[to-unit-test entity-after-3rd-mod] $entity
 
-		[affect-lower $entity.stats.status.goodness]
+		[lower-gauge $entity.stats.status.goodness]
 			to: 20
 			weight: 10
 			description: not so good
 		[to-unit-test entity-after-4th-mod] $entity
 
-		[affect-lower $entity.stats.status.goodness]
+		[lower-gauge $entity.stats.status.goodness]
 			weight: 20
 			description: that was really bad!!!
 		[to-unit-test entity-after-5th-mod] $entity
+
+		[set $entity.stats.status.goodness.instant-max-weight] 30
+		[to-unit-test entity-instant-max-weight-mod] $entity
 
