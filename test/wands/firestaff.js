@@ -26,7 +26,7 @@
 exports.fireball = function( book , tag , ctx )
 {
 	book.sendMessageToAll( ctx , "ZASH... ROOOOARRRR-CRASHHHHH!" ) ;
-	book.sendMessageToAll( ctx , ctx.data.wizard + ' killed the ' + tag.getFinalContent( ctx.data ) + "..." ) ;
+	book.sendMessageToAll( ctx , ctx.data.wizard + ' killed the ' + tag.extractContent( ctx.data ) + "..." ) ;
 } ;
 
 exports['delayed fireball'] = function( book , tag , ctx , callback )
@@ -35,7 +35,7 @@ exports['delayed fireball'] = function( book , tag , ctx , callback )
 	
 	setTimeout( function() {
 		book.sendMessageToAll( ctx , "ROOOOARRRR-CRASHHHHH!" ) ;
-		book.sendMessageToAll( ctx , ctx.data.wizard + ' killed the ' + tag.getFinalContent( ctx.data ) + ", with a delay..." ) ;
+		book.sendMessageToAll( ctx , ctx.data.wizard + ' killed the ' + tag.extractContent( ctx.data ) + ", with a delay..." ) ;
 		callback() ;
 	} , 200 ) ;
 } ;
