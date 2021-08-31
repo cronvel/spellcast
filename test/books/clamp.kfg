@@ -1,0 +1,14 @@
+
+[[doctype spellcast/spellbook]]
+
+[formula]
+	a: 3
+
+[spell clamp]
+	[message] $> Value: ${a}
+	[clamp $a 1 5]
+	[message] $> Value: ${a}
+	[clamp $a 5 8]
+	[message] $> Value: ${a}
+	[clamp $a 1 2]
+	[message] $> Value: ${a}

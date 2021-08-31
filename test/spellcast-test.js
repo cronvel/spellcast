@@ -598,6 +598,21 @@ describe( "Operations tags" , () => {
 		] ) ;
 	} ) ;
 
+	it( "[clamp] tag" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/clamp.kfg' , { type: 'cast' , target: 'clamp' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Value: 3' ] ,
+			[ 'Value: 3' ] ,
+			[ 'Value: 5' ] ,
+			[ 'Value: 2' ]
+		] ) ;
+	} ) ;
+
 	it( "[apply] tag" , async () => {
 		var messages = [] ;
 
