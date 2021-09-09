@@ -29,3 +29,31 @@
 		[message]
 			- > Condition #2 else
 
+	[select $value]
+	[if > 4]
+		[message]
+			- > Condition #3 if
+	[elsif > 2]
+		[message]
+			- > Condition #3 elsif
+	[elseif > 1]
+		[message]
+			- > Condition #3 elseif
+	[else]
+		[message]
+			- > Condition #3 else
+
+	[select $value + 2]
+	[if > 4]
+		[message]
+			- > Condition #4 if
+	[elsif > 2]
+		[message]
+			- > Condition #4 elsif
+	[elseif > 1]
+		[message]
+			- > Condition #4 elseif
+	[else]
+		[message]
+			- > Condition #4 else
+

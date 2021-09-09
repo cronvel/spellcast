@@ -212,7 +212,7 @@ describe( "I/O tags" , () => {
 
 describe( "Control flow tags" , () => {
 
-	it( "[if], [elsif]/[elseif] and [else] tags" , async () => {
+	it( "[if], [elsif]/[elseif], [else], and [select] tags" , async () => {
 		var book , messages ;
 
 		messages = [] ;
@@ -223,7 +223,9 @@ describe( "Control flow tags" , () => {
 
 		expect( messages ).to.equal( [
 			[ 'Condition #1 else' ] ,
-			[ 'Condition #2 else' ]
+			[ 'Condition #2 else' ] ,
+			[ 'Condition #3 else' ] ,
+			[ 'Condition #4 elsif' ]
 		] ) ;
 
 		// Reset messages and change the value to be tested
@@ -234,7 +236,9 @@ describe( "Control flow tags" , () => {
 
 		expect( messages ).to.equal( [
 			[ 'Condition #1 else' ] ,
-			[ 'Condition #2 elseif' ]
+			[ 'Condition #2 elseif' ] ,
+			[ 'Condition #3 elseif' ] ,
+			[ 'Condition #4 elsif' ]
 		] ) ;
 
 		// Reset messages and change the value to be tested
@@ -244,7 +248,9 @@ describe( "Control flow tags" , () => {
 		await book.cast( 'if-elseif-else' ) ;
 		expect( messages ).to.equal( [
 			[ 'Condition #1 else' ] ,
-			[ 'Condition #2 elsif' ]
+			[ 'Condition #2 elsif' ] ,
+			[ 'Condition #3 elsif' ] ,
+			[ 'Condition #4 if' ]
 		] ) ;
 
 		// Reset messages and change the value to be tested
@@ -255,7 +261,9 @@ describe( "Control flow tags" , () => {
 		expect( messages ).to.equal( [
 			[ 'Condition #0 if' ] ,
 			[ 'Condition #1 if' ] ,
-			[ 'Condition #2 if' ]
+			[ 'Condition #2 if' ] ,
+			[ 'Condition #3 if' ] ,
+			[ 'Condition #4 if' ]
 		] ) ;
 	} ) ;
 
