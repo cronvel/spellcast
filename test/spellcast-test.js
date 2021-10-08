@@ -293,9 +293,15 @@ describe( "Control flow tags" , () => {
 			[ 'The value is: un' ] ,
 			[ 'The value is: deux' ] ,
 			[ 'The value is: trois' ] ,
-			[ 'The key/value is: 0/un' ] ,
-			[ 'The key/value is: 1/deux' ] ,
-			[ 'The key/value is: 2/trois' ] ,
+			[ 'The key/value is: un/un' ] ,
+			[ 'The key/value is: deux/deux' ] ,
+			[ 'The key/value is: trois/trois' ] ,
+			[ 'The value is: 1' ] ,
+			[ 'The value is: 2' ] ,
+			[ 'The value is: 3' ] ,
+			[ 'The key/value is: un/1' ] ,
+			[ 'The key/value is: deux/2' ] ,
+			[ 'The key/value is: trois/3' ]
 		] ) ;
 	} ) ;
 
