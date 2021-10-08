@@ -10,6 +10,17 @@
 		one: 1
 		two: 2
 		three: 3
+	set: <Set>
+		- un
+		- deux
+		- trois
+	map: <Map>
+		<: un
+		:> 1
+		<: deux
+		:> 2
+		<: trois
+		:> 3
 
 [spell foreach]
 	[foreach $list => $value]
@@ -25,6 +36,22 @@
 			$> The value is: ${value}
 	
 	[foreach $object => $key : $value]
+		[message]
+			$> The key/value is: ${key}/${value}
+
+	[foreach $set => $value]
+		[message]
+			$> The value is: ${value}
+	
+	[foreach $set => $key : $value]
+		[message]
+			$> The key/value is: ${key}/${value}
+
+	[foreach $map => $value]
+		[message]
+			$> The value is: ${value}
+	
+	[foreach $map => $key : $value]
 		[message]
 			$> The key/value is: ${key}/${value}
 
