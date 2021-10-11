@@ -1365,7 +1365,7 @@ describe( "Basic story tags and features" , () => {
 	it( "[here] tag" ) ;
 	it( "[here-actions] tag" ) ;
 
-	it( "Special var $local" , async () => {
+	it( "Special var $local and it's shorthand '$.'" , async () => {
 		var messages = [] , ends = [] ;
 
 		await runBook( __dirname + '/books/local-var.kfg' , { type: 'story' , path: [ 0 ] } ,
@@ -1373,10 +1373,14 @@ describe( "Basic story tags and features" , () => {
 		) ;
 
 		expect( messages ).to.equal( [
-			[ 'bob: 15 -- local.bob: 1' ] ,
-			[ 'bob: 15 -- local.bob: 1' ] ,
-			[ 'bob: 15 -- local.bob: 1' ] ,
-			[ 'bob: 15 -- local.bob: 1' ]
+			[ 'A -- bob: 15 -- local.bob: 1 -- .bob: 1' ] ,
+			[ 'B -- bob: 15 -- local.bob: 2 -- .bob: 2' ] ,
+			[ 'A -- bob: 15 -- local.bob: 1 -- .bob: 1' ] ,
+			[ 'B -- bob: 15 -- local.bob: 2 -- .bob: 2' ] ,
+			[ 'A -- bob: 15 -- local.bob: 1 -- .bob: 1' ] ,
+			[ 'B -- bob: 15 -- local.bob: 2 -- .bob: 2' ] ,
+			[ 'A -- bob: 15 -- local.bob: 1 -- .bob: 1' ] ,
+			[ 'B -- bob: 15 -- local.bob: 2 -- .bob: 2' ]
 		] ) ;
 	} ) ;
 

@@ -16,5 +16,7 @@
 	[scene scene3]
 		[add $bob] 10
 		[set $local.bob] 1
-		[message] $> bob: ${bob} -- local.bob: ${local.bob}
+		[message] $> A -- bob: ${bob} -- local.bob: ${local.bob} -- .bob: ${.bob}
+		[set $.bob] 2
+		[message] $> B -- bob: ${bob} -- local.bob: ${local.bob} -- .bob: ${.bob}
 
