@@ -2003,7 +2003,7 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.quickness.base ).to.be( 15 ) ;
 				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
 				expect( entity.stats.resilience.base ).to.be( 12 ) ;
-				expect( entity.stats.resilience.actual ).to.be.around( 15.2 ) ;
+				expect( entity.stats.resilience.actual ).to.be.around( 15.4 ) ;
 				expect( entity.stats.arcane.base ).to.be( 18 ) ;
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
 
@@ -2027,7 +2027,7 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.quickness.base ).to.be( 15 ) ;
 				expect( entity.stats.quickness.actual ).to.be( 15 ) ;
 				expect( entity.stats.resilience.base ).to.be( 12 ) ;
-				expect( entity.stats.resilience.actual ).to.be.around( 15.2 ) ;
+				expect( entity.stats.resilience.actual ).to.be.around( 15.4 ) ;
 				expect( entity.stats.arcane.base ).to.be( 18 ) ;
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
 
