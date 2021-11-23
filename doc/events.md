@@ -58,12 +58,21 @@ Events emitted here are usually **userland** event, except few standard events:
 * message (text, options): [completion] message emitted by the book, `text` contains the message and may contains markup,
   if `options` is set, it is an object contains details about the message. They may or may not be implemented, depending
   on the client. Available options:
+	* await `boolean` if true the script execution wait for the client ack (e.g. until the spoken voice or the slow-typing is finished)
+	* next `boolean` if true, the message wait for the user acknowledgement, force *await*
+	* type `string` the message type, which can be:
+    	* 'log': (the default) the message is added to the main text box, which is usually scrollable, and have infinite history
+    	* 'dialog': the message produces an ephemeral dialog box
+    	* 'modal': like 'dialog', but also prevent the user from doing anything until the message send the ack
+    	* 'overlay': mostly like 'dialog', but without the box
+    	* 'g-entity': the message is attached to a GEntity, e.g.: a character is chatting and the message is inside a bubble attached to the character's sprite
+	* special: `object` (optional) client-depended, can be used to tell the client the place of the message, or some cosmetics
 	* continue `boolean` if true, this message should be continued by the next message (i.e.: no newline, no new paragraph)
-	* wait `boolean` if true (the default), the script execution wait for the client ack (e.g. until the spoken voice or the slow-typing is finished)
-	* next `boolean` if true, the message wait for the user acknowledgement
 	* important `boolean` if true and if the scene is rendering in the *alternate buffer*, the message should be rendered
 	  in the *main buffer* too.
-	* slowTyping `boolean` if true, the message is diplayed letter by letter
+	* slowTyping `boolean` if true, the message is displayed letter by letter
+	* wait `number` (optional) if set, the message ends (is discarded) after that number of seconds, also this pause starts only
+	  after slowTyping or any special delay have finished
 	* style `object` (optional) this is a CSS object to style the message element
 	* class `object` or `string` or `array` (optional) CSS class to enable/disable on the message element
 	* image `url` if set, the message as an image related to the text, it may be a portrait of the speaker or an image
