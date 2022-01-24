@@ -191,9 +191,16 @@ Events emitted here are usually **userland** event, except few standard events:
 
 * clientConfig (config): configure various things, like assets URL, etc.
   This event is sent only once at the begining of the execution.
-  Argument `data` is an object, where:
+  Argument `config` is an object, where:
 	* assetBaseUrl `string` (optional) the root URL for all assets
 	* theme `object` (optional) the default theme, see the *theme* event data
+
+* controls (config): configure controls (key bindings).
+  This event is sent only once at the begining of the execution.
+  Argument `config` is an object, where:
+	* keys `object` where key is the key name and value is an `array` of `string` which are action/command
+	* gauges `object` (TO BE DEFINED)
+	* gauges2d `object` (TO BE DEFINED)
 
 * theme (data): instructs the client (if it is capable) to set a theme (CSS) as the scene theme. Argument `data`
   is an object, where:
