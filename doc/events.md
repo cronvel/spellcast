@@ -162,13 +162,15 @@ Events emitted here are usually **userland** event, except few standard events:
   `grantedRoleIds` is an array of role's ID, roles that can select a response (TODO).
   `options` is an object containing various optional values for the next list, where:
 	* timeout `number` the time in ms before the vote finish.
-	* nextStyle `string` next-list display style, if supported by the client. One of:
-	  * *auto*: (default) let the client decide how to style it
-	  * *list*: one choice per line
-	  * *smallList*: same than list, with smaller buttons
-	  * *inline*: all choices are on the same line, if possible
-	  * *smallInline*: same than inline, with smaller buttons
-	  * *table*: display button as a table, using [group-break] parameter tag to create a new row
+	* nextStyle `object`, where:
+		* *format* `string` next-list display style, if supported by the client. One of:
+			* *auto*: (default) let the client decide how to style it
+			* *list*: one choice per line
+			* *smallList*: same than list, with smaller buttons
+			* *inline*: all choices are on the same line, if possible
+			* *smallInline*: same than inline, with smaller buttons
+			* *table*: display button as a table, using [group-break] parameter tag to create a new row
+		* *position* `string` next-list display position, e.g.: top, bottom, etc...
 * nextTriggered (nextId, roleIds, special): a next action was triggered, `nextId` is the ID of the *next item* in the
   `nextList` event's argument `nexts`, and `roleIds`, if not null, is an array of IDs of roles that activated it (if relevant),
   provided in the last `roleList` event, in the `roles` argument. If the last argument `special` is set, it contains a
