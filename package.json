@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "browserify": "^16.5.1",
-    "electron": "^8.2.5",
+    "electron": "^18.3.7",
     "uglify-es": "^3.3.9"
   },
   "scripts": {
