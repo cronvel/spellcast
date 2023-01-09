@@ -33,7 +33,7 @@
     "string-kit": "^0.11.7",
     "svg-kit": "^0.2.3",
     "terminal-kit": "^1.35.2",
-    "tree-kit": "^0.6.2",
+    "tree-kit": "^0.7.0",
     "utterminal": "^0.5.43"
   },
   "devDependencies": {
