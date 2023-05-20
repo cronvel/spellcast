@@ -13,7 +13,7 @@
 
 	stats:
 		status:
-			goodness: <Alignometer>
+			goodness: <HistoryAlignometer>
 				base: 0
 				min: -100
 				max: 100

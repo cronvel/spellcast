@@ -177,11 +177,12 @@ describe( "I/O tags" , () => {
 		) ;
 
 		expect( messages ).to.equal( [
-			[ 'Some text.' , {} ] ,
-			[ 'Some other text.' , {} ] ,
+			[ 'Some text.' , { type: 'log' } ] ,
+			[ 'Some other text.' , { type: 'log' } ] ,
 			[ 'Welcome to The Shadow Terminal.' , {
 				next: true ,
-				slowTyping: true
+				slowTyping: true ,
+				type: 'log'
 			} ]
 		] ) ;
 	} ) ;
@@ -1451,7 +1452,7 @@ describe( "Basic story tags and features" , () => {
 
 
 
-describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
+describe( "Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 
 	it( "Entity from model" , async () => {
 		var entity1 , entity2 ;
@@ -1471,7 +1472,7 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.arcane.base ).to.be( 18 ) ;
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
 				
-				expect( entity.stats.status.health ).to.be.a( kungFig.statsModifiers.Gauge ) ;
+				expect( entity.stats.status.health ).to.be.a( kungFig.statsModifiers.Pool ) ;
 				expect( entity.stats.status.health.base ).to.be( 100 ) ;
 				expect( entity.stats.status.health.actual ).to.be( 100 ) ;
 
@@ -1494,7 +1495,7 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.arcane.base ).to.be( 18 ) ;
 				expect( entity.stats.arcane.actual ).to.be( 18 ) ;
 
-				expect( entity.stats.status.health ).to.be.a( kungFig.statsModifiers.Gauge ) ;
+				expect( entity.stats.status.health ).to.be.a( kungFig.statsModifiers.Pool ) ;
 				expect( entity.stats.status.health.base ).to.be( 100 ) ;
 				expect( entity.stats.status.health.actual ).to.be( 100 ) ;
 				
@@ -1513,14 +1514,14 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 		expect( entity2.stats.status.health.actual ).to.be( 100 ) ;
 	} ) ;
 
-	it( "Entity's gauge stats" , async () => {
+	it( "Entity's HistoryGauge stats" , async () => {
 		var entity1 ;
 
-		await runBook( __dirname + '/books/entity-gauge.kfg' , { type: 'story' } , ( ui , book ) => {
+		await runBook( __dirname + '/books/entity-history-gauge.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'base-entity' , entity => {
 				entity1 = entity ;
 				//console.log( entity ) ;
-				expect( entity.stats.status.health ).to.be.a( kungFig.statsModifiers.Gauge ) ;
+				expect( entity.stats.status.health ).to.be.a( kungFig.statsModifiers.HistoryGauge ) ;
 				expect( entity.stats.status.health.base ).to.be( 100 ) ;
 				expect( entity.stats.status.health.actual ).to.be( 100 ) ;
 			} ) ;
@@ -1556,14 +1557,14 @@ describe( "zzz Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 		} ) ;
 	} ) ;
 
-	it( "www Entity's alignometer stats" , async () => {
+	it( "Entity's alignometer stats" , async () => {
 		var entity1 ;
 
-		await runBook( __dirname + '/books/entity-alignometer.kfg' , { type: 'story' } , ( ui , book ) => {
+		await runBook( __dirname + '/books/entity-history-alignometer.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'base-entity' , entity => {
 				entity1 = entity ;
 				//console.log( entity ) ;
-				expect( entity.stats.status.goodness ).to.be.a( kungFig.statsModifiers.Alignometer ) ;
+				expect( entity.stats.status.goodness ).to.be.a( kungFig.statsModifiers.HistoryAlignometer ) ;
 				expect( entity.stats.status.goodness.base ).to.be( 0 ) ;
 				expect( entity.stats.status.goodness.actual ).to.be( 0 ) ;
 			} ) ;
@@ -2353,11 +2354,12 @@ describe( "Historical bugs" , () => {
 		) ;
 
 		expect( messages ).to.equal( [
-			[ 'Some text.' , {} ] ,
-			[ 'Some other text.' , {} ] ,
+			[ 'Some text.' , { type: 'log' } ] ,
+			[ 'Some other text.' , { type: 'log' } ] ,
 			[ 'Welcome to The Shadow Terminal.' , {
 				next: true ,
-				slowTyping: true
+				slowTyping: true ,
+				type: 'log'
 			} ]
 		] ) ;
 
@@ -2368,11 +2370,12 @@ describe( "Historical bugs" , () => {
 		) ;
 
 		expect( messages ).to.equal( [
-			[ 'Some text.' , {} ] ,
-			[ 'Some other text.' , {} ] ,
+			[ 'Some text.' , { type: 'log' } ] ,
+			[ 'Some other text.' , { type: 'log' } ] ,
 			[ 'Welcome to The Shadow Terminal.' , {
 				next: true ,
-				slowTyping: true
+				slowTyping: true ,
+				type: 'log'
 			} ]
 		] ) ;
 	} ) ;

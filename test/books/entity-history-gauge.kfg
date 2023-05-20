@@ -13,7 +13,7 @@
 
 	stats:
 		status:
-			health: <Gauge>
+			health: <HistoryGauge>
 				base: 100
 				min: 0
 				max: 100

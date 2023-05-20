@@ -28,10 +28,7 @@
 			shooting: 1
 
 		status:
-			health: <Gauge>
-				base: 100
-				min: 0
-				max: 100
+			health: <Pool> 100
 
 		usages:
 			melee-fighting:
