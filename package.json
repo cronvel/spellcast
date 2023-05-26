@@ -21,7 +21,7 @@
     "glob": "^7.2.0",
     "hash-kit": "^0.3.10",
     "jsbindat": "^0.10.3",
-    "kung-fig": "^0.65.11",
+    "kung-fig": "^0.65.12",
     "kung-fig-expression": "^0.48.6",
     "lazyness": "^1.2.0",
     "logfella": "^1.4.5",
