@@ -857,6 +857,27 @@ describe( "Operations tags" , () => {
 
 
 
+describe( "Calling an object's Spellcast API method" , () => {
+
+	it( "Use the [*] tag to call an object's method" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/calling-object-methods.kfg' , { type: 'cast' , target: 'call-object-methods' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'hp: 8' ] ,
+			[ 'use result: true' ] ,
+			[ 'hp: 5' ] ,
+			[ 'lose result: 2' ] ,
+			[ 'hp: 3' ]
+		] ) ;
+	} ) ;
+} ) ;
+
+
+
 describe( "Basic caster tags and features" , () => {
 
 	beforeEach( async () => {

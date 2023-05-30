@@ -1,0 +1,15 @@
+
+[[doctype spellcast/spellbook]]
+
+[formula]
+	stats: <StatsTable>
+		hp: <Pool> 8
+
+[spell call-object-methods]
+	[message] $> hp: ${stats.hp.actual}
+	[* use $stats.hp => $result] 3
+	[message] $> use result: ${result}
+	[message] $> hp: ${stats.hp.actual}
+	[* lose $stats.hp => $result] 2
+	[message] $> lose result: ${result}
+	[message] $> hp: ${stats.hp.actual}
