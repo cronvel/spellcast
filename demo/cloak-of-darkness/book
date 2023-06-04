@@ -1,6 +1,8 @@
 
 [[doctype spellcast/book]]
 
+[[extension rpg-scripts]]
+
 [module] @@{core}/utils.kfg
 [module] @@{rpg}/system/inventory.kfg
 
