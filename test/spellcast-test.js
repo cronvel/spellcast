@@ -793,6 +793,21 @@ describe( "Operations tags" , () => {
 		] ) ;
 	} ) ;
 
+	it( "[filter] tag on Set" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/filter-on-set.kfg' , { type: 'cast' , target: 'filter' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Filtered size: 3' ] ,
+			[ 'Filtered item: orange' ] ,
+			[ 'Filtered item: apple' ] ,
+			[ 'Filtered item: ananas' ]
+		] ) ;
+	} ) ;
+
 	it( "[map] tag" , async () => {
 		var messages = [] ;
 
@@ -851,6 +866,17 @@ describe( "Operations tags" , () => {
 			[ 'Result: 16 19 23' ] ,
 			[ 'Result: 23 19 16' ] ,
 			[ 'Result: 16 23 19' ]
+		] ) ;
+	} ) ;
+
+	it( "[sort] tag on Set" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/sort-on-set.kfg' , { type: 'cast' , target: 'sort' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
 		] ) ;
 	} ) ;
 } ) ;

@@ -1,0 +1,22 @@
+
+[[doctype spellcast/spellbook]]
+
+[formula]
+	list: <Set>
+		-	name: orange
+			value: 17
+		-	name: apple
+			value: 13
+		-	name: cabbage
+			value: 11
+		-	name: ananas
+			value: 18
+
+[spell sort]
+	[sort $list => $sorted] $= $this.left.value - $this.right.value
+	[message] $> Original: ${list}[enum]
+	[message] $> Sorted: ${sorted}[enum]
+	
+	[message] $> Sorted size: ${sorted.size}
+	[foreach $sorted => $item]
+		[message] $> Sorted item: ${item.name}

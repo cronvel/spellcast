@@ -1,0 +1,19 @@
+
+[[doctype spellcast/spellbook]]
+
+[formula]
+	list: <Set>
+		-	type: fruit
+			name: orange
+		-	type: fruit
+			name: apple
+		-	type: vegetable
+			name: cabbage
+		-	type: fruit
+			name: ananas
+
+[spell filter]
+	[filter $list => $filtered] $= $this.type = "fruit"
+	[message] $> Filtered size: ${filtered.size}
+	[foreach $filtered => $item]
+		[message] $> Filtered item: ${item.name}
