@@ -98,9 +98,7 @@
 	
 	
 	[scene foyer]
-		
 		[create-item $local.coin] coin
-		
 		[here persistent]
 			items:
 				- $local.coin
