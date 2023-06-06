@@ -1,0 +1,412 @@
+
+[[doctype spellcast/book]]
+
+[system core:inventory]
+	
+	# Full inventory menu
+	[fn here-inventory]
+		[fake-next]
+			[label] $> Inventory
+			[button] inventory
+			[on-trigger]
+				[reset-here-actions]
+				[gosub core:inventory/inventory-menu]
+					[alt]
+					[args]
+						performer: $here.performer
+						stack: $here.items
+
+
+	
+	[fn here-grab]
+		[if $here.items is-empty?]
+			[return]
+		
+		[map $here.items => $.items] $= $this.name
+		
+		[if $.items.length > 4]
+			[set $.items.length] 4
+			[append $.items] $> more
+		
+		[fake-next]
+			[label] $> Grab items (${.items}[enum:|$|, $| and $])
+			[on-trigger]
+				[reset-here-actions]
+				[gosub core:inventory/grab-menu]
+					[alt]
+					[args]
+						performer: $here.performer
+						stack: $here.items
+	
+	
+	
+	[scene inventory-menu]
+		[init-sub]
+			[set $performer] $args.performer
+			[set $stack] $args.stack
+		
+		[filter $performer.equipped-item-list => <Array> $.equipped-items] $= $this.class = "object"
+		[filter $performer.items => <Array> $.unequipped-items] $= $this.class = "object"
+		
+		[if ( ! $.equipped-items.length ) && ( ! $.unequipped-items.length )]
+			[message] $> Empty inventory
+			[return]
+		
+		[message] $> Inventory
+		
+		[next]
+			[label] $> (Done)
+			[button] close-alt
+		
+		[foreach $.equipped-items => $.index : $.item]
+			[next inventory-object-menu]
+				[args]
+					index: $.index
+				[label] $> ${.item.name} (${.item.slot-type})
+				[on-trigger]
+					[set $item] $.equipped-items[$args.index]
+					[set $equipped] true
+		
+		[foreach $.unequipped-items => $.index : $.item]
+			[next inventory-object-menu]
+				[args]
+					index: $.index
+				[label] $> ${.item.name}
+				[on-trigger]
+					[set $item] $.unequipped-items[$args.index]
+					[set $equipped] false
+	
+	
+	
+	# Called by inventory-menu
+	[scene inventory-object-menu]
+		[next inventory-menu]
+			[label] $> (Done)
+			[button] close-alt
+		
+		
+		[fake-next]
+			[label] $> Examine
+			[on-trigger]
+				[if $item.params.messages.examine]
+					[message] $item.params.messages.examine
+				[else]
+					[message] $> There is nothing special.
+		
+		[if $equipped]
+			[message]
+				$> ^_${item.name//uc1}^ (equipped: ${item.slot-type})
+			[next inventory-object-menu]
+				[label] $> Unequip ${item.name}
+				[on-trigger]
+					[set $equipped] false
+					[unequip $performer]
+						item: $item
+			[if $stack]
+				[next inventory-menu]
+					[label] $> Unequip and drop ${item.name}
+					[on-trigger]
+						[emit core:drop-item] $item
+						[on-success]
+							[set $equipped] false
+							[unequip $performer]
+								item: $item
+							[drop $performer]
+								item: $item
+								into: $stack
+		[else]
+			[message]
+				$> ^_${item.name//uc1}^ (inventory)
+			[next inventory-object-menu]
+				[label] $> Equip ${item.name}
+				[on-trigger]
+					[set $equipped] true
+					[equip $performer]
+						item: $item
+			[if $stack]
+				[next inventory-menu]
+					[label] $> Drop ${item.name}
+					[on-trigger]
+						[emit core:drop-item] $item
+						[on-success]
+							[drop $performer]
+								item: $item
+								into: $stack
+		
+		[message]
+			$>
+			$> ${item.description//uc1/dash2space}
+		
+	
+	
+	[scene grab-menu]
+		[init-sub]
+			[set $performer] $args.performer
+			[set $stack] $args.stack
+			[set $first] true
+		
+		#[filter $args.stack => $.items] $= $this.class = "object"
+		
+		[if ( $stack.length = 0 ) || $only-one]
+			# Immediately exit
+			[return]
+		
+		[if ( $stack.length = 1 ) && $first]
+			# Immediately go to grab-object-menu
+			[set $first] false
+			[set $only-one] true
+			[set $item] $stack[0]
+			[goto grab-object-menu]
+		
+		[set $first] false
+		
+		[message] $> Grab what?
+		
+		[next]
+			[label] $> (Done)
+			[button] close-alt
+		
+		
+		[foreach $stack => $.index : $.item]
+			[next grab-object-menu]
+				[args]
+					index: $.index
+				[label] $> ${.item.name}
+				[on-trigger]
+					[set $item] $stack[$args.index]
+		
+	
+	
+	# Called by grab-menu
+	[scene grab-object-menu]
+		[next grab-menu]
+			[label] $> (Done)
+			[button] close-alt
+		
+		
+		[message]
+			$> ^_${item.name//uc1}^:
+			$>
+			$> ${item.description//uc1/dash2space}
+		
+		[fake-next once]
+			[label] $> Examine
+			[on-trigger]
+				[if $item.params.messages.examine]
+					[message] $item.params.messages.examine
+				[else]
+					[message] $> There is nothing special.
+		
+		[next grab-menu]
+			[label] $> Grab ${item.name}
+			[on-trigger]
+				[grab $performer]
+					item: $item
+					from: $stack
+		
+	
+	
+	[scene ability-menu]
+		[set $performer] $args.performer
+		
+		[message] $> Which usage?
+		
+		[next]
+			[label] $> (Abort)
+			[button] close-alt
+		
+		[foreach $performer.usage-types => $.usage]
+			[next]
+				[args]
+					usage: $.usage
+				[label] $> ${.usage//uc1/dash2space}
+				[on-trigger]
+					[gosub core:inventory/ability-usage-menu]
+						performer: $performer
+						usage: $args.usage
+
+	
+	
+	# Equip an ability as primary, or make any equipped item (ability or not) a primary
+	[scene ability-usage-menu]
+		[set $performer] $args.performer
+		[set $usage] $= $args.usage is-set? $args.usage true
+		
+		[message] $> Use what?
+		
+		[if $performer.primary[$usage]]
+			[set $.currentPrimary] $performer.primary[$usage]
+			[set $.abort-label] $> Keep using: ${.currentPrimary.name} (${.currentPrimary.class})
+		[else]
+			[set $.abort-label] $> (Abort)
+		
+		[filter $performer.equipped-item-list => <Array> $.items]
+			$= ( $this.usages[$usage] is-set? ) && ( $this != $performer.primary[$usage] )
+		
+		[filter $performer.items => <Array> $.moreItems]
+			$= ( $this.class = "ability" ) && ( $this.usages[$usage] is-set? )
+		
+		[concat $.items] $.moreItems
+		
+		#[debug info] $performer.equipped-item-list
+		#[debug info] $performer.items
+		#[debug info] $.items
+		
+		[next]
+			[label] $.abort-label
+			[button] close-alt
+		
+		[foreach $.items => $.index : $.item]
+			[next]
+				[args]
+					index: $.index
+				[label] $> ${.item.name//uc1} (${.item.class})
+				[on-trigger]
+					[set $.item] $.items[$args.index]
+					[if $.item.class = "ability"]
+						[unequip $performer]
+							slot: ability
+					[equip $performer]
+						item: $.item
+						primary: $usage
+	
+	
+	
+	[scene equip-object-menu]
+		[set $performer] $args.performer
+		[set $.scheduler] $args.scheduler
+		
+		[message] $> Which slot?
+		
+		[next]
+			[label] $> (Abort)
+			[button] close-alt
+		
+		[foreach $performer.slots => $.slot : $.count]
+			[next]
+				[args]
+					slot: $.slot
+				[label] $> ${.slot//uc1/dash2space}
+				[on-trigger]
+					[gosub core:inventory/equip-object-slot-menu]
+						performer: $performer
+						slot: $args.slot
+						scheduler: $.scheduler
+
+
+	
+	# Equip an object
+	# Support a scheduler argument
+	[scene equip-object-slot-menu]
+		[set $performer] $args.performer
+		[set $.scheduler] $args.scheduler
+		[set $slot] $= $args.slot is-set? $args.slot "hand"
+		
+		[if $slot = "hand"]
+			[set $equip-verb] $> wield
+			[set $unequip-verb] $> unwield
+		[else]
+			[set $equip-verb] $> equip
+			[set $unequip-verb] $> unequip
+		
+		[message] $> ${equip-verb//uc1} / ${unequip-verb} what?
+		
+		[set $.equipped-items] $performer.equipped-items[$slot]
+		[filter $performer.items => <Array> $.unequipped-items] $= ( $this.class = "object" ) && ( $this.slot-type = $slot )
+		
+		#[debug info] $performer.equipped-item-list
+		#[debug info] $performer.items
+		#[debug info] $.equipped-items
+		
+		[next]
+			[label] $> (Abort)
+			[button] close-alt
+		
+		[foreach $.equipped-items => $.index : $.item]
+			[next]
+				[args]
+					index: $.index
+				[label] $> ${unequip-verb//uc1} ${.item.name} (${.item.class})
+				[on-trigger]
+					[set $.item] $.equipped-items[$args.index]
+					
+					[if $.scheduler]
+						[schedule-action $.scheduler $performer]
+							action: unequip
+							action-data:
+								performer: $performer
+								item: $.item
+							prepare-time: 5
+							release-time: 5
+							recover-time: 5
+					[else]
+						[call unequip-object]
+							performer: $performer
+							item: $.item
+					
+					[return] true
+		
+		[foreach $.unequipped-items => $.index : $.item]
+			[next]
+				[args]
+					index: $.index
+				[label] $> ${equip-verb//uc1} ${.item.name} (${.item.class})
+				[on-trigger]
+					[set $.item] $.unequipped-items[$args.index]
+					
+					[if ! ( $performer can-equip-item $.item )]
+						[message] $> ^KShould ${unequip-verb} an item first!
+						[cancel]
+					
+					[if $.scheduler]
+						[schedule-action $.scheduler $performer]
+							action: equip
+							action-data:
+								performer: $performer
+								item: $.item
+							prepare-time: 5
+							release-time: 5
+							recover-time: 5
+					[else]
+						[call equip-object]
+							performer: $performer
+							item: $.item
+					
+					[return] true
+	
+	
+	
+	[fn equip-object]
+		[set $performer] $args.performer
+		[set $item] $args.item
+		
+		[if $item.params.messages.equip]
+			[set $.template] $= random-element $item.params.messages.equip
+			[apply $.template => $.flavor] $
+			[message] $.flavor
+		[elseif $item.slot-type = "hand"]
+			[message] $> ${performer.name//uc1} wields ${item.name//en:the}.
+		[else]
+			[message] $> ${performer.name//uc1} equips ${item.name//en:the}.
+		
+		[equip $performer]
+			item: $item
+	
+	
+	
+	[fn unequip-object]
+		[set $performer] $args.performer
+		[set $item] $args.item
+		
+		[if $item.params.messages.unequip]
+			[set $.template] $= random-element $item.params.messages.unequip
+			[apply $.template => $.flavor] $
+			[message] $.flavor
+		[elseif $item.slot-type = "hand"]
+			[message] $> ${performer.name//uc1} unwields ${item.name//en:the}.
+		[else]
+			[message] $> ${performer.name//uc1} unequips ${item.name//en:the}.
+		
+		[unequip $performer]
+			item: $item
+	

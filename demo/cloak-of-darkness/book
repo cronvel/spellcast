@@ -4,7 +4,7 @@
 [[extension rpg-scripts]]
 
 [module] @@{core}/utils.kfg
-[module] @@{rpg}/system/inventory.kfg
+[module] @@{core}/inventory.kfg
 
 
 
@@ -13,11 +13,12 @@
 	name: Cloak of Darkness
 	description: A black velvet cloak.
 	params:
-		examine-flavor: The cloak seems to be light-absorbent!
+		messages:
+			examine: The cloak seems to be light-absorbent!
 	slot-type: cloak
 	slot-count: 1
 
-[on rpg:drop-item]
+[on core:drop-item]
 	[global]
 	[default]
 	[if $args.model = "cloak-of-darkness"]
@@ -33,7 +34,8 @@
 	name: Sword of Slashing
 	description: A mighty sword.
 	params:
-		examine-flavor: Oh my gawd! That mighty sword get a +999 bonus at slashing goblins!
+		messages:
+			examine: Oh my gawd! That mighty sword get a +999 bonus at slashing goblins!
 	slot-type: hand
 	slot-count: 1
 
@@ -44,7 +46,8 @@
 	name: coin
 	description: A coin.
 	params:
-		examine-flavor: A silver coin.
+		messages:
+			examine: A silver coin.
 
 
 
@@ -64,8 +67,8 @@
 
 
 [here-actions]
-	[call rpg:inventory/here-grab]
-	[call rpg:inventory/here-inventory]
+	[call core:inventory/here-grab]
+	[call core:inventory/here-inventory]
 
 
 
@@ -123,7 +126,7 @@
 		
 		[debug] $player
 		
-		[on rpg:drop-item]
+		[on core:drop-item]
 			[if $args.model = "cloak-of-darkness"]
 				[important-message]
 					> You put the Cloak of Darkness on the brass hook.
@@ -203,7 +206,7 @@
 		[if $player has-equipped-item-matching "model" "sword-of-slashing"]
 			[message]
 				> The battle was epic, and your mighty Sword of Slashing helped you to carry the day.
-				> You only got few scratches and you've definitively slash'em all...
+				> You only got few scratches and you've definitively slashed'em all...
 				> ... but you know that more hunters will come on you in a minute.
 			[add $damages] 1
 		[elseif $player has-item-matching "model" "sword-of-slashing"]
