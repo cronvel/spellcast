@@ -11,12 +11,14 @@
 			value: 11
 		-	name: ananas
 			value: 18
+	list_: <Set>
+		- orange
+		- apple
+		- cabbage
+		- ananas
 
 [spell sort]
 	[sort $list => $sorted] $= $this.left.value - $this.right.value
-	[message] $> Original: ${list}[enum]
-	[message] $> Sorted: ${sorted}[enum]
-	
-	[message] $> Sorted size: ${sorted.size}
+	[message] $> Sorted size: ${sorted.length}
 	[foreach $sorted => $item]
 		[message] $> Sorted item: ${item.name}

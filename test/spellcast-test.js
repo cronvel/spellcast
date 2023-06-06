@@ -877,6 +877,11 @@ describe( "Operations tags" , () => {
 		) ;
 
 		expect( messages ).to.equal( [
+			[ "Sorted size: 4" ] ,
+			[ "Sorted item: cabbage" ] ,
+			[ "Sorted item: apple" ] ,
+			[ "Sorted item: orange" ] ,
+			[ "Sorted item: ananas" ]
 		] ) ;
 	} ) ;
 } ) ;
