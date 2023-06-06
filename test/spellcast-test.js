@@ -801,7 +801,11 @@ describe( "Operations tags" , () => {
 		) ;
 
 		expect( messages ).to.equal( [
-			[ 'Filtered size: 3' ] ,
+			[ 'Filtered size (Set): 3' ] ,
+			[ 'Filtered item: orange' ] ,
+			[ 'Filtered item: apple' ] ,
+			[ 'Filtered item: ananas' ] ,
+			[ 'Filtered length (Array): 3' ] ,
 			[ 'Filtered item: orange' ] ,
 			[ 'Filtered item: apple' ] ,
 			[ 'Filtered item: ananas' ]

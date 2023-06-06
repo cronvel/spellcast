@@ -79,7 +79,6 @@
 [chapter game]
 	
 	[starting-scene intro1]
-		
 		[define $damages] 0
 		[message]
 			>> It's night, and you have been chased relentlessly by goblin hunters,
@@ -98,10 +97,10 @@
 	
 	
 	[scene foyer]
-		[create-item $local.coin] coin
+		[create-item $.coin] coin
 		[here persistent]
 			items:
-				- $local.coin
+				- $.coin
 		
 		[message]
 			> The hall is spacious. Someone lighted few chandeliers.

@@ -11,11 +11,6 @@
 			value: 11
 		-	name: ananas
 			value: 18
-	list_: <Set>
-		- orange
-		- apple
-		- cabbage
-		- ananas
 
 [spell sort]
 	[sort $list => $sorted] $= $this.left.value - $this.right.value
