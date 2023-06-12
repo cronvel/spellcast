@@ -1,0 +1,19 @@
+
+[[doctype spellcast/book]]
+
+[board-model square-board]
+	create-places:
+		type: square
+		range:
+			x:
+				min: 0
+				max: 2
+			y:
+				min: 0
+				max: 2
+
+[chapter a-chapter]
+	[starting-scene a-scene]
+		[create-board $board] square-board
+		[to-unit-test board] $board
+

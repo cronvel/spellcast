@@ -2164,6 +2164,20 @@ describe( "Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 
 
 
+describe( "Board and Place" , () => {
+
+	it( "Board with squares" , async () => {
+		await runBook( __dirname + '/books/board-with-squares.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'board' , board => {
+				console.log( [ ... board.places ] ) ;
+				expect( board ).to.be( 12 ) ;
+			} ) ;
+		} ) ;
+	} ) ;
+} ) ;
+
+
+
 describe( "Multiplayer story tags and features" , () => {
 	it( "[role] tag" ) ;
 	it( "[split] tag" ) ;
