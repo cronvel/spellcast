@@ -2169,10 +2169,20 @@ describe( "Board and Place" , () => {
 	it( "Board with squares" , async () => {
 		await runBook( __dirname + '/books/board-with-squares.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'board' , board => {
-				console.log( [ ... board.places ] ) ;
-				console.log( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ) ;
-				//expect( board ).to.be( 12 ) ;
+				console.log( board ) ;
+				//console.log( [ ... board.places ] ) ;
+				//console.log( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ) ;
 				
+				let place = board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ;
+				expect( place.logicalCoords ).to.equal( { x: 2 , y: 0 } ) ;
+				expect( place.physicalCoords ).to.equal( { x: 2 , y: 0 } ) ;
+				expect( place.geometry.commands ).to.equal( [
+					{ type: "move" , x: 1.5 , y: -0.5 } ,
+					{ type: "line" , x: 2.5 , y: -0.5 } ,
+					{ type: "line" , x: 2.5 , y: 0.5 } ,
+					{ type: "line" , x: 1.5 , y: 0.5 } ,
+					{ type: "close" }
+				] ) ;
 			} ) ;
 		} ) ;
 	} ) ;

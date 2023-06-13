@@ -2,6 +2,9 @@
 [[doctype spellcast/book]]
 
 [board-model square-board]
+	logical-coord-names:
+		- x
+		- y
 	create-places:
 		type: square
 		range:
