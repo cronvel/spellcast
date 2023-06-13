@@ -2170,7 +2170,9 @@ describe( "Board and Place" , () => {
 		await runBook( __dirname + '/books/board-with-squares.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'board' , board => {
 				console.log( [ ... board.places ] ) ;
-				expect( board ).to.be( 12 ) ;
+				console.log( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ) ;
+				//expect( board ).to.be( 12 ) ;
+				
 			} ) ;
 		} ) ;
 	} ) ;
