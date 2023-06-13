@@ -2169,7 +2169,8 @@ describe( "Board and Place" , () => {
 	it( "Board with squares" , async () => {
 		await runBook( __dirname + '/books/board-with-squares.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'board' , board => {
-				console.log( board ) ;
+				//console.log( board ) ;
+				//console.log( board.placesIndex ) ;
 				//console.log( [ ... board.places ] ) ;
 				//console.log( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ) ;
 				
