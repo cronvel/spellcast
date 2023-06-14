@@ -2174,7 +2174,7 @@ describe( "Board and Place" , () => {
 				//console.log( [ ... board.places ] ) ;
 				//console.log( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ) ;
 				
-				let place = board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ;
+				var place = board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ;
 				expect( place.logicalCoords ).to.equal( { x: 2 , y: 0 } ) ;
 				expect( place.physicalCoords ).to.equal( { x: 2 , y: 0 } ) ;
 				expect( place.geometry.commands ).to.equal( [
@@ -2186,6 +2186,11 @@ describe( "Board and Place" , () => {
 				] ) ;
 				expect( board.placesIndex['x:2;y:0'] ).to.be( place ) ;
 				expect( board.placesIndexKey.get( place ) ).to.be( 'x:2;y:0' ) ;
+
+				var neighborPlaces = board.getLogicalNeighborPlaces( { x: 2 , y: 1 } ) ;
+				var neighborCoords = neighborPlaces.map( e => e.logicalCoords ) ;
+				//log.hdebug( "neighborPlaces: %[5l50000]Y" , neighborCoords ) ;
+				expect( neighborCoords ).to.equal( [ { x: 1 , y: 1 } , { x: 2 , y: 2 } , { x: 2 , y: 0 } ] ) ;
 
 				place.setLogicalCoords( { x: 3 , y: 10 } ) ;
 				expect( board.placesIndex['x:2;y:0'] ).to.be.undefined() ;
