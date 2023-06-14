@@ -2184,6 +2184,15 @@ describe( "Board and Place" , () => {
 					{ type: "line" , x: 1.5 , y: 0.5 } ,
 					{ type: "close" }
 				] ) ;
+				expect( board.placesIndex['x:2;y:0'] ).to.be( place ) ;
+				expect( board.placesIndexKey.get( place ) ).to.be( 'x:2;y:0' ) ;
+
+				place.setLogicalCoords( { x: 3 , y: 10 } ) ;
+				expect( board.placesIndex['x:2;y:0'] ).to.be.undefined() ;
+				expect( board.placesIndex['x:3;y:10'] ).to.be( place ) ;
+				expect( board.placesIndexKey.get( place ) ).to.be( 'x:3;y:10' ) ;
+				expect( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ).to.be.undefined() ;
+				expect( board.getPlaceByLogicalCoords( { x: 3 , y: 10 } ) ).to.be( place ) ;
 			} ) ;
 		} ) ;
 	} ) ;
