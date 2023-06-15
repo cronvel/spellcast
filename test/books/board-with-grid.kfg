@@ -1,16 +1,10 @@
 
 [[doctype spellcast/book]]
 
-[board-model square-board]
+[board-model grid-board]
 	groups:
 		main:
 			type: grid
-			logical-coord-names:
-				- x
-				- y
-	logical-coord-names:
-		- x
-		- y
 	create-places:
 		type: square
 		group: main
@@ -24,6 +18,6 @@
 
 [chapter a-chapter]
 	[starting-scene a-scene]
-		[create-board $board] square-board
+		[create-board $board] grid-board
 		[to-unit-test board] $board
 

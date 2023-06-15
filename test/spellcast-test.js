@@ -2166,18 +2166,18 @@ describe( "Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 
 describe( "Board and Place" , () => {
 
-	it( "Board with squares" , async () => {
-		await runBook( __dirname + '/books/board-with-squares.kfg' , { type: 'story' } , ( ui , book ) => {
+	it( "Board with grid" , async () => {
+		await runBook( __dirname + '/books/board-with-grid.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'board' , board => {
 				//console.log( board ) ;
 				//console.log( board.placesIndex ) ;
-				console.log( board.groups ) ;
+				//console.log( board.groups ) ;
 				//console.log( [ ... board.places ] ) ;
 				//console.log( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ) ;
 				
 				var place = board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ;
-				expect( place.logicalCoords ).to.equal( { x: 2 , y: 0 } ) ;
-				expect( place.physicalCoords ).to.equal( { x: 2 , y: 0 } ) ;
+				expect( place['logical-coords'] ).to.equal( { group: 'main' , x: 2 , y: 0 } ) ;
+				expect( place['physical-coords'] ).to.equal( { x: 2 , y: 0 } ) ;
 				expect( place.geometry.commands ).to.equal( [
 					{ type: "move" , x: 1.5 , y: -0.5 } ,
 					{ type: "line" , x: 2.5 , y: -0.5 } ,
@@ -2185,18 +2185,18 @@ describe( "Board and Place" , () => {
 					{ type: "line" , x: 1.5 , y: 0.5 } ,
 					{ type: "close" }
 				] ) ;
-				expect( board.placesIndex['x:2;y:0'] ).to.be( place ) ;
-				expect( board.placesIndexKey.get( place ) ).to.be( 'x:2;y:0' ) ;
+				expect( board.placesIndex['main;x:2;y:0'] ).to.be( place ) ;
+				expect( board.placesIndexKey.get( place ) ).to.be( 'main;x:2;y:0' ) ;
 
 				var neighborPlaces = board.getLogicalNeighborPlaces( { x: 2 , y: 1 } ) ;
-				var neighborCoords = neighborPlaces.map( e => e.logicalCoords ) ;
+				var neighborCoords = neighborPlaces.map( e => e['logical-coords'] ) ;
 				//log.hdebug( "neighborPlaces: %[5l50000]Y" , neighborCoords ) ;
-				expect( neighborCoords ).to.equal( [ { x: 1 , y: 1 } , { x: 2 , y: 2 } , { x: 2 , y: 0 } ] ) ;
+				expect( neighborCoords ).to.equal( [ { group: 'main' , x: 1 , y: 1 } , { group: 'main' , x: 2 , y: 2 } , { group: 'main' , x: 2 , y: 0 } ] ) ;
 
 				place.setLogicalCoords( { x: 3 , y: 10 } ) ;
-				expect( board.placesIndex['x:2;y:0'] ).to.be.undefined() ;
-				expect( board.placesIndex['x:3;y:10'] ).to.be( place ) ;
-				expect( board.placesIndexKey.get( place ) ).to.be( 'x:3;y:10' ) ;
+				expect( board.placesIndex['main;x:2;y:0'] ).to.be.undefined() ;
+				expect( board.placesIndex['main;x:3;y:10'] ).to.be( place ) ;
+				expect( board.placesIndexKey.get( place ) ).to.be( 'main;x:3;y:10' ) ;
 				expect( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ).to.be.undefined() ;
 				expect( board.getPlaceByLogicalCoords( { x: 3 , y: 10 } ) ).to.be( place ) ;
 			} ) ;
