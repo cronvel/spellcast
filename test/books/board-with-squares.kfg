@@ -2,11 +2,18 @@
 [[doctype spellcast/book]]
 
 [board-model square-board]
+	groups:
+		main:
+			type: grid
+			logical-coord-names:
+				- x
+				- y
 	logical-coord-names:
 		- x
 		- y
 	create-places:
 		type: square
+		group: main
 		range:
 			x:
 				min: 0
