@@ -10,10 +10,10 @@
 		group: main
 		range:
 			x:
-				min: 0
+				min: -2
 				max: 2
 			y:
-				min: 0
+				min: -2
 				max: 2
 
 [chapter a-chapter]
