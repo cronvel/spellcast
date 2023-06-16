@@ -8,6 +8,7 @@
 *.css.gz
 *.js.gz
 *.jsdat
+*.tmp.*
 *.tmp
 .spellcast
 proxy-cache

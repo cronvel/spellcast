@@ -6,7 +6,7 @@
 		main:
 			type: v-hex-grid
 			type-params:
-				#odd: yes
+				odd: yes
 	create-places:
 		group: main
 		range:
