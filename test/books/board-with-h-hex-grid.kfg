@@ -4,9 +4,9 @@
 [board-model hex-board]
 	groups:
 		main:
-			type: v-hex-grid
+			type: h-hex-grid
 			type-params:
-				odd: yes
+				odd: no
 				brick: no
 	create-places:
 		group: main

@@ -2166,7 +2166,7 @@ describe( "Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 
 describe( "Board and Place" , () => {
 
-	it( "Board with grid" , async () => {
+	it( "Grid board" , async () => {
 		await runBook( __dirname + '/books/board-with-grid.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'board' , board => {
 				var place ;
@@ -2179,12 +2179,12 @@ describe( "Board and Place" , () => {
 				
 				place = board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ;
 				expect( place['logical-coords'] ).to.equal( { group: 'main' , x: 2 , y: 0 } ) ;
-				expect( place['physical-coords'] ).to.equal( { x: 2 , y: 0 } ) ;
+				expect( place['physical-coords'] ).to.equal( { x: 200 , y: 0 } ) ;
 				expect( place.geometry.commands ).to.equal( [
-					{ type: "move" , x: 1.5 , y: -0.5 } ,
-					{ type: "line" , x: 2.5 , y: -0.5 } ,
-					{ type: "line" , x: 2.5 , y: 0.5 } ,
-					{ type: "line" , x: 1.5 , y: 0.5 } ,
+					{ type: "move" , x: 150 , y: -50 } ,
+					{ type: "line" , x: 250 , y: -50 } ,
+					{ type: "line" , x: 250 , y: 50 } ,
+					{ type: "line" , x: 150 , y: 50 } ,
 					{ type: "close" }
 				] ) ;
 				expect( board.placesIndex['main;x:2;y:0'] ).to.be( place ) ;
@@ -2200,7 +2200,7 @@ describe( "Board and Place" , () => {
 		} ) ;
 	} ) ;
 
-	it( "Neighbor of grid" , async () => {
+	it( "Neighbors of grid board" , async () => {
 		await runBook( __dirname + '/books/board-with-grid.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'board' , board => {
 				var place , neighborPlaces , neighborCoords ;
@@ -2279,44 +2279,35 @@ describe( "Board and Place" , () => {
 		} ) ;
 	} ) ;
 
-	it( "Board with v-hex grid" , async () => {
+	it( "Grid board SVG render" , async () => {
+		await runBook( __dirname + '/books/board-with-grid.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'board' , board => {
+				var svgString = board.renderToSvgString( {
+					'show-coords': true
+				} ) ;
+				fs.writeFileSync( __dirname + '/grid.tmp.svg' , svgString ) ;
+			} ) ;
+		} ) ;
+	} ) ;
+
+	it( "Hex grid board (V) SVG render" , async () => {
 		await runBook( __dirname + '/books/board-with-v-hex-grid.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'board' , board => {
-				var place ;
-
-				var coords = [ ... board.places ].map( e => ( { logical: e['logical-coords'] , physical: e['physical-coords'] } ) ) ;
-				log.hdebug( "%[5l500000]Y" , coords ) ;
 				var svgString = board.renderToSvgString( {
 					'show-coords': true
 				} ) ;
 				fs.writeFileSync( __dirname + '/v-hex-grid.tmp.svg' , svgString ) ;
-				log.hdebug( "Svg:\n%s" , svgString ) ;
-				return ;
-				//console.log( board ) ;
-				//console.log( board.placesIndex ) ;
-				//console.log( board.groups ) ;
-				//console.log( [ ... board.places ] ) ;
-				//console.log( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ) ;
-				
-				place = board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ;
-				expect( place['logical-coords'] ).to.equal( { group: 'main' , x: 2 , y: 0 } ) ;
-				expect( place['physical-coords'] ).to.equal( { x: 2 , y: 0 } ) ;
-				expect( place.geometry.commands ).to.equal( [
-					{ type: "move" , x: 1.5 , y: -0.5 } ,
-					{ type: "line" , x: 2.5 , y: -0.5 } ,
-					{ type: "line" , x: 2.5 , y: 0.5 } ,
-					{ type: "line" , x: 1.5 , y: 0.5 } ,
-					{ type: "close" }
-				] ) ;
-				expect( board.placesIndex['main;x:2;y:0'] ).to.be( place ) ;
-				expect( board.placesIndexKey.get( place ) ).to.be( 'main;x:2;y:0' ) ;
+			} ) ;
+		} ) ;
+	} ) ;
 
-				place.setLogicalCoords( { x: 3 , y: 10 } ) ;
-				expect( board.placesIndex['main;x:2;y:0'] ).to.be.undefined() ;
-				expect( board.placesIndex['main;x:3;y:10'] ).to.be( place ) ;
-				expect( board.placesIndexKey.get( place ) ).to.be( 'main;x:3;y:10' ) ;
-				expect( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ).to.be.undefined() ;
-				expect( board.getPlaceByLogicalCoords( { x: 3 , y: 10 } ) ).to.be( place ) ;
+	it( "Hex grid board (H) SVG render" , async () => {
+		await runBook( __dirname + '/books/board-with-h-hex-grid.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'board' , board => {
+				var svgString = board.renderToSvgString( {
+					'show-coords': true
+				} ) ;
+				fs.writeFileSync( __dirname + '/h-hex-grid.tmp.svg' , svgString ) ;
 			} ) ;
 		} ) ;
 	} ) ;
