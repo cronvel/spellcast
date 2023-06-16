@@ -2286,6 +2286,9 @@ describe( "Board and Place" , () => {
 
 				var coords = [ ... board.places ].map( e => ( { logical: e['logical-coords'] , physical: e['physical-coords'] } ) ) ;
 				log.hdebug( "%[5l500000]Y" , coords ) ;
+				var svgString = board.renderToSvgString() ;
+				fs.writeFileSync( __dirname + '/v-hex-grid.svg' , svgString ) ;
+				log.hdebug( "Svg:\n%s" , svgString ) ;
 				return ;
 				//console.log( board ) ;
 				//console.log( board.placesIndex ) ;
