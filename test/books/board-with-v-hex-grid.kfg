@@ -1,22 +1,24 @@
 
 [[doctype spellcast/book]]
 
-[board-model grid-board]
+[board-model hex-board]
 	groups:
 		main:
-			type: grid
+			type: v-hex-grid
+			type-params:
+				odd: yes
 	create-places:
 		group: main
 		range:
 			x:
-				min: -2
-				max: 2
+				min: -3
+				max: 3
 			y:
-				min: -2
-				max: 2
+				min: -3
+				max: 3
 
 [chapter a-chapter]
 	[starting-scene a-scene]
-		[create-board $board] grid-board
+		[create-board $board] hex-board
 		[to-unit-test board] $board
 

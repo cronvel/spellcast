@@ -2169,7 +2169,7 @@ describe( "Board and Place" , () => {
 	it( "Board with grid" , async () => {
 		await runBook( __dirname + '/books/board-with-grid.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'board' , board => {
-				var place , neighborPlaces , neighborCoords ;
+				var place ;
 
 				//console.log( board ) ;
 				//console.log( board.placesIndex ) ;
@@ -2275,6 +2275,43 @@ describe( "Board and Place" , () => {
 					{ group: "main" , x: -1 , y: 2 } ,
 					{ group: "main" , x: -1 , y: -2 } ,
 				] ) ;
+			} ) ;
+		} ) ;
+	} ) ;
+
+	it( "Board with v-hex grid" , async () => {
+		await runBook( __dirname + '/books/board-with-v-hex-grid.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'board' , board => {
+				var place ;
+
+				var coords = [ ... board.places ].map( e => ( { logical: e['logical-coords'] , physical: e['physical-coords'] } ) ) ;
+				log.hdebug( "%[5l500000]Y" , coords ) ;
+				return ;
+				//console.log( board ) ;
+				//console.log( board.placesIndex ) ;
+				//console.log( board.groups ) ;
+				//console.log( [ ... board.places ] ) ;
+				//console.log( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ) ;
+				
+				place = board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ;
+				expect( place['logical-coords'] ).to.equal( { group: 'main' , x: 2 , y: 0 } ) ;
+				expect( place['physical-coords'] ).to.equal( { x: 2 , y: 0 } ) ;
+				expect( place.geometry.commands ).to.equal( [
+					{ type: "move" , x: 1.5 , y: -0.5 } ,
+					{ type: "line" , x: 2.5 , y: -0.5 } ,
+					{ type: "line" , x: 2.5 , y: 0.5 } ,
+					{ type: "line" , x: 1.5 , y: 0.5 } ,
+					{ type: "close" }
+				] ) ;
+				expect( board.placesIndex['main;x:2;y:0'] ).to.be( place ) ;
+				expect( board.placesIndexKey.get( place ) ).to.be( 'main;x:2;y:0' ) ;
+
+				place.setLogicalCoords( { x: 3 , y: 10 } ) ;
+				expect( board.placesIndex['main;x:2;y:0'] ).to.be.undefined() ;
+				expect( board.placesIndex['main;x:3;y:10'] ).to.be( place ) ;
+				expect( board.placesIndexKey.get( place ) ).to.be( 'main;x:3;y:10' ) ;
+				expect( board.getPlaceByLogicalCoords( { x: 2 , y: 0 } ) ).to.be.undefined() ;
+				expect( board.getPlaceByLogicalCoords( { x: 3 , y: 10 } ) ).to.be( place ) ;
 			} ) ;
 		} ) ;
 	} ) ;
