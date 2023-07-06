@@ -6,7 +6,43 @@
 	[starting-scene menu]
 		[next vg] vg
 		[next vg-path] vg-path
+		[next vg-flowing-text] vg-flowing-text
 	
+	[scene vg-flowing-text]
+		[font-pack serif]
+			regular: /fonts/serif.ttf
+
+		[vg $vg]
+			[attr]
+				viewBox:
+					x: 0
+					y: 0
+					width: 200
+					height: 200
+
+			[vg-flowing-text]
+				x: 0
+				y: 0
+				width: 200
+				height: 200
+				textWrapping: wordWrap
+				attr: 
+					fontSize: 30
+					color: #777
+					outline: yes
+				structuredText:
+					-	text: Un Bobby Dragon
+
+		[g-create vg vg]
+			vg-object: $vg
+			size:
+				xy: 0.5
+			position:
+				x: 0
+				y: 0
+			
+		[next menu]
+
 	[scene vg]
 		[vg $vg]
 			[attr]

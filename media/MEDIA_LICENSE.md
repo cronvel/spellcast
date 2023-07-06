@@ -55,3 +55,8 @@ sounds/fail.mp3:
 by ZapSlat (“Sound effects obtained from https://www.zapsplat.com”)
 [Standard ZapSlat license](https://www.zapsplat.com/license-type/standard-license/)
 
+fonts/serif.ttf:
+DejaVu font by [those authors](https://dejavu-fonts.github.io/Authors.html)
+Release as a free licence, see [the full licence](https://dejavu-fonts.github.io/License.html)
+See the [website](https://dejavu-fonts.github.io/)
+
