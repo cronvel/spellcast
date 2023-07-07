@@ -14,11 +14,13 @@
 
 		[vg $vg]
 			[attr]
+				# For instance the VGFlowingText entity does not works with invertY=true
+				invertY: no
 				viewBox:
 					x: 0
 					y: 0
 					width: 200
-					height: 200
+					height: 100
 
 			[vg-flowing-text]
 				x: 0
@@ -26,8 +28,8 @@
 				width: 200
 				height: 200
 				textWrapping: wordWrap
-				attr: 
-					fontSize: 30
+				attr:
+					fontSize: 100
 					color: #777
 					outline: yes
 				structuredText:
