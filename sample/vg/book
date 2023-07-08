@@ -14,18 +14,18 @@
 
 		[vg $vg]
 			[attr]
-				# For instance the VGFlowingText entity does not works with invertY=true
 				#invertY: no
 				viewBox:
 					x: 0
 					y: 0
-					width: 200
+					width: 300
 					height: 200
 
 			[vg-rect]
 				x: 10
 				y: 10
-				width: 180
+				r: 10
+				width: 280
 				height: 180
 				style:
 					stroke: none
@@ -34,17 +34,27 @@
 			[vg-flowing-text]
 				x: 20
 				y: 20
-				width: 160
+				width: 260
 				height: 160
 				textWrapping: wordWrap
+				clip: no
 				attr:
-					fontSize: 30
-					color: #e77
+					fontSize: 40
+					color: blue
 					outline: yes
 				structuredText:
-					-	text: Un Bobby Dragon
+					-	text: "Un "
+					-	text: Bobby
 						attr:
-							color: blue
+							color: red
+							#underline: yes
+							#lineColor: #599
+							frame: yes
+							frameCornerRadius: 0.1em
+							frameColor: #557
+							frameOutlineWidth: 0.1em
+							frameOutlineColor: #66e
+					-	text: Dragon
 
 		[g-create vg vg]
 			vg-object: $vg
