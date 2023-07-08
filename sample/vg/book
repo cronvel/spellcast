@@ -29,11 +29,13 @@
 				height: 200
 				textWrapping: wordWrap
 				attr:
-					fontSize: 100
-					color: #777
+					fontSize: 30
+					color: #e77
 					outline: yes
 				structuredText:
 					-	text: Un Bobby Dragon
+						attr:
+							color: blue
 
 		[g-create vg vg]
 			vg-object: $vg
