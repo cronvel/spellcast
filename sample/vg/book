@@ -1,5 +1,79 @@
 [[doctype spellcast/book]]
 
+[system card]
+	[fn layout]
+		[font-pack serif]
+			regular: /fonts/serif.ttf
+
+		[vg $.vg]
+			[attr]
+				viewbox:
+					x: 0
+					y: 0
+					width: 400
+					height: 600
+
+			# The card border
+			[vg-rect]
+				x: 0
+				y: 0
+				r: 10
+				width: 400
+				height: 600
+				style:
+					stroke: #444
+					fill: #fff
+
+			# The image
+			[vg-image]
+				x: 20
+				y: 320
+				width: 360
+				height: 260
+				aspect: preserve
+				url: /sprites/shaman.png
+
+			# The image rectangle
+			[vg-rect]
+				x: 20
+				y: 320
+				r: 5
+				width: 360
+				height: 260
+				style:
+					stroke: #444
+					fill: none
+
+			# The text rectangle
+			[vg-rect]
+				x: 20
+				y: 20
+				r: 5
+				width: 360
+				height: 260
+				style:
+					stroke: #444
+					fill: #6d6
+
+			# The text
+			[vg-flowing-text]
+				x: 25
+				y: 25
+				width: 350
+				height: 250
+				text-wrapping: wordwrap
+				attr:
+					font-size: 24
+					color: #000
+					outline: yes
+				structured-text:
+					-	text:
+							>> This is a placeholder text, it should contain the card description,
+							>> its rules description, and eventually it's lore.
+
+		[return] $.vg
+
+
 [chapter tests]
 	[theme] > /themes/educa
 	
@@ -7,16 +81,28 @@
 		[next vg] vg
 		[next vg-path] vg-path
 		[next vg-flowing-text] vg-flowing-text
+		[next card] card
 	
+	[scene card]
+		[call card/layout => $.vg]
+		[g-create vg vg]
+			vg-object: $.vg
+			size:
+				xy: 1
+			position:
+				x: 0
+				y: 0
+		[next menu]
+
 	[scene vg-flowing-text]
 		[font-pack serif]
 			regular: /fonts/serif.ttf
 		[font-pack serif]
 			regular: /fonts/serif.ttf
 
-		[vg $vg]
+		[vg $.vg]
 			[attr]
-				#invert-y: no
+				invert-y: no
 				viewbox:
 					x: 0
 					y: 0
@@ -59,9 +145,9 @@
 					-	text: Dragon
 
 		[g-create vg vg]
-			vg-object: $vg
+			vg-object: $.vg
 			size:
-				xy: 0.5
+				xy: 1
 			position:
 				x: 0
 				y: 0
@@ -69,7 +155,7 @@
 		[next menu]
 
 	[scene vg]
-		[vg $vg]
+		[vg $.vg]
 			[attr]
 				css:
 					-	select: .hoverable
@@ -108,10 +194,10 @@
 					[set $local.y] $= $local.y + 40
 				[set $local.x] $= $local.x + 40
 					
-		#[debug hdebug] $vg
+		#[debug hdebug] $.vg
 
 		[g-create vg vg]
-			vg-object: $vg
+			vg-object: $.vg
 			size:
 				xy: 0.5
 			position:
@@ -120,25 +206,25 @@
 
 		[pause] 1
 
-		[vg-morph $vg.entities[0]]
+		[vg-morph $.vg.entities[0]]
 			style:
 				fill: orange
 		[g-update vg]
-			vg-morph: $vg
+			vg-morph: $.vg
 
 		[pause] 1
 
-		[vg-morph $vg.entities[0]]
+		[vg-morph $.vg.entities[0]]
 			style:
 				fill: green
 		[g-update vg]
-			vg-morph: $vg
+			vg-morph: $.vg
 
 		[next menu]
 
 
 	[scene vg-path]
-		[vg $vg]
+		[vg $.vg]
 			[attr]
 				viewbox:
 					x: -10
@@ -205,7 +291,7 @@
 					
 				
 		[g-create vg vg]
-			vg-object: $vg
+			vg-object: $.vg
 			size:
 				xy: 0.8
 			position:
