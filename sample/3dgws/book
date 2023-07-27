@@ -4,15 +4,97 @@
 
 
 
-[chapter intro]
+[chapter menu]
+	[starting-scene menu]
+		[next camera/camera-test] Camera test
+		[next card/card-test] Card test
+
+
+
+[system card]
+	[fn layout]
+		[font-pack serif]
+			regular: /fonts/serif.ttf
+
+		[vg $.vg]
+			[attr]
+				viewbox:
+					x: 0
+					y: 0
+					width: 400
+					height: 600
+
+			# The card border
+			[vg-rect]
+				x: 0
+				y: 0
+				r: 10
+				width: 400
+				height: 600
+				style:
+					stroke: #444
+					fill: #fff
+
+			# The image
+			[vg-image]
+				x: 20
+				y: 320
+				width: 360
+				height: 260
+				aspect: preserve
+				url: /sprites/shaman.png
+
+			# The image rectangle
+			[vg-rect]
+				x: 20
+				y: 320
+				r: 5
+				width: 360
+				height: 260
+				style:
+					stroke: #444
+					fill: none
+
+			# The text rectangle
+			[vg-rect]
+				x: 20
+				y: 20
+				r: 5
+				width: 360
+				height: 260
+				style:
+					stroke: #444
+					fill: #6d6
+
+			# The text
+			[vg-flowing-text]
+				x: 25
+				y: 25
+				width: 350
+				height: 250
+				text-wrapping: wordwrap
+				attr:
+					font-size: 24
+					color: #000
+					outline: yes
+				markup-text:
+					>> ^RThis^ is a placeholder text, it should contain the card description,
+					>> its rules description, and eventually it's lore.
+
+		[return] $.vg
+
+
+
+[chapter card]
 	[theme] > /themes/game
 
-	[scene intro1]
-		[message] $> ^/Once upon a time...
-		
+	[scene card-test]
 		[create-g-scene 3d]
 			engineId: 3dgws
-			active: true
+			active: yes
+			catch:
+				message: yes
+				choices: yes
 
 		[g-scene 3d]
 			[texture-pack background] /textures/background.jpg
@@ -33,6 +115,78 @@
 					y: 10
 					z: 0
 		
+			[g-create hemispheric-light hemi-light]
+				light:
+					ground:
+						r: 0.2
+						g: 0
+						b: 0
+					intensity: 1.2
+
+			[g-create background background]
+				texture-pack: background
+				origin:
+					y: -0.25
+
+			[g-create ground ground]
+				texture-pack: ground
+
+			[call card/layout => $.vg]
+			[g-create sprite vg]
+				vg-object: $.vg
+				size:
+					xy: 1
+				origin:
+					y: -1
+				position:
+					x: 0
+					y: 0
+					z: 0
+
+		[pause] 5
+		[next]
+
+
+[chapter camera]
+	[theme] > /themes/game
+
+	[scene camera-test]
+		[message] $> ^/Once upon a time...
+		
+		[create-g-scene 3d]
+			engineId: 3dgws
+			active: yes
+			catch:
+				message: yes
+				choices: yes
+
+		[g-scene 3d]
+			[texture-pack background] /textures/background.jpg
+			[texture-pack ground] /textures/grass-rock-ground.jpg
+			[texture-pack shaman] /sprites/shaman.png
+			[texture-pack mage]
+				variants:
+					default: /sprites/mage.png
+					mentoring: /sprites/mage-mentoring.png
+
+			[camera]
+				mode: positions
+				position: 
+					y: 10
+					z: -40
+				target:
+					x: 0
+					y: 10
+					z: 0
+		
+			[g-create hemispheric-light hemi-light]
+				light:
+					ground:
+						r: 0.2
+						g: 0
+						b: 0
+					intensity: 1.2
+
 			[g-create background background]
 				texture-pack: background
 				origin:

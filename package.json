@@ -29,7 +29,7 @@
     "nextgen-events": "^1.5.3",
     "nomi-ninja": "^0.2.5",
     "semver": "^7.5.4",
-    "server-kit": "^0.10.0",
+    "server-kit": "^0.10.1",
     "seventh": "^0.8.2",
     "spellcast-shared": "^0.50.11",
     "string-kit": "^0.17.10",
