@@ -5,7 +5,7 @@
 
 
 [chapter menu]
-	[starting-scene menu]
+	[scene menu]
 		[next camera/camera-test] Camera test
 		[next card/card-test] Card test
 
@@ -88,7 +88,7 @@
 [chapter card]
 	[theme] > /themes/game
 
-	[scene card-test]
+	[starting-scene card-test]
 		[create-g-scene 3d]
 			engineId: 3dgws
 			active: yes
@@ -99,11 +99,6 @@
 		[g-scene 3d]
 			[texture-pack background] /textures/background.jpg
 			[texture-pack ground] /textures/grass-rock-ground.jpg
-			[texture-pack shaman] /sprites/shaman.png
-			[texture-pack mage]
-				variants:
-					default: /sprites/mage.png
-					mentoring: /sprites/mage-mentoring.png
 
 			[camera]
 				mode: positions
@@ -132,16 +127,22 @@
 				texture-pack: ground
 
 			[call card/layout => $.vg]
-			[g-create sprite vg]
+			[g-create vg vg]
 				vg-object: $.vg
+				special:
+					vg-pixel-density: 500
 				size:
-					xy: 1
+					xy: 10
 				origin:
 					y: -1
 				position:
 					x: 0
 					y: 0
 					z: 0
+
+			[camera]
+				free: true
+
 
 		[pause] 5
 		[next]
