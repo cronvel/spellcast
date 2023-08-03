@@ -11,6 +11,76 @@
 
 
 
+[vg-template card]
+	[attr]
+		viewbox:
+			x: 0
+			y: 0
+			width: 400
+			height: 600
+
+	[font-pack serif]
+		regular: /fonts/serif.ttf
+
+	# The card border
+	[vg-rect]
+		x: 0
+		y: 0
+		r: 10
+		width: 400
+		height: 600
+		style:
+			stroke: #444
+			fill: #fff
+
+	# The image
+	[vg-image]
+		x: 20
+		y: 320
+		width: 360
+		height: 260
+		aspect: preserve
+		url: /sprites/shaman.png
+
+	# The image rectangle
+	[vg-rect]
+		x: 20
+		y: 320
+		r: 5
+		width: 360
+		height: 260
+		style:
+			stroke: #444
+			fill: none
+
+	# The text rectangle
+	[vg-rect]
+		x: 20
+		y: 20
+		r: 5
+		width: 360
+		height: 260
+		style:
+			stroke: #444
+			fill: #6d6
+
+	# The text
+	[vg-flowing-text]
+		x: 25
+		y: 25
+		width: 350
+		height: 250
+		text-wrapping: wordwrap
+		attr:
+			font-size: 24
+			color: #000
+			outline: yes
+		markup-text:
+			>> ^RThis^ is a placeholder text, it should contain the card description,
+			>> its rules description, and eventually it's lore.
+
+
+
 [system card]
 	[fn layout]
 		[font-pack serif]
