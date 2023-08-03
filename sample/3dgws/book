@@ -81,108 +81,33 @@
 
 
 
-[system card]
-	[fn layout]
-		[font-pack serif]
-			regular: /fonts/serif.ttf
+[vg-template card-back]
+	[attr]
+		viewbox:
+			x: 0
+			y: 0
+			width: 400
+			height: 600
 
-		[vg $.vg]
-			[attr]
-				viewbox:
-					x: 0
-					y: 0
-					width: 400
-					height: 600
+	# The card border
+	[vg-rect]
+		x: 0
+		y: 0
+		r: 10
+		width: 400
+		height: 600
+		style:
+			stroke: #444
+			fill: #fff
 
-			# The card border
-			[vg-rect]
-				x: 0
-				y: 0
-				r: 10
-				width: 400
-				height: 600
-				style:
-					stroke: #444
-					fill: #fff
-
-			# The image
-			[vg-image]
-				x: 20
-				y: 320
-				width: 360
-				height: 260
-				aspect: preserve
-				url: /sprites/shaman.png
-
-			# The image rectangle
-			[vg-rect]
-				x: 20
-				y: 320
-				r: 5
-				width: 360
-				height: 260
-				style:
-					stroke: #444
-					fill: none
-
-			# The text rectangle
-			[vg-rect]
-				x: 20
-				y: 20
-				r: 5
-				width: 360
-				height: 260
-				style:
-					stroke: #444
-					fill: #6d6
-
-			# The text
-			[vg-flowing-text]
-				x: 25
-				y: 25
-				width: 350
-				height: 250
-				text-wrapping: wordwrap
-				attr:
-					font-size: 24
-					color: #000
-					outline: yes
-				markup-text:
-					>> ^RThis^ is a placeholder text, it should contain the card description,
-					>> its rules description, and eventually it's lore.
-
-		[return] $.vg
-
-	[fn back-layout]
-		[vg $.vg]
-			[attr]
-				viewbox:
-					x: 0
-					y: 0
-					width: 400
-					height: 600
-
-			# The card border
-			[vg-rect]
-				x: 0
-				y: 0
-				r: 10
-				width: 400
-				height: 600
-				style:
-					stroke: #444
-					fill: #fff
-
-			# The image
-			[vg-image]
-				x: 20
-				y: 20
-				width: 360
-				height: 560
-				aspect: stretch
-				url: /textures/card-back.png
-
-		[return] $.vg
+	# The image
+	[vg-image]
+		x: 20
+		y: 20
+		width: 360
+		height: 560
+		aspect: stretch
+		url: /textures/card-back.png
 
 
 
@@ -227,8 +152,9 @@
 			[g-create ground ground]
 				texture-pack: ground
 
-			[call card/layout => $.vg]
-			[call card/back-layout => $.back-vg]
+			#[call card/layout => $.vg]
+			[vg-instance card => $.vg]
+			[vg-instance card-back => $.back-vg]
 			[g-create card card]
 				vg-object: $.vg
 				back-vg-object: $.back-vg
