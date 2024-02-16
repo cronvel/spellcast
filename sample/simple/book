@@ -25,7 +25,7 @@
 	
 	[starting-scene intro]
 		
-		[m story] $> ^/Once ^Bupon a time...
+		[m story] $> *Once [upon a time]<blue>...*
 		[message] $> ...
 		[message] $> What do you seek?
 		
