@@ -15,7 +15,7 @@
   "dependencies": {
     "@cronvel/minimatch": "^3.0.2",
     "babel-tower": "^0.21.3",
-    "book-source": "^0.3.2",
+    "book-source": "^0.3.5",
     "book-source-quickmarkup-renderer": "^0.2.1",
     "doormen": "^0.15.5",
     "exm": "^0.5.12",
@@ -30,7 +30,7 @@
     "math-kit": "^0.16.25",
     "nextgen-events": "^1.5.3",
     "nomi-ninja": "^0.2.5",
-    "semver": "^7.6.0",
+    "semver": "^7.6.2",
     "server-kit": "^0.10.2",
     "seventh": "^0.9.2",
     "spellcast-shared": "^0.50.12",
