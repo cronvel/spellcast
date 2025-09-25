@@ -76,7 +76,7 @@
 			color: #000
 			outline: yes
 		markup-text:
-			>> ^RThis^ is a placeholder text, it should contain the card description,
+			>> **This** is a placeholder text, it should contain the card description,
 			>> its rules description, and eventually it's lore.
 
 
