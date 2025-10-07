@@ -6,6 +6,7 @@
 
 [chapter menu]
 	[scene menu]
+	#[starting-scene menu]
 		[next camera/camera-test] Camera test
 		[next card/card-test] Card test
 
@@ -114,6 +115,7 @@
 [chapter card]
 	[theme] > /themes/game
 
+	#[scene card-test]
 	[starting-scene card-test]
 		[create-g-scene 3d]
 			engineId: 3dgws
@@ -172,7 +174,7 @@
 			[camera]
 				free: true
 
-		[pause] 5
+		[pause] 0.5
 
 		[next]
 
@@ -181,6 +183,7 @@
 	[theme] > /themes/game
 
 	[scene camera-test]
+	#[starting-scene camera-test]
 		[message] $> ^/Once upon a time...
 		
 		[create-g-scene 3d]

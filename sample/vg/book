@@ -7,6 +7,7 @@
 
 		[vg $.vg]
 			[attr]
+				#invert-y: no
 				viewbox:
 					x: 0
 					y: 0
@@ -67,7 +68,7 @@
 					color: #000
 					outline: yes
 				markup-text:
-					>> ^RThis^ is a placeholder text, it should contain the card description,
+					>> This is a placeholder text, it should contain the card description,
 					>> its rules description, and eventually it's lore.
 
 		[return] $.vg
@@ -94,8 +95,6 @@
 		[next menu]
 
 	[scene vg-flowing-text]
-		[font-pack serif]
-			regular: /fonts/serif.ttf
 		[font-pack serif]
 			regular: /fonts/serif.ttf
 
