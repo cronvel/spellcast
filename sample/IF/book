@@ -76,7 +76,7 @@
 	
 	[action unlock]
 		[require]
-			- performer
+			- actor
 			- target
 		[optional]
 			- using
@@ -94,10 +94,10 @@
 			[set $target.lock] false
 		
 		[report]
-			[message] $> ${performer.name} unlocks ${target.name}.
+			[message] $> ${actor.name} unlocks ${target.name}.
 
 	# like [action][check]
-	[check-action kiss when ( $performer = $player ) and ( $target.name = "Sofia" )]
+	[check-action kiss when ( $actor = $player ) and ( $target.name = "Sofia" )]
 		[success]
 	
 	[check-action kiss when $target.params.is-human]
@@ -109,7 +109,7 @@
 		[perform $reply.command]
 		
 		[perform unlock]
-			performer: $player
+			actor: $player
 			target: $door
 		
 	[scene wanted-sandbox-api]
@@ -157,8 +157,8 @@
 
 [action drink]
 	[require]
-		- commander
-		- performer
+		- instigator
+		- actor
 		- object
 
 	# [check] is an alias of [check precondition]
@@ -183,24 +183,24 @@
 		[message] $> ^geffect tag
 	
 	#[precondition-success-report]
-	#	[message] $> ^B${args.performer.name}[+d:a//uc1] drinks ${args.object.name}.
+	#	[message] $> ^B${args.actor.name}[+d:a//uc1] drinks ${args.object.name}.
 	[precondition-failure-report]
-		[message] $> ^Y${args.performer.name}[+d:a//uc1] can't drink ${args.object.name}[+d:a].
+		[message] $> ^Y${args.actor.name}[+d:a//uc1] can't drink ${args.object.name}[+d:a].
 	
 	[persuasion-failure-report]
-		[message] $> ^YNobody should tell ${args.performer.name}[+d:a//uc1] when to drink.
+		[message] $> ^YNobody should tell ${args.actor.name}[+d:a//uc1] when to drink.
 	[persuasion-success-report]
-		[message] $> ^B${args.performer.name}[+d:a//uc1] nods.
+		[message] $> ^B${args.actor.name}[+d:a//uc1] nods.
 	[success-report]
-		[message] $> ^B${args.performer.name}[+d:a//uc1] drinks ${args.object.name}[+d:a].
+		[message] $> ^B${args.actor.name}[+d:a//uc1] drinks ${args.object.name}[+d:a].
 	[failure-report]
 		[message] $> ^Y${args.object.name}[+d:a//uc1] is not drinkable!
 
 
 [action open]
 	[require]
-		- commander
-		- performer
+		- instigator
+		- actor
 		- object
 
 	[check]
@@ -219,35 +219,35 @@
 		[set $args.object.status.open] true
 	
 	[precondition-failure-report]
-		[message] $> ^Y${args.performer.name}[+d:a//uc1] can't open ${args.object.name}[+d:a].
+		[message] $> ^Y${args.actor.name}[+d:a//uc1] can't open ${args.object.name}[+d:a].
 	
 	#[persuasion-failure-report]
-	#	[message] $> ^YNobody should tell ${args.performer.name}[+d:a] when to drink.
+	#	[message] $> ^YNobody should tell ${args.actor.name}[+d:a] when to drink.
 	#[persuasion-success-report]
-	#	[message] $> ^B${args.performer.name}[+d:a//uc1] nods.
+	#	[message] $> ^B${args.actor.name}[+d:a//uc1] nods.
 	[success-report]
-		[message] $> ^B${args.performer.name}[+d:a//uc1] opens ${args.object.name}[+d:a].
+		[message] $> ^B${args.actor.name}[+d:a//uc1] opens ${args.object.name}[+d:a].
 	[failure-report]
-		[message] $> ^B${args.performer.name}[+d:a//uc1] can't open ${args.object.name}[+d:a].
+		[message] $> ^B${args.actor.name}[+d:a//uc1] can't open ${args.object.name}[+d:a].
 
-[on $player persuasion:*:commander]
-	[message] $> persuasion:*:commander player
+[on $player persuasion:*:instigator]
+	[message] $> persuasion:*:instigator player
 
-[on $player persuasion:drink:commander]
-	[message] $> persuasion:drink:commander player
+[on $player persuasion:drink:instigator]
+	[message] $> persuasion:drink:instigator player
 
-[on $player persuasion:drink:performer]
-	[message] $> persuasion:drink:performer player
+[on $player persuasion:drink:actor]
+	[message] $> persuasion:drink:actor player
 
-[on $sofia persuasion:drink:performer]
-	[message] $> persuasion:drink:performer sofia
+[on $sofia persuasion:drink:actor]
+	[message] $> persuasion:drink:actor sofia
 	#[maybe-success]
 
-[on $sofia persuasion:*:performer]
-	[message] $> persuasion:*:performer sofia
+[on $sofia persuasion:*:actor]
+	[message] $> persuasion:*:actor sofia
 	#[persuasion-failure-report]
 	[persuasion-failure-report reset-default]
-		[message] $> ^Y${args.performer.name}[+d:a//uc1] is a liberated woman, she refuses to be commanded.
+		[message] $> ^Y${args.actor.name}[+d:a//uc1] is a liberated woman, she refuses to be commanded.
 	[maybe-failure]
 	#[maybe-success]
 	#[failure]
@@ -264,17 +264,17 @@
 [on action:drink]
 	[message] $> action:drink
 
-[on $player precondition:drink:performer]
-	[message] $> precondition:drink:performer player
+[on $player precondition:drink:actor]
+	[message] $> precondition:drink:actor player
 
-[on $player precondition:*:performer]
-	[message] $> precondition:*:performer player
+[on $player precondition:*:actor]
+	[message] $> precondition:*:actor player
 
-[on $player action:drink:performer]
-	[message] $> action:drink:performer player
+[on $player action:drink:actor]
+	[message] $> action:drink:actor player
 
-[on $player action:*:performer]
-	[message] $> action:*:performer player
+[on $player action:*:actor]
+	[message] $> action:*:actor player
 
 [on $item precondition:drink:object]
 	[message] $> precondition:drink:object item
@@ -290,24 +290,24 @@
 
 	[scene test]
 		[perform drink]
-			commander: $player
-			performer: $sofia
+			instigator: $player
+			actor: $sofia
 			object: $item
 
 		[perform drink]
-			commander: $player
-			performer: $player
+			instigator: $player
+			actor: $player
 			object: $item
 
 		[perform]
 			action: drink
-			commander: $player
-			performer: $player
+			instigator: $player
+			actor: $player
 			object: $item
 
 		[perform drink]
-			commander: $player
-			performer: $player
+			instigator: $player
+			actor: $player
 			object: $item
 
 	[starting-scene test2]
@@ -319,9 +319,9 @@
 			history: yes
 		[request command-interpreter => $reply] $state
 		
-		[set $reply.commander] $player
-		[if ! $reply.performer]
-			[set $reply.performer] $player
+		[set $reply.instigator] $player
+		[if ! $reply.actor]
+			[set $reply.actor] $player
 		
 		#[debug hdebug] $reply
 		

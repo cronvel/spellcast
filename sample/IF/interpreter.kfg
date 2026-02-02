@@ -41,7 +41,7 @@
 		[pattern] > order * to *
 		[sr] $args.stars.input[1]
 		[reply]
-			performer: $args.stars.input[0]
+			actor: $args.stars.input[0]
 			action: $args.sr[0].action
 			object: $args.sr[0].object
 			target: $args.sr[0].target
