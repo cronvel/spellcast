@@ -888,6 +888,22 @@ describe( "Operations tags" , () => {
 			[ "Sorted item: ananas" ]
 		] ) ;
 	} ) ;
+
+	it( "[shuffle] tag" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/shuffle.kfg' , { type: 'cast' , target: 'shuffle' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages[ 0 ] ).to.equal( [ 'Original: Alice Bob Charlie Eve' ] ) ;
+		let shuffled = messages[ 1 ][ 0 ].split( ' ' ) ;
+		shuffled.shift() ;
+		//console.warn( shuffled ) ;
+		expect( shuffled ).to.have.length( 4 ) ;
+		shuffled.sort() ;
+		expect( shuffled ).to.equal( [ 'Alice', 'Bob', 'Charlie', 'Eve' ] ) ;
+	} ) ;
 } ) ;
 
 

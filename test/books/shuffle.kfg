@@ -1,0 +1,14 @@
+
+[[doctype spellcast/spellbook]]
+
+[formula]
+	simpleArray:
+		- Alice
+		- Bob
+		- Charlie
+		- Eve
+
+[spell shuffle]
+	[message] $> Original: ${simpleArray}[enum]
+	[shuffle $simpleArray]
+	[message] $> Result: ${simpleArray}[enum]
