@@ -1,0 +1,16 @@
+
+[[doctype spellcast/spellbook]]
+
+[formula]
+	array:
+		- three
+		- four
+
+[spell prepend-many]
+	[prepend-many $array]
+		- zero
+		- one
+		- two
+	[message]
+		- $> Array: ${array}[enum]
+

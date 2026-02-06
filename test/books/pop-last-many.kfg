@@ -1,0 +1,21 @@
+
+[[doctype spellcast/spellbook]]
+
+[formula]
+	array:
+		- one
+		- two
+		- three
+		- four
+		- five
+
+[spell pop-last-many]
+	[pop-last-many $array => $target] 3
+	[message]
+		- $> Target: ${target}[enum]
+	[pop-last-many $array => $target] 3
+	[message]
+		- $> Target: ${target}[enum]
+	[pop-last-many $array => $target] 3
+	[message]
+		- $> Target: ${target}[enum]

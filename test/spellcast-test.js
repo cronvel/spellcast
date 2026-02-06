@@ -693,6 +693,18 @@ describe( "Operations tags" , () => {
 		] ) ;
 	} ) ;
 
+	it( "[append-many] tag" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/append-many.kfg' , { type: 'cast' , target: 'append-many' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Array: one two three four five six' ]
+		] ) ;
+	} ) ;
+
 	it( "[prepend] tag" , async () => {
 		var messages = [] ;
 
@@ -702,6 +714,76 @@ describe( "Operations tags" , () => {
 
 		expect( messages ).to.equal( [
 			[ 'Array: zero one two three' ]
+		] ) ;
+	} ) ;
+
+	it( "[prepend-many] tag" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/prepend-many.kfg' , { type: 'cast' , target: 'prepend-many' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Array: zero one two three four' ]
+		] ) ;
+	} ) ;
+
+	it( "[pop-first] tag" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/pop-first.kfg' , { type: 'cast' , target: 'pop-first' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Target: one' ] ,
+			[ 'Target: two' ] ,
+			[ 'Target: three' ] ,
+			[ 'Target: (undefined)' ]
+		] ) ;
+	} ) ;
+
+	it( "[pop-first-many] tag" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/pop-first-many.kfg' , { type: 'cast' , target: 'pop-first-many' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Target: one two three' ] ,
+			[ 'Target: four five' ] ,
+			[ 'Target: ' ]
+		] ) ;
+	} ) ;
+
+	it( "[pop-last] tag" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/pop-last.kfg' , { type: 'cast' , target: 'pop-last' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Target: three' ] ,
+			[ 'Target: two' ] ,
+			[ 'Target: one' ] ,
+			[ 'Target: (undefined)' ]
+		] ) ;
+	} ) ;
+
+	it( "[pop-last-many] tag" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/pop-last-many.kfg' , { type: 'cast' , target: 'pop-last-many' } ,
+			ui => ui.bus.on( 'message' , msg => messages.push( [ msg ] ) )
+		) ;
+
+		expect( messages ).to.equal( [
+			[ 'Target: three four five' ] ,
+			[ 'Target: one two' ] ,
+			[ 'Target: ' ]
 		] ) ;
 	} ) ;
 
