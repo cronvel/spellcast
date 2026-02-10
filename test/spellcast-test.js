@@ -426,6 +426,21 @@ describe( "Control flow tags" , () => {
 		] ) ;
 	} ) ;
 
+	it( "[call-scriptlet] on variable containing a TagContainer" , async () => {
+		var messages = [] ;
+
+		await runBook( __dirname + '/books/call-scriptlet.kfg' , { type: 'cast' , target: 'call-scriptlet' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'internal' , str => {
+				expect( str ).to.be( "internal exec" ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'returnval' , returnval => {
+				//console.log( entity ) ;
+				expect( returnval ).to.equal( { a: "value1" , b: "value2" } ) ;
+			} ) ;
+		} ) ;
+	} ) ;
+
 	it( "[call] tag on real function (not on [fn] tag)" ) ;
 	it( "[return] tag" ) ;
 

@@ -1,0 +1,16 @@
+[[doctype spellcast/spellbook]]
+
+[spell call-scriptlet]
+	
+	[set $.var]
+		description: A scriptlet
+		scriptlet:
+			[to-unit-test internal] internal exec
+			[set $.object]
+				a: value1
+				b: value2
+			[return] $.object
+	
+	[call-scriptlet $.var.scriptlet => $.return]
+	[to-unit-test returnval] $.return
+
