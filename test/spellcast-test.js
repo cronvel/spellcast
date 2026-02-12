@@ -996,7 +996,7 @@ describe( "Operations tags" , () => {
 		expect( messages[ 0 ] ).to.equal( [ 'Original: Alice Bob Charlie Eve' ] ) ;
 		let shuffled = messages[ 1 ][ 0 ].split( ' ' ) ;
 		shuffled.shift() ;
-		//console.warn( shuffled ) ;
+		console.warn( shuffled ) ;
 		expect( shuffled ).to.have.length( 4 ) ;
 		shuffled.sort() ;
 		expect( shuffled ).to.equal( [ 'Alice', 'Bob', 'Charlie', 'Eve' ] ) ;
