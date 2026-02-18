@@ -2273,6 +2273,26 @@ describe( "Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 			} ) ;
 		} ) ;
 	} ) ;
+
+	it( "Full entity cards/piles test" , async () => {
+		var mainEntity , strikeItem ;
+
+		await runBook( __dirname + '/books/entity-and-piles.kfg' , { type: 'story' } , ( ui , book ) => {
+			book.unitTest.ensureOnce( 'base-entity' , entity => {
+				mainEntity = entity ;
+				expect( [ ... entity.items ] ).to.equal( [] ) ;
+				//console.log( entity ) ;
+				expect( entity.stats.attack.base ).to.be( 3 ) ;
+				expect( entity.stats.attack.actual ).to.be( 3 ) ;
+				expect( entity.stats.defense.base ).to.be( 2 ) ;
+				expect( entity.stats.defense.actual ).to.be( 2 ) ;
+				expect( entity.stats.damage.base ).to.be( 3 ) ;
+				expect( entity.stats.damage.actual ).to.be( 3 ) ;
+				expect( entity.stats.health.base ).to.be( 5 ) ;
+				expect( entity.stats.health.actual ).to.be( 5 ) ;
+			} ) ;
+		} ) ;
+	} ) ;
 } ) ;
 
 

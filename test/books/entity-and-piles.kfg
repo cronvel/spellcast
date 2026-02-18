@@ -1,0 +1,56 @@
+[[doctype spellcast/book]]
+
+[entity-model character]
+	slots:
+		deck: Infinity
+	stats:
+		attack: 3
+		defense: 2
+		damage: 3
+		health: 5
+
+[item-class card]
+	name: Card
+	is-card: yes
+	slot-type: deck
+	slot-count: 1
+
+[item-model strike]
+	class: card
+	name: Strike
+	card-piles-mods:
+		play:
+			attack: (+) 3
+			defense: (-) 2
+			damage: (+) 3
+
+[item-model defense]
+	class: card
+	name: Defense
+	card-piles-mods:
+		play:
+			defense: (+) 5
+
+[chapter a-chapter]
+	[starting-scene a-scene]
+		[create-entity $entity] character
+		[to-unit-test base-entity] $entity
+
+		[create-item $strike] strike
+		[to-unit-test strike] $strike
+		
+		[create-item $defense] defense
+		[to-unit-test defense] $defense
+		
+		[equip $entity]
+			owned: no
+			item: $strike
+		[equip $entity]
+			owned: no
+			item: $defense
+		[to-unit-test entity-deck-equipped] $entity
+		
+		[clear-pile $entity] draw
+		[reset-pile-cards $entity] draw
+		
+
