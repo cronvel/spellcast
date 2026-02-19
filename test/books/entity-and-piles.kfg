@@ -51,6 +51,13 @@
 		[to-unit-test entity-deck-equipped] $entity
 		
 		[clear-pile $entity] draw
-		[reset-pile-cards $entity] draw
+		[reset-pile-cards $entity]
+			pile: draw
+			stack: deck
+			shuffle: yes
+		[draw-cards $entity]
+			from: draw
+			to: hand
+			#shuffle: yes
 		
 

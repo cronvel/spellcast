@@ -2275,7 +2275,7 @@ describe( "Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 	} ) ;
 
 	it( "Full entity cards/piles test" , async () => {
-		var mainEntity , strikeItem ;
+		var mainEntity , strikeItem , defenseItem ;
 
 		await runBook( __dirname + '/books/entity-and-piles.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'base-entity' , entity => {
@@ -2290,6 +2290,24 @@ describe( "Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( entity.stats.damage.actual ).to.be( 3 ) ;
 				expect( entity.stats.health.base ).to.be( 5 ) ;
 				expect( entity.stats.health.actual ).to.be( 5 ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'strike' , item => {
+				strikeItem = item ;
+				//console.log( item ) ;
+				//console.log( item['card-piles-mods'] ) ;
+				//console.log( item['card-piles-mods'].play['card-piles.play.attack'] ) ;
+				expect( item['card-piles-mods'].play['card-piles.play.attack'].plus.operand ).to.be( 3 ) ;
+				expect( item['card-piles-mods'].play['card-piles.play.defense'].plus.operand ).to.be( -2 ) ;
+				expect( item['card-piles-mods'].play['card-piles.play.damage'].plus.operand ).to.be( 3 ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'defense' , item => {
+				defenseItem = item ;
+				//console.log( item ) ;
+				//console.log( item['card-piles-mods'] ) ;
+				//console.log( item['card-piles-mods'].play['card-piles.play.attack'] ) ;
+				expect( item['card-piles-mods'].play['card-piles.play.defense'].plus.operand ).to.be( 5 ) ;
 			} ) ;
 		} ) ;
 	} ) ;
