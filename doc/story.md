@@ -90,9 +90,11 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 		* [Function Tags](#ref.flow.function)
 			* [Fn Tag](#ref.flow.fn)
 			* [Call Tag](#ref.flow.call)
+			* [Call-scriptlet Tag](#ref.flow.call-scriptlet)
 			* [Return Tag](#ref.flow.return)
 	* [Operation Tags](#ref.ops)
 		* [Set Tag](#ref.ops.set)
+		* [Local Tag](#ref.ops.local)
 		* [Define Tag](#ref.ops.define)
 		* [Unset Tag](#ref.ops.unset)
 		* [Inc Tag](#ref.ops.inc)
@@ -1483,7 +1485,7 @@ The *break* tag exit from the current loop immediately.
 
 
 <a name="ref.flow.function"></a>
-## Function Tags: [fn], [call], [return]
+## Function Tags: [fn], [call], [call-scriptlet], [return]
 
 
 
@@ -1547,6 +1549,26 @@ It is also possible to call a native JS function or object method, if it is stor
 
 
 
+<a name="ref.flow.call-scriptlet"></a>
+## [call-scriptlet *$var*] / [call-scriptlet *$var* => *$into*]
+
+* types: run or init, exec
+* attribute style: var or call syntax
+* content type: anything
+
+The *call-scriptlet* tag is used to *call* (i.e. *execute*) a Spellcast Scripting tag's container.
+
+It works the same way the *call* tag works, but does not need any function declaration.
+It's useful when the data has some scriptlet.
+
+For example, in card games, a card can have specific rules that are not defined project-wide.
+In that case, the card's data may provide some scriptlets, i.e. a tag container that can be callable.
+
+The scriptlet receive **$args** and can return value exactly the same way any function would do it.
+See [Call Tag](#ref.flow.call) for more details.
+
+
+
 <a name="ref.flow.return"></a>
 ## [return]
 
@@ -1597,6 +1619,41 @@ Example:
 ```
 a: something
 b: something
+Hello Joe Doe!
+```
+
+
+
+<a name="ref.ops.local"></a>
+## [local]
+
+* types: run
+* attribute style: none
+* content type: object
+
+The *local* tag is used as a syntactic sugar, setting a bunch of local variables at once.
+The content is an object, each key is the name of a local variable to set to its value.
+
+Example:
+
+```
+[local]
+	a: some
+	b: value
+	person:
+		first-name: Joe
+		last-name: Doe
+
+[message] $> a: ${local.a}
+[message] $> b: ${local.b}
+[message] $> Hello ${local.person.first-name} ${local.person.last-name}!
+```
+
+... this would output:
+
+```
+a: some
+b: value
 Hello Joe Doe!
 ```
 
