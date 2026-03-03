@@ -29,6 +29,15 @@
 			defense: (-) 2
 			damage: (+) 3
 
+[item-model signature]
+	class: card
+	name: Signature
+	card-piles-mods:
+		play:
+			attack: (+) 5
+			defense: (-) 3
+			damage: (+) 8
+
 [item-model defense]
 	class: card
 	name: Defense
@@ -44,25 +53,63 @@
 		[create-item $strike] strike
 		[to-unit-test strike] $strike
 		
+		[create-item $signature] signature
+		[to-unit-test signature] $signature
+		
 		[create-item $defense] defense
 		[to-unit-test defense] $defense
+		
+		[create-item $signature2] signature
+		[to-unit-test signature2] $signature2
 		
 		[equip $entity]
 			owned: no
 			item: $strike
 		[equip $entity]
 			owned: no
+			item: $signature
+		[equip $entity]
+			owned: no
 			item: $defense
 		[to-unit-test entity-deck-equipped] $entity
 		
-		[clear-pile $entity] draw
 		[reset-pile-cards $entity]
 			pile: draw
 			stack: deck
-			shuffle: yes
+			#shuffle: yes
+		[to-unit-test entity-draw-pile] $entity
+
 		[draw-cards $entity]
 			from: draw
 			to: hand
+			count: 1
 			#shuffle: yes
+		[to-unit-test entity-after-draw-card] $entity
 		
+		[draw-cards $entity]
+			from: draw
+			to: hand
+			count: 2
+			#shuffle: yes
+		[to-unit-test entity-after-draw-2-cards] $entity
+		
+		[add-card $entity]
+			pile: hand
+			card: $signature2
+		[to-unit-test entity-after-add-card] $entity
+		
+		[remove-card $entity]
+			pile: hand
+			card: $signature
+		[to-unit-test entity-after-remove-card] $entity
+		
+		[move-card $entity]
+			from: hand
+			to: discard
+			card: $strike
+		[to-unit-test entity-after-move-card] $entity
+		
+		[clear-pile $entity] hand
+		[to-unit-test entity-after-clear] $entity
+
 

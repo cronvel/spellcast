@@ -140,24 +140,32 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Name Tag](#ref.multiplayer.role.name)
 			* [Entity Tag](#ref.multiplayer.role.entity)
 		* [Split Tag](#ref.multiplayer.split)
-	* [RPG Tags](#ref.rpg)
-		* [Entity-class Tag](#ref.rpg.entity-class)
-		* [Entity-model Tag](#ref.rpg.entity-model)
-		* [Create-entity Tag](#ref.rpg.create-entity)
-		* [Create-main-entity Tag](#ref.rpg.create-main-entity)
-		* [Update-entity Tag](#ref.rpg.update-entity)
-		* [Entity-variant Tag](#ref.rpg.entity-variant)
-		* [Entity-compound-stats Tag](#ref.rpg.entity-compound-stats)
-		* [Usage-compound-stats Tag](#ref.rpg.usage-compound-stats)
-		* [Item-model Tag](#ref.rpg.item-model)
-		* [Create-item Tag](#ref.rpg.create-item)
-		* [Equip Tag](#ref.rpg.equip)
-		* [Unequip Tag](#ref.rpg.unequip)
-		* [Grab Tag](#ref.rpg.grab)
-		* [Drop Tag](#ref.rpg.drop)
-		* [Create-metric Tag](#ref.rpg.create-metric)
-		* [Raise-metric Tag](#ref.rpg.raise-metric)
-		* [Lower-metric Tag](#ref.rpg.lower-metric)
+	* [Special Objects Tags](#ref.object)
+		* [Generic Object Tags](#ref.object.generic)
+			* [Move-into Tag](#ref.object.generic.move-into)
+		* [Entity Tags](#ref.object.entity)
+			* [Entity-class Tag](#ref.object.entity.entity-class)
+			* [Entity-model Tag](#ref.object.entity.entity-model)
+			* [Create-entity Tag](#ref.object.entity.create-entity)
+			* [Create-main-entity Tag](#ref.object.entity.create-main-entity)
+			* [Entity-variant Tag](#ref.object.entity.entity-variant)
+			* [Equip Tag](#ref.object.entity.equip)
+			* [Unequip Tag](#ref.object.entity.unequip)
+			* [Grab Tag](#ref.object.entity.grab)
+			* [Drop Tag](#ref.object.entity.drop)
+			* [Clear-pile Tag](#ref.object.entity.clear-pile)
+			* [Reset-pile-card Tag](#ref.object.entity.reset-pile-card)
+			* [Draw-cards Tag](#ref.object.entity.draw-cards)
+			* [Add-card Tag](#ref.object.entity.add-card)
+			* [Remove-card Tag](#ref.object.entity.remove-card)
+			* [Move-card Tag](#ref.object.entity.move-card)
+		* [Item Tags](#ref.object.item)
+			* [Item-model Tag](#ref.object.item.item-model)
+			* [Create-item Tag](#ref.object.item.create-item)
+	* [Misc Tags](#ref.misc)
+		* [Create-metric Tag](#ref.misc.create-metric)
+		* [Raise-metric Tag](#ref.misc.raise-metric)
+		* [Lower-metric Tag](#ref.misc.lower-metric)
 	* [UI tags](#ref.ui)
 		* [Status Tag](#ref.ui.status)
 		* [Panel Tag](#ref.ui.panel)
@@ -2515,7 +2523,7 @@ The *name* tag contains the name of the role, as displayed to users.
 * content type: object
 
 The *entity* tag creates and assigns an entity to the current role.
-It works like the [*create-entity* tag](#ref.rpg.create-entity).
+It works like the [*create-entity* tag](#ref.object.create-entity).
 
 
 
@@ -2565,27 +2573,54 @@ Once all branches have reunited, listeners are merged:
 
 
 
-<a name="ref.rpg"></a>
-# RPG Tags
+<a name="ref.object"></a>
+# Special Objects Tags
 
 
 
-<a name="ref.rpg.entity-class"></a>
-## [entity-class *class-label*]
+<a name="ref.object.generic"></a>
+## Generic Object Tags
+
+Tags that works on all objects.
+
+TODO: documentation
+
+
+
+<a name="ref.object.generic.move-into"></a>
+### [move-into *$object* => *$intoObject*] / [move-into *$object* => *intoObjectID*]
+
+* types: run
+* attribute style: move-into syntax
+* content type: none
+
+TODO: documentation
+
+
+
+<a name="ref.object.entity"></a>
+## Entity Object Tags
+
+An *entity* a global kind of *things* that can perform some actions in the scenario, that may (or may not) be human controled.
+
+Some example of entity usages:
+* a character
+* a battalion
+* a city
+* a kingdom
+* a starship
+* ...
+
+
+
+<a name="ref.object.entity.entity-class"></a>
+### [entity-class *class-label*]
 
 * types: init
 * attribute style: label
 * content type: object
 
-The *entity-class* tag defines a class of entity, i.e. a global kind of *things* that can perform some actions in the scenario,
-that may (or may not) be human controled.
-
-Some example of entity types:
-* a character
-* a battalion
-* a city
-* a kingdom
-* ...
+The *entity-class* tag defines a class of entity, i.e. a global kind of *things*.
 
 At *init time*, the class is registered globally.
 
@@ -2595,8 +2630,8 @@ TODO: documentation
 
 
 
-<a name="ref.rpg.entity-model"></a>
-## [entity-model *model-label*]
+<a name="ref.object.entity.entity-model"></a>
+### [entity-model *model-label*]
 
 * types: init
 * attribute style: label
@@ -2614,8 +2649,8 @@ TODO: documentation
 
 
 
-<a name="ref.rpg.create-entity"></a>
-## [create-entity *$var*]
+<a name="ref.object.entity.create-entity"></a>
+### [create-entity *$var*]
 
 * types: run
 * attribute style: var
@@ -2630,8 +2665,8 @@ TODO: documentation
 
 
 
-<a name="ref.rpg.create-main-entity"></a>
-## [create-main-entity]
+<a name="ref.object.entity.create-main-entity"></a>
+### [create-main-entity]
 
 * types: run
 * attribute style: none
@@ -2639,7 +2674,7 @@ TODO: documentation
 
 The *create-main-entity* tag is used to create the main entity.
 
-It works like the [*create-entity* tag](#ref.rpg.create-entity), except that the entity is stored inside
+It works like the [*create-entity* tag](#ref.object.entity.create-entity), except that the entity is stored inside
 the first role (created if unexistant) and inside the $player global variable.
 
 Using this tag is the **recommended** way to create the main character in **single player book**.
@@ -2650,23 +2685,8 @@ TODO: documentation
 
 
 
-<a name="ref.rpg.update-entity"></a>
-## [update-entity *$var*]
-
-* types: run
-* attribute style: var
-* content type: none
-
-The *update-entity* tag is used to update the entity stored the variable: it computes again compound stats.
-
-It should be used whenever the script has modified a stat, a skill or a status that is involved in compound stats.
-
-Some tags do it automatically, e.g. the [*equip*](#ref.rpg.equip) and [*unequip*](#ref.rpg.unequip) tags.
-
-
-
-<a name="ref.rpg.entity-variant"></a>
-## [entity-variant *$var*]
+<a name="ref.object.entity.entity-variant"></a>
+### [entity-variant *$var*]
 
 * types: run
 * attribute style: var
@@ -2676,110 +2696,8 @@ TODO: documentation
 
 
 
-<a name="ref.rpg.entity-compound-stats"></a>
-## [entity-compound-stats *entity-class-label*]
-
-* types: init
-* attribute style: label
-* content type: object
-
-The *entity-compound-stats* tag defines compound stats for for an *entity-class-label* entity class.
-
-The content should be an object where the key is a stat name and the value is usually an *expression*.
-The *expression* usually contains *ref* (variable) relative to the entity object.
-
-Example:
-
-```
-[entity-compound-stats character]
-	fighting: $= ( $stats.dexterity + $stats.strength ) / 2
-```
-
-This will define a compound stat *fighting*, computed using the entity *dexterity* stat and *strength* stat,
-that will exist for all *character* type entity.
-
-
-
-<a name="ref.rpg.usage-compound-stats"></a>
-## [usage-compound-stats *usage-label*] / [usage-compound-stats *usage-label* *variation-label*]
-
-* types: init
-* attribute style: usage-compound-stats syntax
-* content type: object
-
-The *usage-compound-stats* tag defines compound stats for a particular *usage-label* usage,
-eventually for the *variation-label* variation.
-
-The content should be an object where the key is a stat name and the value is usually an *expression*.
-The *expression* usually contains *ref* (variable) relative to the entity object.
-
-Example without variation:
-
-```
-[usage-compound-stats ranged-fighting]
-	attack: $= $stats.shooting
-	damages: $= $stats.strength
-```
-
-This will define a compound stat *attack*, computed using the entity *shooting* stat, and a *damages* stat computed
-with the entity *strength* stat, that will be active for the *ranged-fighting* usage.
-
-Example with variation:
-
-```
-[usage-compound-stats ranged-fighting firearm]
-	damages: $= $stats.shooting / 4
-```
-
-This will define a compound stat *damages* computed with the entity *shooting* stat, 
-that will be active for the *ranged-fighting* usage when the item has the *firearm* type.
-
-The variation usage inherits from the standard usage (the one without variation), hence the *attack* stat is computed
-using the code in the previous example.
-
-Variations are useful when the same usage has different stats depending on the item performing it.
-Here the entity has a *firearm* type of weapon (guns, etc), the damages caused by that weapon rely more on
-the item stats than on the entity stats, and so the *strength* of the character does not affect the damages.
-
-
-
-<a name="ref.rpg.item-model"></a>
-## [item-model *model-label*]
-
-* types: init
-* attribute style: label
-* content type: object
-
-The *item-model* tag defines a model for futur item creation.
-
-At *init time*, the model is registered globally.
-
-Its content is an object containing some or all of the *Item* properties.
-
-It may inherit from an item class.
-
-TODO: documentation
-
-
-
-<a name="ref.rpg.create-item"></a>
-## [create-item *$var*]
-
-* types: run
-* attribute style: var
-* content type: string (the model to create) or object
-
-The *create-item* tag is used to create an item and store it into a variable.
-
-Its content content can be either a simple string containing the model ID to create, or a whole object containing
-some or all of the *Item* properties, that may inherit from an item model.
-
-TODO: documentation
-
-
-
-<a name="ref.rpg.equip"></a>
-## [equip *$var*]
+<a name="ref.object.entity.equip"></a>
+### [equip *$var*]
 
 * types: run
 * attribute style: var
@@ -2802,12 +2720,12 @@ This will equip *$hero* with the *$sword*, and set it as the primary item for th
 	primary: melee-fighting
 ```
 
-**It automatically [update the entity](#ref.rpg.update-entity)**.
+**It automatically [update the entity](#ref.object.entity.update-entity)**.
 
 
 
-<a name="ref.rpg.unequip"></a>
-## [unequip *$var*]
+<a name="ref.object.entity.unequip"></a>
+### [unequip *$var*]
 
 * types: run
 * attribute style: var
@@ -2837,12 +2755,12 @@ This will unequip the item *$sword* in the hands of the *$hero*:
 	item: $sword
 ```
 
-**It automatically [update the entity](#ref.rpg.update-entity)**.
+**It automatically [update the entity](#ref.object.entity.update-entity)**.
 
 
 
-<a name="ref.rpg.grab"></a>
-## [grab *$var*]
+<a name="ref.object.entity.grab"></a>
+### [grab *$var*]
 
 * types: run
 * attribute style: var
@@ -2857,8 +2775,8 @@ The content is an object describing what to drop, properties are:
 
 
 
-<a name="ref.rpg.drop"></a>
-## [drop *$var*]
+<a name="ref.object.entity.drop"></a>
+### [drop *$var*]
 
 * types: run
 * attribute style: var
@@ -2876,7 +2794,168 @@ The content is an object describing what to drop, properties are:
 
 
 
-<a name="ref.rpg.create-metric"></a>
+<a name="ref.object.entity.clear-pile"></a>
+### [clear-pile *$var*]
+
+* types: run
+* attribute style: var
+* content type: object or string
+
+The *clear-pile* tag is used to clear a (card) *pile* of the entity stored in the *$var*.
+
+The content is an object, properties are:
+* pile `string` the name of the pile to clear
+
+If the content is a string, it's the same than an object with a pile property.
+
+
+
+<a name="ref.object.entity.reset-pile-cards"></a>
+### [reset-pile-cards *$var*]
+
+* types: run
+* attribute style: var
+* content type: object
+
+The *reset-pile-cards* tag is used to reset a (card) *pile* using a *stack* (equipment slot, inventory, passed array).
+The pile can be shuffled.
+
+The content is an object, properties are:
+* pile `string` the name of the pile to clear
+* stack `Array` or `Set` or `string` (equipment slot name) from which to get the items/cards, if null: take cards from inventory
+* shuffle `boolean` (default: false), if true: shuffle the items/cards
+* clone `boolean` (default: false), if true: the items/cards are cloned and made *virtual*
+
+
+
+<a name="ref.object.entity.draw-cards"></a>
+### [draw-cards *$var*]
+
+* types: run
+* attribute style: var
+* content type: object
+
+The *draw-cards* tag is used to draw a card or multiple cards from *pile* and to put them into another pile.
+The drawn cards can be shuffled.
+
+The content is an object, properties are:
+* from `string` the name of the pile from which to draw items/cards
+* to `string` the name of the pile to put drawn items/cards into
+* count `integer` (default: 1), how many items/cards to draw
+* shuffle `boolean` (default: false), if true: shuffle the items/cards
+
+Usage: draw cards from the draw pile, and put them in the hand pile.
+
+
+
+<a name="ref.object.entity.add-card"></a>
+### [add-card *$var*]
+
+* types: run
+* attribute style: var
+* content type: object
+
+The *add-card* tag is used to add a card into a pile.
+
+The content is an object, properties are:
+* pile `string` the name of the pile to put the item/card into
+* item `Item` or `string` (an Item model to instanciate), the card to put into a pile
+* card: alias of the *item* property
+* clone `boolean` (default: false), if true: the items/cards are cloned and made *virtual*
+
+
+
+<a name="ref.object.entity.remove-card"></a>
+### [remove-card *$var*]
+
+* types: run
+* attribute style: var
+* content type: object
+
+The *remove-card* tag is used to remove a card from a pile.
+
+The content is an object, properties are:
+* pile `string` the name of the pile to remove the item/card from
+* item `Item` or `integer` (the index of the card in the pile), the card to remove from a pile
+* card: alias of the *item* property
+
+
+
+<a name="ref.object.entity.move-card"></a>
+### [move-card *$var*]
+
+* types: run
+* attribute style: var
+* content type: object
+
+The *move-card* tag is used to move a card from a pile to another.
+
+The content is an object, properties are:
+* from `string` the name of the pile to move the item/card from
+* to `string` the name of the pile to move the item/card to
+* item `Item` or `integer` (the index of the card in the pile), the card to remove from a pile
+* card: alias of the *item* property
+
+
+
+<a name="ref.object.item"></a>
+## Item Object Tags
+
+An *item* is a thing that can be sort of *equipped* by an entity, more or less abstractly, that may enhance the entity stats,
+that may enable some actions, or that ownership may be tested for branching in the scenario.
+
+Unlike entity, they are not *agent*, but things attachable to an *agent*.
+
+Some example of item usages:
+* an equipment for characters, like a tool, a weapon, an armor, a ring
+* an ability that can be acquired
+* a temporary powerup
+* a card that could be played
+* ...
+
+
+
+<a name="ref.object.item.item-model"></a>
+### [item-model *model-label*]
+
+* types: init
+* attribute style: label
+* content type: object
+
+The *item-model* tag defines a model for futur item creation.
+
+At *init time*, the model is registered globally.
+
+Its content is an object containing some or all of the *Item* properties.
+
+It may inherit from an item class.
+
+TODO: documentation
+
+
+
+<a name="ref.object.item.create-item"></a>
+### [create-item *$var*]
+
+* types: run
+* attribute style: var
+* content type: string (the model to create) or object
+
+The *create-item* tag is used to create an item and store it into a variable.
+
+Its content content can be either a simple string containing the model ID to create, or a whole object containing
+some or all of the *Item* properties, that may inherit from an item model.
+
+TODO: documentation
+
+
+
+<a name="ref.misc"></a>
+# Misc Tags
+
+
+
+<a name="ref.misc.create-metric"></a>
 ## [create-metric *$var*]
 
 * types: run
@@ -2887,7 +2966,7 @@ TODO: documentation
 
 
 
-<a name="ref.rpg.raise-metric"></a>
+<a name="ref.misc.raise-metric"></a>
 ## [raise-metric *$var*]
 
 * types: run
@@ -2898,7 +2977,7 @@ TODO: documentation
 
 
 
-<a name="ref.rpg.lower-metric"></a>
+<a name="ref.misc.lower-metric"></a>
 ## [lower-metric *$var*]
 
 * types: run

@@ -2275,13 +2275,15 @@ describe( "Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 	} ) ;
 
 	it( "Full entity cards/piles test" , async () => {
-		var mainEntity , strikeItem , defenseItem ;
+		var mainEntity , strikeItem , signatureItem , signature2Item , defenseItem ;
 
 		await runBook( __dirname + '/books/entity-and-piles.kfg' , { type: 'story' } , ( ui , book ) => {
 			book.unitTest.ensureOnce( 'base-entity' , entity => {
 				mainEntity = entity ;
 				expect( [ ... entity.items ] ).to.equal( [] ) ;
+				expect( entity['card-piles'] ).to.have.keys( 'draw' , 'hand' , 'discard' , 'exhaust' ) ;
 				//console.log( entity ) ;
+
 				expect( entity.stats.attack.base ).to.be( 3 ) ;
 				expect( entity.stats.attack.actual ).to.be( 3 ) ;
 				expect( entity.stats.defense.base ).to.be( 2 ) ;
@@ -2302,16 +2304,73 @@ describe( "Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				expect( item['card-piles-mods'].play['card-piles.play.damage'].plus.operand ).to.be( 3 ) ;
 			} ) ;
 
+			book.unitTest.ensureOnce( 'signature' , item => {
+				signatureItem = item ;
+				expect( item['card-piles-mods'].play['card-piles.play.attack'].plus.operand ).to.be( 5 ) ;
+				expect( item['card-piles-mods'].play['card-piles.play.defense'].plus.operand ).to.be( -3 ) ;
+				expect( item['card-piles-mods'].play['card-piles.play.damage'].plus.operand ).to.be( 8 ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'signature2' , item => {
+				signature2Item = item ;
+				expect( item['card-piles-mods'].play['card-piles.play.attack'].plus.operand ).to.be( 5 ) ;
+				expect( item['card-piles-mods'].play['card-piles.play.defense'].plus.operand ).to.be( -3 ) ;
+				expect( item['card-piles-mods'].play['card-piles.play.damage'].plus.operand ).to.be( 8 ) ;
+			} ) ;
+
 			book.unitTest.ensureOnce( 'defense' , item => {
 				defenseItem = item ;
-				//console.log( item ) ;
-				//console.log( item['card-piles-mods'] ) ;
-				//console.log( item['card-piles-mods'].play['card-piles.play.attack'] ) ;
 				expect( item['card-piles-mods'].play['card-piles.play.defense'].plus.operand ).to.be( 5 ) ;
 			} ) ;
 
 			book.unitTest.ensureOnce( 'entity-deck-equipped' , entity => {
-				expect( [ ... entity['equipped-items'].deck ] ).to.equal( [ strikeItem , defenseItem ] ) ;
+				expect( [ ... entity['equipped-items'].deck ] ).to.equal( [ strikeItem , signatureItem , defenseItem ] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-draw-pile' , entity => {
+				expect( entity['card-piles'].draw ).to.equal( [ strikeItem , signatureItem , defenseItem ] ) ;
+				expect( entity['card-piles'].hand ).to.equal( [] ) ;
+				expect( entity['card-piles'].discard ).to.equal( [] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-draw-card' , entity => {
+				expect( entity['card-piles'].draw ).to.equal( [ signatureItem , defenseItem ] ) ;
+				expect( entity['card-piles'].hand ).to.equal( [ strikeItem ] ) ;
+				expect( entity['card-piles'].discard ).to.equal( [] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-draw-2-cards' , entity => {
+				expect( entity['card-piles'].draw ).to.equal( [] ) ;
+				expect( entity['card-piles'].hand ).to.equal( [ strikeItem , signatureItem , defenseItem ] ) ;
+				expect( entity['card-piles'].discard ).to.equal( [] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-add-card' , entity => {
+				//console.log( entity['card-piles'].hand ) ;
+				expect( entity['card-piles'].draw ).to.equal( [] ) ;
+				expect( entity['card-piles'].hand ).to.equal( [ strikeItem , signatureItem , defenseItem , signature2Item ] ) ;
+				expect( entity['card-piles'].discard ).to.equal( [] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-remove-card' , entity => {
+				//console.log( entity['card-piles'].hand ) ;
+				expect( entity['card-piles'].draw ).to.equal( [] ) ;
+				expect( entity['card-piles'].hand ).to.equal( [ strikeItem , defenseItem , signature2Item ] ) ;
+				expect( entity['card-piles'].discard ).to.equal( [] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-move-card' , entity => {
+				//console.log( entity['card-piles'].hand ) ;
+				expect( entity['card-piles'].draw ).to.equal( [] ) ;
+				expect( entity['card-piles'].hand ).to.equal( [ defenseItem , signature2Item ] ) ;
+				expect( entity['card-piles'].discard ).to.equal( [ strikeItem ] ) ;
+			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-after-clear' , entity => {
+				//console.log( entity['card-piles'].hand ) ;
+				expect( entity['card-piles'].draw ).to.equal( [] ) ;
+				expect( entity['card-piles'].hand ).to.equal( [] ) ;
+				expect( entity['card-piles'].discard ).to.equal( [ strikeItem ] ) ;
 			} ) ;
 		} ) ;
 	} ) ;
