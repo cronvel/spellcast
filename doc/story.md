@@ -120,6 +120,16 @@ But Spellcast can also be embedded into app, allowing users to create contents, 
 			* [Sort Tag](#ref.ops.sort)
 			* [Fill Tag](#ref.ops.fill)
 			* [Copy-within Tag](#ref.ops.copy-within)
+			* [Append Tag](#ref.ops.append)
+			* [Append-many Tag](#ref.ops.append-many)
+			* [Prepend Tag](#ref.ops.prepend)
+			* [Prepend-many Tag](#ref.ops.prepend-many)
+			* [Pop-first Tag](#ref.ops.pop-first)
+			* [Pop-first-many Tag](#ref.ops.pop-first-many)
+			* [Pop-last Tag](#ref.ops.pop-last)
+			* [Pop-last-many Tag](#ref.ops.pop-last-many)
+			* [Pop Tag](#ref.ops.pop)
+			* [Shuffle Tag](#ref.ops.shuffle)
 	* [Event Tags](#ref.event)
 		* [Emit Tag](#ref.event.emit)
 			* [On-success Tag](#ref.event.emit.on-success)
@@ -2197,6 +2207,118 @@ If the second syntax `[copy-within *$var* => *$into*]` is used, the *$var* array
 instead the result is stored into the *$into* variable.
 
 See more [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin).
+
+
+
+<a name="ref.ops.append"></a>
+## [append *$var*]
+
+* types: run
+* attribute style: var
+* content type: any
+
+The *append* tag append its content to the *$var* array.
+
+
+
+<a name="ref.ops.append-many"></a>
+## [append-many *$var*]
+
+* types: run
+* attribute style: var
+* content type: Array
+
+The *append-many* tag append all elements of the array passed as its content to the *$var* array.
+
+
+
+<a name="ref.ops.prepend"></a>
+## [prepend *$var*]
+
+* types: run
+* attribute style: var
+* content type: any
+
+The *prepend* tag prepend its content to the *$var* array (insert it at the begining of the array).
+
+
+
+<a name="ref.ops.prepend-many"></a>
+## [prepend-many *$var*]
+
+* types: run
+* attribute style: var
+* content type: Array
+
+The *prepend-many* tag prepend all elements of the array passed as its content to the *$var* array (insert them at the begining of the array).
+
+
+
+<a name="ref.ops.pop-first"></a>
+## [pop-first *$var*] / [pop-first *$var* => *$extracted*]
+
+* types: run
+* attribute style: pop operators
+* content type: none
+
+The *pop-first* extracts the first element from the *$var* array (i.e. it removes the first element from *$var*), and stores it
+into the *$extracted* variable (if second syntax is used).
+
+
+
+<a name="ref.ops.pop-first-many"></a>
+## [pop-first-many *$var*] / [pop-first-many *$var* => *$extracted*]
+
+* types: run
+* attribute style: pop operators
+* content type: integer
+
+The *pop-first-many* extracts many elements from the begining of the *$var* array (i.e. it removes them from *$var*).
+The number of elements to extracts is specified as the tag's content.
+If the second syntax is used, those elements are stored into an array set to the *$extracted* variable.
+
+
+
+<a name="ref.ops.pop-last"></a>
+## [pop-last *$var*] / [pop-last *$var* => *$extracted*]
+
+* types: run
+* attribute style: pop operators
+* content type: none
+
+The *pop-last* extracts the last element from the *$var* array (i.e. it removes the last element from *$var*), and stores it
+into the *$extracted* variable (if second syntax is used).
+
+
+
+<a name="ref.ops.pop-last-many"></a>
+## [pop-last-many *$var*] / [pop-last-many *$var* => *$extracted*]
+
+* types: run
+* attribute style: pop operators
+* content type: integer
+
+The *pop-last-many* extracts many elements from the end of the *$var* array (i.e. it removes them from *$var*).
+The number of elements to extracts is specified as the tag's content.
+If the second syntax is used, those elements are stored into an array set to the *$extracted* variable.
+
+
+
+<a name="ref.ops.pop"></a>
+## [pop *$var*] / [pop *$var* => *$extracted*]
+
+Alias of [the *pop-last* tag](#ref.ops.pop-last).
+
+
+
+<a name="ref.ops.shuffle"></a>
+## [shuffle *$var*]
+
+* types: run
+* attribute style: var
+* content type: none
+
+The *shuffle* tag shuffles the *$var* array in-place, making all elements of the array in a random order.
 
 
 
