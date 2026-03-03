@@ -8,6 +8,11 @@
 		defense: 2
 		damage: 3
 		health: 5
+	card-piles:
+		- draw
+		- hand
+		- discard
+		- exhaust
 
 [item-class card]
 	name: Card

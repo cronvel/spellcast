@@ -2309,6 +2309,10 @@ describe( "Entity, Item, Place, StatsTable and ModifiersTable" , () => {
 				//console.log( item['card-piles-mods'].play['card-piles.play.attack'] ) ;
 				expect( item['card-piles-mods'].play['card-piles.play.defense'].plus.operand ).to.be( 5 ) ;
 			} ) ;
+
+			book.unitTest.ensureOnce( 'entity-deck-equipped' , entity => {
+				expect( [ ... entity['equipped-items'].deck ] ).to.equal( [ strikeItem , defenseItem ] ) ;
+			} ) ;
 		} ) ;
 	} ) ;
 } ) ;
